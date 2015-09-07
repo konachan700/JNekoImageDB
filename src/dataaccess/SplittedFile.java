@@ -122,7 +122,7 @@ public class SplittedFile {
         return errcode;
     }
     
-    public synchronized byte[] ReadFileSector(String filename, long sector_num) {
+    public synchronized byte[] ReadFileSector(String filename, long sector_numx) {
         errcode = 0;
         if (!fileCrypto.isValidKey()) {
             errcode = ERRCODE_INVALID_CRYPT_KEY;
@@ -130,7 +130,8 @@ public class SplittedFile {
             return null;
         }
         
-        final long fileNameTail = sector_num / ONE_PART_SIZE;
+        final long fileNameTail = sector_numx / ONE_PART_SIZE;
+        final long sector_num = sector_numx - (fileNameTail * ONE_PART_SIZE);
         
         try {
             final FileInputStream fis;
@@ -138,7 +139,7 @@ public class SplittedFile {
                 fis = rfiles.get(fileNameTail);
             } else {
                 __checkDir();
-                fis = new FileInputStream(__getFileName(filename, sector_num));
+                fis = new FileInputStream(__getFileName(filename, sector_numx));
                 rfiles.put(fileNameTail, fis);
             }
             
@@ -149,7 +150,7 @@ public class SplittedFile {
             int counter = fc.read(bb);
             if (counter != SECTOR_SIZE) {
                 errcode = ERRCODE_INCORRECT_SECTOR_SIZE;
-                _L("SplittedFile ERRCODE_INCORRECT_SECTOR_SIZE");
+                _L("SplittedFile ERRCODE_INCORRECT_SECTOR_SIZE "+counter);
                 return null;
             } else {
                 final byte[] ret_crypto = fileCrypto.Decrypt(bb.array());
