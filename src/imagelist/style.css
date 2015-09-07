@@ -1,0 +1,72 @@
+.ImageListX ImageView:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 0, 0.75) , 0,0,0,1 );
+}
+
+.ImageListX, .ImageListX:hover {
+    -fx-padding: 2px;
+    -fx-background-color: #555;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+.ImageListX {
+    -fx-border-color: #999;
+    
+}
+
+.ImageListX:hover {
+    -fx-border-color: #5f5;
+}
+
+/* The main scrollbar **track** CSS class  */
+.ImageList {
+    -fx-padding:8;
+    -fx-background-color:#222;
+}
+
+.ImageList .scroll-bar:horizontal .track,
+.ImageList .scroll-bar:vertical .track{
+	-fx-background-color:#222;
+	-fx-border-color:#555;
+	-fx-background-radius: 0em;
+	-fx-border-radius:2em;
+        
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+.ImageList .scroll-bar:horizontal .increment-button ,
+.ImageList .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 0 10 0;
+
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+
+.ImageList .scroll-bar:vertical .increment-button ,
+.ImageList .scroll-bar:vertical .decrement-button {
+
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 10 0 0;
+
+}
+
+.ImageList  .scroll-bar .increment-arrow,
+.ImageList  .scroll-bar .decrement-arrow 
+ {
+	-fx-shape: " ";	
+	-fx-padding:0;
+}
+
+/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+.ImageList .scroll-bar:horizontal .thumb,
+.ImageList .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+	-fx-background-insets: 2, 0, 0;
+	-fx-background-radius: 2em;
+
+}

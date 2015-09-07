@@ -1,0 +1,65 @@
+/* The main scrollbar **track** CSS class  */
+//.text-area, .text-area .viewport, .text-area .content
+
+.logbox {
+    -fx-padding:12;
+}
+
+.logbox, .logbox .viewport, logbox .scroll-pane {
+    -fx-background-color:#222;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+    -fx-border-radius: 4;
+}
+
+.logbox .content {
+    -fx-background-color:#222;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+}
+
+
+.logbox .scroll-bar:horizontal .track,
+.logbox .scroll-bar:vertical .track{
+	-fx-background-color:#222;
+	-fx-border-color:#555;
+	-fx-background-radius: 0em;
+	-fx-border-radius:2em;
+        
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+.logbox .scroll-bar:horizontal .increment-button ,
+.logbox .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 0 10 0;
+
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+
+.logbox .scroll-bar:vertical .increment-button ,
+.logbox .scroll-bar:vertical .decrement-button {
+
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 10 0 0;
+
+}
+
+.logbox  .scroll-bar .increment-arrow,
+.logbox  .scroll-bar .decrement-arrow 
+ {
+	-fx-shape: " ";	
+	-fx-padding:0;
+}
+
+/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+.logbox .scroll-bar:horizontal .thumb,
+.logbox .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+	-fx-background-insets: 2, 0, 0;
+	-fx-background-radius: 2em;
+
+}

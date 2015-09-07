@@ -1,0 +1,162 @@
+.AlbumImageList {
+    -fx-background-radius: 4;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-color: #222;
+}
+
+.tabsHBox {
+    -fx-background-color: #222;
+    -fx-border-width: 2 0 0 0;
+    -fx-border-color:#555;
+    -fx-padding: 0;
+}
+
+.tabLabelA {
+    -fx-font-size: 16px;
+    -fx-font-weight:bold;
+    -fx-text-fill: #ddd;
+    -fx-background-color: #481818;
+    -fx-border-color:#555;
+    -fx-border-width: 0 0 1 3;
+    -fx-border-radius: 0 0 0 4;
+    -fx-background-radius: 0 0 0 4;
+    //-fx-underline: true;
+}
+
+.tabLabelB {
+    -fx-font-size: 16px;
+    -fx-font-weight:bold;
+    -fx-text-fill: #ddd;
+    -fx-background-color: #184818;
+    -fx-border-color:#555;
+    -fx-border-width: 0 3 1 0;
+    -fx-border-radius: 0 0 4 0;
+    -fx-background-radius: 0 0 4 0;
+    //-fx-underline: true;
+}
+
+.tabLabelA:hover, .tabLabelB:hover {
+    -fx-background-color: #555;
+}
+
+
+.sroll_pane, .sroll_pane .viewport {
+    -fx-background-radius: 4;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-color: #222;
+}
+
+.sroll_pane .corner {
+    -fx-background-insets: 0;
+}
+
+.mainPane {
+    -fx-background-radius: 4;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-color: #222;
+}
+
+.toolbox {
+    -fx-background-radius: 4;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-color: #222;
+}
+
+.txtAddNew { 
+    -fx-padding: 0 0 0 24;
+    -fx-background-color: #fff;
+    -fx-background-radius: 4 0 0 4;
+    -fx-font-size: 24px;
+    -fx-font-weight:bold;
+    -fx-text-fill: #555;
+}
+
+.ImgButtonR {
+    -fx-padding: 0px;
+    -fx-background-color: #481818;
+    -fx-background-radius: 0 4 4 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.ImgButtonR:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+.itemHBox, .itemLabel {
+    -fx-padding: 0px;
+    -fx-background-color: #444;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-text-fill: #fff;
+}
+
+.itemLabel:hover {
+    -fx-background-color: #888;
+}
+
+.itemButton {
+    -fx-padding: 0px;
+    -fx-background-color: #444;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.itemButton:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+.sroll_pane .scroll-bar:horizontal .track,
+.sroll_pane .scroll-bar:vertical .track{
+	-fx-background-color:#222;
+	-fx-border-color:#555;
+	-fx-background-radius: 0em;
+	-fx-border-radius:2em;
+        
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+.sroll_pane .scroll-bar:horizontal .increment-button ,
+.sroll_pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 0 10 0;
+
+}
+
+/* The increment and decrement button CSS class of scrollbar */
+
+.sroll_pane .scroll-bar:vertical .increment-button ,
+.sroll_pane .scroll-bar:vertical .decrement-button {
+
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 10 0 0;
+
+}
+
+.sroll_pane  .scroll-bar .increment-arrow,
+.sroll_pane  .scroll-bar .decrement-arrow 
+ {
+	-fx-shape: " ";	
+	-fx-padding:0;
+}
+
+/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+.sroll_pane .scroll-bar:horizontal .thumb,
+.sroll_pane .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+	-fx-background-insets: 2, 0, 0;
+	-fx-background-radius: 2em;
+
+}
