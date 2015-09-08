@@ -3,6 +3,7 @@ package imagelist;
 import dataaccess.ImageEngine;
 import dataaccess.SQLite;
 import dialogs.DYesNo;
+import dialogs.PleaseWait;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +25,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -72,6 +74,16 @@ public class ImageList extends FlowPane {
     private SmallPaginator
             xPag = null;
     
+    private final PleaseWait 
+            PW;
+    
+    private final Pane
+            xParent;
+    
+    private final StringBuilder
+            logtxt = new StringBuilder(),
+            toptxt = new StringBuilder();
+    
     private HBox 
             topPanel = new HBox(2),
             paginatorPanel = new HBox(2);
@@ -92,11 +104,24 @@ public class ImageList extends FlowPane {
                 }
             };
     
-    private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(400), ae -> {
+    private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
         resizeTmr();
     }));
     
     private void resizeTmr() {
+        if (isProcessRunning == 1) {
+            toptxt.delete(0, toptxt.length());
+            toptxt
+                    .append("Memory use: ")
+                    .append((Runtime.getRuntime().totalMemory()) / (1024 * 1024))
+                    .append("MB; My I/O:")
+                    .append((IMG.getIOPS_W() + IMG.getIOPS_R()) / 1024)
+                    .append(" kBps; ")
+                    ;
+            PW.Update();
+            return;
+        }
+
         if (is_resized == 0) return;
                 
         final double
@@ -188,7 +213,7 @@ public class ImageList extends FlowPane {
         return topPanel;
     }
     
-    public ImageList(ImageEngine im, SQLite sql) {
+    public ImageList(ImageEngine im, SQLite sql, Pane parent) {
         super(Orientation.HORIZONTAL);
         this.setVgap(8);
         this.setHgap(8);
@@ -200,6 +225,7 @@ public class ImageList extends FlowPane {
         
         IMG = im;
         SQL = sql;
+        xParent = parent;
 
         xPag = new SmallPaginator((int page) -> {
             currentPage = page;
@@ -238,7 +264,11 @@ public class ImageList extends FlowPane {
         _s2(selallImg, sz, sz);
         _s2(selnoneImg, sz, sz);
         
+        PW = new PleaseWait(xParent, toptxt, logtxt);
+        
         toTempImg.setOnMouseClicked((MouseEvent event) -> {
+            if (isProcessRunning == 1) return;
+            
             if (selectedItems.size() <= 0) return;
             final DYesNo d = new DYesNo(topPanel, 
                     new DYesNo.DYesNoActionListener() {
@@ -252,6 +282,22 @@ public class ImageList extends FlowPane {
                     }, "Процесс может занять длительное время. Продолжить?");           
             event.consume();
         }); 
+        
+        selnoneImg.setOnMouseClicked((MouseEvent event) -> {
+            if (isProcessRunning == 1) return;
+            
+            selectedItems.clear();
+            is_resized = 1;
+            event.consume();
+        });
+        
+        selallImg.setOnMouseClicked((MouseEvent event) -> {
+            if (isProcessRunning == 1) return;
+            
+            _selectAll();
+            is_resized = 1;
+            event.consume();
+        });
 
         topPanel.getChildren().addAll(addtagImg, deltagImg, getSeparator1(8), selallImg, selnoneImg, getSeparator1(), toAlbImg, toTempImg);
         
@@ -275,6 +321,8 @@ public class ImageList extends FlowPane {
         });
         
         this.setOnScroll((ScrollEvent event) -> {
+            if (isProcessRunning == 1) return;
+            
             scrollNum = scrollNum + event.getDeltaY();
             if (scrollNum >= 60) {
                 if (xPag != null) xPag.Prev();
@@ -292,26 +340,56 @@ public class ImageList extends FlowPane {
         final Task taskForPage = new Task<Void>() {
             @Override 
             public Void call() {
-                long xt = new Date().getTime();
+//                long xt = new Date().getTime();
                 if (isProcessRunning == 1) return null;
                 isProcessRunning = 1;
-                
                 
                 String path = SQL.ReadAPPSettingsString("ff_uploadPath"); 
                 if ((path.length() > 0) && (new File(path).canWrite()) && (new File(path).isDirectory())) {
                     selectedItems.stream().forEach((l) -> {
-                        IMG.DownloadImageToFS(l, path);
+                        int ix = IMG.DownloadImageToFS(l, path);
+                        logtxt.append("File: [").append(path).append((ix == 0) ? "] OK\n" : "] FAILED\n");
                     });
                 } else {
                     JNekoImageDB.L("Папка выгрузки не существует или недоступна для записи!");
                 }
 
+                PW.setVis(false);
                 selectedItems.clear();
                 is_resized = 1;
                 isProcessRunning = 2;
                 return null;
             }
         };
+        PW.setVis(true);
+        final Thread t = new Thread(taskForPage);
+        t.setDaemon(true);
+        t.start();
+    }
+    
+    private void _selectAll() {
+        final Task taskForPage = new Task<Void>() {
+            @Override 
+            public Void call() {
+                if (isProcessRunning == 1) return null;
+                isProcessRunning = 1;
+
+                logtxt.append("Получаю список изображений...");
+                selectedItems.clear();
+                if (albumID == 0) 
+                    selectedItems.addAll(IMG.getImages("ORDER BY oid DESC;"));
+                else {
+                    int cnt = (int) IMG.getWr().getImagesCountInAlbum(albumID);
+                    selectedItems.addAll(IMG.getWr().getImagesByGroupOID(albumID, 0, cnt));
+                }
+                
+                PW.setVis(false);
+                is_resized = 1;
+                isProcessRunning = 2;
+                return null;
+            }
+        };
+        PW.setVis(true);
         final Thread t = new Thread(taskForPage);
         t.setDaemon(true);
         t.start();

@@ -34,3 +34,105 @@
     -fx-border-radius: 0;
     -fx-border-color:#700;
 }
+
+.please_wait_c {
+    -fx-background-color: #222;
+    -fx-padding: 16px;
+}
+
+.please_wait_c .VBox {
+    -fx-background-color: #222;
+}
+
+.please_wait_c_label {
+    -fx-font-weight:bold; 
+    -fx-font-size: 16px;
+}
+
+.please_wait_c_currentSystemLoad {
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #000;
+}
+
+.please_wait_c_logbox {
+    -fx-padding:12;
+}
+
+.please_wait_c_logbox, .please_wait_c_logbox .viewport, please_wait_c_logbox .scroll-pane {
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+    -fx-border-radius: 4;
+    -fx-padding:0 0 0 0;
+    -fx-background-color:#222;
+    -fx-margin: 0px;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 6;
+}
+
+.please_wait_c_logbox .content {
+    -fx-background-color:#000;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+}
+
+.please_wait_c_logbox .scroll-bar:horizontal .track,
+.please_wait_c_logbox .scroll-bar:vertical .track{
+	-fx-background-color:#222;
+	-fx-border-color:#555;
+	-fx-background-radius: 0em;
+	-fx-border-radius:2em;
+        
+}
+
+.please_wait_c_logbox .scroll-bar:horizontal .increment-button ,
+.please_wait_c_logbox .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 0 10 0;
+
+}
+
+.please_wait_c_logbox .scroll-bar:vertical .increment-button ,
+.please_wait_c_logbox .scroll-bar:vertical .decrement-button {
+
+    -fx-background-color:#000;
+	-fx-background-radius: 0em;
+	-fx-padding:0 10 0 0;
+
+}
+
+.please_wait_c_logbox  .scroll-bar .increment-arrow,
+.please_wait_c_logbox  .scroll-bar .decrement-arrow 
+ {
+	-fx-shape: " ";	
+	-fx-padding:0;
+}
+
+.please_wait_c_logbox .scroll-bar:horizontal .thumb,
+.please_wait_c_logbox .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+	-fx-background-insets: 2, 0, 0;
+	-fx-background-radius: 2em;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

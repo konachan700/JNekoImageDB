@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
@@ -29,11 +30,11 @@ public class AlbumImageList extends VBox {
     
     private final SQLite SQL;
     
-    public AlbumImageList(ImageEngine im, SQLite sql) {
+    public AlbumImageList(ImageEngine im, SQLite sql, Pane parent) {
         super(2);
         IM = im;
         SQL = sql;
-        IML = new ImageList(IM, SQL);
+        IML = new ImageList(IM, SQL, parent);
         init();
     }
     

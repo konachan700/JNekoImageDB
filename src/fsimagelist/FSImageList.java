@@ -608,17 +608,17 @@ public class FSImageList extends ScrollPane{
   
     private long __get_id_by_MD5(byte[] md5r) {
         try {
-                PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'previews_files' WHERE md5=?;");
-                ps.setBytes(1, md5r);
-                ResultSet rs = ps.executeQuery();
-                if (rs != null) {
-                    final long idid = rs.getLong("idid");
-                    if (idid > 0)
-                        return idid;
-                    else 
-                        return -1;
-                }
-                return -1;
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'previews_files' WHERE md5=?;");
+            ps.setBytes(1, md5r);
+            ResultSet rs = ps.executeQuery();
+            if (rs != null) {
+                final long idid = rs.getLong("idid");
+                if (idid > 0)
+                    return idid;
+                else 
+                    return -1;
+            }
+            return -1;
         } catch (SQLException ex) {
             return -1;
         }

@@ -34,7 +34,7 @@ public class ImageEngine {
             ALBUM_ID_FAVORITES = 99998;
         
     private final SQLite 
-            SQL;// = new SQLite();
+            SQL;
     
     private final ImageEngineSQLWrappers
             wrappers;
@@ -45,13 +45,6 @@ public class ImageEngine {
     
     private final Crypto
             CRYPT;
-    
-    /****************************************************
-     * TODO:
-     * Добавить таблицу базовой метаинформации, то есть | ID | W | H | (H*W) | (W/H) | bpp | (H*W*bpp) | act_size | name_md5 |  
-     * ибо без этого поиск будет делать невозможно. 
-     * Поле name_md5 нужно для игнорирования дубликатов на этапе перебора файлов, так как пересчет md5 кажого файла весьма ресурсоемкое дело.
-     ****************************************************/
 
     public final static int
             SMALL_PREVIEW_SIZE      = 128,
@@ -272,7 +265,6 @@ public class ImageEngine {
                     out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, sizeW, Scalr.OP_ANTIALIAS);
                     crop_img = Scalr.crop(out_img, sizeW, sizeH, Scalr.OP_ANTIALIAS);
                 }
-                //System.err.println("out_img H="+out_img.getHeight()+"; W="+out_img.getWidth()+"; crop_img H="+crop_img.getHeight()+"; W="+crop_img.getWidth());
                 
                 return crop_img;
             } else {
