@@ -95,7 +95,7 @@ public class SQLiteFS {
     
     public boolean isMD5Present(byte[] md5) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM FS_"+DBNameE+"_files' WHERE md5=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'FS_"+DBNameE+"_files' WHERE md5=?;");
             ps.setBytes(1, md5);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {

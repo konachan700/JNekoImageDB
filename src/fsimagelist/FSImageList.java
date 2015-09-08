@@ -326,15 +326,15 @@ public class FSImageList extends ScrollPane{
             @SuppressWarnings("UnnecessaryUnboxing") // Типичный костыль. Но как сделать иначе - не знаю.
             int tval1 = new Integer(counterV).intValue();
             
-            final File fx = new File(currentPath + "/" + files[counter]);
-            if (ImageEngine.isImage(currentPath + "/" + files[counter]) || fx.isDirectory()) {
+            final File fx = new File(currentPath + File.separator + files[counter]);
+            if (imgEn.isImage(currentPath + File.separator + files[counter]) || fx.isDirectory()) {
                 if (fx.isDirectory()) {
                     if (fx.canRead())
                         Platform.runLater(() -> { itemsZ.get(tval1).setInitInfo(fok, fx, true); });
                     else
                         Platform.runLater(() -> { itemsZ.get(tval1).setInitInfo(fna, fx, true); });
                 } else {
-                    final byte[] md5e = Crypto.MD5(fx.getName().getBytes());
+                    final byte[] md5e = Crypto.MD5(fx.getAbsolutePath().getBytes());
                     final long IID = __get_id_by_MD5(md5e);
                     if (IID != -1) {
                         final Image imgc = ImagesFS.PopImage(IID);
