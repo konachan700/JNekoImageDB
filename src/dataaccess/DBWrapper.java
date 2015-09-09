@@ -14,6 +14,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
@@ -21,6 +23,10 @@ import javax.imageio.stream.ImageInputStream;
 import jnekoimagesdb.JNekoImageDB;
 import menulist.MenuGroupItem;
 import org.apache.commons.io.FilenameUtils;
+/*
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    TODO: ПРИДЕЛАТЬ СЧЕТЧИК ЗАПРОСОВ К БД!
+*/
 
 public class DBWrapper {
     private static volatile Crypto          xCrypto     = null;
@@ -44,6 +50,156 @@ public class DBWrapper {
         MGI = m;
     }
     
+    
+    
+    
+    public static BufferedImage getPrerview(DBImageX dbe) {
+        try {
+            final byte[] img_t = IM.getThumbsFS().PopFile(dbe.prev_oid);
+            if (img_t == null) {
+                return null;
+            }
+
+            final ByteArrayInputStream img_b = new ByteArrayInputStream(img_t);
+            final BufferedImage ret_img = ImageIO.read(img_b);
+
+            final MediaTracker mediaTracker = new MediaTracker(new Container()); 
+            mediaTracker.addImage(ret_img, 0); 
+            mediaTracker.waitForAll();
+
+            return ret_img;
+        } catch (IOException | InterruptedException ex) {
+            _L("getPrerview ERROR: "+ex.getMessage());
+            return null;
+        }
+    }
+    
+    public static synchronized ArrayList<DBImageX> getImagesX(long album_id, long start, long limit) {
+        try {
+            PreparedStatement ps;
+            if ((album_id != -1)) {
+                ps = SQL.getConnection().prepareStatement(
+                        "SELECT " 
+                                + "FS_preview_files.oid                 AS prev_oid, "
+                                + "FS_preview_files.md5                 AS prev_md5, "
+                                + "FS_preview_files.startSector         AS prev_startSector, "
+                                + "FS_preview_files.sectorSize          AS prev_sectorSize, "
+                                + "FS_preview_files.actualSize          AS prev_actualSize, "
+                                + "FS_preview_files.fileName            AS prev_fileName, "
+                                + "previews_list.oid                    AS pl_oid, "
+                                + "previews_list.idid                   AS pl_idid, "
+                                + "previews_list.pdid                   AS pl_pdid, "
+                                + "previews_list.imgtype                AS pl_imgtype, "
+                                + "images_albums.oid                    AS ia_oid, "
+                                + "images_albums.imgoid                 AS ia_imgoid, "
+                                + "images_albums.alboid                 AS ia_alboid "
+                                +
+                        "FROM "
+                                + "previews_list "
+                                + 
+                        "LEFT JOIN "
+                                + "FS_preview_files, "
+                                + "images_albums "
+                                +
+                        "ON "
+                                + "previews_list.pdid=FS_preview_files.oid "
+                                + "AND "
+                                + "previews_list.idid=images_albums.imgoid "
+                                +
+                        "WHERE "
+                                + "previews_list.imgtype=? "
+                                + ((album_id != -1) ?
+                                  "AND "
+                                + "images_albums.imgoid=? " : "")
+                                + 
+                        "LIMIT "
+                                + "?,?; ");
+
+                ps.setLong(1, ImageEngine.PREVIEW_TYPE_SMALL);
+                ps.setLong(2, album_id);
+                ps.setLong(3, start);
+                ps.setLong(4, limit);
+            } else {
+                ps = SQL.getConnection().prepareStatement(
+                        "SELECT " 
+                                + "FS_preview_files.oid                 AS prev_oid, "
+                                + "FS_preview_files.md5                 AS prev_md5, "
+                                + "FS_preview_files.startSector         AS prev_startSector, "
+                                + "FS_preview_files.sectorSize          AS prev_sectorSize, "
+                                + "FS_preview_files.actualSize          AS prev_actualSize, "
+                                + "FS_preview_files.fileName            AS prev_fileName, "
+                                + "previews_list.oid                    AS pl_oid, "
+                                + "previews_list.idid                   AS pl_idid, "
+                                + "previews_list.pdid                   AS pl_pdid, "
+                                + "previews_list.imgtype                AS pl_imgtype "
+                                +
+                        "FROM "
+                                + "previews_list "
+                                + 
+                        "LEFT JOIN "
+                                + "FS_preview_files "
+                                +
+                        "ON "
+                                + "previews_list.pdid=FS_preview_files.oid "
+                                +
+                        "WHERE "
+                                + "previews_list.imgtype=? "
+                                + 
+                        "LIMIT "
+                                + "?,?; ");
+                
+                ps.setLong(1, ImageEngine.PREVIEW_TYPE_SMALL);
+                ps.setLong(2, start);
+                ps.setLong(3, limit);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs != null) {
+                final ArrayList<DBImageX> db = new ArrayList<>();
+                while (rs.next()) {
+                    DBImageX dbe            = new DBImageX();
+                    dbe.pl_idid             = rs.getLong("pl_idid");
+                    dbe.pl_imgtype          = rs.getLong("pl_imgtype");
+                    dbe.pl_oid              = rs.getLong("pl_oid");
+                    dbe.pl_pdid             = rs.getLong("pl_pdid");
+                    dbe.prev_actualSize     = rs.getLong("prev_actualSize");
+                    dbe.prev_oid            = rs.getLong("prev_oid");
+                    dbe.prev_sectorSize     = rs.getLong("prev_sectorSize");
+                    dbe.prev_startSector    = rs.getLong("prev_startSector");
+                    dbe.prev_fileName       = rs.getBytes("prev_fileName");
+                    dbe.prev_md5            = rs.getBytes("prev_md5");
+                    
+                    if ((album_id != -1)) {
+                        dbe.ia_alboid       = rs.getLong("ia_alboid");
+                        dbe.ia_imgoid       = rs.getLong("ia_imgoid");
+                        dbe.ia_oid          = rs.getLong("ia_oid");
+                    } else {
+                        dbe.ia_alboid       = -1;
+                        dbe.ia_imgoid       = -1;
+                        dbe.ia_oid          = -1;
+                    }
+                    
+                    db.add(dbe);
+                }
+                return db;
+            }
+        } catch (SQLException ex) { 
+            _L("getImagesX ERROR: "+ex.getMessage());
+        }
+        return null;
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public static synchronized int writeImageMetadataToDB(String path, long oid) {
         final String ext = FilenameUtils.getExtension(path);
         if (ext.length() < 2) return -1;
@@ -63,7 +219,7 @@ public class DBWrapper {
                 long
                         wh2 = width * height;
                 
-                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO 'images_basic_meta' VALUES(?, ?, ?, ?, ?, ?, ?);");
+                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"images_basic_meta"+SQLite.QUOTE+" VALUES(?, ?, ?, ?, ?, ?, ?);");
                 final long tmr = new Date().getTime();
                 ps.setLong(1, tmr);
                 ps.setLong(2, oid);
@@ -73,7 +229,7 @@ public class DBWrapper {
                 ps.setLong(6, wh2);
                 ps.setBytes(7, Crypto.MD5(path.getBytes()));
                 ps.execute();
-                
+                Sleep(2);
                 r.dispose();
                 
                 return 0;
@@ -108,6 +264,7 @@ public class DBWrapper {
             ps.setLong(3, previewID);
             ps.setLong(4, type);
             ps.execute();
+            Sleep(2);
             return 0;
         } catch (SQLException ex) { _L(ex.getMessage()); }
         return -1;
@@ -165,14 +322,14 @@ public class DBWrapper {
             ps.setString(1, optName);
             ps.setString(2, value); 
             ps.execute();
-            SQL.getConnection().commit();
+//            SQL.getConnection().commit();
         } catch (SQLException ex) {
             try {
                 PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE "+SQLite.QUOTE+"StringSettings"+SQLite.QUOTE+" SET xvalue=? WHERE xname=?;");
                 ps.setString(1, value);
                 ps.setString(2, optName);
                 ps.execute();
-                SQL.getConnection().commit();
+//                SQL.getConnection().commit();
             } catch (SQLException ex1) {
                 _L("WriteAPPSettingsString ERROR: "+ex.getMessage());
             }
@@ -309,9 +466,9 @@ public class DBWrapper {
             ps.setLong(2, imgOID);
             ps.setLong(3, groupOID);
             ps.execute();
-            Thread.sleep(2); // необходимо для того, чтобы все ID были уникальными. Костыль.
+            Sleep(2);
             return 0;
-        } catch (SQLException | InterruptedException ex) { 
+        } catch (SQLException ex) { 
             _L("setImageGroupID ERROR: "+ex.getMessage());
         } 
         
@@ -326,6 +483,7 @@ public class DBWrapper {
             ps.setLong(2, imgID);
             ps.setBytes(3, md5);
             ps.execute();
+            Sleep(2);
             return 0;
         } catch (SQLException ex) { 
             _L("addPreviewAssoc ERROR: "+ex.getMessage());
@@ -381,12 +539,18 @@ public class DBWrapper {
             ps.setInt(2, state);
             ps.setLong(3, ID);
             ps.execute();
-
+            Sleep(2);
             return 0;
         } catch (SQLException  ex) {
             _L("saveAlbumsCategoryChanges ERROR: "+ex.getMessage());
             return -1;
         }
+    }
+    
+    public static void Sleep(long l) {
+        try {
+            Thread.sleep(l);
+        } catch (InterruptedException ex) { }
     }
     
     private static void _L(String s) {

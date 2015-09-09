@@ -22,6 +22,9 @@ import javafx.scene.image.Image;
 import jnekoimagesdb.JNekoImageDB;
 
 public class SQLiteFS {   
+    private static volatile long gcCounter = 0;
+    
+    
     private final SQLite 
             SQL;// = new SQLite();
     
@@ -40,7 +43,7 @@ public class SQLiteFS {
         FILE = new SplittedFile(k);
         SQL = sql;
 
-        SQL.ExecuteSQL("CREATE TABLE if not exists "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" (oid bigint not null primary key, md5 BINARY(16), startSector bigint, sectorSize int, actualSize int, fileName BINARY(512));");
+        SQL.ExecuteSQL("CREATE TABLE if not exists "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" (oid bigint not null primary key, md5 BINARY(16), startSector bigint, sectorSize int, actualSize int, fileName BINARY(240));");
     }
 
     public SQLite GetSQL() {
@@ -109,6 +112,49 @@ public class SQLiteFS {
         } catch (SQLException ex) { }
         return false;
     }
+    
+    public synchronized byte[] PopPrewievFile(DBImageX dbe) {
+        try {
+            byte md5[];
+            final ByteArrayOutputStream md5e = new ByteArrayOutputStream();
+            final ByteArrayOutputStream read_buf = new ByteArrayOutputStream();
+
+            final long 
+                    st_sector = dbe.prev_startSector,
+                    sz_sector = dbe.prev_sectorSize,
+                    act_size  = dbe.prev_actualSize;
+
+            final byte[] md5_sql = dbe.prev_md5;
+
+            if ((sz_sector <= 0) || (act_size <= 0)) {
+                _L("Invalid database record; null file;");
+                return null;
+            }
+
+            for (long i=st_sector; i<(st_sector + sz_sector); i++) {
+                final byte[] buf_w = FILE.ReadFileSector(DBNameE, (int)i);
+                read_buf.write(buf_w); 
+                md5e.write(Crypto.MD5(buf_w));
+            }
+
+            md5 = Crypto.MD5(md5e.toByteArray());
+            md5e.reset();
+            if (!Arrays.equals(md5, md5_sql)) {
+                _L("Invalid database record; md5 incorrect");
+                return null;
+            }
+
+            final byte[] ret = new byte[(int)act_size];
+            System.arraycopy(read_buf.toByteArray(), 0, ret, 0, (int)act_size);
+            read_buf.reset();
+
+            return ret;
+        } catch (IOException ex) {
+            _L(ex.getMessage());
+            return null;
+        }
+    }
+    
     
     public synchronized byte[] PopFile(long oid) {
         final long maxMemory = Runtime.getRuntime().maxMemory();
@@ -228,10 +274,10 @@ public class SQLiteFS {
         }
     }
 
-    public synchronized long PushFileMT(byte[] file) {
+    public synchronized long PushFileMT(byte[] file, byte[] md5HashX) {
         final long realSize = file.length; 
         final long sectorSize = (realSize / SplittedFile.SECTOR_SIZE) + (((realSize % SplittedFile.SECTOR_SIZE) > 0) ? 1 : 0);
-        final byte[] md5Hash = getFileMD5MT(file, sectorSize);
+        final byte[] md5Hash = (md5HashX != null) ? md5HashX : getFileMD5MT(file, sectorSize);
 
         final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, "NULL-PREVIEW", md5Hash);
         if (allocInfo == null) {
@@ -248,11 +294,17 @@ public class SQLiteFS {
             FILE.WriteFileSector(DBNameE, (int)(i), sectorBuffer);
         }
         
+        gcCounter++;
+        if (gcCounter >= 24) {
+            System.gc();
+            gcCounter = 0;
+        }
+        
         return myID;
     }
     
     @SuppressWarnings("ConvertToTryWithResources")
-    public synchronized long PushFileMT(String fileName) {
+    public synchronized long PushFileMT(String fileName, byte[] md5HashX) {
         final File file = new File(fileName);
         if ((!file.canRead()) || (!file.isFile())) {
             _L("PushFileMT(): ["+fileName+"] no a regular file.");
@@ -261,7 +313,8 @@ public class SQLiteFS {
         
         final long realSize = file.length();
         final long sectorSize = (realSize / SplittedFile.SECTOR_SIZE) + (((realSize % SplittedFile.SECTOR_SIZE) > 0) ? 1 : 0);
-        final byte[] md5Hash = getFileMD5MT(fileName);
+        //final byte[] md5Hash = getFileMD5MT(fileName);
+        final byte[] md5Hash = (md5HashX != null) ? md5HashX : getFileMD5MT(fileName);
 
         final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, file.getName(), md5Hash);
         if (allocInfo == null) {
@@ -285,6 +338,12 @@ public class SQLiteFS {
             }
 
             fis.close();
+            
+            gcCounter++;
+            if (gcCounter >= 24) {
+                System.gc();
+                gcCounter = 0;
+            }
             
             return myID;
         } catch (IOException ex) {

@@ -1,5 +1,6 @@
 package imagelist;
 
+import dataaccess.DBImageX;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dataaccess.SQLite;
@@ -159,33 +160,32 @@ public class ImageList extends FlowPane {
             public Void call() {
                 while (images_count == 0) {}
                 Platform.runLater(() -> {
-                    ArrayList<Long> all;
-                    if (albumID == 0) {
-                        all = IMG.getImages("ORDER BY oid DESC LIMIT "+(currentPage*images_count)+","+images_count+";");
+                    ArrayList<DBImageX> d;
+                    if (albumID == 0){
+                        d = DBWrapper.getImagesX(-1, (currentPage*images_count), images_count);
                         totalImagesCount = (int) IMG.getImgCount();
-                        currCountLabel.setText(totalImagesCount+" images");
-                    } else {
-                        all = DBWrapper.getImagesByGroupOID(albumID, currentPage, images_count); 
-                        totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
-                        currCountLabel.setText(totalImagesCount+" images");
                     }
-                    
+                    else {
+                        d = DBWrapper.getImagesX(albumID, (currentPage*images_count), images_count);
+                        totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
+                    }
+
                     final int tail = totalImagesCount % images_count;
                     if ((xPag != null) && (images_count > 0)) xPag.setPageCount((totalImagesCount / images_count) + ((tail > 0) ? 1 : 0));
-                    
-                    if (all == null) return;
+
+                    if (d == null) return;
                     int cointer = 0;
 
                     THIS.getChildren().clear();
                     ALII.stream().forEach((ALII1) -> {
                         ALII1.clearIt();
                     });
-                    
-                    for (Long l : all) {
+
+                    for (DBImageX l : d) {
                         if (ALII.get(cointer) != null) {
-                            ALII.get(cointer).setSmallImage(IMG, l);
-                            ALII.get(cointer).setID(l);
-                            ALII.get(cointer).setSelected(selectedItems.contains(l)); 
+                            ALII.get(cointer).setImg(128, 128, IMG.getThumbsFS().PopPrewievFile(l)); 
+                            ALII.get(cointer).setID(l.pl_idid);
+                            ALII.get(cointer).setSelected(selectedItems.contains(l.pl_idid)); 
                             THIS.getChildren().add(ALII.get(cointer));
                         }
                         cointer++;
@@ -284,7 +284,7 @@ public class ImageList extends FlowPane {
         
         selnoneImg.setOnMouseClicked((MouseEvent event) -> {
             if (isProcessRunning == 1) return;
-            
+                       
             selectedItems.clear();
             is_resized = 1;
             event.consume();
@@ -321,17 +321,23 @@ public class ImageList extends FlowPane {
         
         this.setOnScroll((ScrollEvent event) -> {
             if (isProcessRunning == 1) return;
-            
-            scrollNum = scrollNum + event.getDeltaY();
-            if (scrollNum >= 60) {
+            if (event.getDeltaY() > 0) {
                 if (xPag != null) xPag.Prev();
-                scrollNum = 0;
+            } else {
+                if (xPag != null) xPag.Next();
             }
             
-            if (scrollNum <= -60) {
-                if (xPag != null) xPag.Next();
-                scrollNum = 0;
-            }
+            
+//            scrollNum = scrollNum + event.getDeltaY();
+//            if (scrollNum >= 60) {
+//                if (xPag != null) xPag.Prev();
+//                scrollNum = 0;
+//            }
+//            
+//            if (scrollNum <= -60) {
+//                if (xPag != null) xPag.Next();
+//                scrollNum = 0;
+//            }
         });
     }
     

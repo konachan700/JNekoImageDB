@@ -62,6 +62,10 @@ public class ImageEngine {
         return new DBImage(ThumbsFS, iid);
     }
     
+    public SQLiteFS getThumbsFS() {
+        return ThumbsFS;
+    }
+    
     public ArrayList<Long> getImages(String _sql) {
         return ImagesFS.getImages(_sql);
     }
@@ -95,6 +99,10 @@ public class ImageEngine {
     }
     
     public long UploadImage(String path) {
+        return UploadImage(path, null);
+    }
+    
+    public long UploadImage(String path, byte[] hash) {
         if (!isImage(path)) return -2;
         try {
             if (SQL.getConnection().isClosed()) return -3;
@@ -102,16 +110,16 @@ public class ImageEngine {
             return -4;
         }
 
-        final long IID = ImagesFS.PushFileMT(path);
+        final long IID = ImagesFS.PushFileMT(path, hash);
         if (IID > 0) {
             DBWrapper.writeImageMetadataToDB(path, IID);
             
             final Map<String, BufferedImage> imgs = ResizeImage(path, SMALL_PREVIEW_SIZE, SMALL_PREVIEW_SIZE, null);
             
-            final long small_p_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("squareImage")));
+            final long small_p_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("squareImage")), null);
             if (small_p_id <= 0) return -6; else DBWrapper.addImageAndPreviewAssoc(IID, small_p_id, PREVIEW_TYPE_SMALL);
             
-            final long small_pns_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("nonsquareImage")));
+            final long small_pns_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("nonsquareImage")), null);
             if (small_pns_id <= 0) return -8; else DBWrapper.addImageAndPreviewAssoc(IID, small_pns_id, PREVIEW_TYPE_SMALL_NONSQUARED);
 
             return IID;
@@ -158,7 +166,7 @@ public class ImageEngine {
         }
     }
     
-    private static byte[] BIToBytes(BufferedImage bi) {
+    public static byte[] BIToBytes(BufferedImage bi) {
         try {
             final ByteArrayOutputStream baosForResizeNS = new ByteArrayOutputStream();
             ImageIO.write(bi, "jpg", baosForResizeNS);

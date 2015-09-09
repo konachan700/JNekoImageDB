@@ -2,8 +2,12 @@ package imagelist;
 
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
+import java.awt.Container;
+import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,6 +18,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javax.imageio.ImageIO;
 
 public class ImageListItem extends Pane {
     private Long ID = (long) 0x0;
@@ -149,16 +154,29 @@ public class ImageListItem extends Pane {
         selImg.relocate(10, 10);
     }
     
-    public void setNonSquaredSmallImage(ImageEngine fs, long iid) {
-        BufferedImage img = fs.getImages(iid).getNSSmallPrerview();
-        setImg(img.getWidth(null), img.getHeight(null), img);
+//    public void setNonSquaredSmallImage(ImageEngine fs, long iid) {
+//        BufferedImage img = fs.getImages(iid).getNSSmallPrerview();
+//        setImg(img.getWidth(null), img.getHeight(null), img);
+//    }
+//    
+//    public void setSmallImage(ImageEngine fs, long iid) {
+//        BufferedImage img = fs.getImages(iid).getSmallPrerview();
+//        setImg(ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE, img);
+//    }
+
+    public void setImg(double sizeW, double sizeH, byte[] img) {
+        try {
+            final ByteArrayInputStream img_b = new ByteArrayInputStream(img);
+            final BufferedImage ret_img = ImageIO.read(img_b);
+
+            final MediaTracker mediaTracker = new MediaTracker(new Container()); 
+            mediaTracker.addImage(ret_img, 0); 
+            mediaTracker.waitForAll();
+            
+            setImg(sizeW, sizeH, ret_img);
+        } catch (IOException | InterruptedException ex) {  } 
     }
     
-    public void setSmallImage(ImageEngine fs, long iid) {
-        BufferedImage img = fs.getImages(iid).getSmallPrerview();
-        setImg(ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE, img);
-    }
-
     public void setImg(double sizeW, double sizeH, BufferedImage img) {
         if (img == null) return;
         final WritableImage img_r = SwingFXUtils.toFXImage(img, null);       

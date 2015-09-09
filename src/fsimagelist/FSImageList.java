@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -80,7 +81,7 @@ public class FSImageList extends ScrollPane{
             currentSystemLoad = new Label();
     
     private volatile String 
-            currentProgress = "",
+//            currentProgress = "",
             currentFile2    = "";
 
     private SmallPaginator
@@ -157,20 +158,11 @@ public class FSImageList extends ScrollPane{
             files = null;
 
     private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
-        if (isReloading == 1) {
-            currentProgress = "File " + todbItemCounter + " of " +todbItemsTotalCount + "; ";
-            if (currentFile2.length() > 0) {
-                currentSystemLoad.setText("File: "+currentFile2+"; ");
-            } else
-                currentSystemLoad.setText(currentProgress+
-                        "Memory use: "+((Runtime.getRuntime().totalMemory()) / (1024*1024))+
-                        "MB; My I/O:"+((imgEn.getIOPS_W()+imgEn.getIOPS_R())/1024)+" kBps; "); // 512 тут потому, что мы читаем ровно столько же, сколько и пишем, нет смысла I/O делить на R/W
-        }
+        __out_str();
 
         if (fsWorker > 0) {
             if (fsWorker > 1) {
                 if (!THIS.getContent().equals(please_wait)) THIS.setContent(please_wait);
-                //fsWorker = 0;
             }
             fsWorker++;
         } else {
@@ -179,6 +171,7 @@ public class FSImageList extends ScrollPane{
         
         if (isResized) return; else isResized = true;
         this_container.getChildren().clear();
+//        if ((isReloading == 1)) return;
         while (isReloading == 1) {}
                 
         final double
@@ -207,6 +200,33 @@ public class FSImageList extends ScrollPane{
         if (xPag != null) xPag.setCurrentPage(0);
         __reloadPage();
     }));
+    
+    private void __out_str() {
+        if (isReloading == 1) {
+            final StringBuilder sbx = new StringBuilder();
+            sbx
+                    .append("File ")
+                    .append(todbItemCounter)
+                    .append(" of ")
+                    .append(todbItemsTotalCount)
+                    .append("; ");
+            if (currentFile2.length() > 0) {
+                sbx
+                        .append("File: ")
+                        .append(currentFile2)
+                        .append("; ");
+                currentSystemLoad.setText(sbx.substring(0));
+            } else {
+                sbx
+                        .append("Memory use: ")
+                        .append((Runtime.getRuntime().totalMemory()) / (1024*1024))
+                        .append("MB; My I/O:")
+                        .append((imgEn.getIOPS_W()+imgEn.getIOPS_R())/1024)
+                        .append(" kBps; ");
+                currentSystemLoad.setText(sbx.substring(0));
+            }
+        }
+    }
     
     public final int setPath(String path) {
         currentPath = path;
@@ -336,7 +356,7 @@ public class FSImageList extends ScrollPane{
                         else 
                             JNekoImageDB.L("ImagesFS.PopImage(IID) ERROR READING: "+fx.getAbsolutePath());
                     } else {
-                        final long small_pns_id = ImagesFS.PushFileMT(ImageEngine.ResizeImage(fx.getAbsolutePath(), ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE));
+                        final long small_pns_id = ImagesFS.PushFileMT(ImageEngine.ResizeImage(fx.getAbsolutePath(), ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE), null);
                         if (small_pns_id > 0) {
                             DBWrapper.addPreviewAssoc(small_pns_id, md5e); 
                             final Image imgc = ImagesFS.PopImage(small_pns_id);
@@ -620,6 +640,29 @@ public class FSImageList extends ScrollPane{
         t.start();
     }
     
+    private void __x1() {
+        final File f = selectedFiles.get(todbItemCounter);
+        final String fl = f.getAbsolutePath();
+        long xt = new Date().getTime();
+
+        //_toPWLog("["+(new Date().getTime() - xt)+"] Проверка дубликатов файла ["+f.getName()+"]...");
+        final byte[] b = SQLiteFS.getFileMD5MT(fl);
+        if (b != null) {
+            if (imgEn.isMD5(b)) {
+                _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем...");
+            } else {
+                //_toPWLog("["+(new Date().getTime() - xt)+"] Файла ["+f.getName()+"] еще нет базе данных, добавляем...");
+                final long res = imgEn.UploadImage(fl, b);
+                if (res <= 0)
+                    _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не может быть добавлен в БД, см. логи.");
+                else
+                    _toPWLog("["+(new Date().getTime() - xt)+"] ["+todbItemCounter+"] Файл ["+f.getName()+"] успешно добавлен.");
+            }
+        } else {
+            _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не читаем или поврежден, пропускаем...");
+        }
+    }
+    
     private synchronized void __toDB() {
         taLOG.setText("");
         if (isReloading == 1) return;
@@ -631,26 +674,7 @@ public class FSImageList extends ScrollPane{
         final Runnable taskR = () -> {
             long xt;
             for (; todbItemCounter<todbItemsTotalCount; todbItemCounter++) {
-                final File f = selectedFiles.get(todbItemCounter);
-                final String fl = f.getAbsolutePath();
-                xt = new Date().getTime();
-                
-                //_toPWLog("["+(new Date().getTime() - xt)+"] Проверка дубликатов файла ["+f.getName()+"]...");
-                final byte[] b = SQLiteFS.getFileMD5MT(fl);
-                if (b != null) {
-                    if (imgEn.isMD5(b)) {
-                        _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем...");
-                    } else {
-                        //_toPWLog("["+(new Date().getTime() - xt)+"] Файла ["+f.getName()+"] еще нет базе данных, добавляем...");
-                        final long res = imgEn.UploadImage(fl);
-                        if (res <= 0)
-                            _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не может быть добавлен в БД, см. логи.");
-                        else
-                            _toPWLog("["+(new Date().getTime() - xt)+"] ["+todbItemCounter+"] Файл ["+f.getName()+"] успешно добавлен.");
-                    }
-                } else {
-                    _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не читаем или поврежден, пропускаем...");
-                }
+                __x1();
             }
             
             selectedFiles.clear();
@@ -661,6 +685,7 @@ public class FSImageList extends ScrollPane{
         
         if (selectedFiles.size() > todbMTMinimalImageCount) {
             for (int i=0; i<todbThreadsCount; i++) {
+                DBWrapper.Sleep(175);
                 final Thread t = new Thread(taskR);
                 t.setDaemon(true);
                 t.start();
