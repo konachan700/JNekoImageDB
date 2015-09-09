@@ -16,9 +16,9 @@ public class Settings extends VBox {
         
         SQL = sql;
         
-        showDeleted = new SCheckBox(SQL, "showDeleted");
+        showDeleted = new SCheckBox("showDeleted");
         
-        uploadPath = new SPathField(SQL, "uploadPath", SPathField.TYPE_DIR);
+        uploadPath = new SPathField("uploadPath", SPathField.TYPE_DIR);
         uploadPath.setMaxWidth(9999);
         uploadPath.setPrefWidth(9999);
         

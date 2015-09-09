@@ -1,5 +1,6 @@
 package imagelist;
 
+import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dataaccess.SQLite;
 import dialogs.DYesNo;
@@ -68,8 +69,8 @@ public class ImageList extends FlowPane {
     private double 
             scrollNum = 0;
     
-    private volatile String 
-            sqlFilter = "";
+//    private volatile String 
+//            sqlFilter = "";
     
     private SmallPaginator
             xPag = null;
@@ -134,15 +135,13 @@ public class ImageList extends FlowPane {
         
         images_count = count_h * count_w;
         if (ALII.size() < images_count) {
-            for (int i=ALII.size(); i<images_count; i++) ALII.add(new ImageListItem(IMG, IAL));
+            for (int i=ALII.size(); i<images_count; i++) ALII.add(new ImageListItem(IAL));
         }
         
         ALII.stream().forEach((ALII1) -> {
             ALII1.clearIt();
         });
         
-//        final int tail = totalImagesCount % images_count;
-//        if ((xPag != null) && (images_count > 0)) xPag.setPageCount((totalImagesCount / images_count) + ((tail > 0) ? 1 : 0));
         currentPage = 0;
         if (xPag != null) xPag.setCurrentPage(0);
 
@@ -166,8 +165,8 @@ public class ImageList extends FlowPane {
                         totalImagesCount = (int) IMG.getImgCount();
                         currCountLabel.setText(totalImagesCount+" images");
                     } else {
-                        all = IMG.getWr().getImagesByGroupOID(albumID, currentPage, images_count); 
-                        totalImagesCount = (int) IMG.getWr().getImagesCountInAlbum(albumID);
+                        all = DBWrapper.getImagesByGroupOID(albumID, currentPage, images_count); 
+                        totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
                         currCountLabel.setText(totalImagesCount+" images");
                     }
                     
@@ -344,7 +343,7 @@ public class ImageList extends FlowPane {
                 if (isProcessRunning == 1) return null;
                 isProcessRunning = 1;
                 
-                String path = SQL.ReadAPPSettingsString("ff_uploadPath"); 
+                String path = DBWrapper.ReadAPPSettingsString("ff_uploadPath"); 
                 if ((path.length() > 0) && (new File(path).canWrite()) && (new File(path).isDirectory())) {
                     selectedItems.stream().forEach((l) -> {
                         int ix = IMG.DownloadImageToFS(l, path);
@@ -379,8 +378,8 @@ public class ImageList extends FlowPane {
                 if (albumID == 0) 
                     selectedItems.addAll(IMG.getImages("ORDER BY oid DESC;"));
                 else {
-                    int cnt = (int) IMG.getWr().getImagesCountInAlbum(albumID);
-                    selectedItems.addAll(IMG.getWr().getImagesByGroupOID(albumID, 0, cnt));
+                    int cnt = (int) DBWrapper.getImagesCountInAlbum(albumID);
+                    selectedItems.addAll(DBWrapper.getImagesByGroupOID(albumID, 0, cnt));
                 }
                 
                 PW.setVis(false);

@@ -1,18 +1,9 @@
 package albums;
 
-import dataaccess.Crypto;
+import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
-import dataaccess.SQLite;
-import dataaccess.SplittedFile;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -24,32 +15,6 @@ import javafx.scene.layout.VBox;
 import menulist.MenuGroupItem;
 
 public class AlbumsCategories extends ScrollPane {
-    public class AlbumsCategory {
-        public String name;
-        public long ID;
-        public int state;
-        
-        public AlbumsCategory(String n, long id, int st) {
-            name = n.trim();
-            ID = id;
-            state = st;
-        }
-        
-        public int saveChanges() {
-            try { 
-                PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE 'AlbumsGroup' SET groupName=?, state=? WHERE oid=?;");
-                ps.setBytes(1, zCrypto.Crypt(zCrypto.align16b(name.getBytes())));
-                ps.setInt(2, state);
-                ps.setLong(3, ID);
-                ps.execute();
-
-                return 0;
-            } catch (SQLException  ex) {
-                return -1;
-            }
-        }
-    }
-    
     public class ACListItem extends HBox {
         public AlbumsCategory AC;
         private TextField lTextField;
@@ -99,9 +64,6 @@ public class AlbumsCategories extends ScrollPane {
         }
     }
     
-    private final SQLite 
-            SQL;// = new SQLite();
-    
     private final VBox 
             mainPane = new VBox(2);
     
@@ -113,20 +75,13 @@ public class AlbumsCategories extends ScrollPane {
     
     private final Button
             todbImg = new Button("", new ImageView(new Image(getClass().getResourceAsStream("adddef.png"))));
-    
-    private final Crypto
-            zCrypto;
-    
+       
     private MenuGroupItem MGI;
     
-    public AlbumsCategories(Crypto k, MenuGroupItem mgi, SQLite sql) {
+    public AlbumsCategories(MenuGroupItem mgi) {
         super();
-        zCrypto = k;
         MGI     = mgi;
-        SQL     = sql;
-
-        SQL.ExecuteSQL("CREATE TABLE if not exists 'AlbumsGroup'(oid int not null primary key, groupName blob, state int);");
-                
+        
         this.setVbarPolicy(ScrollBarPolicy.ALWAYS);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
@@ -150,14 +105,8 @@ public class AlbumsCategories extends ScrollPane {
         
         todbImg.setOnMouseClicked((MouseEvent event) -> {
             if (txtAddNew.getText().trim().length() <= 1) return;
-            try {
-                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO 'AlbumsGroup' VALUES(?, ?, 1);");
-                final long tmr = new Date().getTime();
-                ps.setLong(1, tmr);
-                ps.setBytes(2, zCrypto.Crypt(zCrypto.align16b(txtAddNew.getText().getBytes())));
-                ps.execute();
-                RefreshAll();
-            } catch (SQLException ex) { }
+            DBWrapper.addNewAlbumGroup(txtAddNew.getText().trim()); 
+            RefreshAll();
         });
     }
     
@@ -166,16 +115,11 @@ public class AlbumsCategories extends ScrollPane {
     }
     
     public final void RefreshAll() {
-        ArrayList<AlbumsCategory> alac = getAlbumsGroupsID();
+        ArrayList<AlbumsCategory> alac = DBWrapper.getAlbumsGroupsID();
         if (alac == null) {
-            doNothing();
+
             return;
         }
-        
-//        if (alac.size() <= 0) {
-//            doNothing();
-//            return;
-//        }
         
         mainPane.getChildren().clear();
         MGI.clearAll();
@@ -191,29 +135,6 @@ public class AlbumsCategories extends ScrollPane {
         
         MGI.addLabel(Long.toString(ImageEngine.ALBUM_ID_DELETED), "Удаленные");
         MGI.Commit();
-    }
-    
-    private void doNothing() {
-        
-    }
-
-    public ArrayList<AlbumsCategory> getAlbumsGroupsID() {
-        try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'AlbumsGroup' ORDER BY oid DESC;");
-            ResultSet rs = ps.executeQuery();
-            if (rs != null) {
-                ArrayList<AlbumsCategory> alac = new ArrayList<>();
-                while (rs.next()) {
-                    AlbumsCategory ac = new AlbumsCategory(new String(zCrypto.Decrypt(rs.getBytes("groupName"))).trim(), rs.getLong("oid"), rs.getInt("state"));
-                    alac.add(ac);
-                }
-                return alac;
-            }
-        } catch (SQLException ex) {
-            return null;
-        }
-        
-        return null;
     }
     
     private VBox getSeparator1() {

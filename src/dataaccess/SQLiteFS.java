@@ -40,7 +40,7 @@ public class SQLiteFS {
         FILE = new SplittedFile(k);
         SQL = sql;
 
-        SQL.ExecuteSQL("CREATE TABLE if not exists 'FS_"+DBNameE+"_files'(oid int not null primary key, md5 char(16), startSector int, sectorSize int, actualSize int, fileName blob);");
+        SQL.ExecuteSQL("CREATE TABLE if not exists "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" (oid bigint not null primary key, md5 BINARY(16), startSector bigint, sectorSize int, actualSize int, fileName BINARY(512));");
     }
 
     public SQLite GetSQL() {
@@ -65,11 +65,13 @@ public class SQLiteFS {
 
     public long getCount() {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM 'FS_"+DBNameE+"_files' WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums)"); //("SELECT COUNT(oid) FROM 'FS_"+DBNameE+"_files';");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums)"); //("SELECT COUNT(oid) FROM 'FS_"+DBNameE+"_files';");
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
-                long sz  = rs.getLong("COUNT(oid)");
-                if (sz > 0) return sz;
+                if (rs.next()) {
+                    long sz  = rs.getLong("COUNT(oid)");
+                    if (sz > 0) return sz;
+                }
             }
         } catch (SQLException ex) { }
         return -1;
@@ -77,7 +79,7 @@ public class SQLiteFS {
     
     public ArrayList<Long> getImages(String _sql) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT oid FROM 'FS_"+DBNameE+"_files' WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums) " + _sql);
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT oid FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums) " + _sql);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 ArrayList<Long> all = new ArrayList<>();
@@ -95,12 +97,14 @@ public class SQLiteFS {
     
     public boolean isMD5Present(byte[] md5) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'FS_"+DBNameE+"_files' WHERE md5=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE md5=?;");
             ps.setBytes(1, md5);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
-                long act_size  = rs.getLong("actualSize");
-                if (act_size > 0) return true;
+                if (rs.next()) {
+                    long act_size  = rs.getLong("actualSize");
+                    if (act_size > 0) return true;
+                }
             }
         } catch (SQLException ex) { }
         return false;
@@ -117,41 +121,43 @@ public class SQLiteFS {
         final ByteArrayOutputStream md5e = new ByteArrayOutputStream();
         final ByteArrayOutputStream read_buf = new ByteArrayOutputStream();
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'FS_"+DBNameE+"_files' WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
-                final long 
-                        st_sector = rs.getLong("startSector"),
-                        sz_sector = rs.getLong("sectorSize"),
-                        act_size  = rs.getLong("actualSize");
-                
-                final byte[] md5_sql = 
-                        rs.getBytes("md5");
-                
-                if ((sz_sector <= 0) || (act_size <= 0)) {
-                    _L("Invalid database record; null file;");
-                    return null;
+                if (rs.next()) {
+                    final long 
+                            st_sector = rs.getLong("startSector"),
+                            sz_sector = rs.getLong("sectorSize"),
+                            act_size  = rs.getLong("actualSize");
+
+                    final byte[] md5_sql = 
+                            rs.getBytes("md5");
+
+                    if ((sz_sector <= 0) || (act_size <= 0)) {
+                        _L("Invalid database record; null file;");
+                        return null;
+                    }
+
+                    for (long i=st_sector; i<(st_sector + sz_sector); i++) {
+                        final byte[] buf_w = FILE.ReadFileSector(DBNameE, (int)i);
+                        read_buf.write(buf_w); 
+                        md5e.write(Crypto.MD5(buf_w));
+                    }
+
+                    md5 = Crypto.MD5(md5e.toByteArray());
+                    md5e.reset();
+                    if (!Arrays.equals(md5, md5_sql)) {
+                        _L("Invalid database record; md5 incorrect");
+                        return null;
+                    }
+
+                    final byte[] ret = new byte[(int)act_size];
+                    System.arraycopy(read_buf.toByteArray(), 0, ret, 0, (int)act_size);
+                    read_buf.reset();
+
+                    return ret;
                 }
-                
-                for (long i=st_sector; i<(st_sector + sz_sector); i++) {
-                    final byte[] buf_w = FILE.ReadFileSector(DBNameE, (int)i);
-                    read_buf.write(buf_w); 
-                    md5e.write(Crypto.MD5(buf_w));
-                }
-                
-                md5 = Crypto.MD5(md5e.toByteArray());
-                md5e.reset();
-                if (!Arrays.equals(md5, md5_sql)) {
-                    _L("Invalid database record; md5 incorrect");
-                    return null;
-                }
-                
-                final byte[] ret = new byte[(int)act_size];
-                System.arraycopy(read_buf.toByteArray(), 0, ret, 0, (int)act_size);
-                read_buf.reset();
-                
-                return ret;
             }
         } catch (IOException | SQLException ex) {
             _L(ex.getMessage());
@@ -164,53 +170,55 @@ public class SQLiteFS {
     @SuppressWarnings("ConvertToTryWithResources")
     public synchronized int PopFile(long oid, String path) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'FS_"+DBNameE+"_files' WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
-                final long 
-                        st_sector = rs.getLong("startSector"),
-                        sz_sector = rs.getLong("sectorSize"),
-                        act_size  = rs.getLong("actualSize");
-                
-                final String 
-                        fileNameOut = new String(fileCrypto.Decrypt(rs.getBytes("fileName"))).trim();
-                               
-                final byte[] md5_sql = 
-                        rs.getBytes("md5");
-                
-                if ((sz_sector <= 0) || (act_size <= 0)) {
-                    _L("Invalid database record; null file;");
-                    return -1;
-                }
-                
-                byte md5[];
-                final ByteArrayOutputStream 
-                        md5e = new ByteArrayOutputStream(),
-                        fileOut = new ByteArrayOutputStream();
-                try {
-                    final FileOutputStream fos = new FileOutputStream(new File(path).getAbsolutePath() + File.separator + fileNameOut);
-                    for (long i=st_sector; i<(st_sector + sz_sector); i++) {
-                        final byte[] buf_w = FILE.ReadFileSector(DBNameE, (int)i);
-                        fileOut.write(buf_w); 
-                        md5e.write(Crypto.MD5(buf_w));
-                    }
+                if (rs.next()) {
+                    final long 
+                            st_sector = rs.getLong("startSector"),
+                            sz_sector = rs.getLong("sectorSize"),
+                            act_size  = rs.getLong("actualSize");
 
-                    fos.write(fileOut.toByteArray(), 0, (int) act_size);
-                    fos.close();
-                    fileOut.reset();
+                    final String 
+                            fileNameOut = new String(fileCrypto.Decrypt(rs.getBytes("fileName"))).trim();
 
-                    md5 = Crypto.MD5(md5e.toByteArray());
-                    //md5e.reset();
-                    if (!Arrays.equals(md5, md5_sql)) {
-                        _L("Invalid database record; md5 incorrect");
+                    final byte[] md5_sql = 
+                            rs.getBytes("md5");
+
+                    if ((sz_sector <= 0) || (act_size <= 0)) {
+                        _L("Invalid database record; null file;");
                         return -1;
                     }
-                    
-                    return 0;
-                } catch (FileNotFoundException ex) { 
-                    _L("Cannot read/write file ["+path+"]");
-                    return -1;
+
+                    byte md5[];
+                    final ByteArrayOutputStream 
+                            md5e = new ByteArrayOutputStream(),
+                            fileOut = new ByteArrayOutputStream();
+                    try {
+                        final FileOutputStream fos = new FileOutputStream(new File(path).getAbsolutePath() + File.separator + fileNameOut);
+                        for (long i=st_sector; i<(st_sector + sz_sector); i++) {
+                            final byte[] buf_w = FILE.ReadFileSector(DBNameE, (int)i);
+                            fileOut.write(buf_w); 
+                            md5e.write(Crypto.MD5(buf_w));
+                        }
+
+                        fos.write(fileOut.toByteArray(), 0, (int) act_size);
+                        fos.close();
+                        fileOut.reset();
+
+                        md5 = Crypto.MD5(md5e.toByteArray());
+                        //md5e.reset();
+                        if (!Arrays.equals(md5, md5_sql)) {
+                            _L("Invalid database record; md5 incorrect");
+                            return -1;
+                        }
+
+                        return 0;
+                    } catch (FileNotFoundException ex) { 
+                        _L("Cannot read/write file ["+path+"]");
+                        return -1;
+                    }
                 }
             }
             return -1;
@@ -291,7 +299,7 @@ public class SQLiteFS {
         if (lastSector < 0) return null;
         
         try { 
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO 'FS_"+DBNameE+"_files' VALUES(?, ?, ?, ?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" VALUES(?, ?, ?, ?, ?, ?);");
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setBytes(2, md5Hash);
@@ -335,17 +343,20 @@ public class SQLiteFS {
 
     private synchronized long getLastSector() {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'FS_"+DBNameE+"_files' ORDER BY oid DESC LIMIT 0,1;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" ORDER BY oid DESC LIMIT 0,1;");
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
-                final long 
-                        st_sector = rs.getLong("startSector"),
-                        sz_sector = rs.getLong("sectorSize");
-                return st_sector + sz_sector;
+                if (rs.next()) {
+                    final long 
+                            st_sector = rs.getLong("startSector"),
+                            sz_sector = rs.getLong("sectorSize");
+                    return st_sector + sz_sector;
+                } else 
+                    return 0;
             }
         } catch (SQLException ex) {
             _L(ex.getMessage());
-            return 0;
+            return -1;
         }
         return -1;
     }

@@ -1,17 +1,12 @@
 package fsimagelist;
 
 import dataaccess.Crypto;
+import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dataaccess.SQLite;
 import dataaccess.SQLiteFS;
-import dataaccess.SplittedFile;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,15 +18,12 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -40,7 +32,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -49,14 +40,13 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import jnekoimagesdb.JNekoImageDB;
 import smallpaginator.SmallPaginator;
-import smallpaginator.SmallPaginatorActionListener;
 
 public class FSImageList extends ScrollPane{
     private final boolean TIME_TEST = true;
     private final FSImageList THIS = this;
     
-    private Crypto
-            CRYPT;
+//    private Crypto
+//            CRYPT;
     
     private final Image
             fna = new Image(new File("./icons/fna.png").toURI().toString()),
@@ -335,7 +325,7 @@ public class FSImageList extends ScrollPane{
                         Platform.runLater(() -> { itemsZ.get(tval1).setInitInfo(fna, fx, true); });
                 } else {
                     final byte[] md5e = Crypto.MD5(fx.getAbsolutePath().getBytes());
-                    final long IID = __get_id_by_MD5(md5e);
+                    final long IID = DBWrapper.getIDByMD5(md5e);
                     if (IID != -1) {
                         final Image imgc = ImagesFS.PopImage(IID);
                         if (imgc != null) 
@@ -348,7 +338,7 @@ public class FSImageList extends ScrollPane{
                     } else {
                         final long small_pns_id = ImagesFS.PushFileMT(ImageEngine.ResizeImage(fx.getAbsolutePath(), ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE));
                         if (small_pns_id > 0) {
-                            __addPreviewAssoc(small_pns_id, md5e);
+                            DBWrapper.addPreviewAssoc(small_pns_id, md5e); 
                             final Image imgc = ImagesFS.PopImage(small_pns_id);
                             if (imgc != null) 
                                 Platform.runLater(() -> { 
@@ -388,24 +378,17 @@ public class FSImageList extends ScrollPane{
     
     public FSImageList(Crypto k, ImageEngine ie, SQLite sql) {
         super();
-        CRYPT = k;
+//        CRYPT = k;
         SQL   = sql;
         
         ImagesFS = new SQLiteFS(k, "imgtfs", SQL);
         imgEn = ie;
-        
-        SQL.ExecuteSQL("CREATE TABLE if not exists 'previews_files'(oid int not null primary key, idid int, md5 varchar(16));");
 
         this_container.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
         this_container.getStyleClass().add("FSImageList_this_container");
       
         this.getStylesheets().add(getClass().getResource("ProgressBar.css").toExternalForm());
         this.getStyleClass().add("MenuList");
-        
-//        pb1.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-//        pb1.getStyleClass().add("progress-bar");
-//        pb1.setMaxSize(9999, 64);
-//        pb1.setPrefSize(9999, 64);
         
         paginatorPanel.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
         paginatorPanel.getStyleClass().add("PagPanel");
@@ -463,7 +446,6 @@ public class FSImageList extends ScrollPane{
         taLOG.getStyleClass().add("MenuList");
         
         please_wait.getChildren().add(pw);
-        //please_wait.getChildren().add(pb1);
         please_wait.getChildren().add(currentSystemLoad);
         please_wait.getChildren().add(taLOG);
         
@@ -540,7 +522,7 @@ public class FSImageList extends ScrollPane{
         selallImg.setOnMouseClicked((MouseEvent event) -> {
             selectedFiles.clear();
             for (String f : files) {
-                File a = new File(currentPath + "/" + f);
+                File a = new File(currentPath + File.separator + f);
                 if (a.isFile()) selectedFiles.add(a);
             }
             __reloadPage();
@@ -593,37 +575,6 @@ public class FSImageList extends ScrollPane{
         n.setPrefSize(w, h);
     }
 
-    private int __addPreviewAssoc(long imgID, byte[] md5) {
-        try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO 'previews_files' VALUES(?, ?, ?);");
-            final long tmr = new Date().getTime();
-            ps.setLong(1, tmr);
-            ps.setLong(2, imgID);
-            ps.setBytes(3, md5);
-            ps.execute();
-            return 0;
-        } catch (SQLException ex) { }
-        return -1;
-    }
-  
-    private long __get_id_by_MD5(byte[] md5r) {
-        try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'previews_files' WHERE md5=?;");
-            ps.setBytes(1, md5r);
-            ResultSet rs = ps.executeQuery();
-            if (rs != null) {
-                final long idid = rs.getLong("idid");
-                if (idid > 0)
-                    return idid;
-                else 
-                    return -1;
-            }
-            return -1;
-        } catch (SQLException ex) {
-            return -1;
-        }
-    }
-    
     private void __reloadAll() {
         if (isReloading == 1) return;
         final Task taskFullReload = new Task<Void>() {
@@ -645,7 +596,7 @@ public class FSImageList extends ScrollPane{
                 return null;
             }
         };
-//        THIS.setContent(please_wait);
+
         final Thread t = new Thread(taskFullReload);
         t.setDaemon(true);
         t.start();
@@ -677,46 +628,35 @@ public class FSImageList extends ScrollPane{
         todbItemsTotalCount = selectedFiles.size();
         todbItemCounter     = 0;
         
-        final Runnable taskR = new Runnable() {
-            @Override
-            public void run() {
-                long xt;
-                for (; todbItemCounter<todbItemsTotalCount; todbItemCounter++) {
-                    final File f = selectedFiles.get(todbItemCounter);
-                    final String fl = f.getAbsolutePath();
-                    xt = new Date().getTime();
-                    
-                    //_toPWLog("["+(new Date().getTime() - xt)+"] Проверка дубликатов файла ["+f.getName()+"]...");
-                    final byte[] b = SQLiteFS.getFileMD5MT(fl);
-                    if (b != null) {
-                        if (imgEn.isMD5(b)) {
-                            _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем...");
-                        } else {
-                            //_toPWLog("["+(new Date().getTime() - xt)+"] Файла ["+f.getName()+"] еще нет базе данных, добавляем...");
-                            final long res = imgEn.UploadImage(fl);
-                            if (res <= 0) 
-                                _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не может быть добавлен в БД, см. логи.");
-                            else
-                                _toPWLog("["+(new Date().getTime() - xt)+"] ["+todbItemCounter+"] Файл ["+f.getName()+"] успешно добавлен.");
-                        }
-                    } else {
-                        _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не читаем или поврежден, пропускаем...");
-                    }
-                }
+        final Runnable taskR = () -> {
+            long xt;
+            for (; todbItemCounter<todbItemsTotalCount; todbItemCounter++) {
+                final File f = selectedFiles.get(todbItemCounter);
+                final String fl = f.getAbsolutePath();
+                xt = new Date().getTime();
                 
-                selectedFiles.clear();
-
-                fsWorker        = 0;
-                isReloading     = 2;
+                //_toPWLog("["+(new Date().getTime() - xt)+"] Проверка дубликатов файла ["+f.getName()+"]...");
+                final byte[] b = SQLiteFS.getFileMD5MT(fl);
+                if (b != null) {
+                    if (imgEn.isMD5(b)) {
+                        _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем...");
+                    } else {
+                        //_toPWLog("["+(new Date().getTime() - xt)+"] Файла ["+f.getName()+"] еще нет базе данных, добавляем...");
+                        final long res = imgEn.UploadImage(fl);
+                        if (res <= 0)
+                            _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не может быть добавлен в БД, см. логи.");
+                        else
+                            _toPWLog("["+(new Date().getTime() - xt)+"] ["+todbItemCounter+"] Файл ["+f.getName()+"] успешно добавлен.");
+                    }
+                } else {
+                    _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не читаем или поврежден, пропускаем...");
+                }
             }
-        };
-        
-        final Task taskToDB = new Task<Void>() {
-            @Override 
-            public Void call() {
-
-                return null;
-            }
+            
+            selectedFiles.clear();
+            
+            fsWorker        = 0;
+            isReloading     = 2;
         };
         
         if (selectedFiles.size() > todbMTMinimalImageCount) {

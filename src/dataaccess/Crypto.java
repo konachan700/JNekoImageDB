@@ -189,6 +189,14 @@ public class Crypto {
         return AESDecrypt(value, masterKeyAES);
     }
     
+    public String getPasswordFromMasterKey() {
+        final StringBuilder sb = new StringBuilder();
+        for (byte b : masterKeyAES) {
+            sb.append(Integer.toHexString((int) b));
+        }
+        return sb.substring(0);
+    }
+    
     public static byte[] MD5(byte[] unsafe) {
         final MessageDigest md;
         try {

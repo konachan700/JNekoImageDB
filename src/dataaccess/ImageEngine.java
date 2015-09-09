@@ -11,11 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,7 +24,6 @@ import jnekoimagesdb.JNekoImageDB;
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 
-
 public class ImageEngine {
     public static final long 
             ALBUM_ID_DELETED = 99999,
@@ -35,9 +31,6 @@ public class ImageEngine {
         
     private final SQLite 
             SQL;
-    
-    private final ImageEngineSQLWrappers
-            wrappers;
     
     private final SQLiteFS
             ImagesFS,
@@ -57,27 +50,16 @@ public class ImageEngine {
     public ImageEngine(Crypto k, SQLite sql) {
         CRYPT       = k;
         SQL         = sql;
-        
         ImagesFS    = new SQLiteFS(CRYPT, "images", SQL);
         ThumbsFS    = new SQLiteFS(CRYPT, "preview", SQL);
-
-        SQL.ExecuteSQL("CREATE TABLE if not exists 'previews_list'(oid int not null primary key, idid int, pdid int, imgtype int);");
-        SQL.ExecuteSQL("CREATE TABLE if not exists 'images_albums'(oid int not null primary key, imgoid int, alboid int);");
-        SQL.ExecuteSQL("CREATE TABLE if not exists 'images_basic_meta'(oid int not null primary key, imgoid int, width int, height int, wh1 double, wh2 int, fn_md5 blob);");
-        
-        wrappers = new ImageEngineSQLWrappers(SQL);
     }
     
     public SQLite getImgSQL() {
         return ImagesFS.GetSQL();
     }
-    
-    public ImageEngineSQLWrappers getWr() {
-        return wrappers;
-    }
-    
+
     public DBImage getImages(long iid) {
-        return new DBImage(ThumbsFS, SQL, iid);
+        return new DBImage(ThumbsFS, iid);
     }
     
     public ArrayList<Long> getImages(String _sql) {
@@ -122,15 +104,15 @@ public class ImageEngine {
 
         final long IID = ImagesFS.PushFileMT(path);
         if (IID > 0) {
-            __writeMetadata(path, IID);
+            DBWrapper.writeImageMetadataToDB(path, IID);
             
             final Map<String, BufferedImage> imgs = ResizeImage(path, SMALL_PREVIEW_SIZE, SMALL_PREVIEW_SIZE, null);
             
             final long small_p_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("squareImage")));
-            if (small_p_id <= 0) return -6; else __addImageAndPreviewAssoc(IID, small_p_id, PREVIEW_TYPE_SMALL);
+            if (small_p_id <= 0) return -6; else DBWrapper.addImageAndPreviewAssoc(IID, small_p_id, PREVIEW_TYPE_SMALL);
             
             final long small_pns_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("nonsquareImage")));
-            if (small_pns_id <= 0) return -8; else __addImageAndPreviewAssoc(IID, small_pns_id, PREVIEW_TYPE_SMALL_NONSQUARED);
+            if (small_pns_id <= 0) return -8; else DBWrapper.addImageAndPreviewAssoc(IID, small_pns_id, PREVIEW_TYPE_SMALL_NONSQUARED);
 
             return IID;
         }
@@ -291,7 +273,7 @@ public class ImageEngine {
                 int height = r.getHeight(r.getMinIndex());
                 r.dispose();
                 if ((width * height * 8) < IMAGE_MAX_SIZE) 
-                    return !isMD5InMetadata(path);
+                    return !DBWrapper.isMD5InMetadata(path);
                 else 
                     _L("WARNING: Image ["+path+"] too large! Height: "+height+"px; width: "+width+"px;");
             } catch (IOException e) {
@@ -301,77 +283,9 @@ public class ImageEngine {
         
         return false;
     }
-    
-    private synchronized int __writeMetadata(String path, long oid) {
-        final String ext = FilenameUtils.getExtension(path);
-        if (ext.length() < 2) return -1;
-        
-        final Iterator<ImageReader> it = ImageIO.getImageReadersBySuffix(ext);
-
-        if (it.hasNext()) {
-            final ImageReader r = it.next();
-            try {
-                ImageInputStream stream = new FileImageInputStream(new File(path));
-                r.setInput(stream);
-                int 
-                        width = r.getWidth(r.getMinIndex()),
-                        height = r.getHeight(r.getMinIndex());
-                double 
-                        wh1 = ((double) width) / ((double) height);
-                long
-                        wh2 = width * height;
-                
-                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO 'images_basic_meta' VALUES(?, ?, ?, ?, ?, ?, ?);");
-                final long tmr = new Date().getTime();
-                ps.setLong(1, tmr);
-                ps.setLong(2, oid);
-                ps.setLong(3, width);
-                ps.setLong(4, height);
-                ps.setDouble(5, wh1);
-                ps.setLong(6, wh2);
-                ps.setBytes(7, Crypto.MD5(path.getBytes()));
-                ps.execute();
-                
-                r.dispose();
-                
-                return 0;
-            } catch (IOException | SQLException e) {
-                _L(e.getMessage());
-            } finally { r.dispose(); }
-        }
-        return -1;
-    }
-    
-    private synchronized boolean isMD5InMetadata(String path) {
-        try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM 'images_basic_meta' WHERE fn_md5=?;");
-            ps.setBytes(1, Crypto.MD5(path.getBytes()));
-            ResultSet rs = ps.executeQuery();
-            if (rs != null) {
-                long act_size  = rs.getLong("oid");
-                //System.out.println("isMD5InMetadata() act_size="+act_size);
-                if (act_size > 0) return true;
-            }
-        } catch (SQLException ex) { }
-        return false;
-    }
-    
-    private synchronized int __addImageAndPreviewAssoc(long imgID, long previewID, int type) {
-        try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO 'previews_list' VALUES(?, ?, ?, ?);");
-            final long tmr = new Date().getTime();
-            ps.setLong(1, tmr);
-            ps.setLong(2, imgID);
-            ps.setLong(3, previewID);
-            ps.setLong(4, type);
-            ps.execute();
-            return 0;
-        } catch (SQLException ex) { _L(ex.getMessage()); }
-        return -1;
-    }
 
     private static void _L(String s) {
-        //System.out.println(s);
+        System.out.println(s);
         JNekoImageDB.L(s);
     }
 }

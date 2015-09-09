@@ -3,6 +3,7 @@ package jnekoimagesdb;
 import albums.AlbumImageList;
 import albums.AlbumsCategories;
 import dataaccess.Crypto;
+import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dataaccess.SQLite;
 import dataaccess.SplittedFile;
@@ -96,8 +97,8 @@ public class JNekoImageDB extends Application {
     private final Crypto
             mainCrypto      = new Crypto();
     
-    private final SQLite
-            SQL = new SQLite();
+    private SQLite
+            SQL = null;
     
     private ImageEngine
             imgEn           = null;
@@ -209,11 +210,14 @@ public class JNekoImageDB extends Application {
             System.err.println("Error #3: JVM not support some crypt function.");
             Platform.exit(); return;//while(true) {}
         }
+        DBWrapper.setCrypto(mainCrypto);
         
-        if (SQL.Connect(SplittedFile.DATABASE_FOLDER + "fs.db") == -1) {
+        SQL = new SQLite(mainCrypto);
+        if (SQL.Connect(SplittedFile.DATABASE_FOLDER + "fs") == -1) {
             System.err.println("Error #4: Cannot connect to DB.");
             Platform.exit(); return;
         }
+        DBWrapper.setSQLite(SQL);
         
         TMRLOG.setCycleCount(Animation.INDEFINITE);
         TMRLOG.play();
@@ -222,9 +226,11 @@ public class JNekoImageDB extends Application {
         final ImageView imgLogoV = new ImageView(logoImage);
         
         imgEn = new ImageEngine(mainCrypto, SQL);
+        DBWrapper.setImageEngine(imgEn);
+                
         fileImgList = new FSImageList(mainCrypto, imgEn, SQL);
         imgList = new ImageList(imgEn, SQL, basesp);
-        albImgList = new AlbumImageList(imgEn, SQL, basesp);
+        albImgList = new AlbumImageList(imgEn, SQL, basesp); 
         settings = new Settings(SQL);
         
         L("Количество изображений в БД: "+imgEn.getImgCount()+" штук.");
@@ -385,7 +391,9 @@ public class JNekoImageDB extends Application {
         ml.getMenu().addItem("M03", "M03-03", "Логи");
         
         MGI = ml.getMenu().getGroup("M02");
-        albumCats = new AlbumsCategories(mainCrypto, MGI, SQL);
+        DBWrapper.setMenuGroupItem2(MGI);
+        
+        albumCats = new AlbumsCategories(MGI);
         albumCats.RefreshAll();
         
         ml.setPrefSize(240, 9999);

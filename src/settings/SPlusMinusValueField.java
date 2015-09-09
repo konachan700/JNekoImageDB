@@ -12,7 +12,6 @@ import javafx.scene.layout.HBox;
 
 public class SPlusMinusValueField extends HBox {
     private final String ID;
-    private final SQLite SQL;
     private final STextField textField;
     private final Button BP, BM;
     
@@ -40,14 +39,13 @@ public class SPlusMinusValueField extends HBox {
         return value;
     }
     
-    public SPlusMinusValueField(SQLite sql, String id) {
-        SQL = sql;
+    public SPlusMinusValueField(String id) {
         ID  = id;
         
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("SPlusMinusValueField");
         
-        textField = new STextField(SQL, ID);
+        textField = new STextField(ID);
         textField.setEditable(false);
         textField.setMinSize(9999, 16);
         textField.setMaxSize(9999, 16);

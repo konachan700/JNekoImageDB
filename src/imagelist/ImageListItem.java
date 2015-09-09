@@ -1,11 +1,10 @@
 package imagelist;
 
+import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
-import fsimagelist.FSImageListItem;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
@@ -14,18 +13,12 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class ImageListItem extends Pane {
-    //private long ID = 0;
     private Long ID = (long) 0x0;
-    private final ImageListItem THIS = this;
     private ImageListItemActionListener AL = null;
     
-    private ImageEngine 
-            IM = null;
-
     private final Image
             empty = new Image(new File("./icons/empty.png").toURI().toString()),
             likeTrue = new Image(new File("./icons/like24.png").toURI().toString()),
@@ -54,9 +47,8 @@ public class ImageListItem extends Pane {
             isLiked = false, 
             isDeleted = false;
     
-    public ImageListItem(ImageEngine im, ImageListItemActionListener a) {
+    public ImageListItem(ImageListItemActionListener a) {
         super();
-        IM = im;
         AL = a;
         init();
     }
@@ -85,10 +77,10 @@ public class ImageListItem extends Pane {
         this.setPrefSize(ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2), ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2));
         
         this.setOnMouseEntered((MouseEvent event) -> {
-            isDeleted = IM.getWr().isImageDeleted(ID);
+            isDeleted = DBWrapper.isImageDeleted(ID);
             delImage.setImage((isDeleted) ? delTrue : delFalse);
             
-            isLiked = IM.getWr().isImageLiked(ID);
+            isLiked = DBWrapper.isImageLiked(ID);
             likeImage.setImage((isLiked) ? likeTrue : likeFalse);
         
             buttonsVBox.setVisible(true);
@@ -130,14 +122,14 @@ public class ImageListItem extends Pane {
         
         likeImage.setOnMouseClicked((MouseEvent event) -> {
             isLiked = !isLiked;
-            IM.getWr().setImageLiked(ID, isLiked);
+            DBWrapper.setImageLiked(ID, isLiked);
             likeImage.setImage((isLiked) ? likeTrue : likeFalse);
             event.consume();
         });
         
         delImage.setOnMouseClicked((MouseEvent event) -> {
             isDeleted = !isDeleted;
-            IM.getWr().setImageDeleted(ID, isDeleted);
+            DBWrapper.setImageDeleted(ID, isDeleted);
             delImage.setImage((isDeleted) ? delTrue : delFalse);
             event.consume();
         });
@@ -181,34 +173,10 @@ public class ImageListItem extends Pane {
     }
 
     public void setID(Long i) {
-        ID = i; //new Long(i);
+        ID = i;
     }
     
     public long getID() {
         return ID;
-    }
-    
-    
-    private VBox getSeparator1() {
-        VBox sep1 = new VBox();
-        _s1(sep1, 9999, 16);
-        return sep1;
-    }
-    
-    private VBox getSeparator1(double sz) {
-        VBox sep1 = new VBox();
-        _s2(sep1, sz, sz);
-        return sep1;
-    }
-    
-    private void _s2(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
-        n.setMinSize(w, h);
-    }
-    
-    private void _s1(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
     }
 }

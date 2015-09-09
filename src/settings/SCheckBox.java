@@ -1,5 +1,6 @@
 package settings;
 
+import dataaccess.DBWrapper;
 import dataaccess.SQLite;
 import java.io.File;
 import javafx.scene.control.Button;
@@ -12,17 +13,13 @@ public class SCheckBox extends Button {
             sel = new Image(new File("./icons/selected16.png").toURI().toString()),
             unsel = new Image(new File("./icons/unselected16.png").toURI().toString());
 
-    private final SQLite
-            SQL;
-    
     private boolean
             value = false;
     
     private final String 
             ID;
     
-    public SCheckBox(SQLite sql, String id) {
-        SQL = sql;
+    public SCheckBox(String id) {
         ID = id;
         
         this.setMaxSize(16, 16);
@@ -32,7 +29,7 @@ public class SCheckBox extends Button {
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("SCheckBox");
         
-        this.setChecked(SQL.ReadAPPSettingsString("bl_"+ID).contentEquals("YES"));
+        this.setChecked(DBWrapper.ReadAPPSettingsString("bl_"+ID).contentEquals("YES"));
         this.setOnMouseClicked((MouseEvent event) -> {
             invertCheched();
             event.consume();
@@ -42,13 +39,13 @@ public class SCheckBox extends Button {
     public final void invertCheched() {
         value = !value;
         this.setGraphic(new ImageView((value) ? sel : unsel));
-        SQL.WriteAPPSettingsString("bl_"+ID, (value) ? "YES" : "NO");
+        DBWrapper.WriteAPPSettingsString("bl_"+ID, (value) ? "YES" : "NO");
     }
     
     public final void setChecked(boolean b) {
         value = b;
         this.setGraphic(new ImageView((value) ? sel : unsel));
-        SQL.WriteAPPSettingsString("bl_"+ID, (value) ? "YES" : "NO");
+        DBWrapper.WriteAPPSettingsString("bl_"+ID, (value) ? "YES" : "NO");
     }
     
     public boolean isChecked() {
