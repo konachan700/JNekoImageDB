@@ -1,15 +1,15 @@
 package settings;
 
-import dataaccess.SQLite;
+import dataaccess.DBEngine;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
 public class Settings extends VBox {
-    private final SQLite SQL;
+    private final DBEngine SQL;
     private final SPathField uploadPath;
     private final SCheckBox showDeleted;
     
-    public Settings(SQLite sql) {
+    public Settings(DBEngine sql) {
         this.setMaxWidth(9999);
         this.setPrefWidth(9999);
         this.setAlignment(Pos.BOTTOM_CENTER);

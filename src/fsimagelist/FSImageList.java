@@ -3,8 +3,8 @@ package fsimagelist;
 import dataaccess.Crypto;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
-import dataaccess.SQLite;
-import dataaccess.SQLiteFS;
+import dataaccess.DBEngine;
+import dataaccess.FSEngine;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
@@ -148,10 +148,10 @@ public class FSImageList extends ScrollPane{
                 }
             };
     
-    private final SQLiteFS
+    private final FSEngine
             ImagesFS;    
 
-    private final SQLite 
+    private final DBEngine 
             SQL; // = new SQLite();
     
     private String[] 
@@ -344,6 +344,8 @@ public class FSImageList extends ScrollPane{
                     else
                         Platform.runLater(() -> { itemsZ.get(tval1).setInitInfo(fna, fx, true); });
                 } else {
+                    
+                    
                     final byte[] md5e = Crypto.MD5(fx.getAbsolutePath().getBytes());
                     final long IID = DBWrapper.getIDByMD5(md5e);
                     if (IID != -1) {
@@ -373,6 +375,9 @@ public class FSImageList extends ScrollPane{
                                 itemsZ.get(tval1).setInitInfo(fx);
                             });
                     } 
+                    
+                    
+                    
                 }
                 counterV++;
                 if (counterV >= (imagesOnPages)) break;
@@ -396,12 +401,12 @@ public class FSImageList extends ScrollPane{
         return please_wait;
     }
     
-    public FSImageList(Crypto k, ImageEngine ie, SQLite sql) {
+    public FSImageList(Crypto k, ImageEngine ie, DBEngine sql) {
         super();
 //        CRYPT = k;
         SQL   = sql;
         
-        ImagesFS = new SQLiteFS(k, "imgtfs", SQL);
+        ImagesFS = new FSEngine(k, "imgtfs", SQL);
         imgEn = ie;
 
         this_container.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
@@ -646,7 +651,7 @@ public class FSImageList extends ScrollPane{
         long xt = new Date().getTime();
 
         //_toPWLog("["+(new Date().getTime() - xt)+"] Проверка дубликатов файла ["+f.getName()+"]...");
-        final byte[] b = SQLiteFS.getFileMD5MT(fl);
+        final byte[] b = FSEngine.getFileMD5MT(fl);
         if (b != null) {
             if (imgEn.isMD5(b)) {
                 _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем...");

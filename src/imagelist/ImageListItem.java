@@ -2,23 +2,16 @@ package imagelist;
 
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
-import java.awt.Container;
-import java.awt.MediaTracker;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javax.imageio.ImageIO;
 
 public class ImageListItem extends Pane {
     private Long ID = (long) 0x0;
@@ -153,39 +146,19 @@ public class ImageListItem extends Pane {
         buttonsVBox.relocate(0, 80);
         selImg.relocate(10, 10);
     }
-    
-//    public void setNonSquaredSmallImage(ImageEngine fs, long iid) {
-//        BufferedImage img = fs.getImages(iid).getNSSmallPrerview();
-//        setImg(img.getWidth(null), img.getHeight(null), img);
-//    }
-//    
-//    public void setSmallImage(ImageEngine fs, long iid) {
-//        BufferedImage img = fs.getImages(iid).getSmallPrerview();
-//        setImg(ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE, img);
-//    }
 
-    public void setImg(double sizeW, double sizeH, byte[] img) {
-        try {
-            final ByteArrayInputStream img_b = new ByteArrayInputStream(img);
-            final BufferedImage ret_img = ImageIO.read(img_b);
-
-            final MediaTracker mediaTracker = new MediaTracker(new Container()); 
-            mediaTracker.addImage(ret_img, 0); 
-            mediaTracker.waitForAll();
-            
-            setImg(sizeW, sizeH, ret_img);
-        } catch (IOException | InterruptedException ex) {  } 
+    public void setImg(double sizeW, double sizeH, byte img[]) {
+        imageZ.setSmooth(true);
+        imageZ.setCache(false);
+        imageZ.setImage(new Image(new ByteArrayInputStream(img)));
+        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        this.getStyleClass().add("ImageListX");
     }
     
-    public void setImg(double sizeW, double sizeH, BufferedImage img) {
-        if (img == null) return;
-        final WritableImage img_r = SwingFXUtils.toFXImage(img, null);       
-        imageZ.setFitHeight(sizeW);
-        imageZ.setFitWidth(sizeH);
+    public void setImg(double sizeW, double sizeH, Image img) {
         imageZ.setSmooth(true);
-        imageZ.setCache(true);
-        imageZ.setPreserveRatio(true);
-        imageZ.setImage(img_r);
+        imageZ.setCache(false);
+        imageZ.setImage(img);
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("ImageListX");
     }

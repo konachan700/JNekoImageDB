@@ -10,8 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import jnekoimagesdb.GUITools;
 import menulist.MenuGroupItem;
 
 public class AlbumsCategories extends ScrollPane {
@@ -24,13 +24,13 @@ public class AlbumsCategories extends ScrollPane {
             AC = ac;
             
             this.getStyleClass().add("itemHBox");
-            _s1(this, 9999, 32);
+            GUITools.setMaxSize(this, 9999, 32);
             
             //Label l = new Label(ac.name);
             lTextField = new TextField(ac.name);
             //l.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("albgrp.png"))));
             lTextField.getStyleClass().add("itemLabel");
-            _s1(lTextField, 9999, 32);
+            GUITools.setMaxSize(lTextField, 9999, 32);
             
             ImageView i = new ImageView(new Image(getClass().getResourceAsStream("albgrp.png")));
             i.setFitHeight(32);
@@ -38,7 +38,7 @@ public class AlbumsCategories extends ScrollPane {
             
             Button b = new Button("", new ImageView(new Image(getClass().getResourceAsStream((ac.state==1) ? "delete2.png" : "selected.png"))));
             b.getStyleClass().add("itemButton");
-            _s2(b, 32, 32);
+            GUITools.setFixedSize(b, 32, 32);
             b.setOnMouseClicked((MouseEvent event) -> {
                 if (AC.state == 0) {
                     AC.state = 1;
@@ -52,7 +52,7 @@ public class AlbumsCategories extends ScrollPane {
             
             Button s = new Button("", new ImageView(new Image(getClass().getResourceAsStream("save2.png"))));
             s.getStyleClass().add("itemButton");
-            _s2(s, 32, 32);
+            GUITools.setFixedSize(s, 32, 32);
             s.setOnMouseClicked((MouseEvent event) -> {
                 if (lTextField.getText().trim().length() <= 1) return;
                 ac.name = lTextField.getText().trim();
@@ -96,10 +96,10 @@ public class AlbumsCategories extends ScrollPane {
         
         toolbox.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         toolbox.getStyleClass().add("toolbox");
-        _s1(toolbox, 9999, 64);
+        GUITools.setMaxSize(toolbox, 9999, 64);
         txtAddNew.getStyleClass().add("txtAddNew");
-        _s1(txtAddNew, 9999, 64);
-        _s2(todbImg, 64, 64);
+        GUITools.setMaxSize(txtAddNew, 9999, 64);
+        GUITools.setFixedSize(todbImg, 64, 64);
         todbImg.getStyleClass().add("ImgButtonR");
         toolbox.getChildren().addAll(txtAddNew, todbImg);
         
@@ -135,28 +135,5 @@ public class AlbumsCategories extends ScrollPane {
         
         MGI.addLabel(Long.toString(ImageEngine.ALBUM_ID_DELETED), "Удаленные");
         MGI.Commit();
-    }
-    
-    private VBox getSeparator1() {
-        VBox sep1 = new VBox();
-        _s1(sep1, 9999, 16);
-        return sep1;
-    }
-    
-    private VBox getSeparator1(double sz) {
-        VBox sep1 = new VBox();
-        _s2(sep1, sz, 16);
-        return sep1;
-    }
-    
-    private void _s2(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
-        n.setMinSize(w, h);
-    }
-    
-    private void _s1(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
     }
 }

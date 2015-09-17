@@ -1,7 +1,7 @@
 package albums;
 
 import dataaccess.ImageEngine;
-import dataaccess.SQLite;
+import dataaccess.DBEngine;
 import imagelist.ImageList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import jnekoimagesdb.GUITools;
 
 public class AlbumImageList extends VBox {
     private final HBox 
@@ -28,13 +29,13 @@ public class AlbumImageList extends VBox {
     private final ImageList
             IML;
     
-    private final SQLite SQL;
+    private final DBEngine SQL;
     
-    public AlbumImageList(ImageEngine im, SQLite sql, Pane parent) {
+    public AlbumImageList(ImageEngine im, DBEngine sql, Pane parent) {
         super(2);
         IM = im;
         SQL = sql;
-        IML = new ImageList(IM, SQL, parent);
+        IML = new ImageList(IM, parent);
         init();
     }
     
@@ -45,9 +46,9 @@ public class AlbumImageList extends VBox {
     private void init() {
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("AlbumImageList");
-        _s1(this, 9999, 9999);
+        GUITools.setMaxSize(this, 9999, 9999);
         
-        _s1(albumList, 9999, 9999);
+        GUITools.setMaxSize(albumList, 9999, 9999);
         
         imgLabel.setOnMouseClicked((MouseEvent event) -> {
             this.getChildren().remove(albumList);
@@ -56,7 +57,7 @@ public class AlbumImageList extends VBox {
         });
         imgLabel.getStyleClass().add("tabLabelB");
         imgLabel.setAlignment(Pos.CENTER);
-        _s1(imgLabel, 9999, 24);
+        GUITools.setMaxSize(imgLabel, 9999, 24);
         
         albLabel.setOnMouseClicked((MouseEvent event) -> {
             this.getChildren().remove(IML);
@@ -65,36 +66,13 @@ public class AlbumImageList extends VBox {
         });
         albLabel.getStyleClass().add("tabLabelA");
         albLabel.setAlignment(Pos.CENTER);
-        _s1(albLabel, 9999, 24);
+        GUITools.setMaxSize(albLabel, 9999, 24);
         
         tabsHBox.getStyleClass().add("tabsHBox");
         tabsHBox.setAlignment(Pos.CENTER);
-        _s1(tabsHBox, 9999, 24);
+        GUITools.setMaxSize(tabsHBox, 9999, 24);
         
         tabsHBox.getChildren().addAll(imgLabel, albLabel);
         this.getChildren().addAll(tabsHBox, IML);
-    }
-
-    private VBox getSeparator1() {
-        VBox sep1 = new VBox();
-        _s1(sep1, 9999, 16);
-        return sep1;
-    }
-    
-    private VBox getSeparator1(double sz) {
-        VBox sep1 = new VBox();
-        _s2(sep1, sz, sz);
-        return sep1;
-    }
-    
-    private void _s2(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
-        n.setMinSize(w, h);
-    }
-    
-    private void _s1(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
     }
 }

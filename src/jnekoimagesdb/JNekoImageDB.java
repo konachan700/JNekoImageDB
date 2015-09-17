@@ -5,7 +5,7 @@ import albums.AlbumsCategories;
 import dataaccess.Crypto;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
-import dataaccess.SQLite;
+import dataaccess.DBEngine;
 import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
@@ -97,7 +97,7 @@ public class JNekoImageDB extends Application {
     private final Crypto
             mainCrypto      = new Crypto();
     
-    private SQLite
+    private DBEngine
             SQL = null;
     
     private ImageEngine
@@ -212,12 +212,13 @@ public class JNekoImageDB extends Application {
         }
         DBWrapper.setCrypto(mainCrypto);
         
-        SQL = new SQLite(mainCrypto);
+        SQL = new DBEngine();
         if (SQL.Connect(SplittedFile.DATABASE_FOLDER + "fs") == -1) {
             System.err.println("Error #4: Cannot connect to DB.");
             Platform.exit(); return;
         }
         DBWrapper.setSQLite(SQL);
+        DBWrapper.DBWrapperTmrStart();
         
         TMRLOG.setCycleCount(Animation.INDEFINITE);
         TMRLOG.play();
@@ -229,7 +230,7 @@ public class JNekoImageDB extends Application {
         DBWrapper.setImageEngine(imgEn);
                 
         fileImgList = new FSImageList(mainCrypto, imgEn, SQL);
-        imgList = new ImageList(imgEn, SQL, basesp);
+        imgList = new ImageList(imgEn, basesp);
         albImgList = new AlbumImageList(imgEn, SQL, basesp); 
         settings = new Settings(SQL);
         

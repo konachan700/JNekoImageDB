@@ -1,7 +1,7 @@
 package settings;
 
 import dataaccess.DBWrapper;
-import dataaccess.SQLite;
+import dataaccess.DBEngine;
 import java.io.File;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;

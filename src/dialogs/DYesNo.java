@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import jnekoimagesdb.GUITools;
 
 public class DYesNo {
     public interface DYesNoActionListener {
@@ -37,13 +38,13 @@ public class DYesNo {
         MessageStr.setEditable(false);
         MessageStr.setWrapText(true);
         
-        _s2(yesImg, 64, 64);
-        _s2(noImg, 64, 64);
-        _s1(MessageStr, 9999, 64);
+        GUITools.setFixedSize(yesImg, 64, 64);
+        GUITools.setFixedSize(noImg, 64, 64);
+        GUITools.setMaxSize(MessageStr, 9999, 64);
         
-        _z(yesImg, "DYesButton");
-        _z(noImg, "DNoButton");
-        _z(MessageStr, "DMessageStr");
+        setStyle(yesImg, "DYesButton");
+        setStyle(noImg, "DNoButton");
+        setStyle(MessageStr, "DMessageStr");
         
         yesImg.setOnMouseClicked((MouseEvent event) -> {
             parent.getChildren().clear();
@@ -67,19 +68,8 @@ public class DYesNo {
         parent.getChildren().addAll(MessageStr, noImg, yesImg);
     }
     
-    private void _z(Region n, String styleID) {
+    private void setStyle(Region n, String styleID) {
         n.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         n.getStyleClass().add(styleID);
-    }
-
-    private void _s2(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
-        n.setMinSize(w, h);
-    }
-    
-    private void _s1(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
     }
 }

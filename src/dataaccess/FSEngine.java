@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,17 +15,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import jnekoimagesdb.JNekoImageDB;
 
-public class SQLiteFS {   
+public class FSEngine {   
     private static volatile long gcCounter = 0;
     
-    
-    private final SQLite 
-            SQL;// = new SQLite();
+    private final DBEngine 
+            SQL;
     
     private final SplittedFile
             FILE;
@@ -37,16 +33,16 @@ public class SQLiteFS {
     private final String 
             DBNameE;
 
-    public SQLiteFS(Crypto k, String dbname, SQLite sql) {
+    public FSEngine(Crypto k, String dbname, DBEngine sql) {
         DBNameE = dbname;
         fileCrypto = k;
         FILE = new SplittedFile(k);
         SQL = sql;
 
-        SQL.ExecuteSQL("CREATE TABLE if not exists "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" (oid bigint not null primary key, md5 BINARY(16), startSector bigint, sectorSize int, actualSize int, fileName BINARY(240));");
+        SQL.ExecuteSQL("CREATE TABLE if not exists "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" (oid bigint not null primary key, md5 BINARY(16), startSector bigint, sectorSize int, actualSize int, fileName BINARY(240));");
     }
 
-    public SQLite GetSQL() {
+    public DBEngine GetSQL() {
         return SQL;
     }
     
@@ -68,7 +64,7 @@ public class SQLiteFS {
 
     public long getCount() {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums)"); //("SELECT COUNT(oid) FROM 'FS_"+DBNameE+"_files';");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums)"); //("SELECT COUNT(oid) FROM 'FS_"+DBNameE+"_files';");
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 if (rs.next()) {
@@ -82,7 +78,7 @@ public class SQLiteFS {
     
     public ArrayList<Long> getImages(String _sql) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT oid FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums) " + _sql);
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT oid FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums) " + _sql);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 ArrayList<Long> all = new ArrayList<>();
@@ -100,7 +96,7 @@ public class SQLiteFS {
     
     public boolean isMD5Present(byte[] md5) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE md5=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE md5=?;");
             ps.setBytes(1, md5);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
@@ -148,6 +144,7 @@ public class SQLiteFS {
             System.arraycopy(read_buf.toByteArray(), 0, ret, 0, (int)act_size);
             read_buf.reset();
 
+            //_L("Object size = "+ret.length);
             return ret;
         } catch (IOException ex) {
             _L(ex.getMessage());
@@ -157,17 +154,11 @@ public class SQLiteFS {
     
     
     public synchronized byte[] PopFile(long oid) {
-        final long maxMemory = Runtime.getRuntime().maxMemory();
-        if (maxMemory < (64 * 1024 * 1024)) {
-            _L("Free RAM too small");
-            return null;
-        }
-        
         byte md5[];
         final ByteArrayOutputStream md5e = new ByteArrayOutputStream();
         final ByteArrayOutputStream read_buf = new ByteArrayOutputStream();
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
@@ -216,7 +207,7 @@ public class SQLiteFS {
     @SuppressWarnings("ConvertToTryWithResources")
     public synchronized int PopFile(long oid, String path) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
@@ -313,7 +304,6 @@ public class SQLiteFS {
         
         final long realSize = file.length();
         final long sectorSize = (realSize / SplittedFile.SECTOR_SIZE) + (((realSize % SplittedFile.SECTOR_SIZE) > 0) ? 1 : 0);
-        //final byte[] md5Hash = getFileMD5MT(fileName);
         final byte[] md5Hash = (md5HashX != null) ? md5HashX : getFileMD5MT(fileName);
 
         final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, file.getName(), md5Hash);
@@ -341,8 +331,8 @@ public class SQLiteFS {
             
             gcCounter++;
             if (gcCounter >= 24) {
-                System.gc();
-                gcCounter = 0;
+                System.gc(); // Может быть, это и неправильно, но на параллельной обработке сборщик мусора сам не успевает собрать все вовремя и HeapSize растет до максимума.
+                gcCounter = 0; // в релизе будет убрано.
             }
             
             return myID;
@@ -358,7 +348,7 @@ public class SQLiteFS {
         if (lastSector < 0) return null;
         
         try { 
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" VALUES(?, ?, ?, ?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?, ?, ?);");
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setBytes(2, md5Hash);
@@ -402,7 +392,7 @@ public class SQLiteFS {
 
     private synchronized long getLastSector() {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"FS_"+DBNameE+"_files"+SQLite.QUOTE+" ORDER BY oid DESC LIMIT 0,1;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" ORDER BY oid DESC LIMIT 0,1;");
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 if (rs.next()) {

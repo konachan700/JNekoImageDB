@@ -3,7 +3,7 @@ package imagelist;
 import dataaccess.DBImageX;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
-import dataaccess.SQLite;
+import dataaccess.DBEngine;
 import dialogs.DYesNo;
 import dialogs.PleaseWait;
 import java.io.File;
@@ -41,8 +41,8 @@ public class ImageList extends FlowPane {
     private final ImageList
             THIS = this;
     
-    private final SQLite 
-            SQL;
+//    private final DBEngine 
+//            SQL;
     
     private final Button
             selallImg = new Button("", new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
@@ -69,9 +69,6 @@ public class ImageList extends FlowPane {
     
     private double 
             scrollNum = 0;
-    
-//    private volatile String 
-//            sqlFilter = "";
     
     private SmallPaginator
             xPag = null;
@@ -164,8 +161,7 @@ public class ImageList extends FlowPane {
                     if (albumID == 0){
                         d = DBWrapper.getImagesX(-1, (currentPage*images_count), images_count);
                         totalImagesCount = (int) IMG.getImgCount();
-                    }
-                    else {
+                    } else {
                         d = DBWrapper.getImagesX(albumID, (currentPage*images_count), images_count);
                         totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
                     }
@@ -212,7 +208,7 @@ public class ImageList extends FlowPane {
         return topPanel;
     }
     
-    public ImageList(ImageEngine im, SQLite sql, Pane parent) {
+    public ImageList(ImageEngine im, Pane parent) {
         super(Orientation.HORIZONTAL);
         this.setVgap(8);
         this.setHgap(8);
@@ -223,7 +219,7 @@ public class ImageList extends FlowPane {
         this.setPrefSize(9999, 9999);
         
         IMG = im;
-        SQL = sql;
+//        SQL = sql;
         xParent = parent;
 
         xPag = new SmallPaginator((int page) -> {

@@ -1,7 +1,6 @@
 package dataaccess;
 
 import albums.AlbumsCategory;
-import static dataaccess.SQLite.QUOTE;
 import java.awt.Container;
 import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
@@ -14,8 +13,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
@@ -23,22 +24,21 @@ import javax.imageio.stream.ImageInputStream;
 import jnekoimagesdb.JNekoImageDB;
 import menulist.MenuGroupItem;
 import org.apache.commons.io.FilenameUtils;
-/*
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    TODO: ПРИДЕЛАТЬ СЧЕТЧИК ЗАПРОСОВ К БД!
-*/
 
 public class DBWrapper {
     private static volatile Crypto          xCrypto     = null;
-    private static volatile SQLite          SQL         = null;
+    private static volatile DBEngine          SQL         = null;
     private static volatile ImageEngine     IM          = null;
     private static volatile MenuGroupItem   MGI         = null;
     
+    private static volatile int             SQLCounter  = 0,
+                                            _SQLCounter = 0;
+
     public static void setCrypto(Crypto c) {
         xCrypto = c;
     }
     
-    public static void setSQLite(SQLite s) {
+    public static void setSQLite(DBEngine s) {
         SQL = s;
     }
     
@@ -49,6 +49,23 @@ public class DBWrapper {
     public static void setMenuGroupItem2(MenuGroupItem m) {
         MGI = m;
     }
+    
+    public static void DBWrapperTmrStart() {
+        final Timeline IOPS_TMR = new Timeline(new KeyFrame(Duration.millis(1000), ae -> {
+            SQLCounter = _SQLCounter;
+            _SQLCounter = 0;
+            System.err.println("SQL COUNT="+SQLCounter);
+        })); 
+        IOPS_TMR.setCycleCount(Animation.INDEFINITE);
+        IOPS_TMR.play();
+    }
+    
+    public static long getSQLCounter() {
+        return SQLCounter;
+    }
+    
+    
+    
     
     
     
@@ -76,7 +93,7 @@ public class DBWrapper {
     
     public static synchronized ArrayList<DBImageX> getImagesX(long album_id, long start, long limit) {
         try {
-            PreparedStatement ps;
+            final PreparedStatement ps;
             if ((album_id != -1)) {
                 ps = SQL.getConnection().prepareStatement(
                         "SELECT " 
@@ -98,19 +115,21 @@ public class DBWrapper {
                                 + "previews_list "
                                 + 
                         "LEFT JOIN "
-                                + "FS_preview_files, "
+                                + "FS_preview_files "
+                                +
+                        "ON "
+                                + "(previews_list.pdid=FS_preview_files.oid) "
+                                +
+                        "LEFT JOIN "
                                 + "images_albums "
                                 +
                         "ON "
-                                + "previews_list.pdid=FS_preview_files.oid "
-                                + "AND "
-                                + "previews_list.idid=images_albums.imgoid "
+                                + "(previews_list.idid=images_albums.imgoid) "
                                 +
                         "WHERE "
                                 + "previews_list.imgtype=? "
-                                + ((album_id != -1) ?
-                                  "AND "
-                                + "images_albums.imgoid=? " : "")
+                                + "AND "
+                                + "images_albums.alboid=? "
                                 + 
                         "LIMIT "
                                 + "?,?; ");
@@ -153,6 +172,8 @@ public class DBWrapper {
                 ps.setLong(3, limit);
             }
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
+            
             if (rs != null) {
                 final ArrayList<DBImageX> db = new ArrayList<>();
                 while (rs.next()) {
@@ -188,18 +209,6 @@ public class DBWrapper {
         return null;
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     public static synchronized int writeImageMetadataToDB(String path, long oid) {
         final String ext = FilenameUtils.getExtension(path);
         if (ext.length() < 2) return -1;
@@ -219,7 +228,7 @@ public class DBWrapper {
                 long
                         wh2 = width * height;
                 
-                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"images_basic_meta"+SQLite.QUOTE+" VALUES(?, ?, ?, ?, ?, ?, ?);");
+                final PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_basic_meta"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?, ?, ?, ?);");
                 final long tmr = new Date().getTime();
                 ps.setLong(1, tmr);
                 ps.setLong(2, oid);
@@ -229,6 +238,8 @@ public class DBWrapper {
                 ps.setLong(6, wh2);
                 ps.setBytes(7, Crypto.MD5(path.getBytes()));
                 ps.execute();
+                _SQLCounter++;
+                
                 Sleep(2);
                 r.dispose();
                 
@@ -242,9 +253,10 @@ public class DBWrapper {
     
     public static synchronized boolean isMD5InMetadata(String path) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"images_basic_meta"+SQLite.QUOTE+" WHERE fn_md5=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_basic_meta"+DBEngine.QUOTE+" WHERE fn_md5=?;");
             ps.setBytes(1, Crypto.MD5(path.getBytes()));
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 if (rs.next()) {
                     long act_size  = rs.getLong("oid");
@@ -257,13 +269,14 @@ public class DBWrapper {
     
     public static synchronized int addImageAndPreviewAssoc(long imgID, long previewID, int type) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"previews_list"+SQLite.QUOTE+" VALUES(?, ?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_list"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?);");
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setLong(2, imgID);
             ps.setLong(3, previewID);
             ps.setLong(4, type);
             ps.execute();
+            _SQLCounter++;
             Sleep(2);
             return 0;
         } catch (SQLException ex) { _L(ex.getMessage()); }
@@ -272,27 +285,29 @@ public class DBWrapper {
     
     public static synchronized void addNewAlbumGroup(String name) {
             try {
-                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"AlbumsGroup"+SQLite.QUOTE+" VALUES(?, ?, 1);");
+                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" VALUES(?, ?, 1);");
                 final long tmr = new Date().getTime();
                 ps.setLong(1, tmr);
                 ps.setBytes(2, xCrypto.Crypt(xCrypto.align16b(name.getBytes())));
                 ps.execute();
-                
+                _SQLCounter++;
             } catch (SQLException ex) { }
     }
     
-    public static synchronized BufferedImage getPrerview(int xtype, long IID, SQLiteFS SFS_preview) {
+    public static synchronized BufferedImage getPrerview(int xtype, long IID, FSEngine SFS_preview) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"previews_list"+SQLite.QUOTE+" WHERE idid=? AND imgtype=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"previews_list"+DBEngine.QUOTE+" WHERE idid=? AND imgtype=?;");
             ps.setLong(1, IID);
             ps.setInt(2, xtype);
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 if (rs.next()) {
                     final long 
                             preview_id = rs.getLong("pdid");
 
                     final byte[] img_t = SFS_preview.PopFile(preview_id);
+                    _SQLCounter++;
                     if (img_t == null) {
                         return null;
                     }
@@ -318,18 +333,18 @@ public class DBWrapper {
     
     public static void WriteAPPSettingsString(String optName, String value) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"StringSettings"+SQLite.QUOTE+" VALUES(?, ?);");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" VALUES(?, ?);");
             ps.setString(1, optName);
             ps.setString(2, value); 
             ps.execute();
-//            SQL.getConnection().commit();
+            _SQLCounter++;
         } catch (SQLException ex) {
             try {
-                PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE "+SQLite.QUOTE+"StringSettings"+SQLite.QUOTE+" SET xvalue=? WHERE xname=?;");
+                PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" SET xvalue=? WHERE xname=?;");
                 ps.setString(1, value);
                 ps.setString(2, optName);
                 ps.execute();
-//                SQL.getConnection().commit();
+                _SQLCounter++;
             } catch (SQLException ex1) {
                 _L("WriteAPPSettingsString ERROR: "+ex.getMessage());
             }
@@ -338,9 +353,10 @@ public class DBWrapper {
     
     public static String ReadAPPSettingsString(String optName) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"StringSettings"+SQLite.QUOTE+" WHERE xname=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" WHERE xname=?;");
             ps.setString(1, optName); 
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 if (rs.next()) {
                     final String retval = rs.getString("xvalue");
@@ -385,10 +401,11 @@ public class DBWrapper {
     
     public static synchronized int delImageGroupID(long imgOID, long groupOID) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("DELETE FROM "+SQLite.QUOTE+"images_albums"+SQLite.QUOTE+" WHERE imgoid=? AND alboid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("DELETE FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE imgoid=? AND alboid=?;");
             ps.setLong(1, imgOID);
             ps.setLong(2, groupOID);
             ps.execute();
+            _SQLCounter++;
             return 0;
         } catch (SQLException ex) { 
             _L("delImageGroupID ERROR: "+ex.getMessage());
@@ -399,9 +416,10 @@ public class DBWrapper {
     
     public static synchronized long getImagesCountInAlbum(long oid) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM "+SQLite.QUOTE+"images_albums"+SQLite.QUOTE+" WHERE alboid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 if (rs.next()) {
                     long sz = rs.getLong("COUNT(oid)");
@@ -416,9 +434,10 @@ public class DBWrapper {
     
     public static synchronized ArrayList<Long> getGroupsByImageOID(long oid) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"images_albums"+SQLite.QUOTE+" WHERE imgoid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE imgoid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 ArrayList<Long> all = new ArrayList<>();
                 while (rs.next()) {
@@ -435,9 +454,10 @@ public class DBWrapper {
     
     public static synchronized ArrayList<Long> getImagesByGroupOID(long oid, int limStart, int limCount) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"images_albums"+SQLite.QUOTE+" WHERE alboid=? ORDER BY oid ASC LIMIT "+limStart+","+limCount+";");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=? ORDER BY oid ASC LIMIT "+limStart+","+limCount+";");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 ArrayList<Long> all = new ArrayList<>();
                 while (rs.next()) {
@@ -460,12 +480,13 @@ public class DBWrapper {
         }
         
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"images_albums"+SQLite.QUOTE+" VALUES(?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?, ?);");
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setLong(2, imgOID);
             ps.setLong(3, groupOID);
             ps.execute();
+            _SQLCounter++;
             Sleep(2);
             return 0;
         } catch (SQLException ex) { 
@@ -477,12 +498,13 @@ public class DBWrapper {
     
     public static synchronized int addPreviewAssoc(long imgID, byte[] md5) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+SQLite.QUOTE+"previews_files"+SQLite.QUOTE+" VALUES(?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" VALUES(?, ?, ?);");
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setLong(2, imgID);
             ps.setBytes(3, md5);
             ps.execute();
+            _SQLCounter++;
             Sleep(2);
             return 0;
         } catch (SQLException ex) { 
@@ -493,9 +515,10 @@ public class DBWrapper {
     
     public static synchronized long getIDByMD5(byte[] md5r) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"previews_files"+SQLite.QUOTE+" WHERE md5=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" WHERE md5=?;");
             ps.setBytes(1, md5r);
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 if (rs.next()) {
                     final long idid = rs.getLong("idid");
@@ -514,8 +537,9 @@ public class DBWrapper {
         
     public static synchronized ArrayList<AlbumsCategory> getAlbumsGroupsID() {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+SQLite.QUOTE+"AlbumsGroup"+SQLite.QUOTE+" ORDER BY oid DESC;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" ORDER BY oid DESC;");
             ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
             if (rs != null) {
                 ArrayList<AlbumsCategory> alac = new ArrayList<>();
                 while (rs.next()) {
@@ -534,11 +558,12 @@ public class DBWrapper {
     
     public static synchronized int saveAlbumsCategoryChanges(String name, int state, long ID) {
         try { 
-            PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE "+SQLite.QUOTE+"AlbumsGroup"+SQLite.QUOTE+" SET groupName=?, state=? WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" SET groupName=?, state=? WHERE oid=?;");
             ps.setBytes(1, xCrypto.Crypt(xCrypto.align16b(name.getBytes())));
             ps.setInt(2, state);
             ps.setLong(3, ID);
             ps.execute();
+            _SQLCounter++;
             Sleep(2);
             return 0;
         } catch (SQLException  ex) {

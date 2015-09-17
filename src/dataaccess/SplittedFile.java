@@ -203,7 +203,7 @@ public class SplittedFile {
                 md5ez.write(Crypto.MD5(sectorBuffer));
                 MyIOPS_R = MyIOPS_R + SECTOR_SIZE;
             } catch (IOException ex) {
-                Logger.getLogger(SQLiteFS.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FSEngine.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     

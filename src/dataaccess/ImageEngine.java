@@ -29,10 +29,10 @@ public class ImageEngine {
             ALBUM_ID_DELETED = 99999,
             ALBUM_ID_FAVORITES = 99998;
         
-    private final SQLite 
+    private final DBEngine 
             SQL;
     
-    private final SQLiteFS
+    private final FSEngine
             ImagesFS,
             ThumbsFS;
     
@@ -47,22 +47,18 @@ public class ImageEngine {
 
             IMAGE_MAX_SIZE = 128000000;
     
-    public ImageEngine(Crypto k, SQLite sql) {
+    public ImageEngine(Crypto k, DBEngine sql) {
         CRYPT       = k;
         SQL         = sql;
-        ImagesFS    = new SQLiteFS(CRYPT, "images", SQL);
-        ThumbsFS    = new SQLiteFS(CRYPT, "preview", SQL);
+        ImagesFS    = new FSEngine(CRYPT, "images", SQL);
+        ThumbsFS    = new FSEngine(CRYPT, "preview", SQL);
     }
     
-    public SQLite getImgSQL() {
+    public DBEngine getImgSQL() {
         return ImagesFS.GetSQL();
     }
 
-    public DBImage getImages(long iid) {
-        return new DBImage(ThumbsFS, iid);
-    }
-    
-    public SQLiteFS getThumbsFS() {
+    public FSEngine getThumbsFS() {
         return ThumbsFS;
     }
     
