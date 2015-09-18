@@ -15,7 +15,7 @@ public class DBEngine {
     
     public int Connect(String filename) {
         try {
-            gConnection = DriverManager.getConnection("jdbc:mysql://localhost:43001/jnekoimdb", "jneko", "jneko");
+            gConnection = DriverManager.getConnection("jdbc:mysql://localhost:43001/jneko", "jneko", "jneko");
             gConnection.setAutoCommit(true);
             gStatement = gConnection.createStatement();
             gStatement.setQueryTimeout(25);

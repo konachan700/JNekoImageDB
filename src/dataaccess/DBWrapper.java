@@ -319,6 +319,7 @@ public class DBWrapper {
                     mediaTracker.addImage(ret_img, 0); 
                     mediaTracker.waitForAll();
 
+                    ps.close();
                     return ret_img;
                 } else
                     return null;
@@ -488,6 +489,7 @@ public class DBWrapper {
             ps.execute();
             _SQLCounter++;
             Sleep(2);
+            ps.close();
             return 0;
         } catch (SQLException ex) { 
             _L("setImageGroupID ERROR: "+ex.getMessage());
@@ -506,6 +508,7 @@ public class DBWrapper {
             ps.execute();
             _SQLCounter++;
             Sleep(2);
+            ps.close();
             return 0;
         } catch (SQLException ex) { 
             _L("addPreviewAssoc ERROR: "+ex.getMessage());
@@ -522,6 +525,8 @@ public class DBWrapper {
             if (rs != null) {
                 if (rs.next()) {
                     final long idid = rs.getLong("idid");
+                    rs.close();
+                    ps.close();
                     if (idid > 0)
                         return idid;
                     else 

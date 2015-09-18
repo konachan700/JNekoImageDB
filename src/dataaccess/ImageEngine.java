@@ -278,8 +278,8 @@ public class ImageEngine {
                 r.dispose();
                 if ((width * height * 8) < IMAGE_MAX_SIZE) 
                     return !DBWrapper.isMD5InMetadata(path);
-                else 
-                    _L("WARNING: Image ["+path+"] too large! Height: "+height+"px; width: "+width+"px;");
+                //else 
+                    //_L("WARNING: Image ["+path+"] too large! Height: "+height+"px; width: "+width+"px;");
             } catch (IOException e) {
                 _L(e.getMessage());
             } finally { r.dispose(); }

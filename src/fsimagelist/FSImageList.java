@@ -677,7 +677,7 @@ public class FSImageList extends ScrollPane{
         todbItemCounter     = 0;
         
         final Runnable taskR = () -> {
-            long xt;
+//            long xt;
             for (; todbItemCounter<todbItemsTotalCount; todbItemCounter++) {
                 __x1();
             }

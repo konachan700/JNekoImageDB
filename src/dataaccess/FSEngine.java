@@ -19,7 +19,27 @@ import javafx.scene.image.Image;
 import jnekoimagesdb.JNekoImageDB;
 
 public class FSEngine {   
-    private static volatile long gcCounter = 0;
+//    private static volatile long gcCounter = 0;
+    
+    /* Тут сделана аццкая оптимизация, все строки вынесены в константы. Потому как где-то шла утечка памяти по char[], а вот где точно не нашел. */
+    public static final String
+            SQL_FIELD_START_SECTOR = "startSector",
+            SQL_FIELD_SECTOR_COUNT = "sectorSize",
+            SQL_FIELD_LAST_SECTOR = "lastSector", 
+            SQL_FIELD_ACTUAL_SIZE = "actualSize", 
+            
+            MAP_FIELD_MY_ID = "myID",
+            
+            SQL_DEFAULT_FILENAME = "NULL-PREVIEW",
+            
+            SQL_TABLE_PREFIX = "FS_",
+            SQL_TABLE_SUFFIX = "_files",
+            
+            SQL_SELECT_ALL_FROM = "SELECT * FROM ",
+            SQL_ORDER_BY_X1 = " ORDER BY oid DESC LIMIT 0,1;", 
+            SQL_INSERT_INTO = "INSERT INTO ",
+            SQL_ADS_VALUES = " VALUES(?, ?, ?, ?, ?, ?);",
+            SQL_MD5_PRESENT_WHERE_X1 = " WHERE md5=?;";
     
     private final DBEngine 
             SQL;
@@ -71,6 +91,8 @@ public class FSEngine {
                     long sz  = rs.getLong("COUNT(oid)");
                     if (sz > 0) return sz;
                 }
+                rs.close();
+                ps.close();
             }
         } catch (SQLException ex) { }
         return -1;
@@ -85,6 +107,9 @@ public class FSEngine {
                 while (rs.next()) {
                     all.add(rs.getLong("oid"));
                 }
+                rs.close();
+                ps.close();
+                
                 return all;
             }
         } catch (SQLException ex) {
@@ -95,16 +120,25 @@ public class FSEngine {
     } 
     
     public boolean isMD5Present(byte[] md5) {
+        final StringBuilder sql_q = new StringBuilder();
+        sql_q.append(SQL_SELECT_ALL_FROM).append(DBEngine.QUOTE).append(SQL_TABLE_PREFIX).append(DBNameE)
+                .append(SQL_TABLE_SUFFIX).append(DBEngine.QUOTE).append(SQL_MD5_PRESENT_WHERE_X1);
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE md5=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement(sql_q.substring(0));
             ps.setBytes(1, md5);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 if (rs.next()) {
-                    long act_size  = rs.getLong("actualSize");
-                    if (act_size > 0) return true;
+                    long act_size  = rs.getLong(SQL_FIELD_ACTUAL_SIZE);
+                    if (act_size > 0) {
+                        rs.close();
+                        ps.close();
+                        return true;
+                    }
                 }
+                rs.close();
             }
+            ps.close();
         } catch (SQLException ex) { }
         return false;
     }
@@ -192,6 +226,9 @@ public class FSEngine {
                     final byte[] ret = new byte[(int)act_size];
                     System.arraycopy(read_buf.toByteArray(), 0, ret, 0, (int)act_size);
                     read_buf.reset();
+                    
+                    ps.close();
+                    rs.close();
 
                     return ret;
                 }
@@ -227,7 +264,7 @@ public class FSEngine {
                         _L("Invalid database record; null file;");
                         return -1;
                     }
-
+                    
                     byte md5[];
                     final ByteArrayOutputStream 
                             md5e = new ByteArrayOutputStream(),
@@ -247,13 +284,16 @@ public class FSEngine {
                         md5 = Crypto.MD5(md5e.toByteArray());
                         //md5e.reset();
                         if (!Arrays.equals(md5, md5_sql)) {
-                            _L("Invalid database record; md5 incorrect");
+                            //_L("Invalid database record; md5 incorrect");
                             return -1;
                         }
+                        
+                        ps.close();
+                        rs.close();
 
                         return 0;
                     } catch (FileNotFoundException ex) { 
-                        _L("Cannot read/write file ["+path+"]");
+                        //_L("Cannot read/write file ["+path+"]");
                         return -1;
                     }
                 }
@@ -270,14 +310,14 @@ public class FSEngine {
         final long sectorSize = (realSize / SplittedFile.SECTOR_SIZE) + (((realSize % SplittedFile.SECTOR_SIZE) > 0) ? 1 : 0);
         final byte[] md5Hash = (md5HashX != null) ? md5HashX : getFileMD5MT(file, sectorSize);
 
-        final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, "NULL-PREVIEW", md5Hash);
+        final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, SQL_DEFAULT_FILENAME, md5Hash);
         if (allocInfo == null) {
-            _L("PushFileMT->allocateDiskSpaceMT(): [NULL] cannot allocate disk space.");
+            //_L("PushFileMT->allocateDiskSpaceMT(): [NULL] cannot allocate disk space.");
             return -1;
         }
         
-        final long startSector = allocInfo.get("lastSector");
-        final long myID = allocInfo.get("myID");
+        final long startSector = allocInfo.get(SQL_FIELD_LAST_SECTOR);
+        final long myID = allocInfo.get(MAP_FIELD_MY_ID);
         byte sectorBuffer[];
         
         for (long i=startSector, j=0; i<(startSector+sectorSize); i++, j++) {
@@ -285,11 +325,11 @@ public class FSEngine {
             FILE.WriteFileSector(DBNameE, (int)(i), sectorBuffer);
         }
         
-        gcCounter++;
-        if (gcCounter >= 24) {
-            System.gc();
-            gcCounter = 0;
-        }
+//        gcCounter++;
+//        if (gcCounter >= 24) {
+//            System.gc();
+//            gcCounter = 0;
+//        }
         
         return myID;
     }
@@ -298,7 +338,7 @@ public class FSEngine {
     public synchronized long PushFileMT(String fileName, byte[] md5HashX) {
         final File file = new File(fileName);
         if ((!file.canRead()) || (!file.isFile())) {
-            _L("PushFileMT(): ["+fileName+"] no a regular file.");
+            //_L("PushFileMT(): ["+fileName+"] no a regular file.");
             return -1;
         }
         
@@ -308,12 +348,12 @@ public class FSEngine {
 
         final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, file.getName(), md5Hash);
         if (allocInfo == null) {
-            _L("PushFileMT->allocateDiskSpaceMT(): ["+fileName+"] cannot allocate disk space.");
+            //_L("PushFileMT->allocateDiskSpaceMT(): ["+fileName+"] cannot allocate disk space.");
             return -1;
         }
         
-        final long startSector = allocInfo.get("lastSector");
-        final long myID = allocInfo.get("myID");
+        final long startSector = allocInfo.get(SQL_FIELD_LAST_SECTOR);
+        final long myID = allocInfo.get(MAP_FIELD_MY_ID);
         
         try {
             final FileInputStream fis = new FileInputStream(fileName);
@@ -329,11 +369,11 @@ public class FSEngine {
 
             fis.close();
             
-            gcCounter++;
-            if (gcCounter >= 24) {
-                System.gc(); // Может быть, это и неправильно, но на параллельной обработке сборщик мусора сам не успевает собрать все вовремя и HeapSize растет до максимума.
-                gcCounter = 0; // в релизе будет убрано.
-            }
+//            gcCounter++;
+//            if (gcCounter >= 24) {
+//                System.gc(); // Может быть, это и неправильно, но на параллельной обработке сборщик мусора сам не успевает собрать все вовремя и HeapSize растет до максимума.
+//                gcCounter = 0; // в релизе будет убрано.
+//            }
             
             return myID;
         } catch (IOException ex) {
@@ -347,8 +387,11 @@ public class FSEngine {
         final long lastSector = getLastSector();
         if (lastSector < 0) return null;
         
+        final StringBuilder sql_q = new StringBuilder();
+        sql_q.append(SQL_INSERT_INTO).append(DBEngine.QUOTE).append(SQL_TABLE_PREFIX).append(DBNameE).append(SQL_TABLE_SUFFIX).append(DBEngine.QUOTE).append(SQL_ADS_VALUES);
+        
         try { 
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection().prepareStatement(sql_q.substring(0));
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setBytes(2, md5Hash);
@@ -359,10 +402,11 @@ public class FSEngine {
             ps.execute();
             
             final Map<String, Long> retVal = new HashMap<>();
-            retVal.put("lastSector", lastSector);
-            retVal.put("myID", tmr);
+            retVal.put(SQL_FIELD_LAST_SECTOR, lastSector);
+            retVal.put(MAP_FIELD_MY_ID, tmr);
             
             try { Thread.sleep(2); } catch (InterruptedException ex) {  }
+            ps.close();
             
             return retVal;
         } catch (SQLException  ex) {
@@ -391,14 +435,17 @@ public class FSEngine {
     }
 
     private synchronized long getLastSector() {
+        final StringBuilder sql_q = new StringBuilder();
+        sql_q.append(SQL_SELECT_ALL_FROM).append(DBEngine.QUOTE).append(SQL_TABLE_PREFIX).append(DBNameE).append(SQL_TABLE_SUFFIX).append(DBEngine.QUOTE).append(SQL_ORDER_BY_X1);
+        
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" ORDER BY oid DESC LIMIT 0,1;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement(sql_q.substring(0));
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 if (rs.next()) {
                     final long 
-                            st_sector = rs.getLong("startSector"),
-                            sz_sector = rs.getLong("sectorSize");
+                            st_sector = rs.getLong(SQL_FIELD_START_SECTOR),
+                            sz_sector = rs.getLong(SQL_FIELD_SECTOR_COUNT);
                     return st_sector + sz_sector;
                 } else 
                     return 0;

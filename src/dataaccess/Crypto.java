@@ -54,7 +54,15 @@ public class Crypto {
             DB_PROBE = "database/img.00000000",
             SALT_FILE = "database/random.bin",
             PRIVATE_KEY_FILE = ".idb/master.bin",
-            PRIVATE_KEY_FILE_DEFAULT = "database/master.bin";
+            PRIVATE_KEY_FILE_DEFAULT = "database/master.bin",
+            
+            AES_CRYPT = "AES",
+            AES_MODE = "AES/ECB/NoPadding",
+            AES_MODE2 = "SunJCE",
+            SHA256 = "SHA-256",
+            MD5 = "MD5", 
+            LINUX_MNT = "/mnt",
+            LINUX_MEDIA = "/media";
     
     private File __linuxCheck(String path) {
         File fmedia = new File(path);
@@ -71,20 +79,20 @@ public class Crypto {
     private File getPrivKey() {
         final File[] roots = File.listRoots();
         if (roots[0].getAbsolutePath().contentEquals("/")) {
-            File ff = __linuxCheck("/mnt");
+            File ff = __linuxCheck(LINUX_MNT);
             if (ff != null) return ff;
-            ff = __linuxCheck("/media");
+            ff = __linuxCheck(LINUX_MEDIA);
             if (ff != null) return ff;
         } else {
             for (File f: roots) {
-                final File ff = new File(f.getAbsolutePath() + "/" + PRIVATE_KEY_FILE);
+                final File ff = new File(f.getAbsolutePath() + File.separator + PRIVATE_KEY_FILE);
                 if (ff.exists() && ff.canRead()) return ff;
             }
         }
         
         final File ff = new File(PRIVATE_KEY_FILE_DEFAULT);
         if (ff.exists() && ff.canRead()) {
-            _L("Info: Private key found on default location.");
+            //_L("Info: Private key found on default location.");
             return ff;
         }
         
@@ -106,7 +114,7 @@ public class Crypto {
         }
 
         if (new File(DB_PROBE).canRead()) {
-            _L("Info: No master key found, but database exist.");
+            //_L("Info: No master key found, but database exist.");
             return false;
         }
         
@@ -118,7 +126,7 @@ public class Crypto {
             final FileOutputStream fos = new FileOutputStream(PRIVATE_KEY_FILE_DEFAULT);
             fos.write(masterKey);
             fos.close();
-            _L("Info: New master key are generated, all data lost.");
+            //_L("Info: New master key are generated, all data lost.");
             return true;
         } catch (IOException ex) {
             return false;
@@ -143,7 +151,7 @@ public class Crypto {
         }
         
         if (new File(DB_PROBE).canRead()) {
-            _L("Info: No salt found, but database exist.");
+            //_L("Info: No salt found, but database exist.");
             return false;
         }
         
@@ -155,7 +163,7 @@ public class Crypto {
             final FileOutputStream fos = new FileOutputStream(SALT_FILE);
             fos.write(randomPool);
             fos.close();
-            _L("Info: New salt are generated, all data lost.");
+            //_L("Info: New salt are generated, all data lost.");
             return true;
         } catch (IOException ex) {
             return false;
@@ -165,7 +173,7 @@ public class Crypto {
     public boolean genMasterKeyAES() {
         final MessageDigest md;
         try {
-            md = MessageDigest.getInstance("SHA-256");
+            md = MessageDigest.getInstance(SHA256);
             md.update(randomPool);
             md.update(masterKey);
             masterKeyAES = md.digest();
@@ -200,7 +208,7 @@ public class Crypto {
     public static byte[] MD5(byte[] unsafe) {
         final MessageDigest md;
         try {
-            md = MessageDigest.getInstance("MD5");
+            md = MessageDigest.getInstance(MD5);
             md.update(unsafe);
             final byte[] dig = md.digest();
             return dig;
@@ -211,7 +219,7 @@ public class Crypto {
     public static byte[] SHA256(byte[] unsafe) {
         final MessageDigest md;
         try {
-            md = MessageDigest.getInstance("SHA-256");
+            md = MessageDigest.getInstance(SHA256);
             md.update(unsafe);
             final byte[] dig = md.digest();
             return dig;
@@ -222,36 +230,36 @@ public class Crypto {
     public byte[] AESDecrypt(byte[] value, byte[] password) { // как сделать AES-256 без сторонних библиотек и бех IV\Padding, я так и не допер. Просто лень.
         try {
             final byte[] pwd = Arrays.copyOf(MD5(password), 16);
-            final SecretKey key = new SecretKeySpec(pwd, "AES");
-            final Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding", "SunJCE");
+            final SecretKey key = new SecretKeySpec(pwd, AES_CRYPT);
+            final Cipher cipher = Cipher.getInstance(AES_MODE, AES_MODE2);
             cipher.init(Cipher.DECRYPT_MODE, key);
             final byte[] decrypted = cipher.doFinal(value);
             return decrypted;
         } 
-        catch (NoSuchAlgorithmException ex)         { _L("__AESDecrypt: NoSuchAlgorithmException"    ); } 
-        catch (NoSuchProviderException ex)          { _L("__AESDecrypt: NoSuchProviderException"     ); } 
-        catch (NoSuchPaddingException ex)           { _L("__AESDecrypt: NoSuchPaddingException"     ); } 
-        catch (InvalidKeyException ex)              { _L("__AESDecrypt: InvalidKeyException"         ); } 
-        catch (IllegalBlockSizeException ex)        { _L("__AESDecrypt: IllegalBlockSizeException"   ); } 
-        catch (BadPaddingException ex)              { _L("__AESDecrypt: BadPaddingException"         ); }
+        catch (NoSuchAlgorithmException ex)         { /*_L("__AESDecrypt: NoSuchAlgorithmException"    );*/ } 
+        catch (NoSuchProviderException ex)          { /*_L("__AESDecrypt: NoSuchProviderException"     );*/ } 
+        catch (NoSuchPaddingException ex)           { /*_L("__AESDecrypt: NoSuchPaddingException"     );*/ } 
+        catch (InvalidKeyException ex)              { /*_L("__AESDecrypt: InvalidKeyException"         );*/ } 
+        catch (IllegalBlockSizeException ex)        { /*_L("__AESDecrypt: IllegalBlockSizeException"   );*/ } 
+        catch (BadPaddingException ex)              { /*_L("__AESDecrypt: BadPaddingException"         );*/ }
         return null;
     }
     
     public byte[] AESCrypt(byte[] value, byte[] password) {
         try {
             final byte[] pwd = Arrays.copyOf(MD5(password), 16);
-            final SecretKey key = new SecretKeySpec(pwd, "AES");
-            final Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding", "SunJCE");
+            final SecretKey key = new SecretKeySpec(pwd, AES_CRYPT);
+            final Cipher cipher = Cipher.getInstance(AES_MODE, AES_MODE2);
             cipher.init(Cipher.ENCRYPT_MODE, key);
             final byte[] encrypted = cipher.doFinal(value);
             return encrypted;
         } 
-        catch (NoSuchAlgorithmException ex)         { _L("__AESCrypt: NoSuchAlgorithmException"     ); } 
-        catch (NoSuchPaddingException ex)           { _L("__AESCrypt: NoSuchPaddingException"       ); } 
-        catch (NoSuchProviderException ex)          { _L("__AESCrypt: NoSuchProviderException"      ); } 
-        catch (InvalidKeyException ex)              { _L("__AESCrypt: InvalidKeyException"          ); } 
-        catch (IllegalBlockSizeException ex)        { _L("__AESCrypt: IllegalBlockSizeException"    ); } 
-        catch (BadPaddingException ex)              { _L("__AESCrypt: BadPaddingException"          ); }
+        catch (NoSuchAlgorithmException ex)         { /*_L("__AESCrypt: NoSuchAlgorithmException"     );*/ } 
+        catch (NoSuchPaddingException ex)           { /*_L("__AESCrypt: NoSuchPaddingException"       );*/ } 
+        catch (NoSuchProviderException ex)          { /*_L("__AESCrypt: NoSuchProviderException"      );*/ } 
+        catch (InvalidKeyException ex)              { /*_L("__AESCrypt: InvalidKeyException"          );*/ } 
+        catch (IllegalBlockSizeException ex)        { /*_L("__AESCrypt: IllegalBlockSizeException"    );*/ } 
+        catch (BadPaddingException ex)              { /*_L("__AESCrypt: BadPaddingException"          );*/ }
         return null;
     }
     
