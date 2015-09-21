@@ -34,15 +34,17 @@ public class SplittedFile {
     }));
     
     public final static long 
-            ONE_PART_SIZE   = 1024 * 1024,
-            SECTOR_SIZE     = 1024;
+            ONE_PART_SIZE   = 1024 * 1024 * 3,
+            SECTOR_SIZE     = 1024 * 8;
     
     public final static int
             ERRCODE_IO_EXCEPTION = -1,
             ERRCODE_INCORRECT_SECTOR_SIZE = -2,
             ERRCODE_DECRYPT_ERROR = -3,
             ERRCODE_INVALID_CRYPT_KEY = -4,
-            ERRCODE_CRYPT_ERROR = -5;
+            ERRCODE_CRYPT_ERROR = -5,
+            
+            DB_FILE_EXT_LEN = 4; // (10^4) * ONE_PART_SIZE * SECTOR_SIZE = 30TB maximum db size
     
     public final static String
             DATABASE_FOLDER = "./database/";
@@ -216,7 +218,7 @@ public class SplittedFile {
 
     private String __getFileName(String filename, long sector_num) {
         final long fileNameTail = sector_num / ONE_PART_SIZE;
-        return DATABASE_FOLDER + filename + "." + __Right("0000000" + fileNameTail, 8);
+        return DATABASE_FOLDER + filename + "." + __Right("0000000" + fileNameTail, DB_FILE_EXT_LEN);
     }
     
     private String __Right(String s, int count) {

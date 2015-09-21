@@ -255,7 +255,8 @@ public class FSEngine {
                             act_size  = rs.getLong("actualSize");
 
                     final String 
-                            fileNameOut = new String(fileCrypto.Decrypt(rs.getBytes("fileName"))).trim();
+                            fileNameOut = nullTrim(new String(fileCrypto.Decrypt(rs.getBytes("fileName"))));
+                    //_L(Arrays.toString(fileCrypto.Decrypt(rs.getBytes("fileName"))));
 
                     final byte[] md5_sql = 
                             rs.getBytes("md5");
@@ -270,6 +271,7 @@ public class FSEngine {
                             md5e = new ByteArrayOutputStream(),
                             fileOut = new ByteArrayOutputStream();
                     try {
+                        //_L(new File(path).getAbsolutePath() + File.separator + fileNameOut);
                         final FileOutputStream fos = new FileOutputStream(new File(path).getAbsolutePath() + File.separator + fileNameOut);
                         for (long i=st_sector; i<(st_sector + sz_sector); i++) {
                             final byte[] buf_w = FILE.ReadFileSector(DBNameE, (int)i);
@@ -284,7 +286,7 @@ public class FSEngine {
                         md5 = Crypto.MD5(md5e.toByteArray());
                         //md5e.reset();
                         if (!Arrays.equals(md5, md5_sql)) {
-                            //_L("Invalid database record; md5 incorrect");
+                            _L("Invalid database record; md5 incorrect");
                             return -1;
                         }
                         
@@ -293,7 +295,7 @@ public class FSEngine {
 
                         return 0;
                     } catch (FileNotFoundException ex) { 
-                        //_L("Cannot read/write file ["+path+"]");
+                        _L("Cannot read/write file ["+path+"]");
                         return -1;
                     }
                 }
@@ -312,7 +314,7 @@ public class FSEngine {
 
         final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, SQL_DEFAULT_FILENAME, md5Hash);
         if (allocInfo == null) {
-            //_L("PushFileMT->allocateDiskSpaceMT(): [NULL] cannot allocate disk space.");
+            _L("PushFileMT->allocateDiskSpaceMT(): [NULL] cannot allocate disk space.");
             return -1;
         }
         
@@ -443,6 +445,11 @@ public class FSEngine {
             return -1;
         }
         return -1;
+    }
+    
+    private String nullTrim(String t) {
+        int pos = t.indexOf(0);
+        if (pos > 0) return t.substring(0, pos); else return t;
     }
     
     private static void _L(String s) {
