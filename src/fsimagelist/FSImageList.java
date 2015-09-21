@@ -99,7 +99,7 @@ public class FSImageList extends ScrollPane{
             
             todbItemsTotalCount         = 0,
             todbItemCounter             = 0,
-            todbThreadsCount            = 4, // кол-во потоков. Оптимально, наверное, 8. Если у кого-то i7 или xeon, можно увеличить.
+            todbThreadsCount            = 6, // кол-во потоков. Оптимально, наверное, 8. Если у кого-то i7 или xeon, можно увеличить.
             todbMTMinimalImageCount     = 32, // минимальное кол-во картинок, с которого включается многопоточный режим. Странно было бы добавлять 3 картинки в 8 потоков...
             
             gflCountForDispString       = 512,

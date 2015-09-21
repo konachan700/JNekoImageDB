@@ -9,7 +9,12 @@ import jnekoimagesdb.JNekoImageDB;
 public class DBEngine {   
     public static final     String      QUOTE           = "";
     private                 Statement   gStatement      = null;
-    private                 Connection  gConnection     = null;
+    private                 Connection  
+            gConnection     = null,
+            gConnectionOld  = null;
+    private volatile        int         
+            queryCounter    = 0,
+            queryPerConnect = 8000;
 
     public DBEngine() { }
     
@@ -34,7 +39,39 @@ public class DBEngine {
         return 0;
     }
 
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
+        /*
+            Весь этот странный код тут для того, чтобы устранить пока не отловленную утечку памяти при работе с sql.
+            Почему-то, если использовать одно постоянное подключение, происходит небольшая утечка памяти, где-то 30-50мб на 2-3 тысячи insert/update запросов, 
+              что в данном конкретном приложении полностью ломало всю идею.
+            gConnectionOld нужно для того, чтобы некоторое время жило старое подключение для корректного завершения его использования всеми потоками.
+        */
+        queryCounter++;
+        if (queryCounter == (queryPerConnect / 2)) {
+            try {
+                if (gConnectionOld != null) {
+                    gConnectionOld.close();
+                    _L("OLD SQL CONNECTION IS CLOSED;");
+                }
+            } catch (SQLException ex) {
+                _L(ex.getMessage());
+                return null;
+            }
+        }
+            
+        if (queryCounter >= queryPerConnect) {
+            try {
+                gConnection.clearWarnings();
+                gConnectionOld = gConnection;
+            } catch (SQLException ex) {
+                _L(ex.getMessage());
+                return null;
+            }
+            
+            Connect("");
+            queryCounter = 0;
+            _L("SQL RECONNECT;");
+        }
         return gConnection;
     }
 
