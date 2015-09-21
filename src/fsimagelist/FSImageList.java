@@ -157,8 +157,14 @@ public class FSImageList extends ScrollPane{
     private String[] 
             files = null;
 
-    private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
-        __out_str();
+    private int tmr_counter_info = 0;
+    
+    private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(100), ae -> {
+        tmr_counter_info++;
+        if (tmr_counter_info >= 7) {
+            tmr_counter_info = 0;
+            __out_str();
+        }
 
         if (fsWorker > 0) {
             if (fsWorker > 1) {
@@ -171,7 +177,6 @@ public class FSImageList extends ScrollPane{
         
         if (isResized) return; else isResized = true;
         this_container.getChildren().clear();
-//        if ((isReloading == 1)) return;
         while (isReloading == 1) {}
                 
         final double
@@ -220,7 +225,10 @@ public class FSImageList extends ScrollPane{
                 sbx
                         .append("Memory use: ")
                         .append((Runtime.getRuntime().totalMemory()) / (1024*1024))
-                        .append("MB; My I/O:")
+                        .append("MB/")
+                        .append((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024*1024))
+                        .append("MB;")
+                        .append("My I/O:")
                         .append((imgEn.getIOPS_W()+imgEn.getIOPS_R())/1024)
                         .append(" kBps; ");
                 currentSystemLoad.setText(sbx.substring(0));
@@ -654,14 +662,14 @@ public class FSImageList extends ScrollPane{
         final byte[] b = FSEngine.getFileMD5MT(fl);
         if (b != null) {
             if (imgEn.isMD5(b)) {
-                _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем...");
+                _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем. MD5: "+Arrays.toString(b)); 
             } else {
                 //_toPWLog("["+(new Date().getTime() - xt)+"] Файла ["+f.getName()+"] еще нет базе данных, добавляем...");
                 final long res = imgEn.UploadImage(fl, b);
                 if (res <= 0)
                     _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не может быть добавлен в БД, см. логи.");
-                else
-                    _toPWLog("["+(new Date().getTime() - xt)+"] ["+todbItemCounter+"] Файл ["+f.getName()+"] успешно добавлен.");
+//                else
+//                    _toPWLog("["+(new Date().getTime() - xt)+"] ["+todbItemCounter+"] Файл ["+f.getName()+"] успешно добавлен.");
             }
         } else {
             _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не читаем или поврежден, пропускаем...");
@@ -704,7 +712,7 @@ public class FSImageList extends ScrollPane{
     
     private void _toPWLog(String s) {
         Platform.runLater(() -> { 
-            if (taLOG.getText().length() > (32 * 1024)) taLOG.clear();
+            if (taLOG.getText().length() > (128 * 1024)) taLOG.setText("");
             final SimpleDateFormat DF = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
             taLOG.appendText("[" + DF.format(new Date()) + "] " + s + "\n");
             //taLOG.setText( "[" + DF.format(new Date()) + "] " + s + "\n" + taLOG.getText());

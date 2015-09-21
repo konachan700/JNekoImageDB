@@ -105,7 +105,7 @@ public class JNekoImageDB extends Application {
     
     private final Timeline TMRLOG = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
        if (taLOG.getText().length() < LOG.length()) {
-           taLOG.clear();
+           taLOG.setText("");
            taLOG.appendText(LOG.toString());
            taLOG.setScrollTop(Double.MIN_VALUE);
        }

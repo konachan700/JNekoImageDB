@@ -43,8 +43,10 @@ public class ImageList extends FlowPane {
     
 //    private final DBEngine 
 //            SQL;
+    private final Image broken = new Image(new File("./icons/broken.png").toURI().toString());
     
     private final Button
+//            toAlbImg = new Button("", new ImageView(new Image(new File("./icons/addalbum.png").toURI().toString()))),
             selallImg = new Button("", new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
             selnoneImg = new Button("", new ImageView(new Image(new File("./icons/selectnone.png").toURI().toString()))),
             addtagImg = new Button("", new ImageView(new Image(new File("./icons/addtag.png").toURI().toString()))),
@@ -179,7 +181,11 @@ public class ImageList extends FlowPane {
 
                     for (DBImageX l : d) {
                         if (ALII.get(cointer) != null) {
-                            ALII.get(cointer).setImg(128, 128, IMG.getThumbsFS().PopPrewievFile(l)); 
+                            final byte[] buf1 = IMG.getThumbsFS().PopPrewievFile(l);
+                            if (buf1 != null) 
+                                ALII.get(cointer).setImg(128, 128, buf1); 
+                            else
+                                ALII.get(cointer).setImg(128, 128, broken); 
                             ALII.get(cointer).setID(l.pl_idid);
                             ALII.get(cointer).setSelected(selectedItems.contains(l.pl_idid)); 
                             THIS.getChildren().add(ALII.get(cointer));

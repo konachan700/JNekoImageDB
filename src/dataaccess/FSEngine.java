@@ -119,7 +119,7 @@ public class FSEngine {
         return null;
     } 
     
-    public boolean isMD5Present(byte[] md5) {
+    public synchronized boolean isMD5Present(byte[] md5) {
         final StringBuilder sql_q = new StringBuilder();
         sql_q.append(SQL_SELECT_ALL_FROM).append(DBEngine.QUOTE).append(SQL_TABLE_PREFIX).append(DBNameE)
                 .append(SQL_TABLE_SUFFIX).append(DBEngine.QUOTE).append(SQL_MD5_PRESENT_WHERE_X1);
@@ -324,13 +324,7 @@ public class FSEngine {
             sectorBuffer = Arrays.copyOfRange(file, (int)(j*SplittedFile.SECTOR_SIZE), (int)((j+1)*SplittedFile.SECTOR_SIZE));
             FILE.WriteFileSector(DBNameE, (int)(i), sectorBuffer);
         }
-        
-//        gcCounter++;
-//        if (gcCounter >= 24) {
-//            System.gc();
-//            gcCounter = 0;
-//        }
-        
+
         return myID;
     }
     
@@ -368,13 +362,7 @@ public class FSEngine {
             }
 
             fis.close();
-            
-//            gcCounter++;
-//            if (gcCounter >= 24) {
-//                System.gc(); // Может быть, это и неправильно, но на параллельной обработке сборщик мусора сам не успевает собрать все вовремя и HeapSize растет до максимума.
-//                gcCounter = 0; // в релизе будет убрано.
-//            }
-            
+
             return myID;
         } catch (IOException ex) {
             _L("PushFileMT():"+ex.getMessage());
