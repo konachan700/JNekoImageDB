@@ -14,7 +14,7 @@ public class DBEngine {
             gConnectionOld  = null;
     private volatile        int         
             queryCounter    = 0,
-            queryPerConnect = 8000;
+            queryPerConnect = 12000;
 
     public DBEngine() { }
     

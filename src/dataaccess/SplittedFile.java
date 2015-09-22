@@ -34,7 +34,7 @@ public class SplittedFile {
     }));
     
     public final static long 
-            ONE_PART_SIZE   = 1024 * 1024 * 3,
+            ONE_PART_SIZE   = 1024 * 1024,
             SECTOR_SIZE     = 1024 * 8;
     
     public final static int
