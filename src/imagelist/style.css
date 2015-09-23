@@ -23,12 +23,13 @@
 /* The main scrollbar **track** CSS class  */
 .ImageList {
     -fx-padding:8;
-    -fx-background-color:#222;
+    //-fx-background-color:#000;
+    -fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
 }
 
 .ImageList .scroll-bar:horizontal .track,
 .ImageList .scroll-bar:vertical .track{
-	-fx-background-color:#222;
+	-fx-background-color:#333;
 	-fx-border-color:#555;
 	-fx-background-radius: 0em;
 	-fx-border-radius:2em;

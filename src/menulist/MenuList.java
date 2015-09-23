@@ -15,7 +15,7 @@ public class MenuList extends VBox {
     @SuppressWarnings("FieldMayBeFinal")
     private String 
             bgColor = "#000",
-            scrollableBgColor = "#222";
+            scrollableBgColor = "#000";
     
     final MenuListScrollable 
             ms = new MenuListScrollable();

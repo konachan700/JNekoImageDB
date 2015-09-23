@@ -22,10 +22,9 @@ public class MenuListScrollable extends ScrollPane {
         this.getStylesheets().add(getClass().getResource("ProgressBar.css").toExternalForm());
         this.getStyleClass().add("MenuList");
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
-        this.setVbarPolicy(ScrollBarPolicy.ALWAYS); 
+        this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED); 
         this.setContent(rootVBox); 
-        this.setPadding(new Insets(0, 3, 0, 0));
-        
+        this.setPadding(new Insets(0, 0, 0, 0));
     }
 
     public void addGroup(String ID, String title, ImageView icon, String color) {

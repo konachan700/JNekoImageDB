@@ -1,7 +1,7 @@
 /* The main scrollbar **track** CSS class  */
 .MenuList .scroll-bar:horizontal .track,
 .MenuList .scroll-bar:vertical .track{
-	-fx-background-color:#222;
+	-fx-background-color:#000;
 	-fx-border-color:#555;
 	-fx-background-radius: 0em;
 	-fx-border-radius:2em;

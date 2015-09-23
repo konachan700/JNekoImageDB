@@ -2,34 +2,39 @@
 .paginator_1 {
     -fx-background-color: #000000;
     -fx-padding: 0 0 0 0px;
-    -fx-background-radius: 0 0 0 6;
+    -fx-background-radius: 0; //0 0 0 6;
 }
 
 .appnamez {
     -fx-font-weight:bold; 
-    -fx-font-size: 16px;
-    -fx-text-fill: #fff;
+    -fx-font-size: 14px;
+    -fx-text-fill: #ccc;
 }
 
 .header_z {
-    -fx-background-color: #555;
-    -fx-padding: 0 0 0 2px;
-    
+    //-fx-background-color: #000;
+    -fx-background-color: linear-gradient(#000 0%, #333 40%, #333 60%, #000 100%);
+    -fx-padding: 0 0 0 0px;
+    -fx-background-radius: 0;
+    //-fx-border-width: 0 0 2px 0; 
+    //-fx-border-color: #444; 
+    //-fx-border-style:solid;
 }
 
 .border_a {
-    -fx-padding: 16px;
+    -fx-padding: 14px;
     -fx-background-color: transparent;
-    -fx-background-radius: 6;
+    -fx-background-radius: 0;
 }
 
 .header_z Label {
-    -fx-text-fill: #fff;
+    -fx-text-fill: #ddd;
+    -fx-padding: 14px;
 }
 
 .header_z Button {
     -fx-padding: 0px;
-    -fx-background-color: #555;
+    -fx-background-color: transparent;
     -fx-background-insets: 0, 0, 0, 0;
 }
 
@@ -40,9 +45,9 @@
 }
 
 .border_z {
-    -fx-background-color: #555;
-    -fx-padding: 2px;
-    -fx-background-radius: 6;
+    -fx-background-color: #000;
+    -fx-padding: 3px 3px 0px 3px;
+    -fx-background-radius: 0;
     //-fx-background-insets: 12;
 }
 
@@ -50,7 +55,7 @@
     -fx-border-width: 0 0 0 2px; 
     -fx-border-color: #000000; 
     -fx-border-style:solid;
-    -fx-background-radius: 0 0 6 0;
+    -fx-background-radius: 0;//0 0 6 0;
 }
 
 /*.BaseBox2 {
@@ -64,25 +69,24 @@
     //-fx-border-style:solid; 
     -fx-background-color: #000;
     //-fx-padding: 0 0 0 4px;
-    //-fx-background-radius: 4;
-    //-fx-background-radius: 4;
-    //-fx-border-radius: 4;
-    //-fx-background-radius: 6;
-    -fx-padding: 0 0 0 2px;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0 0 0 0px;
 }
 
 .headerbox {
     -fx-background-color: #000000;
-    -fx-padding: 2px 0px 0 0;
+    -fx-padding: 0px 0px 0 0;
 }
 
 .toolbox {
     -fx-background-color: #000000;
+    -fx-padding: 3px 0px 0 0;
 }
 
 .MenuList .scroll-bar:horizontal .track,
 .MenuList .scroll-bar:vertical .track{
-	-fx-background-color:#222;
+	-fx-background-color:#333;
 	-fx-border-color:#555;
 	-fx-background-radius: 0em;
 	-fx-border-radius:2em;

@@ -1,5 +1,6 @@
 package imagelist;
 
+import dialogs.DialogWindow;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import java.io.ByteArrayInputStream;
@@ -117,6 +118,11 @@ public class ImageListItem extends Pane {
         totempImage.setOpacity(0.75d);
         selImg.setOpacity(0.75d);
         delImage.setOpacity(0.75d);
+        
+        openImage.setOnMouseClicked((MouseEvent event) -> {
+            new DialogWindow().show();
+            event.consume();
+        });
         
         likeImage.setOnMouseClicked((MouseEvent event) -> {
             isLiked = !isLiked;

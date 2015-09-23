@@ -90,7 +90,7 @@ public class ImageList extends FlowPane {
             toptxt = new StringBuilder();
     
     private HBox 
-            topPanel = new HBox(2),
+            topPanel = new HBox(0),
             paginatorPanel = new HBox(2);
     
     private final ArrayList<ImageListItem> 
@@ -325,7 +325,7 @@ public class ImageList extends FlowPane {
             event.consume();
         });
 
-        topPanel.getChildren().addAll(addtagImg, deltagImg, getSeparator1(8), selallImg, selnoneImg, getSeparator1(), toAlbImg, toTempImg);
+        topPanel.getChildren().addAll(addtagImg, deltagImg, getSeparator1(8), selallImg, selnoneImg, getSeparator1(8), toAlbImg, getSeparator1(), toTempImg);
         
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("ImageList");

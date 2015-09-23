@@ -319,7 +319,7 @@ public class JNekoImageDB extends Application {
 //            
 //            root2m.setEffect(ds);
             
-            StackPane root3m = GUITools.getWinGUI(this, primaryStage, DRD, root, mvbox);
+            StackPane root3m = GUITools.getWinGUI(this, primaryStage, DRD, root, mvbox, "Main.css", GUITools.CLOSE_EXIT);
             scene = new Scene(root3m, 950, 650);
             scene.setFill(Color.TRANSPARENT);
              
@@ -335,7 +335,7 @@ public class JNekoImageDB extends Application {
         toolbox.getStyleClass().add("toolbox");
         toolbox.setMaxWidth(9999);
         toolbox.setPrefWidth(9999);
-        toolbox.setPadding(new Insets(0,0,0,2));
+        //toolbox.setPadding(new Insets(0,0,0,0));
         toolbox.setAlignment(Pos.BOTTOM_LEFT);
 
         headerbox.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
@@ -344,9 +344,9 @@ public class JNekoImageDB extends Application {
         
         logobox.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
         logobox.getStyleClass().add("headerbox");
-        logobox.setMaxSize(239, 64);
-        logobox.setMinSize(239, 64);
-        logobox.setPrefSize(239, 64);
+        logobox.setMaxSize(240, 64);
+        logobox.setMinSize(240, 64);
+        logobox.setPrefSize(240, 64);
         logobox.setAlignment(Pos.CENTER_RIGHT);
         logobox.getChildren().add(imgLogoV);
         
@@ -413,7 +413,10 @@ public class JNekoImageDB extends Application {
         basehbox.getChildren().add(base2vbox);
         basehbox.getChildren().add(ml);
 
-       
+        primaryStage.getIcons().add(new Image(new File("./icons/icon128.png").toURI().toString()));
+        primaryStage.getIcons().add(new Image(new File("./icons/icon64.png").toURI().toString()));
+        primaryStage.getIcons().add(new Image(new File("./icons/icon32.png").toURI().toString()));
+        
         primaryStage.setMinWidth(840);
         primaryStage.setMinHeight(480);
         primaryStage.setTitle("Images database");

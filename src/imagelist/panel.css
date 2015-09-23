@@ -1,20 +1,20 @@
 .topPanel {
-    -fx-background-color: #222;
-    -fx-background-radius: 4;
+    -fx-background-color: #000; //#331111; //#222;
+    //-fx-background-radius: 4;
     -fx-padding: 0px;
 }
 
 .PagCountLabel {
-    -fx-background-color: #222;
+    -fx-background-color: #333; //#222;
     -fx-text-fill: #fff;
-    -fx-background-radius: 4;
+    //-fx-background-radius: 4;
     -fx-font-weight:bold; 
 }
 
 .ImgButtonGR {
     -fx-padding: 0px;
-    -fx-background-color: #184818;
-    -fx-background-radius: 0 4 4 0;
+    -fx-background-color: #333; //#184818;
+    -fx-background-radius: 0;// 0 4 4 0;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-font-weight:bold; 
     -fx-font-size: 12px;
@@ -23,28 +23,28 @@
 
 .ImgButtonG {
     -fx-padding: 0px;
-    -fx-background-color: #184818;
-    -fx-background-radius: 4 0 0 4;
+    -fx-background-color: #333; //#184818;
+    -fx-background-radius: 0;// 4 0 0 4;
     -fx-background-insets: 0, 0, 0, 0;
 }
 
 .ImgButtonR {
     -fx-padding: 0px;
-    -fx-background-color: #481818;
-    -fx-background-radius: 0 4 4 0;
+    -fx-background-color: #333; //#481818;
+    -fx-background-radius: 0;// 0 4 4 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
 
 .ImgButtonR2 {
     -fx-padding: 0px;
-    -fx-background-color: #481818;
+    -fx-background-color: #333; //#481818;
     -fx-background-radius: 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
 
 .ImgButtonB {
     -fx-padding: 0px;
-    -fx-background-color: #184818;
+    -fx-background-color: #333; //#184818;
     -fx-background-radius: 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
@@ -62,5 +62,5 @@
 }
 
 .PagPanel {
-    -fx-padding: 2 0 0 2;
+    -fx-padding: 0 0 0 0;
 }

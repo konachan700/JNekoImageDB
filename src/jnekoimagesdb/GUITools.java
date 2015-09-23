@@ -1,5 +1,6 @@
 package jnekoimagesdb;
 
+import java.io.File;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -18,25 +19,37 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class GUITools {
-    public static StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox) {
+    public static final int 
+            CLOSE_EXIT = 0,
+            CLOSE_HIDE_WINDOW = 1;
+    
+    public static StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag) {
         final DropShadow ds = new DropShadow();
         ds.setOffsetY(0f);
-        ds.setRadius(14f);
+        ds.setRadius(0);
+        ds.setWidth(12f); 
+        ds.setHeight(12f);
         ds.setSpread(0.5f);
         ds.setColor(Color.color(0.0f, 0.0f, 0.0f));
+        
+//        final DropShadow dsn = new DropShadow();
+//        dsn.setOffsetY(0f);
+//        dsn.setRadius(4f);
+//        dsn.setSpread(0.4f);
+//        dsn.setColor(Color.color(0.0f, 0.0f, 0.0f));
 
         final Label imageName = new Label("JNeko Image Database");
         imageName.getStyleClass().add("appnamez");
         imageName.setMaxSize(9999, 16);
         imageName.setPrefSize(9999, 16);
         imageName.setAlignment(Pos.CENTER_LEFT);
-        imageName.setEffect(ds);
+//        imageName.setEffect(dsn);
 
         HBox header_z = new HBox(6);
         header_z.setMaxSize(9999, 32);
         header_z.setPrefSize(9999, 32);
         header_z.setMinSize(32, 32);
-        header_z.getStylesheets().add(THIS.getClass().getResource("Main.css").toExternalForm());
+        header_z.getStylesheets().add(THIS.getClass().getResource(css).toExternalForm());
         header_z.getStyleClass().add("header_z");
         header_z.setAlignment(Pos.CENTER);
 
@@ -50,40 +63,47 @@ public class GUITools {
             primaryStage.setY(mouseEvent.getScreenY() + DRD.y);
         });
 
-        final Button close = new Button("", new ImageView(new Image(THIS.getClass().getResourceAsStream("close.png"))));
+        final Button close = new Button("", new ImageView(new Image(new File("./icons/close.png").toURI().toString())));
         setFixedSize(close, 16, 16);
         close.setOnMouseClicked((MouseEvent event) -> {
-            Platform.exit();
+            switch (closeFlag) {
+                case CLOSE_EXIT:
+                    Platform.exit();
+                    break;
+                case CLOSE_HIDE_WINDOW:
+                    primaryStage.close();
+                    break;
+            }
         });
 
-        final Button expand = new Button("", new ImageView(new Image(THIS.getClass().getResourceAsStream("up.png"))));
+        final Button expand = new Button("", new ImageView(new Image(new File("./icons/up.png").toURI().toString()))); 
         setFixedSize(expand, 16, 16);
         expand.setOnMouseClicked((MouseEvent event) -> {
             primaryStage.setMaximized(!primaryStage.isMaximized());
         });
 
-        final Button unexpand = new Button("", new ImageView(new Image(THIS.getClass().getResourceAsStream("dwn.png"))));
+        final Button unexpand = new Button("", new ImageView(new Image(new File("./icons/dwn.png").toURI().toString())));
         setFixedSize(unexpand, 16, 16);
         unexpand.setOnMouseClicked((MouseEvent event) -> {
             primaryStage.setIconified(true);
         });
 
-        final Button iconx = new Button("", new ImageView(new Image(THIS.getClass().getResourceAsStream("icon.png"))));
+        final Button iconx = new Button("", new ImageView(new Image(new File("./icons/icon.png").toURI().toString()))); 
         setFixedSize(iconx, 16, 16);
 
-        header_z.getChildren().addAll(getSeparator(2), iconx, imageName, unexpand, expand, close, getSeparator(8));
+        header_z.getChildren().addAll(getSeparator(4), iconx, imageName, unexpand, expand, close, getSeparator(8));
 
         mvbox.getChildren().add(header_z);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
 
         StackPane root2m = new StackPane();
         root2m.getChildren().add(root);
-        root2m.getStylesheets().add(THIS.getClass().getResource("Main.css").toExternalForm());
+        root2m.getStylesheets().add(THIS.getClass().getResource(css).toExternalForm());
         root2m.getStyleClass().add("border_z");
 
         StackPane root3m = new StackPane();
         root3m.setBackground(Background.EMPTY);
-        root3m.getStylesheets().add(THIS.getClass().getResource("Main.css").toExternalForm());
+        root3m.getStylesheets().add(THIS.getClass().getResource(css).toExternalForm());
         root3m.getStyleClass().add("border_a");
         root3m.getChildren().add(root2m);
 

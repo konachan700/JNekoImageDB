@@ -80,6 +80,7 @@ public class DBWrapper {
             final PreparedStatement ps = SQL.getConnection().prepareStatement(q.substring(0));
             ps.execute();
             ps.close();
+            Sleep(1);
         } catch (SQLException ex) {
             _L(ex.getMessage());
         }
