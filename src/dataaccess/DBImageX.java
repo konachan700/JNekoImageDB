@@ -12,11 +12,12 @@ public class DBImageX {
             pl_imgtype,
             ia_oid,
             ia_imgoid,
-            ia_alboid;
+            ia_alboid,
+            prev_type;
     
     public byte[]
-            prev_md5,
-            prev_fileName;
+            prev_md5;
+            //prev_fileName;
     
     public DBImageX() { }
 }

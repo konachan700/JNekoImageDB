@@ -32,11 +32,28 @@ public class DBEngine {
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"StringSettings"+QUOTE+" (xname char(64), xvalue char(250), UNIQUE(xname));");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"previews_files"+QUOTE+"(oid bigint not null primary key, idid bigint, md5 BINARY(16));");
             
+            createHistogramTable("R");
+            createHistogramTable("G");
+            createHistogramTable("B");
+            
         } catch (SQLException ex) {
             _L(ex.getMessage());
             return -1;
         }
         return 0;
+    }
+    
+    private void createHistogramTable(String table) throws SQLException {
+        /*
+            На первый взгляд это выглядит жутким костылем. Но нет. Этих гистограмм может быть больше миллиона и поиск по ним реален лишь силами MySQL.
+            Выгружать пару-тройку миллионов блобов для поиска по ним по 255 байт каждый нереально.
+        */
+        final StringBuilder q = new StringBuilder();
+        q.append("CREATE TABLE if not exists ").append(QUOTE).append("Histogram").append(table).append(QUOTE);
+        q.append("(oid bigint not null primary key, iid bigint");
+        for (int i=0; i<256; i++) q.append(", b").append(i).append(" SMALLINT");
+        q.append(");");
+        gStatement.executeUpdate(q.substring(0));
     }
 
     public synchronized Connection getConnection() {

@@ -7,7 +7,9 @@ import javafx.scene.layout.VBox;
 public class Settings extends VBox {
     private final DBEngine SQL;
     private final SPathField uploadPath;
-    private final SCheckBox showDeleted;
+    private final SCheckBox 
+            showDeleted,
+            showNonSquaredPreview;
     
     public Settings(DBEngine sql) {
         this.setMaxWidth(9999);
@@ -17,15 +19,15 @@ public class Settings extends VBox {
         SQL = sql;
         
         showDeleted = new SCheckBox("showDeleted");
+        showNonSquaredPreview = new SCheckBox("showNSPreview");
         
         uploadPath = new SPathField("uploadPath", SPathField.TYPE_DIR);
         uploadPath.setMaxWidth(9999);
         uploadPath.setPrefWidth(9999);
-        
-        
-        
+                
         this.getChildren().add(new SettingsElementContainer("Путь к папке для выгрузки картинок", uploadPath));
         this.getChildren().add(new SettingsElementContainer("Показывать группу удаленных", showDeleted));
+        this.getChildren().add(new SettingsElementContainer("Показывать полные миниатюры", showNonSquaredPreview));
     }
     
     

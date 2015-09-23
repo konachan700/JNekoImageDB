@@ -324,7 +324,7 @@ public class JNekoImageDB extends Application {
             scene.setFill(Color.TRANSPARENT);
              
         } else {
-            scene = new Scene(root, 950, 650);
+            scene = new Scene(root, 1336, 778);
         }
         
         mvbox.getChildren().add(toolbarvbox);

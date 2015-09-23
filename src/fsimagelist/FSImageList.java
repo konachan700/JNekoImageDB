@@ -49,6 +49,10 @@ public class FSImageList extends ScrollPane{
 //    private Crypto
 //            CRYPT;
     
+    /*
+        Тут надо рефакторить все. Глюк на глюке, костыли и велосипеды.
+    */
+    
     private final Image
             fna = new Image(new File("./icons/fna.png").toURI().toString()),
             fok = new Image(new File("./icons/fr2.png").toURI().toString());

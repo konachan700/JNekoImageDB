@@ -4,6 +4,7 @@ import dataaccess.DBImageX;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dataaccess.DBEngine;
+import dataaccess.ImageCache;
 import dialogs.DYesNo;
 import dialogs.PleaseWait;
 import java.io.File;
@@ -72,6 +73,9 @@ public class ImageList extends FlowPane {
     private double 
             scrollNum = 0;
     
+    private volatile boolean
+            isPaginatorActive = false;
+    
     private SmallPaginator
             xPag = null;
     
@@ -105,11 +109,14 @@ public class ImageList extends FlowPane {
                 }
             };
     
-    private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
-        resizeTmr();
+    private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(88), ae -> {
+        displayProgress();
+        resizeWindow();
+        displayImages();
     }));
     
-    private void resizeTmr() {
+    
+    private void displayProgress() {
         if (isProcessRunning == 1) {
             toptxt.delete(0, toptxt.length());
             toptxt
@@ -120,11 +127,11 @@ public class ImageList extends FlowPane {
                     .append(" kBps; ")
                     ;
             PW.Update();
-            return;
         }
-
+    }
+    
+    private void resizeWindow() {
         if (is_resized == 0) return;
-                
         final double
                 sz_h = this.getHeight() - 8D,
                 sz_w = this.getWidth() - 8D; // Padding: 8px
@@ -144,62 +151,79 @@ public class ImageList extends FlowPane {
         
         currentPage = 0;
         if (xPag != null) xPag.setCurrentPage(0);
-
-        normalRefresh();
+        
         is_resized = 0;
+    }
+    
+    private void displayImages() {
+        if (isPaginatorActive == false) return;
+        if (images_count <= 0) {
+            is_resized = 1;
+            return;
+        } 
+        
+        int cacheCount = 2;        
+        ImageCache.setCacheSize(images_count * cacheCount);
+        
+        final ArrayList<DBImageX> d;
+        if (albumID == 0){
+            d = DBWrapper.getImagesX(-1, (currentPage*images_count), images_count * cacheCount);
+            //totalImagesCount = (int) IMG.getImgCount();
+        } else {
+            d = DBWrapper.getImagesX(albumID, (currentPage*images_count), images_count * cacheCount);
+            //totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
+        }
+
+        final int tail = totalImagesCount % images_count;
+        if ((xPag != null) && (images_count > 0)) xPag.setPageCount((totalImagesCount / images_count) + ((tail > 0) ? 1 : 0));
+
+        if (d == null) {
+            isPaginatorActive = false;
+            return;
+        }
+        int cointer = 0;
+
+        THIS.getChildren().clear();
+        ALII.stream().forEach((ALII1) -> {
+            ALII1.clearIt();
+        });
+
+        for (DBImageX l : d) {
+            if (cointer < images_count) {
+                if (ALII.get(cointer) != null) {
+                    //final byte[] buf1 = IMG.getThumbsFS().PopPrewievFile(l);
+                    final Image buf1 = ImageCache.PopImage(IMG, l);
+                    if (buf1 != null) 
+                        ALII.get(cointer).setImg(128, 128, buf1); 
+                    else
+                        ALII.get(cointer).setImg(128, 128, broken); 
+                    ALII.get(cointer).setID(l.pl_idid);
+                    ALII.get(cointer).setSelected(selectedItems.contains(l.pl_idid)); 
+                    THIS.getChildren().add(ALII.get(cointer));
+                }
+            } else {
+                if (scrollNum <= 0) ImageCache.Preload(IMG, l); 
+            }
+            cointer++;
+            
+        }
+        
+        isPaginatorActive = false;
     }
     
     public void setAlbimID(long _albumID) {
         albumID = _albumID;
     }
     
-    public final void normalRefresh() {
-        final Task waitForResize = new Task<Void>() {
-            @Override 
-            public Void call() {
-                while (images_count == 0) {}
-                Platform.runLater(() -> {
-                    ArrayList<DBImageX> d;
-                    if (albumID == 0){
-                        d = DBWrapper.getImagesX(-1, (currentPage*images_count), images_count);
-                        totalImagesCount = (int) IMG.getImgCount();
-                    } else {
-                        d = DBWrapper.getImagesX(albumID, (currentPage*images_count), images_count);
-                        totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
-                    }
-
-                    final int tail = totalImagesCount % images_count;
-                    if ((xPag != null) && (images_count > 0)) xPag.setPageCount((totalImagesCount / images_count) + ((tail > 0) ? 1 : 0));
-
-                    if (d == null) return;
-                    int cointer = 0;
-
-                    THIS.getChildren().clear();
-                    ALII.stream().forEach((ALII1) -> {
-                        ALII1.clearIt();
-                    });
-
-                    for (DBImageX l : d) {
-                        if (ALII.get(cointer) != null) {
-                            final byte[] buf1 = IMG.getThumbsFS().PopPrewievFile(l);
-                            if (buf1 != null) 
-                                ALII.get(cointer).setImg(128, 128, buf1); 
-                            else
-                                ALII.get(cointer).setImg(128, 128, broken); 
-                            ALII.get(cointer).setID(l.pl_idid);
-                            ALII.get(cointer).setSelected(selectedItems.contains(l.pl_idid)); 
-                            THIS.getChildren().add(ALII.get(cointer));
-                        }
-                        cointer++;
-                    }
-                });
-                return null;
-            }
-        };
+    public final synchronized void normalRefresh() {
+        is_resized = 1;
+        isPaginatorActive = true;
         
-        final Thread t = new Thread(waitForResize);
-        t.setDaemon(true);
-        t.start();
+        if (albumID == 0){
+            totalImagesCount = (int) IMG.getImgCount();
+        } else {
+            totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
+        }
     }
 
     public ImageListItem getItem(int id) {
@@ -229,8 +253,9 @@ public class ImageList extends FlowPane {
         xParent = parent;
 
         xPag = new SmallPaginator((int page) -> {
+            if (isPaginatorActive) return;
             currentPage = page;
-            normalRefresh();
+            isPaginatorActive = true;
         });
         _s2(xPag, 220, 24);
         
@@ -285,7 +310,7 @@ public class ImageList extends FlowPane {
         }); 
         
         selnoneImg.setOnMouseClicked((MouseEvent event) -> {
-            if (isProcessRunning == 1) return;
+            if ((isProcessRunning == 1) || (is_resized == 1)) return;
                        
             selectedItems.clear();
             is_resized = 1;
@@ -293,7 +318,7 @@ public class ImageList extends FlowPane {
         });
         
         selallImg.setOnMouseClicked((MouseEvent event) -> {
-            if (isProcessRunning == 1) return;
+            if ((isProcessRunning == 1) || (is_resized == 1)) return;
             
             _selectAll();
             is_resized = 1;
@@ -322,8 +347,11 @@ public class ImageList extends FlowPane {
         });
         
         this.setOnScroll((ScrollEvent event) -> {
-            if (isProcessRunning == 1) return;
-            if (event.getDeltaY() > 0) {
+            if ((isProcessRunning == 1) || (is_resized == 1)) return;
+            if (isPaginatorActive) return;
+            
+            scrollNum = event.getDeltaY();
+            if (scrollNum > 0) {
                 if (xPag != null) xPag.Prev();
             } else {
                 if (xPag != null) xPag.Next();

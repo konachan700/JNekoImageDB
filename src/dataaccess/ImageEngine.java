@@ -2,6 +2,7 @@ package dataaccess;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
@@ -13,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -113,7 +115,33 @@ public class ImageEngine {
             final Map<String, BufferedImage> imgs = ResizeImage(path, SMALL_PREVIEW_SIZE, SMALL_PREVIEW_SIZE, null);
             
             final long small_p_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("squareImage")), null);
-            if (small_p_id <= 0) return -6; else DBWrapper.addImageAndPreviewAssoc(IID, small_p_id, PREVIEW_TYPE_SMALL);
+            if (small_p_id <= 0) return -6; else {
+                DBWrapper.addImageAndPreviewAssoc(IID, small_p_id, PREVIEW_TYPE_SMALL);
+                DBWrapper.generateHistogram(imgs.get("squareImage"), IID);
+                
+//                final long tmr = System.currentTimeMillis();
+//                final BufferedImage im2 = imgs.get("squareImage");
+//                final byte[] 
+//                        gist_B = new byte[256],
+//                        gist_R = new byte[256],
+//                        gist_G = new byte[256];
+//                int RGB;
+//                Arrays.fill(gist_B, (byte) 0);
+//                Arrays.fill(gist_R, (byte) 0);
+//                Arrays.fill(gist_G, (byte) 0);
+//                
+//                for (int x=0; x<im2.getWidth(); x++) {
+//                    for (int y=0; y<im2.getHeight(); y++) {
+//                        RGB = im2.getRGB(x, y);
+//                        gist_B[RGB & 0xff]++;
+//                        gist_G[(RGB >> 8) & 0xff]++;
+//                        gist_R[(RGB >> 16) & 0xff]++;
+//                    }
+//                }
+//                System.err.println("ARR TMR="+(System.currentTimeMillis() - tmr));
+//                System.err.println("ARR B="+Arrays.toString(gist_B));
+                
+            }
             
             final long small_pns_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("nonsquareImage")), null);
             if (small_pns_id <= 0) return -8; else DBWrapper.addImageAndPreviewAssoc(IID, small_pns_id, PREVIEW_TYPE_SMALL_NONSQUARED);

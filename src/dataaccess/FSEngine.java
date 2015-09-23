@@ -21,6 +21,10 @@ import jnekoimagesdb.JNekoImageDB;
 public class FSEngine {   
 //    private static volatile long gcCounter = 0;
     
+    public static final int
+            TYPE_JPEG = 1,
+            TYPE_PNG = 2;
+    
     /* Тут сделана аццкая оптимизация, все строки вынесены в константы. Потому как где-то шла утечка памяти по char[], а вот где точно не нашел. */
     public static final String
             SQL_FIELD_START_SECTOR = "startSector",
@@ -59,7 +63,7 @@ public class FSEngine {
         FILE = new SplittedFile(k);
         SQL = sql;
 
-        SQL.ExecuteSQL("CREATE TABLE if not exists "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" (oid bigint not null primary key, md5 BINARY(16), startSector bigint, sectorSize int, actualSize int, fileName BINARY(240));");
+        SQL.ExecuteSQL("CREATE TABLE if not exists "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" (oid bigint not null primary key, md5 BINARY(16), startSector bigint, sectorSize int, actualSize int, fileType int);");
     }
 
     public DBEngine GetSQL() {
@@ -254,12 +258,20 @@ public class FSEngine {
                             sz_sector = rs.getLong("sectorSize"),
                             act_size  = rs.getLong("actualSize");
 
-                    final String 
-                            fileNameOut = nullTrim(new String(fileCrypto.Decrypt(rs.getBytes("fileName"))));
-                    //_L(Arrays.toString(fileCrypto.Decrypt(rs.getBytes("fileName"))));
-
-                    final byte[] md5_sql = 
-                            rs.getBytes("md5");
+                    final String ext;
+                    switch (rs.getInt("fileType")) {
+                        case TYPE_JPEG:
+                            ext = ".jpg";
+                            break;
+                        case TYPE_PNG:
+                            ext = ".png";
+                            break;
+                        default:
+                            ext = ".bin";
+                    }
+                    
+                    final String fileNameOut = oid + ext;
+                    final byte[] md5_sql = rs.getBytes("md5");
 
                     if ((sz_sector <= 0) || (act_size <= 0)) {
                         _L("Invalid database record; null file;");
@@ -388,7 +400,12 @@ public class FSEngine {
             ps.setLong(3, lastSector); 
             ps.setLong(4, sectorSize);
             ps.setLong(5, realSize);
-            ps.setBytes(6, fileCrypto.Crypt(align16b(name.getBytes())));
+            
+            int ftype = 0;
+            if ((name.toLowerCase().endsWith(".jpg")) || (name.toLowerCase().endsWith(".jpeg"))) ftype = TYPE_JPEG;
+            if (name.toLowerCase().endsWith(".png")) ftype = TYPE_PNG;
+            
+            ps.setInt(6, ftype);
             ps.execute();
             
             final Map<String, Long> retVal = new HashMap<>();
@@ -413,16 +430,16 @@ public class FSEngine {
         return SplittedFile.getFileMD5MT(file, sectorSize);
     }
 
-    private byte[] align16b(byte[] b) {
-        int 
-                sz = b.length / 16,
-                tail = b.length % 16;
-        if (tail != 0) sz++;
-        
-        final byte fn[] = new byte[sz*16];
-        for (int i=0; i<(sz*16); i++) if (i < b.length) fn[i] = b[i]; else fn[i] = 0;
-        return fn;
-    }
+//    private byte[] align16b(byte[] b) {
+//        int 
+//                sz = b.length / 16,
+//                tail = b.length % 16;
+//        if (tail != 0) sz++;
+//        
+//        final byte fn[] = new byte[sz*16];
+//        for (int i=0; i<(sz*16); i++) if (i < b.length) fn[i] = b[i]; else fn[i] = 0;
+//        return fn;
+//    }
 
     private synchronized long getLastSector() {
         final StringBuilder sql_q = new StringBuilder();
@@ -447,10 +464,10 @@ public class FSEngine {
         return -1;
     }
     
-    private String nullTrim(String t) {
-        int pos = t.indexOf(0);
-        if (pos > 0) return t.substring(0, pos); else return t;
-    }
+//    private String nullTrim(String t) {
+//        int pos = t.indexOf(0);
+//        if (pos > 0) return t.substring(0, pos); else return t;
+//    }
     
     private static void _L(String s) {
         System.out.println(s);

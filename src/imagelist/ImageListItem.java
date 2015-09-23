@@ -143,6 +143,7 @@ public class ImageListItem extends Pane {
         this.getChildren().add(selImg);
         
         imgBox.relocate(3, 3);
+        imgBox.setAlignment(Pos.CENTER);
         buttonsVBox.relocate(0, 80);
         selImg.relocate(10, 10);
     }
@@ -150,6 +151,7 @@ public class ImageListItem extends Pane {
     public void setImg(double sizeW, double sizeH, byte img[]) {
         imageZ.setSmooth(true);
         imageZ.setCache(false);
+        imageZ.setPreserveRatio(true);
         imageZ.setImage(new Image(new ByteArrayInputStream(img)));
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("ImageListX");
@@ -158,6 +160,7 @@ public class ImageListItem extends Pane {
     public void setImg(double sizeW, double sizeH, Image img) {
         imageZ.setSmooth(true);
         imageZ.setCache(false);
+        imageZ.setPreserveRatio(true);
         imageZ.setImage(img);
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("ImageListX");

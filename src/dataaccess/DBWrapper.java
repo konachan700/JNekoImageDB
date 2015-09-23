@@ -1,6 +1,7 @@
 package dataaccess;
 
 import albums.AlbumsCategory;
+import static dataaccess.DBEngine.QUOTE;
 import java.awt.Container;
 import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
@@ -11,8 +12,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -54,7 +58,7 @@ public class DBWrapper {
         final Timeline IOPS_TMR = new Timeline(new KeyFrame(Duration.millis(1000), ae -> {
             SQLCounter = _SQLCounter;
             _SQLCounter = 0;
-            System.err.println("SQL COUNT="+SQLCounter);
+//            System.err.println("SQL COUNT="+SQLCounter);
         })); 
         IOPS_TMR.setCycleCount(Animation.INDEFINITE);
         IOPS_TMR.play();
@@ -65,9 +69,48 @@ public class DBWrapper {
     }
     
     
+    private static void pushHistogram(String color, byte[] h, long iid) {
+        final StringBuilder q = new StringBuilder();
+        q.append("INSERT INTO ").append(QUOTE).append("Histogram").append(color).append(QUOTE);
+        q.append(" VALUES (").append(System.currentTimeMillis()).append(", ").append(iid);
+        for (int i=0; i<256; i++) q.append(", ").append(h[i]);
+        q.append(");");
+        
+        try {
+            final PreparedStatement ps = SQL.getConnection().prepareStatement(q.substring(0));
+            ps.execute();
+            ps.close();
+        } catch (SQLException ex) {
+            _L(ex.getMessage());
+        }
+    }
     
-    
-    
+    public static void generateHistogram(BufferedImage im2, long iid) {
+        final long tmr = System.currentTimeMillis();
+        final byte[] 
+                gist_B = new byte[256],
+                gist_R = new byte[256],
+                gist_G = new byte[256];
+        int RGB;
+        Arrays.fill(gist_B, (byte) 0);
+        Arrays.fill(gist_R, (byte) 0);
+        Arrays.fill(gist_G, (byte) 0);
+
+        for (int x=0; x<im2.getWidth(); x++) {
+            for (int y=0; y<im2.getHeight(); y++) {
+                RGB = im2.getRGB(x, y);
+                gist_B[RGB & 0xff]++;
+                gist_G[(RGB >> 8) & 0xff]++;
+                gist_R[(RGB >> 16) & 0xff]++;
+            }
+        }
+        
+        pushHistogram("R", gist_R, iid);
+        pushHistogram("G", gist_G, iid);
+        pushHistogram("B", gist_B, iid);
+
+        _L("generateHistogram time: "+(System.currentTimeMillis() - tmr));
+    }
     
     
     public static BufferedImage getPrerview(DBImageX dbe) {
@@ -102,7 +145,7 @@ public class DBWrapper {
                                 + "FS_preview_files.startSector         AS prev_startSector, "
                                 + "FS_preview_files.sectorSize          AS prev_sectorSize, "
                                 + "FS_preview_files.actualSize          AS prev_actualSize, "
-                                + "FS_preview_files.fileName            AS prev_fileName, "
+                                + "FS_preview_files.fileType            AS prev_fileType, "
                                 + "previews_list.oid                    AS pl_oid, "
                                 + "previews_list.idid                   AS pl_idid, "
                                 + "previews_list.pdid                   AS pl_pdid, "
@@ -134,7 +177,7 @@ public class DBWrapper {
                         "LIMIT "
                                 + "?,?; ");
 
-                ps.setLong(1, ImageEngine.PREVIEW_TYPE_SMALL);
+                ps.setLong(1, (ReadAPPSettingsBoolean("bl_showNSPreview")) ? ImageEngine.PREVIEW_TYPE_SMALL_NONSQUARED : ImageEngine.PREVIEW_TYPE_SMALL);
                 ps.setLong(2, album_id);
                 ps.setLong(3, start);
                 ps.setLong(4, limit);
@@ -146,7 +189,7 @@ public class DBWrapper {
                                 + "FS_preview_files.startSector         AS prev_startSector, "
                                 + "FS_preview_files.sectorSize          AS prev_sectorSize, "
                                 + "FS_preview_files.actualSize          AS prev_actualSize, "
-                                + "FS_preview_files.fileName            AS prev_fileName, "
+                                + "FS_preview_files.fileType            AS prev_fileType, "
                                 + "previews_list.oid                    AS pl_oid, "
                                 + "previews_list.idid                   AS pl_idid, "
                                 + "previews_list.pdid                   AS pl_pdid, "
@@ -167,7 +210,7 @@ public class DBWrapper {
                         "LIMIT "
                                 + "?,?; ");
                 
-                ps.setLong(1, ImageEngine.PREVIEW_TYPE_SMALL);
+                ps.setLong(1, (ReadAPPSettingsBoolean("bl_showNSPreview")) ? ImageEngine.PREVIEW_TYPE_SMALL_NONSQUARED : ImageEngine.PREVIEW_TYPE_SMALL);
                 ps.setLong(2, start);
                 ps.setLong(3, limit);
             }
@@ -186,7 +229,7 @@ public class DBWrapper {
                     dbe.prev_oid            = rs.getLong("prev_oid");
                     dbe.prev_sectorSize     = rs.getLong("prev_sectorSize");
                     dbe.prev_startSector    = rs.getLong("prev_startSector");
-                    dbe.prev_fileName       = rs.getBytes("prev_fileName");
+                    dbe.pl_imgtype          = rs.getLong("prev_fileType");
                     dbe.prev_md5            = rs.getBytes("prev_md5");
                     
                     if ((album_id != -1)) {
@@ -338,6 +381,7 @@ public class DBWrapper {
             ps.setString(1, optName);
             ps.setString(2, value); 
             ps.execute();
+            ps.close();
             _SQLCounter++;
         } catch (SQLException ex) {
             try {
@@ -345,6 +389,7 @@ public class DBWrapper {
                 ps.setString(1, value);
                 ps.setString(2, optName);
                 ps.execute();
+                ps.close();
                 _SQLCounter++;
             } catch (SQLException ex1) {
                 _L("WriteAPPSettingsString ERROR: "+ex.getMessage());
@@ -369,6 +414,11 @@ public class DBWrapper {
         }
         return "";
     }
+    
+    public static boolean ReadAPPSettingsBoolean(String optName) {
+        return ReadAPPSettingsString(optName).contentEquals("YES");
+    }
+    
     
     @SuppressWarnings("UnnecessaryUnboxing")
     public static boolean isImageLiked(long imgOID) {
