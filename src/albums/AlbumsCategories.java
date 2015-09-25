@@ -2,6 +2,7 @@ package albums;
 
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
+import java.io.File;
 import java.util.ArrayList;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -32,11 +33,11 @@ public class AlbumsCategories extends ScrollPane {
             lTextField.getStyleClass().add("itemLabel");
             GUITools.setMaxSize(lTextField, 9999, 32);
             
-            ImageView i = new ImageView(new Image(getClass().getResourceAsStream("albgrp.png")));
+            ImageView i = new ImageView(new Image(new File("./icons/albgrp.png").toURI().toString()));//new Image(getClass().getResourceAsStream("albgrp.png")));
             i.setFitHeight(32);
             i.setFitWidth(32);
             
-            Button b = new Button("", new ImageView(new Image(getClass().getResourceAsStream((ac.state==1) ? "delete2.png" : "selected.png"))));
+            Button b = new Button("", new ImageView(new Image(new File("./icons/"+((ac.state==1) ? "delete2.png" : "selected.png")).toURI().toString())));//new Image(getClass().getResourceAsStream((ac.state==1) ? "delete2.png" : "selected.png"))));
             b.getStyleClass().add("itemButton");
             GUITools.setFixedSize(b, 32, 32);
             b.setOnMouseClicked((MouseEvent event) -> {
@@ -50,7 +51,7 @@ public class AlbumsCategories extends ScrollPane {
                 RefreshAll();
             });
             
-            Button s = new Button("", new ImageView(new Image(getClass().getResourceAsStream("save2.png"))));
+            Button s = new Button("", new ImageView(new Image(new File("./icons/save2.png").toURI().toString())));//new Image(getClass().getResourceAsStream("save2.png"))));
             s.getStyleClass().add("itemButton");
             GUITools.setFixedSize(s, 32, 32);
             s.setOnMouseClicked((MouseEvent event) -> {
@@ -74,7 +75,7 @@ public class AlbumsCategories extends ScrollPane {
             txtAddNew = new TextField("Новая группа");
     
     private final Button
-            todbImg = new Button("", new ImageView(new Image(getClass().getResourceAsStream("adddef.png"))));
+            todbImg = new Button("", new ImageView(new Image(new File("./icons/adddef.png").toURI().toString())));//new Image(getClass().getResourceAsStream("adddef.png"))));
        
     private MenuGroupItem MGI;
     

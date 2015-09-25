@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -90,11 +91,13 @@ public class ImageListItem extends Pane {
         
         this.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() == 1) {
-                isSel = !isSel;
-                selImg.setVisible(isSel);
-                if (AL != null) AL.OnClick(this);
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    isSel = !isSel;
+                    selImg.setVisible(isSel);
+                    if (AL != null) AL.OnClick(this);
+                }
             } else {
-                new ImageListViewScreen().show(ID);
+                if (event.getButton() == MouseButton.PRIMARY) new ImageListViewScreen().show(ID);
             }
             event.consume();
         }); 

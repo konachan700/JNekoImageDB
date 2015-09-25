@@ -9,11 +9,9 @@ import dialogs.DYesNo;
 import dialogs.PleaseWait;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.geometry.HPos;
@@ -29,9 +27,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import jnekoimagesdb.GUITools;
 import jnekoimagesdb.JNekoImageDB;
 import smallpaginator.SmallPaginator;
 
@@ -41,13 +38,10 @@ public class ImageList extends FlowPane {
     
     private final ImageList
             THIS = this;
-    
-//    private final DBEngine 
-//            SQL;
+
     private final Image broken = new Image(new File("./icons/broken.png").toURI().toString());
     
     private final Button
-//            toAlbImg = new Button("", new ImageView(new Image(new File("./icons/addalbum.png").toURI().toString()))),
             selallImg = new Button("", new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
             selnoneImg = new Button("", new ImageView(new Image(new File("./icons/selectnone.png").toURI().toString()))),
             addtagImg = new Button("", new ImageView(new Image(new File("./icons/addtag.png").toURI().toString()))),
@@ -152,6 +146,7 @@ public class ImageList extends FlowPane {
         currentPage = 0;
         if (xPag != null) xPag.setCurrentPage(0);
         
+        isPaginatorActive = true;
         is_resized = 0;
     }
     
@@ -168,10 +163,8 @@ public class ImageList extends FlowPane {
         final ArrayList<DBImageX> d;
         if (albumID == 0){
             d = DBWrapper.getImagesX(-1, (currentPage*images_count), images_count * cacheCount);
-            //totalImagesCount = (int) IMG.getImgCount();
         } else {
             d = DBWrapper.getImagesX(albumID, (currentPage*images_count), images_count * cacheCount);
-            //totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
         }
 
         final int tail = totalImagesCount % images_count;
@@ -191,7 +184,6 @@ public class ImageList extends FlowPane {
         for (DBImageX l : d) {
             if (cointer < images_count) {
                 if (ALII.get(cointer) != null) {
-                    //final byte[] buf1 = IMG.getThumbsFS().PopPrewievFile(l);
                     final Image buf1 = ImageCache.PopImage(IMG, l);
                     if (buf1 != null) 
                         ALII.get(cointer).setImg(128, 128, buf1); 
@@ -257,20 +249,20 @@ public class ImageList extends FlowPane {
             currentPage = page;
             isPaginatorActive = true;
         });
-        _s2(xPag, 220, 24);
+        GUITools.setFixedSize(xPag, 220, 24);
         
         paginatorPanel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
         paginatorPanel.getStyleClass().add("PagPanel");
         paginatorPanel.setAlignment(Pos.CENTER_RIGHT);
-        _s1(paginatorPanel, 9999, 24);
+        GUITools.setMaxSize(paginatorPanel, 9999, 24);
         
         currCountLabel.getStyleClass().add("PagCountLabel");
         currCountLabel.setAlignment(Pos.CENTER);
-        _s2(currCountLabel, 192, 24);
+        GUITools.setFixedSize(currCountLabel, 192, 24);
         
-        paginatorPanel.getChildren().addAll(currCountLabel, getSeparator1(), xPag);
+        paginatorPanel.getChildren().addAll(currCountLabel, GUITools.getSeparator(), xPag);
         
-        _s1(topPanel, 9999, 64);
+        GUITools.setMaxSize(topPanel, 9999, 64);
         topPanel.setMinSize(128, 64);
         topPanel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
         topPanel.getStyleClass().add("topPanel");
@@ -283,12 +275,12 @@ public class ImageList extends FlowPane {
         toAlbImg.getStyleClass().add("ImgButtonR2");
         
         final int sz = 64;
-        _s2(toAlbImg, sz, sz);
-        _s2(toTempImg, sz, sz);
-        _s2(addtagImg, sz, sz);
-        _s2(deltagImg, sz, sz);
-        _s2(selallImg, sz, sz);
-        _s2(selnoneImg, sz, sz);
+        GUITools.setFixedSize(toAlbImg, sz, sz);
+        GUITools.setFixedSize(toTempImg, sz, sz);
+        GUITools.setFixedSize(addtagImg, sz, sz);
+        GUITools.setFixedSize(deltagImg, sz, sz);
+        GUITools.setFixedSize(selallImg, sz, sz);
+        GUITools.setFixedSize(selnoneImg, sz, sz);
         
         PW = new PleaseWait(xParent, toptxt, logtxt);
         
@@ -325,7 +317,7 @@ public class ImageList extends FlowPane {
             event.consume();
         });
 
-        topPanel.getChildren().addAll(addtagImg, deltagImg, getSeparator1(8), selallImg, selnoneImg, getSeparator1(8), toAlbImg, getSeparator1(), toTempImg);
+        topPanel.getChildren().addAll(addtagImg, deltagImg, GUITools.getSeparator(8), selallImg, selnoneImg, GUITools.getSeparator(8), toAlbImg, GUITools.getSeparator(), toTempImg);
         
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("ImageList");
@@ -356,18 +348,6 @@ public class ImageList extends FlowPane {
             } else {
                 if (xPag != null) xPag.Next();
             }
-            
-            
-//            scrollNum = scrollNum + event.getDeltaY();
-//            if (scrollNum >= 60) {
-//                if (xPag != null) xPag.Prev();
-//                scrollNum = 0;
-//            }
-//            
-//            if (scrollNum <= -60) {
-//                if (xPag != null) xPag.Next();
-//                scrollNum = 0;
-//            }
         });
     }
     
@@ -375,7 +355,6 @@ public class ImageList extends FlowPane {
         final Task taskForPage = new Task<Void>() {
             @Override 
             public Void call() {
-//                long xt = new Date().getTime();
                 if (isProcessRunning == 1) return null;
                 isProcessRunning = 1;
                 
@@ -432,29 +411,5 @@ public class ImageList extends FlowPane {
     
     public HBox getPaginator() {
         return paginatorPanel;
-//        return xPag;
-    }
-    
-    private VBox getSeparator1() {
-        VBox sep1 = new VBox();
-        _s1(sep1, 9999, 16);
-        return sep1;
-    }
-    
-    private VBox getSeparator1(double sz) {
-        VBox sep1 = new VBox();
-        _s2(sep1, sz, 16);
-        return sep1;
-    }
-    
-    private void _s2(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
-        n.setMinSize(w, h);
-    }
-    
-    private void _s1(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
     }
 }

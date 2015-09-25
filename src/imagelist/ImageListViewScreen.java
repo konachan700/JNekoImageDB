@@ -12,6 +12,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -66,6 +68,24 @@ public class ImageListViewScreen {
             last_y = 0,
             img_h = 0,
             img_w = 0;
+    
+    private void _next() {
+        long oid = DBWrapper.getNextImage(IID);
+        if (oid > 0) { 
+            scale = 0.95d;
+            _show(oid);
+            setImg(IID);
+        } 
+    }
+    
+    private void _prev() {
+        long oid = DBWrapper.getPrevImage(IID);
+        if (oid > 0) { 
+            scale = 0.95d;
+            _show(oid);
+            setImg(IID);
+        }
+    }
     
     public ImageListViewScreen() {
         GUITools.setMaxSize(panel, 9999, 64);
@@ -129,6 +149,18 @@ public class ImageListViewScreen {
             last_y = 0;
         });
         
+        sp.setFocusTraversable(true);
+        sp.setOnKeyPressed((KeyEvent key) -> {
+            if (key.getCode() == KeyCode.LEFT) _prev();
+            if (key.getCode() == KeyCode.RIGHT) _next();
+        });
+        
+        panel.setFocusTraversable(true);
+        panel.setOnKeyPressed((KeyEvent key) -> {
+            if (key.getCode() == KeyCode.LEFT) _prev();
+            if (key.getCode() == KeyCode.RIGHT) _next();
+        });
+        
         imgC.setOnMouseDragged((MouseEvent t) -> {
             if ((height < imgC.getFitHeight()) || (width < imgC.getFitWidth())) {
                 if ((last_x > 0) && (last_y > 0)) {
@@ -158,23 +190,12 @@ public class ImageListViewScreen {
         });
         
         nextBtn.setOnMouseClicked((MouseEvent event) -> {
-            long oid = DBWrapper.getNextImage(IID);
-            if (oid > 0) { 
-                scale = 0.95d;
-                _show(oid);
-                setImg(IID);
-            } 
-            
+            _next();
             event.consume();
         });
         
         prevBtn.setOnMouseClicked((MouseEvent event) -> {
-            long oid = DBWrapper.getPrevImage(IID);
-            if (oid > 0) { 
-                scale = 0.95d;
-                _show(oid);
-                setImg(IID);
-            } 
+            _prev(); 
             event.consume();
         });
         

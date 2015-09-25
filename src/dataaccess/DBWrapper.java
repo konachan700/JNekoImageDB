@@ -379,7 +379,7 @@ public class DBWrapper {
                 ps.setBytes(2, xCrypto.Crypt(xCrypto.align16b(name.getBytes())));
                 ps.execute();
                 _SQLCounter++;
-            } catch (SQLException ex) { }
+            } catch (SQLException ex) { _L(ex.getMessage()); }
     }
     
     public static synchronized BufferedImage getPrerview(int xtype, long IID, FSEngine SFS_preview) {
