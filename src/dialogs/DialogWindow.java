@@ -37,6 +37,9 @@ public class DialogWindow {
         final Image logoImage = new Image(JNekoImageDB.class.getResourceAsStream("logo6.png"));
         final ImageView imgLogoV = new ImageView(logoImage);
         
+        basevbox.getStylesheets().add(getClass().getResource("ILVWStyle.css").toExternalForm());
+        basevbox.getStyleClass().add("basevbox");
+        
         mvbox.getChildren().add(toolbarvbox);
         mvbox.getChildren().add(basevbox);
         root.getChildren().add(mvbox);

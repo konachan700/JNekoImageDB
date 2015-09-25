@@ -4,6 +4,10 @@
     -fx-text-fill: #ddd;
 }
 
+.basevbox {
+    -fx-padding: 2px;
+}
+
 .header_z Label {
     -fx-text-fill: #fff;
     -fx-background-color: #000;

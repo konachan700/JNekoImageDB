@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.image.Image;
 import javafx.util.Duration;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -30,6 +31,8 @@ import menulist.MenuGroupItem;
 import org.apache.commons.io.FilenameUtils;
 
 public class DBWrapper {
+    private final static Image broken = new Image(new File("./icons/broken.png").toURI().toString());
+    
     private static volatile Crypto          xCrypto     = null;
     private static volatile DBEngine          SQL         = null;
     private static volatile ImageEngine     IM          = null;
@@ -68,6 +71,15 @@ public class DBWrapper {
         return SQLCounter;
     }
     
+    public static void downloadImageToTempDir(long IID) {
+        if (IID <= 0) return;
+        String path = DBWrapper.ReadAPPSettingsString("ff_uploadPath"); 
+        if ((path.length() > 0) && (new File(path).canWrite()) && (new File(path).isDirectory())) {
+            IM.DownloadImageToFS(IID, path);
+        } else {
+            IM.DownloadImageToFS(IID, JNekoImageDB.TEMPORARY_DIR);
+        }
+    }
     
     private static void pushHistogram(String color, byte[] h, long iid) {
         final StringBuilder q = new StringBuilder();
@@ -113,6 +125,12 @@ public class DBWrapper {
         _L("generateHistogram time: "+(System.currentTimeMillis() - tmr));
     }
     
+    public static Image getImage(long iid) {
+        final byte[] img_t = IM.getImagesFS().PopFile(iid);
+        if (img_t == null) return broken;
+        final Image img = new Image(new ByteArrayInputStream(img_t));
+        return img;
+    }
     
     public static BufferedImage getPrerview(DBImageX dbe) {
         try {
@@ -133,6 +151,32 @@ public class DBWrapper {
             _L("getPrerview ERROR: "+ex.getMessage());
             return null;
         }
+    }
+    
+    public static synchronized long  getNextImage(long oid) {
+        return getNearImage(oid, "WHERE oid>? ORDER BY oid ASC");
+    }
+    
+    public static synchronized long  getPrevImage(long oid) {
+        return getNearImage(oid, "WHERE oid<? ORDER BY oid DESC");
+    }
+    
+    private static synchronized long getNearImage(long oid, String where) {
+        try {
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT oid FROM "+DBEngine.QUOTE+"FS_images_files"+DBEngine.QUOTE+ " " + where + " LIMIT 0, 1;");
+            ps.setLong(1, oid);
+            ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
+            if (rs != null) {
+                if (rs.next()) {
+                    long retval = rs.getLong("oid");
+                    rs.close();
+                    ps.close();
+                    return retval;
+                }
+            }
+        } catch (SQLException ex) { }
+        return 0;
     }
     
     public static synchronized ArrayList<DBImageX> getImagesX(long album_id, long start, long limit) {

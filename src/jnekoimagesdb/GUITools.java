@@ -24,6 +24,9 @@ public class GUITools {
             CLOSE_HIDE_WINDOW = 1;
     
     public static StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag) {
+        /*
+            Делаем красивый гуй для windows-систем. В линуксах это не нужно, так как там с темами оформления полный порядок и каждый запиливает тему себе сам.
+        */
         final DropShadow ds = new DropShadow();
         ds.setOffsetY(0f);
         ds.setRadius(0);
@@ -31,19 +34,12 @@ public class GUITools {
         ds.setHeight(12f);
         ds.setSpread(0.5f);
         ds.setColor(Color.color(0.0f, 0.0f, 0.0f));
-        
-//        final DropShadow dsn = new DropShadow();
-//        dsn.setOffsetY(0f);
-//        dsn.setRadius(4f);
-//        dsn.setSpread(0.4f);
-//        dsn.setColor(Color.color(0.0f, 0.0f, 0.0f));
 
         final Label imageName = new Label("JNeko Image Database");
         imageName.getStyleClass().add("appnamez");
         imageName.setMaxSize(9999, 16);
         imageName.setPrefSize(9999, 16);
         imageName.setAlignment(Pos.CENTER_LEFT);
-//        imageName.setEffect(dsn);
 
         HBox header_z = new HBox(6);
         header_z.setMaxSize(9999, 32);

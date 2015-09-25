@@ -47,7 +47,7 @@ public class ImageEngine {
             PREVIEW_TYPE_SMALL              = 1,
             PREVIEW_TYPE_SMALL_NONSQUARED   = 3,
 
-            IMAGE_MAX_SIZE = 128000000;
+            IMAGE_MAX_SIZE = 256000000;
     
     public ImageEngine(Crypto k, DBEngine sql) {
         CRYPT       = k;
@@ -63,6 +63,11 @@ public class ImageEngine {
     public FSEngine getThumbsFS() {
         return ThumbsFS;
     }
+    
+    public FSEngine getImagesFS() {
+        return ImagesFS;
+    }
+    
     
     public ArrayList<Long> getImages(String _sql) {
         return ImagesFS.getImages(_sql);
@@ -118,29 +123,6 @@ public class ImageEngine {
             if (small_p_id <= 0) return -6; else {
                 DBWrapper.addImageAndPreviewAssoc(IID, small_p_id, PREVIEW_TYPE_SMALL);
                 DBWrapper.generateHistogram(imgs.get("squareImage"), IID);
-                
-//                final long tmr = System.currentTimeMillis();
-//                final BufferedImage im2 = imgs.get("squareImage");
-//                final byte[] 
-//                        gist_B = new byte[256],
-//                        gist_R = new byte[256],
-//                        gist_G = new byte[256];
-//                int RGB;
-//                Arrays.fill(gist_B, (byte) 0);
-//                Arrays.fill(gist_R, (byte) 0);
-//                Arrays.fill(gist_G, (byte) 0);
-//                
-//                for (int x=0; x<im2.getWidth(); x++) {
-//                    for (int y=0; y<im2.getHeight(); y++) {
-//                        RGB = im2.getRGB(x, y);
-//                        gist_B[RGB & 0xff]++;
-//                        gist_G[(RGB >> 8) & 0xff]++;
-//                        gist_R[(RGB >> 16) & 0xff]++;
-//                    }
-//                }
-//                System.err.println("ARR TMR="+(System.currentTimeMillis() - tmr));
-//                System.err.println("ARR B="+Arrays.toString(gist_B));
-                
             }
             
             final long small_pns_id = ThumbsFS.PushFileMT(BIToBytes(imgs.get("nonsquareImage")), null);

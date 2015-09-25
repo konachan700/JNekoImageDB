@@ -1,6 +1,5 @@
 package imagelist;
 
-import dialogs.DialogWindow;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import java.io.ByteArrayInputStream;
@@ -90,9 +89,14 @@ public class ImageListItem extends Pane {
         });
         
         this.setOnMouseClicked((MouseEvent event) -> {
-            isSel = !isSel;
-            selImg.setVisible(isSel);
-            if (AL != null) AL.OnClick(this);
+            if (event.getClickCount() == 1) {
+                isSel = !isSel;
+                selImg.setVisible(isSel);
+                if (AL != null) AL.OnClick(this);
+            } else {
+                new ImageListViewScreen().show(ID);
+            }
+            event.consume();
         }); 
 
         imageZ.setFitHeight(ImageEngine.SMALL_PREVIEW_SIZE);
@@ -120,7 +124,7 @@ public class ImageListItem extends Pane {
         delImage.setOpacity(0.75d);
         
         openImage.setOnMouseClicked((MouseEvent event) -> {
-            new DialogWindow().show();
+            new ImageListViewScreen().show(ID);
             event.consume();
         });
         
@@ -138,8 +142,13 @@ public class ImageListItem extends Pane {
             event.consume();
         });
         
+        totempImage.setOnMouseClicked((MouseEvent event) -> {
+            DBWrapper.downloadImageToTempDir(ID);
+            event.consume();
+        });
+        
         HBox iconsI = new HBox(4);
-        iconsI.setAlignment(Pos.CENTER);
+        iconsI.setAlignment(Pos.CENTER); 
         iconsI.getChildren().addAll(totempImage, openImage, delImage, likeImage);
         buttonsVBox.getChildren().addAll(iconsI);
         

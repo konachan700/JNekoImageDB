@@ -45,6 +45,7 @@ import settings.Settings;
 
 
 public class JNekoImageDB extends Application {
+    public static final String TEMPORARY_DIR = "./temp/";
 //    private class DragDelta { 
 //        double x, y; 
 //    }
@@ -196,6 +197,7 @@ public class JNekoImageDB extends Application {
     @Override
     public void start(Stage primaryStage) {
         new File(SplittedFile.DATABASE_FOLDER).mkdir();
+        new File(JNekoImageDB.TEMPORARY_DIR).mkdir();
         
         if (!mainCrypto.genSecureRandomSalt()) {
             System.err.println("Error #1: Cannot open some crypt files.");
