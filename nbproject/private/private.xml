@@ -4,12 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/GUITools.java</file>
-            <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/dataaccess/SplittedFile.java</file>
             <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/imagelist/ImageListViewScreen.java</file>
-            <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/JNekoImageDB.java</file>
-            <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/dataaccess/DBWrapper.java</file>
+            <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/imagelist/ImageListItem.java</file>
+            <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/albums/AlbumSelectDialog.java</file>
             <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/imagelist/ImageList.java</file>
-            <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/dialogs/DialogWindow.java</file>
+            <file>file:/C:/Users/Neko/Documents/GitHub/JNekoImageDB/src/albums/AlbumsCategories.java</file>
         </group>
     </open-files>
 </project-private>

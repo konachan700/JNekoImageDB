@@ -31,9 +31,47 @@ public class DialogWindow {
             toolbox         = new HBox(),
             logobox         = new HBox();
     
+    private final Scene scene;
+    
     public DialogWindow() {
-        final Scene scene = generateScene();
-        
+        scene = generateScene();
+        init();
+    }
+    
+    public DialogWindow(double w, double h) {
+        scene = generateScene(w, h);
+        init(w, h);
+    }
+    
+    public void show() {
+        win.show();
+    }
+    
+    public Scene getScene() {
+        return scene;
+    }
+    
+    public Stage getStage() {
+        return win;
+    }
+    
+    public void showModal() {
+        win.showAndWait();
+    }
+    
+    public HBox getToolbox() {
+        return toolbox;
+    }
+    
+    public VBox getMainContainer() {
+        return basevbox;
+    }
+    
+    private void init() {
+        init(1200, 800);
+    }
+    
+    private void init(double w, double h) {
         final Image logoImage = new Image(JNekoImageDB.class.getResourceAsStream("logo6.png"));
         final ImageView imgLogoV = new ImageView(logoImage);
         
@@ -77,39 +115,27 @@ public class DialogWindow {
         win.getIcons().add(new Image(new File("./icons/icon64.png").toURI().toString()));
         win.getIcons().add(new Image(new File("./icons/icon32.png").toURI().toString()));
         
-        win.setMinWidth(640);
-        win.setMinHeight(480);
+        win.setMinWidth(w / 2);
+        win.setMinHeight(h / 2);
         win.setTitle("Images database");
         win.setScene(scene);
         
         if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(win);
     }
     
-    public void show() {
-        win.show();
-    }
-    
-    public void showModal() {
-        win.showAndWait();
-    }
-    
-    public HBox getToolbox() {
-        return toolbox;
-    }
-    
-    public VBox getMainContainer() {
-        return basevbox;
-    }
-    
     private Scene generateScene() {
-        final Scene scene;
+        return generateScene(1200, 800);
+    }
+    
+    private Scene generateScene(double w, double h) {
+        final Scene scenex;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             StackPane root3m = GUITools.getWinGUI(this, win, DRD, root, mvbox, "ILVWStyle.css", GUITools.CLOSE_HIDE_WINDOW);
-            scene = new Scene(root3m, 1200, 800);
-            scene.setFill(Color.TRANSPARENT);
+            scenex = new Scene(root3m, w, h);
+            scenex.setFill(Color.TRANSPARENT);
         } else {
-            scene = new Scene(root, 1200, 800);
+            scenex = new Scene(root, w, h);
         }
-        return scene;
+        return scenex;
     }
 }

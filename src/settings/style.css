@@ -51,9 +51,13 @@
     -fx-padding: 0 0 0 12;
     -fx-background-color:#222;
     -fx-font-weight:bold; 
-    -fx-font-size: 10px;
+    -fx-font-size: 12px;
     -fx-text-fill: #fff;
     -fx-background-insets: 0, 0, 0, 0;
+}
+
+.SEC_Label {
+    
 }
 
 .SCheckBox {

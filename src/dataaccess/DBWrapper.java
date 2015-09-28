@@ -372,11 +372,16 @@ public class DBWrapper {
     }
     
     public static synchronized void addNewAlbumGroup(String name) {
+        addNewAlbumGroup(name, 0);
+    }
+    
+    public static synchronized void addNewAlbumGroup(String name, long parent) {
             try {
-                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" VALUES(?, ?, 1);");
+                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" VALUES(?, ?, ?, 1);");
                 final long tmr = new Date().getTime();
                 ps.setLong(1, tmr);
                 ps.setBytes(2, xCrypto.Crypt(xCrypto.align16b(name.getBytes())));
+                ps.setLong(3, parent);
                 ps.execute();
                 _SQLCounter++;
             } catch (SQLException ex) { _L(ex.getMessage()); }
@@ -634,16 +639,42 @@ public class DBWrapper {
             return -1;
         }
     }
-        
-    public static synchronized ArrayList<AlbumsCategory> getAlbumsGroupsID() {
+      
+    public static synchronized long getParentAlbum(long child_paid) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" ORDER BY oid DESC;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT paid FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
+            ps.setLong(1, child_paid);
+            ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
+            if (rs != null) {
+                if (rs.next()) {
+                    final long idid = rs.getLong("paid");
+                    rs.close();
+                    ps.close();
+                   return idid;
+                }
+            }
+            return -1;
+        } catch (SQLException ex) {
+            _L("getIDByMD5 ERROR: "+ex.getMessage());
+            return -1;
+        }
+    }
+    
+    public static synchronized ArrayList<AlbumsCategory> getAlbumsGroupsID() {
+        return getAlbumsGroupsID(0);
+    }
+    
+    public static synchronized ArrayList<AlbumsCategory> getAlbumsGroupsID(long paid) {
+        try {
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE paid=? ORDER BY oid DESC;");
+            ps.setLong(1, paid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
             if (rs != null) {
                 ArrayList<AlbumsCategory> alac = new ArrayList<>();
                 while (rs.next()) {
-                    AlbumsCategory ac = new AlbumsCategory(new String(xCrypto.Decrypt(rs.getBytes("groupName"))).trim(), rs.getLong("oid"), rs.getInt("state"));
+                    AlbumsCategory ac = new AlbumsCategory(new String(xCrypto.Decrypt(rs.getBytes("groupName"))).trim(), rs.getLong("oid"), rs.getInt("state"), rs.getLong("paid"));
                     alac.add(ac);
                 }
                 return alac;

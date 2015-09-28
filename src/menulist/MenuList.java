@@ -9,6 +9,12 @@ public class MenuList extends VBox {
             scrollable = new VBox(),
             helptext = new VBox();
     
+    /*
+    
+        ТУТ, КАК И ВО ВСЕМ ПАКЕТЕ, ОБЯЗАТЕЛЬНО НУЖЕН РЕФАКТОРИНГ
+    
+    */
+    
 //    private final TextArea
 //            helpTextArea = new TextArea();
     

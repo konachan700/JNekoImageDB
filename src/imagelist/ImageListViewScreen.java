@@ -1,5 +1,6 @@
 package imagelist;
 
+import albums.AlbumSelectDialog;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dialogs.DialogWindow;
@@ -174,6 +175,10 @@ public class ImageListViewScreen {
         });
         
         dw.getMainContainer().getChildren().add(sp);
+        
+        toAlbumBtn.setOnMouseClicked((MouseEvent event) -> {
+            new AlbumSelectDialog().Show(null);
+        });      
         
         likeBtn.setOnMouseClicked((MouseEvent event) -> {
             isLiked = !isLiked;
