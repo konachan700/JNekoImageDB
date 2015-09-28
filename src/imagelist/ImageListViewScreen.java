@@ -252,9 +252,15 @@ public class ImageListViewScreen {
         Image im = DBWrapper.getImage(iid);
         img_w = im.getWidth();
         img_h = im.getHeight();
-        imgC.setImage(im); 
-        imgC.setFitHeight(height * scale);
-        imgC.setFitWidth(width * scale);
+        if ((img_w < width) && (img_h < height)) {
+            imgC.setFitHeight(img_h);
+            imgC.setFitWidth(img_w);
+            scale = img_w / width;
+        } else {
+            imgC.setFitHeight(height * scale);
+            imgC.setFitWidth(width * scale);
+        }
+        imgC.setImage(im);
     }
     
     private void _show(long iid) {
