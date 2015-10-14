@@ -27,7 +27,7 @@ public class DBEngine {
             
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"AlbumsGroup"+QUOTE+"(oid bigint not null primary key, groupName blob, paid bigint, state int);");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"previews_list"+QUOTE+" (oid bigint not null primary key, idid bigint, pdid bigint, imgtype int);");
-            gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"images_albums"+QUOTE+" (oid bigint not null primary key, imgoid bigint, alboid bigint);");
+            gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"images_albums"+QUOTE+" (imgoid bigint, alboid bigint, UNIQUE KEY (imgoid, alboid));");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"images_basic_meta"+QUOTE+" (oid bigint not null primary key, imgoid bigint, width int, height int, wh1 double, wh2 bigint, fn_md5 BINARY(16));");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"StringSettings"+QUOTE+" (xname char(64), xvalue char(250), UNIQUE(xname));");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"previews_files"+QUOTE+"(oid bigint not null primary key, idid bigint, md5 BINARY(16));");

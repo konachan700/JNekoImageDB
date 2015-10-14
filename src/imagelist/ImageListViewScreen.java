@@ -5,6 +5,7 @@ import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dialogs.DialogWindow;
 import java.io.File;
+import java.util.ArrayList;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
@@ -177,7 +178,9 @@ public class ImageListViewScreen {
         dw.getMainContainer().getChildren().add(sp);
         
         toAlbumBtn.setOnMouseClicked((MouseEvent event) -> {
-            new AlbumSelectDialog().Show(null);
+            final ArrayList<Long> tmp1 = new ArrayList<>();
+            tmp1.add(IID);
+            new AlbumSelectDialog().Show(tmp1);
         });      
         
         likeBtn.setOnMouseClicked((MouseEvent event) -> {

@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jnekoimagesdb.DragDelta;
 import jnekoimagesdb.GUITools;
@@ -43,7 +44,12 @@ public class DialogWindow {
         init(w, h);
     }
     
+    public void hide() {
+        win.close();
+    }
+    
     public void show() {
+        win.initModality(Modality.NONE); 
         win.show();
     }
     
@@ -56,6 +62,7 @@ public class DialogWindow {
     }
     
     public void showModal() {
+        win.initModality(Modality.APPLICATION_MODAL); 
         win.showAndWait();
     }
     

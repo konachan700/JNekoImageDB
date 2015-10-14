@@ -84,12 +84,21 @@ public class AlbumSelectDialog {
         private final TextField       
                 title = new TextField();
         
+        private final Label       
+                titleLabel = new Label();
+        
         private final ASDElementActionListener
                 elementAL;
         
+        private boolean editMode = false;
+        
+        private final ImageView
+                save_i = new ImageView(new Image(new File("./icons/save16.png").toURI().toString())),
+                edit_i = new ImageView(new Image(new File("./icons/edit16.png").toURI().toString()));
+        
         private final Button
                 checkBtn = new Button(),
-                saveBtn = new Button("", new ImageView(new Image(new File("./icons/save16.png").toURI().toString())));
+                saveBtn = new Button("", edit_i);
         
         public ASDElement(Long id, Long pid, String xtitle, ASDElementActionListener al) {
             super();
@@ -101,8 +110,23 @@ public class AlbumSelectDialog {
             parent      = pid;
             
             title.setText(xtitle);
+            titleLabel.setText(xtitle);
             
             _init();
+        }
+        
+        private void _editModeOff() {
+            saveBtn.setGraphic(edit_i);
+            editMode = false;
+            this.getChildren().clear();
+            this.getChildren().addAll(checkBtn, titleLabel, saveBtn);
+        }
+        
+        private void _editModeOn() {
+            saveBtn.setGraphic(save_i);
+            editMode = true;
+            this.getChildren().clear();
+            this.getChildren().addAll(checkBtn, title, saveBtn);
         }
         
         private void _init() {
@@ -110,7 +134,15 @@ public class AlbumSelectDialog {
             saveBtn.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
             saveBtn.getStyleClass().add("SSaveBox");
             saveBtn.setOnMouseClicked((MouseEvent event) -> {
-                if (title.getText().trim().length() > 0) elementAL.OnSave(ID, this, title.getText().trim()); 
+                if (editMode) {
+                    if (title.getText().trim().length() > 0) {
+                        elementAL.OnSave(ID, this, title.getText().trim());
+                        titleLabel.setText(title.getText().trim());
+                    }
+                    _editModeOff();
+                } else {
+                    _editModeOn();
+                }
             });
             
             GUITools.setFixedSize(checkBtn, 16, 16);
@@ -118,8 +150,9 @@ public class AlbumSelectDialog {
             checkBtn.getStyleClass().add("SCheckBox");
             checkBtn.setOnMouseClicked((MouseEvent event) -> {
                 selectState = !selectState;
-                if (ID > 0) 
+                if (ID > 0) {
                     checkBtn.setGraphic(new ImageView((selectState) ? sel : unsel));
+                }
                 
                 if (selectState)  
                     if (ID > 0) elementAL.OnCheck(ID, this); 
@@ -129,26 +162,37 @@ public class AlbumSelectDialog {
                 event.consume();
             }); 
             
-            GUITools.setMaxSize(title, 9999, 16);
-            title.setAlignment(Pos.CENTER_LEFT);
-            title.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-            title.getStyleClass().add("SEC_Label");
-            title.setOnMouseClicked((MouseEvent event) -> {
-                if (event.getClickCount() > 1)
+            GUITools.setMaxSize(titleLabel, 9999, 16);
+            titleLabel.setAlignment(Pos.CENTER_LEFT);
+            titleLabel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
+            titleLabel.getStyleClass().add("SEC_Label");
+            titleLabel.setOnMouseClicked((MouseEvent event) -> {
+                //if (event.getClickCount() > 1)
                     elementAL.OnItemClick(ID, this);
             });
             
+            GUITools.setMaxSize(title, 9999, 16);
+            title.setAlignment(Pos.CENTER_LEFT);
+            title.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
+            title.getStyleClass().add("SEC_Label_editable");
+//            title.setOnMouseClicked((MouseEvent event) -> {
+//                if (event.getClickCount() > 1)
+//                    elementAL.OnItemClick(ID, this);
+//            });
+            
             if (ID > 0) {
-                this.getChildren().addAll(checkBtn, title, saveBtn);
+                this.getChildren().addAll(checkBtn, titleLabel, saveBtn);
             } else {
-                title.setEditable(false);
-                this.getChildren().addAll(checkBtn, title);
+                //title.setEditable(false);
+                this.getChildren().addAll(checkBtn, titleLabel);
             }
         }
     }
     
     private long 
             albumID = 0;
+    
+    private ArrayList<Long> iidsElements = null;
     
     private final ASDNewElementActionListener
             newAL = (long parent, String title) -> {
@@ -244,6 +288,24 @@ public class AlbumSelectDialog {
         sp.setContent(mainContainer);
         dw.getMainContainer().getChildren().add(sp);
         
+        yesImg.setOnMouseClicked((MouseEvent event) -> {
+            if (iidsElements == null) return;
+            if (iidsElements.size() <= 0) return;
+            if (selectedElements.size() <= 0) return; // Весьма спорный момент. Ибо удаление из альбомов надо будет реализовывать отдельно. Однако позволяет безболезненно делать пересечения.
+            
+            final ArrayList<Long> tmp1 = new ArrayList<>();
+            for (ASDElement el1 : selectedElements) {
+                tmp1.add(el1.ID);
+            }
+            
+            DBWrapper.setImageGroupsIDs(iidsElements, tmp1);
+            dw.hide();
+        });
+        
+        noImg.setOnMouseClicked((MouseEvent event) -> {
+            dw.hide();
+        });
+        
         genAlbList(0);
     }
     
@@ -273,10 +335,8 @@ public class AlbumSelectDialog {
     }
     
     public int Show(ArrayList<Long> iids) {
-        /* TODO: дописать добавление элементов */
-        
-        dw.show();
-        
+        iidsElements = iids;
+        dw.showModal();
         return 1;
     }
 

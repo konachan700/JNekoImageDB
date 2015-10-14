@@ -1,23 +1,22 @@
 .ImageListX ImageView:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 0, 0.75) , 0,0,0,1 );
+    //-fx-effect: dropshadow(gaussian, rgba(0, 255, 0, 0.75) , 0,0,0,1 );
 }
 
 .ImageListX, .ImageListX:hover {
     -fx-padding: 2px;
-    -fx-background-color: #555;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
+    -fx-background-color: #565;
+    //-fx-background-radius: 6;
+    //-fx-border-radius: 6;
     -fx-border-style: solid;
     -fx-border-width: 1;
 }
 
 .ImageListX {
-    -fx-border-color: #999;
-    
+    -fx-border-color: #565;//999;
 }
 
 .ImageListX:hover {
-    -fx-border-color: #5f5;
+    -fx-border-color: #7a7;
 }
 
 /* The main scrollbar **track** CSS class  */

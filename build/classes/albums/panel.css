@@ -217,17 +217,28 @@
 
 .SEC_Label {
     -fx-padding: 0 0 0 12;
-    -fx-background-color:#222;
+    -fx-background-color:transparent;
     -fx-font-weight:bold; 
     -fx-font-size: 12px;
     -fx-text-fill: #fff;
     -fx-background-insets: 0, 0, 0, 0;
-    -fx-underline:false;
+    -fx-underline: false;
+    -fx-border-width:0;
+}
+
+.SEC_Label_editable {
+    -fx-padding: 0 0 0 12;
+    -fx-background-color:#fff;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #000;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline: false;
     -fx-border-width:0;
 }
 
 .SEC_Label:hover {
-    -fx-underline:true;
+    -fx-underline: true;
     -fx-text-fill: #ff0;
 }
 
@@ -259,6 +270,10 @@
     -fx-border-color: #555;
     -fx-padding: 6px;
     -fx-border-insets: 0;
+}
+
+.ASDElementHBox:hover {
+    -fx-background-color: #444;
 }
 
 .newItemName {

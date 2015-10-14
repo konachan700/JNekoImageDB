@@ -167,6 +167,7 @@ public class ImageListItem extends Pane {
     }
 
     public void setImg(double sizeW, double sizeH, byte img[]) {
+        this.getStyleClass().clear();
         imageZ.setSmooth(true);
         imageZ.setCache(false);
         imageZ.setPreserveRatio(true);
@@ -176,6 +177,7 @@ public class ImageListItem extends Pane {
     }
     
     public void setImg(double sizeW, double sizeH, Image img) {
+        this.getStyleClass().clear();
         imageZ.setSmooth(true);
         imageZ.setCache(false);
         imageZ.setPreserveRatio(true);

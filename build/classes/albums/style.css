@@ -1,5 +1,5 @@
 .AlbumImageList {
-    -fx-background-radius: 4;
+    //-fx-background-radius: 4;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
@@ -7,9 +7,9 @@
 }
 
 .tabsHBox {
-    -fx-background-color: #222;
-    -fx-border-width: 2 0 0 0;
-    -fx-border-color:#555;
+    -fx-background-color: #000;
+    //-fx-border-width: 2 0 0 0;
+    //-fx-border-color:#555;
     -fx-padding: 0;
 }
 
@@ -19,10 +19,11 @@
     -fx-text-fill: #ddd;
     -fx-background-color: #481818;
     -fx-border-color:#555;
-    -fx-border-width: 0 0 1 3;
-    -fx-border-radius: 0 0 0 4;
-    -fx-background-radius: 0 0 0 4;
+    -fx-border-width: 0; //0 0 1 3;
+    //-fx-border-radius: 0 0 0 4;
+    //-fx-background-radius: 0 0 0 4;
     //-fx-underline: true;
+    //-fx-label-padding: 5px 4px 5px 4px;
 }
 
 .tabLabelB {
@@ -31,10 +32,11 @@
     -fx-text-fill: #ddd;
     -fx-background-color: #184818;
     -fx-border-color:#555;
-    -fx-border-width: 0 3 1 0;
-    -fx-border-radius: 0 0 4 0;
-    -fx-background-radius: 0 0 4 0;
+    -fx-border-width: 0; //0 3 1 0;
+    //-fx-border-radius: 0 0 4 0;
+    //-fx-background-radius: 0 0 4 0;
     //-fx-underline: true;
+    //-fx-label-padding: 5px 4px 5px 4px;
 }
 
 .tabLabelA:hover, .tabLabelB:hover {

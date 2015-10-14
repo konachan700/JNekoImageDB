@@ -195,7 +195,7 @@ public class DBWrapper {
                                 + "previews_list.idid                   AS pl_idid, "
                                 + "previews_list.pdid                   AS pl_pdid, "
                                 + "previews_list.imgtype                AS pl_imgtype, "
-                                + "images_albums.oid                    AS ia_oid, "
+                                //+ "images_albums.oid                    AS ia_oid, "
                                 + "images_albums.imgoid                 AS ia_imgoid, "
                                 + "images_albums.alboid                 AS ia_alboid "
                                 +
@@ -280,7 +280,7 @@ public class DBWrapper {
                     if ((album_id != -1)) {
                         dbe.ia_alboid       = rs.getLong("ia_alboid");
                         dbe.ia_imgoid       = rs.getLong("ia_imgoid");
-                        dbe.ia_oid          = rs.getLong("ia_oid");
+                        dbe.ia_oid          = -1; //rs.getLong("ia_oid");
                     } else {
                         dbe.ia_alboid       = -1;
                         dbe.ia_imgoid       = -1;
@@ -517,13 +517,13 @@ public class DBWrapper {
     
     public static synchronized long getImagesCountInAlbum(long oid) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=?;");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(imgoid) FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
             if (rs != null) {
                 if (rs.next()) {
-                    long sz = rs.getLong("COUNT(oid)");
+                    long sz = rs.getLong("COUNT(imgoid)");
                     return sz;
                     }
             }
@@ -555,7 +555,7 @@ public class DBWrapper {
     
     public static synchronized ArrayList<Long> getImagesByGroupOID(long oid, int limStart, int limCount) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=? ORDER BY oid ASC LIMIT "+limStart+","+limCount+";");
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=? ORDER BY alboid ASC LIMIT "+limStart+","+limCount+";");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -573,6 +573,30 @@ public class DBWrapper {
     }
     
     @SuppressWarnings("SleepWhileHoldingLock")
+    public static synchronized int setImageGroupsIDs(ArrayList<Long> imgOIDs, ArrayList<Long> groupOIDs) {
+        try {
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT IGNORE INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?);");
+            for (long ioid : imgOIDs) {
+                for (long goid : groupOIDs) {
+                    ps.setLong(1, ioid);
+                    ps.setLong(2, goid);
+                    ps.addBatch();
+                }
+            }
+        
+            ps.executeBatch();
+            _SQLCounter++;
+            ps.close();
+            
+            return 0;
+        } catch (SQLException ex) { 
+            _L("setImageGroupsIDs ERROR: "+ex.getMessage());
+        } 
+
+        return -1;
+    }
+    
+    @SuppressWarnings("SleepWhileHoldingLock")
     public static synchronized int setImageGroupID(long imgOID, long groupOID) {
         ArrayList<Long> al = getGroupsByImageOID(imgOID);
         if (al == null) return -1;
@@ -581,11 +605,11 @@ public class DBWrapper {
         }
         
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?, ?);");
-            final long tmr = new Date().getTime();
-            ps.setLong(1, tmr);
-            ps.setLong(2, imgOID);
-            ps.setLong(3, groupOID);
+            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?);");
+//            final long tmr = new Date().getTime();
+//            ps.setLong(1, tmr);
+            ps.setLong(1, imgOID);
+            ps.setLong(2, groupOID);
             ps.execute();
             _SQLCounter++;
             Sleep(2);

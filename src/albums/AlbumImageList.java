@@ -57,7 +57,7 @@ public class AlbumImageList extends VBox {
         });
         imgLabel.getStyleClass().add("tabLabelB");
         imgLabel.setAlignment(Pos.CENTER);
-        GUITools.setMaxSize(imgLabel, 9999, 24);
+        GUITools.setMaxSize(imgLabel, 9999, 27);
         
         albLabel.setOnMouseClicked((MouseEvent event) -> {
             this.getChildren().remove(IML);
@@ -66,11 +66,12 @@ public class AlbumImageList extends VBox {
         });
         albLabel.getStyleClass().add("tabLabelA");
         albLabel.setAlignment(Pos.CENTER);
-        GUITools.setMaxSize(albLabel, 9999, 24);
+        GUITools.setMaxSize(albLabel, 9999, 27);
         
         tabsHBox.getStyleClass().add("tabsHBox");
         tabsHBox.setAlignment(Pos.CENTER);
-        GUITools.setMaxSize(tabsHBox, 9999, 24);
+        GUITools.setMaxSize(tabsHBox, 9999, 27);
+        tabsHBox.setMinHeight(27); 
         
         tabsHBox.getChildren().addAll(imgLabel, albLabel);
         this.getChildren().addAll(tabsHBox, IML);
