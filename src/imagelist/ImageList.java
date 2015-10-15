@@ -1,5 +1,6 @@
 package imagelist;
 
+import albums.AlbumSelectDialog;
 import dataaccess.DBImageX;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
@@ -42,11 +43,12 @@ public class ImageList extends FlowPane {
     private final Image broken = new Image(new File("./icons/broken.png").toURI().toString());
     
     private final Button
-            selallImg = new Button("", new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
-            selnoneImg = new Button("", new ImageView(new Image(new File("./icons/selectnone.png").toURI().toString()))),
-            addtagImg = new Button("", new ImageView(new Image(new File("./icons/addtag.png").toURI().toString()))),
-            deltagImg = new Button("", new ImageView(new Image(new File("./icons/cleartags.png").toURI().toString()))),
-            toAlbImg = new Button("", new ImageView(new Image(new File("./icons/addalbum.png").toURI().toString()))),
+//            selallImg = new Button("", new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
+//            selnoneImg = new Button("", new ImageView(new Image(new File("./icons/selectnone.png").toURI().toString()))),
+            addtagImg = new Button("", new ImageView(new Image(new File("./icons/add-tags.png").toURI().toString()))),
+            //deltagImg = new Button("", new ImageView(new Image(new File("./icons/cleartags.png").toURI().toString()))),
+            toAlbImg = new Button("", new ImageView(new Image(new File("./icons/add-to-album.png").toURI().toString()))),
+            delAlbImg = new Button("", new ImageView(new Image(new File("./icons/remove-from-album.png").toURI().toString()))),
             toTempImg = new Button("", new ImageView(new Image(new File("./icons/addtotemp.png").toURI().toString())));
     
     private final Label
@@ -205,6 +207,7 @@ public class ImageList extends FlowPane {
     
     public void setAlbimID(long _albumID) {
         albumID = _albumID;
+        _addButtonsPanel();
     }
     
     public final synchronized void normalRefresh() {
@@ -267,20 +270,22 @@ public class ImageList extends FlowPane {
         topPanel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
         topPanel.getStyleClass().add("topPanel");
         
-        selallImg.getStyleClass().add("ImgButtonB");
-        selnoneImg.getStyleClass().add("ImgButtonB");
+        //selallImg.getStyleClass().add("ImgButtonB");
+        //selnoneImg.getStyleClass().add("ImgButtonB");
         addtagImg.getStyleClass().add("ImgButtonG");
-        deltagImg.getStyleClass().add("ImgButtonR2");
+//        deltagImg.getStyleClass().add("ImgButtonR2");
         toTempImg.getStyleClass().add("ImgButtonR");
         toAlbImg.getStyleClass().add("ImgButtonR2");
+        delAlbImg.getStyleClass().add("ImgButtonR2");
         
         final int sz = 64;
         GUITools.setFixedSize(toAlbImg, sz, sz);
         GUITools.setFixedSize(toTempImg, sz, sz);
         GUITools.setFixedSize(addtagImg, sz, sz);
-        GUITools.setFixedSize(deltagImg, sz, sz);
-        GUITools.setFixedSize(selallImg, sz, sz);
-        GUITools.setFixedSize(selnoneImg, sz, sz);
+        GUITools.setFixedSize(delAlbImg, sz, sz);
+//        GUITools.setFixedSize(deltagImg, sz, sz);
+        //GUITools.setFixedSize(selallImg, sz, sz);
+        //GUITools.setFixedSize(selnoneImg, sz, sz);
         
         PW = new PleaseWait(xParent, toptxt, logtxt);
         
@@ -301,24 +306,41 @@ public class ImageList extends FlowPane {
             event.consume();
         }); 
         
-        selnoneImg.setOnMouseClicked((MouseEvent event) -> {
-            if ((isProcessRunning == 1) || (is_resized == 1)) return;
-                       
+        toAlbImg.setOnMouseClicked((MouseEvent event) -> {
+            if (selectedItems.size() <= 0) return;
+            new AlbumSelectDialog().Show(selectedItems);
             selectedItems.clear();
             is_resized = 1;
             event.consume();
         });
         
-        selallImg.setOnMouseClicked((MouseEvent event) -> {
-            if ((isProcessRunning == 1) || (is_resized == 1)) return;
-            
-            _selectAll();
+        delAlbImg.setOnMouseClicked((MouseEvent event) -> {
+            if (selectedItems.size() <= 0) return;
+            selectedItems.stream().forEach((ioid) -> {
+                DBWrapper.delImageGroupID(ioid, albumID);
+            });
+
+            selectedItems.clear();
             is_resized = 1;
             event.consume();
         });
-
-        topPanel.getChildren().addAll(addtagImg, deltagImg, GUITools.getSeparator(8), selallImg, selnoneImg, GUITools.getSeparator(8), toAlbImg, GUITools.getSeparator(), toTempImg);
         
+//        selnoneImg.setOnMouseClicked((MouseEvent event) -> {
+//            if ((isProcessRunning == 1) || (is_resized == 1)) return;
+//                       
+//            selectedItems.clear();
+//            is_resized = 1;
+//            event.consume();
+//        });
+//        
+//        selallImg.setOnMouseClicked((MouseEvent event) -> {
+//            if ((isProcessRunning == 1) || (is_resized == 1)) return;
+//            
+//            _selectAll();
+//            is_resized = 1;
+//            event.consume();
+//        });
+
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("ImageList");
         
@@ -351,6 +373,14 @@ public class ImageList extends FlowPane {
         });
     }
     
+    private void _addButtonsPanel() {
+        topPanel.getChildren().clear();
+        if (albumID == 0)
+            topPanel.getChildren().addAll(toAlbImg, addtagImg, GUITools.getSeparator(), toTempImg);
+        else
+            topPanel.getChildren().addAll(toAlbImg, delAlbImg, addtagImg, GUITools.getSeparator(), toTempImg);
+    }
+    
     private void _toTempFolder() {
         final Task taskForPage = new Task<Void>() {
             @Override 
@@ -381,33 +411,33 @@ public class ImageList extends FlowPane {
         t.start();
     }
     
-    private void _selectAll() {
-        final Task taskForPage = new Task<Void>() {
-            @Override 
-            public Void call() {
-                if (isProcessRunning == 1) return null;
-                isProcessRunning = 1;
-
-                logtxt.append("Получаю список изображений...");
-                selectedItems.clear();
-                if (albumID == 0) 
-                    selectedItems.addAll(IMG.getImages("ORDER BY oid DESC;"));
-                else {
-                    int cnt = (int) DBWrapper.getImagesCountInAlbum(albumID);
-                    selectedItems.addAll(DBWrapper.getImagesByGroupOID(albumID, 0, cnt));
-                }
-                
-                PW.setVis(false);
-                is_resized = 1;
-                isProcessRunning = 2;
-                return null;
-            }
-        };
-        PW.setVis(true);
-        final Thread t = new Thread(taskForPage);
-        t.setDaemon(true);
-        t.start();
-    }
+//    private void _selectAll() {
+//        final Task taskForPage = new Task<Void>() {
+//            @Override 
+//            public Void call() {
+//                if (isProcessRunning == 1) return null;
+//                isProcessRunning = 1;
+//
+//                logtxt.append("Получаю список изображений...");
+//                selectedItems.clear();
+//                if (albumID == 0) 
+//                    selectedItems.addAll(IMG.getImages("ORDER BY oid DESC;"));
+//                else {
+//                    int cnt = (int) DBWrapper.getImagesCountInAlbum(albumID);
+//                    selectedItems.addAll(DBWrapper.getImagesByGroupOID(albumID, 0, cnt));
+//                }
+//                
+//                PW.setVis(false);
+//                is_resized = 1;
+//                isProcessRunning = 2;
+//                return null;
+//            }
+//        };
+//        PW.setVis(true);
+//        final Thread t = new Thread(taskForPage);
+//        t.setDaemon(true);
+//        t.start();
+//    }
     
     public HBox getPaginator() {
         return paginatorPanel;

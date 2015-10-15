@@ -21,13 +21,6 @@ import javafx.scene.layout.VBox;
 import jnekoimagesdb.GUITools;
 
 public class AlbumSelectDialog {
-    private interface ASDElementActionListener {
-        void OnCheck(Long id, ASDElement e);
-        void OnUncheck(Long id, ASDElement e);
-        void OnItemClick(Long id, ASDElement e);
-        void OnSave(Long id, ASDElement e, String newTitle);
-    }
-    
     private interface ASDNewElementActionListener {
         void OnNew(long parent, String title);
     }
@@ -73,122 +66,6 @@ public class AlbumSelectDialog {
         }
     }
     
-    private class ASDElement extends HBox{
-        private final Image
-            sel = new Image(new File("./icons/selected16.png").toURI().toString()),
-            unsel = new Image(new File("./icons/unselected16.png").toURI().toString());
-
-        private boolean     selectState     = false;
-        private final Long  ID, parent;
-        
-        private final TextField       
-                title = new TextField();
-        
-        private final Label       
-                titleLabel = new Label();
-        
-        private final ASDElementActionListener
-                elementAL;
-        
-        private boolean editMode = false;
-        
-        private final ImageView
-                save_i = new ImageView(new Image(new File("./icons/save16.png").toURI().toString())),
-                edit_i = new ImageView(new Image(new File("./icons/edit16.png").toURI().toString()));
-        
-        private final Button
-                checkBtn = new Button(),
-                saveBtn = new Button("", edit_i);
-        
-        public ASDElement(Long id, Long pid, String xtitle, ASDElementActionListener al) {
-            super();
-            this.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-            this.getStyleClass().add("ASDElementHBox");
-            
-            ID          = id;
-            elementAL   = al;
-            parent      = pid;
-            
-            title.setText(xtitle);
-            titleLabel.setText(xtitle);
-            
-            _init();
-        }
-        
-        private void _editModeOff() {
-            saveBtn.setGraphic(edit_i);
-            editMode = false;
-            this.getChildren().clear();
-            this.getChildren().addAll(checkBtn, titleLabel, saveBtn);
-        }
-        
-        private void _editModeOn() {
-            saveBtn.setGraphic(save_i);
-            editMode = true;
-            this.getChildren().clear();
-            this.getChildren().addAll(checkBtn, title, saveBtn);
-        }
-        
-        private void _init() {
-            GUITools.setFixedSize(saveBtn, 16, 16);
-            saveBtn.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-            saveBtn.getStyleClass().add("SSaveBox");
-            saveBtn.setOnMouseClicked((MouseEvent event) -> {
-                if (editMode) {
-                    if (title.getText().trim().length() > 0) {
-                        elementAL.OnSave(ID, this, title.getText().trim());
-                        titleLabel.setText(title.getText().trim());
-                    }
-                    _editModeOff();
-                } else {
-                    _editModeOn();
-                }
-            });
-            
-            GUITools.setFixedSize(checkBtn, 16, 16);
-            checkBtn.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-            checkBtn.getStyleClass().add("SCheckBox");
-            checkBtn.setOnMouseClicked((MouseEvent event) -> {
-                selectState = !selectState;
-                if (ID > 0) {
-                    checkBtn.setGraphic(new ImageView((selectState) ? sel : unsel));
-                }
-                
-                if (selectState)  
-                    if (ID > 0) elementAL.OnCheck(ID, this); 
-                else 
-                    if (ID > 0) elementAL.OnUncheck(ID, this); 
-                
-                event.consume();
-            }); 
-            
-            GUITools.setMaxSize(titleLabel, 9999, 16);
-            titleLabel.setAlignment(Pos.CENTER_LEFT);
-            titleLabel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-            titleLabel.getStyleClass().add("SEC_Label");
-            titleLabel.setOnMouseClicked((MouseEvent event) -> {
-                //if (event.getClickCount() > 1)
-                    elementAL.OnItemClick(ID, this);
-            });
-            
-            GUITools.setMaxSize(title, 9999, 16);
-            title.setAlignment(Pos.CENTER_LEFT);
-            title.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-            title.getStyleClass().add("SEC_Label_editable");
-//            title.setOnMouseClicked((MouseEvent event) -> {
-//                if (event.getClickCount() > 1)
-//                    elementAL.OnItemClick(ID, this);
-//            });
-            
-            if (ID > 0) {
-                this.getChildren().addAll(checkBtn, titleLabel, saveBtn);
-            } else {
-                //title.setEditable(false);
-                this.getChildren().addAll(checkBtn, titleLabel);
-            }
-        }
-    }
-    
     private long 
             albumID = 0;
     
@@ -203,17 +80,17 @@ public class AlbumSelectDialog {
     private final ASDElementActionListener
             elAL = new ASDElementActionListener() {
                 @Override
-                public void OnCheck(Long id, ASDElement e) {
+                public void OnCheck(Long id, AlbumsListElement e) {
                     selectedElements.add(e);
                 }
 
                 @Override
-                public void OnUncheck(Long id, ASDElement e) {
+                public void OnUncheck(Long id, AlbumsListElement e) {
                     selectedElements.remove(e);
                 }
 
                 @Override
-                public void OnItemClick(Long id, ASDElement e) {
+                public void OnItemClick(Long id, AlbumsListElement e) {
                     if (id > 0) 
                         genAlbList(id);
                     else {
@@ -224,12 +101,12 @@ public class AlbumSelectDialog {
                 }
 
                 @Override
-                public void OnSave(Long id, ASDElement e, String t) {
+                public void OnSave(Long id, AlbumsListElement e, String t) {
                     DBWrapper.saveAlbumsCategoryChanges(t, 0, id);
                 }
             };
     
-    private final ArrayList<ASDElement>
+    private final ArrayList<AlbumsListElement>
             selectedElements = new ArrayList<>();
 
     private final Button 
@@ -294,7 +171,7 @@ public class AlbumSelectDialog {
             if (selectedElements.size() <= 0) return; // Весьма спорный момент. Ибо удаление из альбомов надо будет реализовывать отдельно. Однако позволяет безболезненно делать пересечения.
             
             final ArrayList<Long> tmp1 = new ArrayList<>();
-            for (ASDElement el1 : selectedElements) {
+            for (AlbumsListElement el1 : selectedElements) {
                 tmp1.add(el1.ID);
             }
             
@@ -316,11 +193,11 @@ public class AlbumSelectDialog {
         
         albumID = aid;
         if (albumID > 0) {
-            final ASDElement el_root = new ASDElement(-1L, albumID, "...", elAL);
+            final AlbumsListElement el_root = new AlbumsListElement(-1L, albumID, "...", elAL);
             mainContainer.getChildren().add(el_root);
         }
         
-        alac.stream().map((a) -> new ASDElement(a.ID, a.parent, a.name, elAL)).forEach((el) -> {
+        alac.stream().map((a) -> new AlbumsListElement(a.ID, a.parent, a.name, elAL)).forEach((el) -> {
             mainContainer.getChildren().add(el);
         });
         
