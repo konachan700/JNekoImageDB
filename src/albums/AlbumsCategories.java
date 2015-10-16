@@ -24,6 +24,11 @@ public class AlbumsCategories extends ScrollPane {
             super(2);
             AC = ac;
             
+            
+            /* 
+                Доделать объединение css до конца
+            */
+            
             this.getStyleClass().add("itemHBox");
             GUITools.setMaxSize(this, 9999, 32);
             
@@ -37,7 +42,7 @@ public class AlbumsCategories extends ScrollPane {
             i.setFitHeight(32);
             i.setFitWidth(32);
             
-            Button b = new Button("", new ImageView(new Image(new File("./icons/"+((ac.state==1) ? "delete2.png" : "selected.png")).toURI().toString())));//new Image(getClass().getResourceAsStream((ac.state==1) ? "delete2.png" : "selected.png"))));
+            Button b = new Button("", new ImageView(new Image(new File("./icons/"+((ac.state==1) ? "delete2.png" : "selected.png")).toURI().toString())));
             b.getStyleClass().add("itemButton");
             GUITools.setFixedSize(b, 32, 32);
             b.setOnMouseClicked((MouseEvent event) -> {
@@ -51,7 +56,7 @@ public class AlbumsCategories extends ScrollPane {
                 RefreshAll();
             });
             
-            Button s = new Button("", new ImageView(new Image(new File("./icons/save2.png").toURI().toString())));//new Image(getClass().getResourceAsStream("save2.png"))));
+            Button s = new Button("", new ImageView(new Image(new File("./icons/save2.png").toURI().toString())));
             s.getStyleClass().add("itemButton");
             GUITools.setFixedSize(s, 32, 32);
             s.setOnMouseClicked((MouseEvent event) -> {
@@ -75,33 +80,33 @@ public class AlbumsCategories extends ScrollPane {
             txtAddNew = new TextField("Новая группа");
     
     private final Button
-            todbImg = new Button("", new ImageView(new Image(new File("./icons/adddef.png").toURI().toString())));//new Image(getClass().getResourceAsStream("adddef.png"))));
+            todbImg = new Button("", new ImageView(new Image(new File("./icons/add-to-album.png").toURI().toString())));
        
     private MenuGroupItem MGI;
     
     public AlbumsCategories(MenuGroupItem mgi) {
         super();
-        MGI     = mgi;
+        MGI = mgi;
         
         this.setVbarPolicy(ScrollBarPolicy.ALWAYS);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        this.getStyleClass().add("sroll_pane");
+        this.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        this.getStyleClass().add("AlbumsCategories_Pane sroll_pane");
         this.setContent(mainPane);
         this.setFitToWidth(true);
         this.setFitToHeight(true);
         this.setMaxSize(9999, 9999);
         this.setPrefSize(9999, 9999);
         
-        mainPane.getStyleClass().add("mainPane");
+        mainPane.getStyleClass().add("AlbumsCategories_mainPane");
         
-        toolbox.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        toolbox.getStyleClass().add("toolbox");
+        toolbox.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        toolbox.getStyleClass().add("AlbumsCategories_toolbox");
         GUITools.setMaxSize(toolbox, 9999, 64);
-        txtAddNew.getStyleClass().add("txtAddNew");
+        txtAddNew.getStyleClass().add("AlbumsCategories_txtAddNew");
         GUITools.setMaxSize(txtAddNew, 9999, 64);
         GUITools.setFixedSize(todbImg, 64, 64);
-        todbImg.getStyleClass().add("ImgButtonR");
+        todbImg.getStyleClass().add("AlbumsCategories_todbImg");
         toolbox.getChildren().addAll(txtAddNew, todbImg);
         
         todbImg.setOnMouseClicked((MouseEvent event) -> {

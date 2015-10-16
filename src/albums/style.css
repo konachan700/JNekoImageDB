@@ -14,7 +14,7 @@
 }
 
 .tabLabelA {
-    -fx-font-size: 16px;
+    -fx-font-size: 12px;
     -fx-font-weight:bold;
     -fx-text-fill: #ddd;
     -fx-background-color: #481818;
@@ -27,7 +27,7 @@
 }
 
 .tabLabelB {
-    -fx-font-size: 16px;
+    -fx-font-size: 12px;
     -fx-font-weight:bold;
     -fx-text-fill: #ddd;
     -fx-background-color: #184818;
@@ -40,51 +40,53 @@
 }
 
 .tabLabelA:hover, .tabLabelB:hover {
-    -fx-background-color: #555;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
 }
 
 
-.sroll_pane, .sroll_pane .viewport {
-    -fx-background-radius: 4;
+/*.sroll_pane, .sroll_pane .viewport {
+    -fx-background-radius: 0;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
     -fx-background-color: #222;
-}
+}*/
 
-.sroll_pane .corner {
+/*.sroll_pane .corner {
     -fx-background-insets: 0;
-}
+}*/
 
-.mainPane {
-    -fx-background-radius: 4;
+/*.mainPane {
+    -fx-background-radius: 0;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
     -fx-background-color: #222;
-}
+}*/
 
-.toolbox {
-    -fx-background-radius: 4;
+/*.toolbox {
+    //-fx-background-radius: 4;
+    -fx-padding: 0 0 0 0;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
-    -fx-background-color: #222;
-}
+    -fx-background-color: #000;
+}*/
 
-.txtAddNew { 
+/*.txtAddNew { 
     -fx-padding: 0 0 0 24;
     -fx-background-color: #fff;
-    -fx-background-radius: 4 0 0 4;
-    -fx-font-size: 24px;
+    -fx-background-radius: 0;
+    -fx-font-size: 22px;
     -fx-font-weight:bold;
     -fx-text-fill: #555;
-}
+}*/
 
-.ImgButtonR {
+/*.ImgButtonR {
     -fx-padding: 0px;
-    -fx-background-color: #481818;
-    -fx-background-radius: 0 4 4 0;
+    -fx-background-color: #333; //#481818;
+    -fx-background-radius: 0;// 0 4 4 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
 
@@ -92,9 +94,9 @@
     -fx-padding: 0px;
     -fx-background-color: #fff;
     -fx-text-fill: #000;
-}
+}*/
 
-.itemHBox, .itemLabel {
+/*.itemHBox, .itemLabel {
     -fx-padding: 0px;
     -fx-background-color: #444;
     -fx-background-insets: 0, 0, 0, 0;
@@ -103,7 +105,7 @@
 
 .itemLabel:hover {
     -fx-background-color: #888;
-}
+}*/
 
 .itemButton {
     -fx-padding: 0px;
@@ -118,7 +120,7 @@
     -fx-text-fill: #000;
 }
 
-.sroll_pane .scroll-bar:horizontal .track,
+/*.sroll_pane .scroll-bar:horizontal .track,
 .sroll_pane .scroll-bar:vertical .track{
 	-fx-background-color:#222;
 	-fx-border-color:#555;
@@ -127,7 +129,7 @@
         
 }
 
-/* The increment and decrement button CSS class of scrollbar */
+ The increment and decrement button CSS class of scrollbar 
 .sroll_pane .scroll-bar:horizontal .increment-button ,
 .sroll_pane .scroll-bar:horizontal .decrement-button {
     -fx-background-color:#000;
@@ -136,7 +138,7 @@
 
 }
 
-/* The increment and decrement button CSS class of scrollbar */
+ The increment and decrement button CSS class of scrollbar 
 
 .sroll_pane .scroll-bar:vertical .increment-button ,
 .sroll_pane .scroll-bar:vertical .decrement-button {
@@ -154,11 +156,11 @@
 	-fx-padding:0;
 }
 
-/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+ The main scrollbar **thumb** CSS class which we drag every time (movable) 
 .sroll_pane .scroll-bar:horizontal .thumb,
 .sroll_pane .scroll-bar:vertical .thumb {
     -fx-background-color:#000;
 	-fx-background-insets: 2, 0, 0;
 	-fx-background-radius: 2em;
 
-}
+}*/

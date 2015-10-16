@@ -387,6 +387,27 @@ public class DBWrapper {
             } catch (SQLException ex) { _L(ex.getMessage()); }
     }
     
+    public static synchronized String getAlbumName(long id) {
+        if (id == ImageEngine.ALBUM_ID_FAVORITES) return "Избранное";
+        if (id == ImageEngine.ALBUM_ID_DELETED) return "Удаленные";
+        
+        try {
+            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
+            if (rs != null) {
+                if (rs.next()) {
+                    byte ret[] = xCrypto.Decrypt(rs.getBytes("groupName"));
+                    ps.close();
+                    return (ret != null) ? (new String(ret).trim()) : "";
+                }
+            }
+            ps.close();
+            return "";
+        } catch (SQLException ex) { _L(ex.getMessage()); return ""; }
+    }
+    
     public static synchronized BufferedImage getPrerview(int xtype, long IID, FSEngine SFS_preview) {
         try {
             PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"previews_list"+DBEngine.QUOTE+" WHERE idid=? AND imgtype=?;");
@@ -606,8 +627,6 @@ public class DBWrapper {
         
         try {
             PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?);");
-//            final long tmr = new Date().getTime();
-//            ps.setLong(1, tmr);
             ps.setLong(1, imgOID);
             ps.setLong(2, groupOID);
             ps.execute();
@@ -665,6 +684,9 @@ public class DBWrapper {
     }
       
     public static synchronized long getParentAlbum(long child_paid) {
+        if (child_paid == ImageEngine.ALBUM_ID_FAVORITES) return 0;
+        if (child_paid == ImageEngine.ALBUM_ID_DELETED) return 0;
+        
         try {
             PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT paid FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
             ps.setLong(1, child_paid);

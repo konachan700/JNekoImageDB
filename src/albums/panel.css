@@ -215,12 +215,14 @@
     -fx-background-color:transparent;
 }
 
-.SEC_Label {
+
+
+/*.SEC_Label_system {
     -fx-padding: 0 0 0 12;
     -fx-background-color:transparent;
     -fx-font-weight:bold; 
     -fx-font-size: 12px;
-    -fx-text-fill: #fff;
+    -fx-text-fill: #f70;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-underline: false;
     -fx-border-width:0;
@@ -235,14 +237,14 @@
     -fx-background-insets: 0, 0, 0, 0;
     -fx-underline: false;
     -fx-border-width:0;
-}
+}*/
 
-.SEC_Label:hover {
+/*.SEC_Label:hover {
     -fx-underline: true;
     -fx-text-fill: #ff0;
-}
+}*/
 
-.SCheckBox {
+/*.SCheckBox {
     -fx-background-insets: 0, 0, 0, 0;
     -fx-background-color:#222;
     -fx-padding: 0;
@@ -251,9 +253,9 @@
     -fx-background-radius: 3;
     -fx-border-radius: 3;
     -fx-border-color:#777;
-}
+}*/
 
-.SSaveBox {
+/*.SSaveBox {
     -fx-background-insets: 0, 0, 0, 0;
     -fx-background-color: transparent;
     -fx-padding: 0;
@@ -261,9 +263,9 @@
     -fx-border-insets:0;
     -fx-background-radius: 0;
     -fx-border-radius: 0;
-}
+}*/
 
-.ASDElementHBox {
+/*.ASDElementHBox {
     -fx-background-color: #222;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-width: 0 0 1px 0;
@@ -274,9 +276,9 @@
 
 .ASDElementHBox:hover {
     -fx-background-color: #444;
-}
+}*/
 
-.newItemName {
+/*.newItemName {
     -fx-padding: 4px;
     -fx-border-insets: 0;
     -fx-border-color: #777;
@@ -290,14 +292,14 @@
 
 .newItemName .viewport {
     -fx-background-insets: 0;
-}
+}*/
 
-.newTitle {
+/*.newTitle {
     -fx-padding: 0 0 0 12;
-    -fx-background-color:#222;
+    -fx-background-color:transparent;
     -fx-font-weight:bold; 
     -fx-font-size: 12px;
     -fx-text-fill: #ccc;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-underline:false;
-}
+}*/

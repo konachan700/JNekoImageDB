@@ -1,0 +1,202 @@
+.ASDNewElement_addBtn {
+    -fx-padding: 0px;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.ASDNewElement_newItemName {
+    -fx-padding: 4px;
+    -fx-border-insets: 0;
+    -fx-border-color: #777;
+    -fx-background-color: #fff;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-width: 1px;
+    -fx-text-fill: #000;
+    -fx-font-weight:bold; 
+    -fx-font-size: 14px;
+}
+
+.ASDNewElement_newItemName .viewport {
+    -fx-background-insets: 0;
+}
+
+.ASDNewElement_newTitle {
+    -fx-padding: 0 0 0 12;
+    -fx-background-color:transparent;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #ccc;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline:false;
+}
+
+.ASDNewElement_HBox, .AlbumsListElement_HBox {
+    -fx-background-color: #222;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: #555;
+    -fx-padding: 6px;
+    -fx-border-insets: 0;
+}
+
+.ASDNewElement_HBox:hover, .AlbumsListElement_HBox:hover {
+    -fx-background-color: #444;
+}
+
+.AlbumsListElement_saveBtn {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.AlbumsListElement_checkBtn {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color:#222;
+    -fx-padding: 0;
+    -fx-border-width:1;
+    -fx-border-insets:0;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+    -fx-border-color:#777;
+}
+
+.AlbumsListElement_titleLabel {
+    -fx-padding: 0 0 0 12;
+    -fx-background-color:transparent;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline: false;
+    -fx-border-width:0;
+}
+
+.AlbumsListElement_titleLabel:hover {
+    -fx-underline: true;
+    -fx-text-fill: #ff0;
+}
+
+.AlbumsListElement_titleLabel_system {
+    -fx-padding: 0 0 0 12;
+    -fx-background-color:transparent;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #f70;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline: false;
+    -fx-border-width:0;
+}
+
+.AlbumsListElement_title {
+    -fx-padding: 0 0 0 12;
+    -fx-background-color:#fff;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #000;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline: false;
+    -fx-border-width:0;
+}
+
+.AlbumsCategories_Pane, .AlbumsCategories_Pane .viewport {
+    -fx-background-radius: 0;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-color: #222;
+}
+
+.AlbumsCategories_Pane .corner {
+    -fx-background-insets: 0;
+}
+
+.AlbumsCategories_Pane .scroll-bar:horizontal .track,
+.AlbumsCategories_Pane .scroll-bar:vertical .track {
+    -fx-background-color:#222;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+
+.AlbumsCategories_Pane .scroll-bar:horizontal .increment-button ,
+.AlbumsCategories_Pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.AlbumsCategories_Pane .scroll-bar:vertical .increment-button ,
+.AlbumsCategories_Pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.AlbumsCategories_Pane  .scroll-bar .increment-arrow,
+.AlbumsCategories_Pane  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.AlbumsCategories_Pane .scroll-bar:horizontal .thumb,
+.AlbumsCategories_Pane .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
+
+.AlbumsCategories_mainPane {
+    -fx-background-radius: 0;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-color: #222;
+}
+
+.AlbumsCategories_toolbox {
+    -fx-padding: 0 0 0 0;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-color: #000;
+}
+
+.AlbumsCategories_txtAddNew { 
+    -fx-padding: 0 0 0 24;
+    -fx-background-color: #fff;
+    -fx-background-radius: 0;
+    -fx-font-size: 22px;
+    -fx-font-weight:bold;
+    -fx-text-fill: #555;
+}
+
+.AlbumsCategories_todbImg {
+    -fx-padding: 0px;
+    -fx-background-color: #333;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.AlbumsCategories_todbImg:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+.itemHBox, .itemLabel {
+    -fx-padding: 0px;
+    -fx-background-color: #444;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-text-fill: #fff;
+}
+
+.itemLabel:hover {
+    -fx-background-color: #888;
+}
+
+

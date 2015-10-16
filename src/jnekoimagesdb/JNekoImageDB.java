@@ -132,7 +132,8 @@ public class JNekoImageDB extends Application {
                     if (l.getGID().contentEquals("M02")) {
                         long lv = Long.parseLong(l.getID(), 10);
                         basesp.getChildren().add(albImgList);
-                        albImgList.getImageList().setAlbimID(lv);
+                        albImgList.setAlbID(lv);
+//                        albImgList.getImageList().setAlbimID(lv);
                         albImgList.getImageList().normalRefresh();
                         toolbox.getChildren().add(albImgList.getImageList().getTopPanel()); 
                         paginator_1.getChildren().add(albImgList.getImageList().getPaginator());

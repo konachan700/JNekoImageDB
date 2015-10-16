@@ -2,7 +2,9 @@ package albums;
 
 import dataaccess.ImageEngine;
 import dataaccess.DBEngine;
+import dataaccess.DBWrapper;
 import imagelist.ImageList;
+import java.util.ArrayList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +24,10 @@ public class AlbumImageList extends VBox {
     private final Label
             imgLabel = new Label("Картинки"),
             albLabel = new Label("Альбомы");
+    
+    private long 
+            albumID = 0,
+            albumsCount = 0;
     
     private final ImageEngine 
             IM;
@@ -43,6 +49,70 @@ public class AlbumImageList extends VBox {
         return IML;
     }
     
+    public void setAlbID(long aoid) {
+        IML.setAlbimID(aoid);
+        IML.normalRefresh();
+        imgLabel.setText("Картинки альбома \"" + DBWrapper.getAlbumName(aoid) +  "\""); 
+        albumID = aoid;
+        genAlbList();
+        albLabel.setText("Альбомы (" + albumsCount + ")"); 
+    }
+    
+    private final ASDNewElementActionListener
+        newAL = (long parent, String title) -> {
+            DBWrapper.addNewAlbumGroup(title, albumID);
+            genAlbList();
+        };
+    
+    private final ASDElementActionListener
+        elAL = new ASDElementActionListener() {
+            @Override
+            public void OnCheck(Long id, AlbumsListElement e) { }
+
+            @Override
+            public void OnUncheck(Long id, AlbumsListElement e) { }
+
+            @Override
+            public void OnItemClick(Long id, AlbumsListElement e) {
+                if (id > 0) {
+                    setAlbID(id);
+                } else {
+                    long parent_el = DBWrapper.getParentAlbum(e.parent);
+                    setAlbID(parent_el);
+                }
+            }
+
+            @Override
+            public void OnSave(Long id, AlbumsListElement e, String t) {
+                DBWrapper.saveAlbumsCategoryChanges(t, 0, id);
+            }
+        };
+    
+    private void genAlbList() {
+        if (IML.getAlbumID() == 0) return;
+        albumList.getChildren().clear();
+        
+        ArrayList<AlbumsCategory> alac = DBWrapper.getAlbumsGroupsID(albumID);
+        if (alac == null) return;
+        albumsCount = 0;
+        
+        long parentAlbum = DBWrapper.getParentAlbum(albumID);
+        if (parentAlbum > 0) {
+            final AlbumsListElement el_root = new AlbumsListElement(-1L, albumID, "...", elAL);
+            el_root.DisableCheck();
+            albumList.getChildren().add(el_root);
+        }
+        
+        alac.stream().map((a) -> new AlbumsListElement(a.ID, a.parent, a.name, elAL)).forEach((el) -> {
+            el.DisableCheck();
+            albumsCount++;
+            albumList.getChildren().add(el);
+        });
+
+        final ASDNewElement ne = new ASDNewElement(newAL, albumID);
+        albumList.getChildren().add(ne);
+    }
+    
     private void init() {
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("AlbumImageList");
@@ -52,6 +122,7 @@ public class AlbumImageList extends VBox {
         
         imgLabel.setOnMouseClicked((MouseEvent event) -> {
             this.getChildren().remove(albumList);
+            this.getChildren().remove(IML);
             this.getChildren().add(IML);
             event.consume();
         });
@@ -61,7 +132,9 @@ public class AlbumImageList extends VBox {
         
         albLabel.setOnMouseClicked((MouseEvent event) -> {
             this.getChildren().remove(IML);
+            this.getChildren().remove(albumList);
             this.getChildren().add(albumList);
+            genAlbList();
             event.consume();
         });
         albLabel.getStyleClass().add("tabLabelA");

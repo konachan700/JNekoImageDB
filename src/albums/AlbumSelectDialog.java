@@ -1,6 +1,7 @@
 package albums;
 
 import dataaccess.DBWrapper;
+import dataaccess.ImageEngine;
 import dialogs.DialogWindow;
 import java.io.File;
 import java.util.ArrayList;
@@ -21,51 +22,6 @@ import javafx.scene.layout.VBox;
 import jnekoimagesdb.GUITools;
 
 public class AlbumSelectDialog {
-    private interface ASDNewElementActionListener {
-        void OnNew(long parent, String title);
-    }
-    
-    private class ASDNewElement extends HBox{
-        private final Button
-                addBtn = new Button("", new ImageView(new Image(new File("./icons/plus32.png").toURI().toString())));
-        
-        private final TextField
-                newItemName = new TextField();
-        
-        private final Label       
-                newTitle = new Label("Добавить альбом");
-        
-        private final ASDNewElementActionListener
-                elAL;
-        
-        private final long
-                parent_id;
-        
-        public ASDNewElement(ASDNewElementActionListener al, long pid) {
-            super();
-            this.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-            this.getStyleClass().add("ASDElementHBox");
-            
-            elAL = al;
-            parent_id = pid;
-            
-            GUITools.setFixedSize(newTitle, 196, 32);
-            newTitle.setAlignment(Pos.CENTER_LEFT);
-            newTitle.getStyleClass().add("newTitle");
-            
-            GUITools.setFixedSize(addBtn, 32, 32);
-            addBtn.getStyleClass().add("ImgButtonG");
-            addBtn.setOnMouseClicked((MouseEvent event) -> {
-                if (newItemName.getText().trim().length() > 0) elAL.OnNew(parent_id, newItemName.getText().trim());
-            });
-            
-            GUITools.setMaxSize(newItemName, 9999, 32);
-            newItemName.getStyleClass().add("newItemName");
-            
-            this.getChildren().addAll(newTitle, newItemName, addBtn);
-        }
-    }
-    
     private long 
             albumID = 0;
     
@@ -97,7 +53,6 @@ public class AlbumSelectDialog {
                         long parent_el = DBWrapper.getParentAlbum(e.parent);
                         genAlbList(parent_el);
                     }
-                        
                 }
 
                 @Override
@@ -200,6 +155,13 @@ public class AlbumSelectDialog {
         alac.stream().map((a) -> new AlbumsListElement(a.ID, a.parent, a.name, elAL)).forEach((el) -> {
             mainContainer.getChildren().add(el);
         });
+        
+        if (albumID <= 0) {
+            final AlbumsListElement 
+                    el_del = new AlbumsListElement(ImageEngine.ALBUM_ID_DELETED, 0L, "Удаленные", elAL), 
+                    el_fav = new AlbumsListElement(ImageEngine.ALBUM_ID_FAVORITES, 0L, "Избранное", elAL);
+            mainContainer.getChildren().addAll(el_fav, el_del);
+        }
         
         if (albumID > 0) {
             final ASDNewElement ne = new ASDNewElement(newAL, albumID);

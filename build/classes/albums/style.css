@@ -14,7 +14,7 @@
 }
 
 .tabLabelA {
-    -fx-font-size: 16px;
+    -fx-font-size: 12px;
     -fx-font-weight:bold;
     -fx-text-fill: #ddd;
     -fx-background-color: #481818;
@@ -27,7 +27,7 @@
 }
 
 .tabLabelB {
-    -fx-font-size: 16px;
+    -fx-font-size: 12px;
     -fx-font-weight:bold;
     -fx-text-fill: #ddd;
     -fx-background-color: #184818;
@@ -40,12 +40,13 @@
 }
 
 .tabLabelA:hover, .tabLabelB:hover {
-    -fx-background-color: #555;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
 }
 
 
 .sroll_pane, .sroll_pane .viewport {
-    -fx-background-radius: 4;
+    -fx-background-radius: 0;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
@@ -57,7 +58,7 @@
 }
 
 .mainPane {
-    -fx-background-radius: 4;
+    -fx-background-radius: 0;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
@@ -65,26 +66,27 @@
 }
 
 .toolbox {
-    -fx-background-radius: 4;
+    //-fx-background-radius: 4;
+    -fx-padding: 0 0 0 0;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
-    -fx-background-color: #222;
+    -fx-background-color: #000;
 }
 
 .txtAddNew { 
     -fx-padding: 0 0 0 24;
     -fx-background-color: #fff;
-    -fx-background-radius: 4 0 0 4;
-    -fx-font-size: 24px;
+    -fx-background-radius: 0;
+    -fx-font-size: 22px;
     -fx-font-weight:bold;
     -fx-text-fill: #555;
 }
 
 .ImgButtonR {
     -fx-padding: 0px;
-    -fx-background-color: #481818;
-    -fx-background-radius: 0 4 4 0;
+    -fx-background-color: #333; //#481818;
+    -fx-background-radius: 0;// 0 4 4 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
 

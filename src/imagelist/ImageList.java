@@ -219,6 +219,8 @@ public class ImageList extends FlowPane {
         } else {
             totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
         }
+        
+        currCountLabel.setText(totalImagesCount+" images");
     }
 
     public ImageListItem getItem(int id) {
@@ -227,6 +229,10 @@ public class ImageList extends FlowPane {
     
     public int getCount() {
         return images_count;
+    }
+    
+    public long getAlbumID() {
+        return albumID;
     }
     
     public HBox getTopPanel() {
