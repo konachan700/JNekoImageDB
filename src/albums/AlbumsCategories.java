@@ -2,6 +2,7 @@ package albums;
 
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
+import dataaccess.Lang;
 import java.io.File;
 import java.util.ArrayList;
 import javafx.scene.control.Button;
@@ -18,34 +19,27 @@ import menulist.MenuGroupItem;
 public class AlbumsCategories extends ScrollPane {
     public class ACListItem extends HBox {
         public AlbumsCategory AC;
-        private TextField lTextField;
+        private TextField itemLabel;
         
         public ACListItem(AlbumsCategory ac) {
             super(2);
             AC = ac;
-            
-            
-            /* 
-                Доделать объединение css до конца
-            */
-            
-            this.getStyleClass().add("itemHBox");
+
+            this.getStyleClass().add("AlbumsCategories_ACListItem_itemHBox");
             GUITools.setMaxSize(this, 9999, 32);
             
-            //Label l = new Label(ac.name);
-            lTextField = new TextField(ac.name);
-            //l.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("albgrp.png"))));
-            lTextField.getStyleClass().add("itemLabel");
-            GUITools.setMaxSize(lTextField, 9999, 32);
+            itemLabel = new TextField(ac.name);
+            itemLabel.getStyleClass().add("AlbumsCategories_ACListItem_itemLabel");
+            GUITools.setMaxSize(itemLabel, 9999, 32);
             
-            ImageView i = new ImageView(new Image(new File("./icons/albgrp.png").toURI().toString()));//new Image(getClass().getResourceAsStream("albgrp.png")));
+            ImageView i = new ImageView(new Image(new File("./icons/albgrp.png").toURI().toString()));
             i.setFitHeight(32);
             i.setFitWidth(32);
             
-            Button b = new Button("", new ImageView(new Image(new File("./icons/"+((ac.state==1) ? "delete2.png" : "selected.png")).toURI().toString())));
-            b.getStyleClass().add("itemButton");
-            GUITools.setFixedSize(b, 32, 32);
-            b.setOnMouseClicked((MouseEvent event) -> {
+            Button itemButton = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/"+((ac.state==1) ? "delete2.png" : "selected.png")).toURI().toString())));
+            itemButton.getStyleClass().add("AlbumsCategories_ACListItem_itemButton");
+            GUITools.setFixedSize(itemButton, 32, 32);
+            itemButton.setOnMouseClicked((MouseEvent event) -> {
                 if (AC.state == 0) {
                     AC.state = 1;
                     AC.saveChanges();
@@ -56,17 +50,17 @@ public class AlbumsCategories extends ScrollPane {
                 RefreshAll();
             });
             
-            Button s = new Button("", new ImageView(new Image(new File("./icons/save2.png").toURI().toString())));
-            s.getStyleClass().add("itemButton");
-            GUITools.setFixedSize(s, 32, 32);
-            s.setOnMouseClicked((MouseEvent event) -> {
-                if (lTextField.getText().trim().length() <= 1) return;
-                ac.name = lTextField.getText().trim();
+            Button itemButton2 = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/save2.png").toURI().toString())));
+            itemButton2.getStyleClass().add("AlbumsCategories_ACListItem_itemButton");
+            GUITools.setFixedSize(itemButton2, 32, 32);
+            itemButton2.setOnMouseClicked((MouseEvent event) -> {
+                if (itemLabel.getText().trim().length() <= 1) return;
+                ac.name = itemLabel.getText().trim();
                 ac.saveChanges();
                 RefreshAll();
             });
             
-            this.getChildren().addAll(i, lTextField, s, b);
+            this.getChildren().addAll(i, itemLabel, itemButton2, itemButton);
         }
     }
     
@@ -77,10 +71,10 @@ public class AlbumsCategories extends ScrollPane {
             toolbox = new HBox(2);
     
     private final TextField
-            txtAddNew = new TextField("Новая группа");
+            txtAddNew = new TextField(Lang.AlbumsCategories_txtAddNew);
     
     private final Button
-            todbImg = new Button("", new ImageView(new Image(new File("./icons/add-to-album.png").toURI().toString())));
+            todbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/add-to-album.png").toURI().toString())));
        
     private MenuGroupItem MGI;
     
@@ -90,7 +84,7 @@ public class AlbumsCategories extends ScrollPane {
         
         this.setVbarPolicy(ScrollBarPolicy.ALWAYS);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
-        this.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("AlbumsCategories_Pane sroll_pane");
         this.setContent(mainPane);
         this.setFitToWidth(true);
@@ -100,7 +94,7 @@ public class AlbumsCategories extends ScrollPane {
         
         mainPane.getStyleClass().add("AlbumsCategories_mainPane");
         
-        toolbox.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        toolbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         toolbox.getStyleClass().add("AlbumsCategories_toolbox");
         GUITools.setMaxSize(toolbox, 9999, 64);
         txtAddNew.getStyleClass().add("AlbumsCategories_txtAddNew");
@@ -129,17 +123,17 @@ public class AlbumsCategories extends ScrollPane {
         
         mainPane.getChildren().clear();
         MGI.clearAll();
-        MGI.addLabel(Long.toString(ImageEngine.ALBUM_ID_FAVORITES), "Избранное");
+        MGI.addLabel(Long.toString(ImageEngine.ALBUM_ID_FAVORITES), Lang.AlbumsCategories_MenuItem_FAVORITES);
         
         alac.stream().forEach((ac) -> {
             ACListItem acli = new ACListItem(ac);
             mainPane.getChildren().add(acli);
             if (ac.state == 0) {
-                MGI.addLabel(""+ac.ID, ac.name);
+                MGI.addLabel(Lang.NullString + ac.ID, ac.name);
             }
         });
         
-        MGI.addLabel(Long.toString(ImageEngine.ALBUM_ID_DELETED), "Удаленные");
+        MGI.addLabel(Long.toString(ImageEngine.ALBUM_ID_DELETED), Lang.AlbumsCategories_MenuItem_DELETED);
         MGI.Commit();
     }
 }

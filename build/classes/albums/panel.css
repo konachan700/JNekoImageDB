@@ -1,4 +1,4 @@
-.appnamez {
+/*.appnamez {
     -fx-font-weight:bold; 
     -fx-font-size: 16px;
     -fx-text-fill: #ddd;
@@ -172,7 +172,7 @@
         
 }
 
-/* The increment and decrement button CSS class of scrollbar */
+ The increment and decrement button CSS class of scrollbar 
 .ImageList .scroll-bar:horizontal .increment-button ,
 .ImageList .scroll-bar:horizontal .decrement-button {
     -fx-background-color:#000;
@@ -181,7 +181,7 @@
 
 }
 
-/* The increment and decrement button CSS class of scrollbar */
+ The increment and decrement button CSS class of scrollbar 
 
 .ImageList .scroll-bar:vertical .increment-button ,
 .ImageList .scroll-bar:vertical .decrement-button {
@@ -199,7 +199,7 @@
 	-fx-padding:0;
 }
 
-/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
+ The main scrollbar **thumb** CSS class which we drag every time (movable) 
 .ImageList .scroll-bar:horizontal .thumb,
 .ImageList .scroll-bar:vertical .thumb {
     -fx-background-color:#000;
@@ -215,16 +215,7 @@
     -fx-background-color:transparent;
 }
 
-.SEC_Label {
-    -fx-padding: 0 0 0 12;
-    -fx-background-color:transparent;
-    -fx-font-weight:bold; 
-    -fx-font-size: 12px;
-    -fx-text-fill: #fff;
-    -fx-background-insets: 0, 0, 0, 0;
-    -fx-underline: false;
-    -fx-border-width:0;
-}
+
 
 .SEC_Label_system {
     -fx-padding: 0 0 0 12;
@@ -311,4 +302,4 @@
     -fx-text-fill: #ccc;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-underline:false;
-}
+}*/

@@ -1,5 +1,6 @@
 package albums;
 
+import dataaccess.Lang;
 import java.io.File;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -13,13 +14,13 @@ import jnekoimagesdb.GUITools;
 
 public class ASDNewElement extends HBox{
     private final Button
-            addBtn = new Button("", new ImageView(new Image(new File("./icons/plus32.png").toURI().toString())));
+            addBtn = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/plus32.png").toURI().toString())));
 
     private final TextField
             newItemName = new TextField();
 
     private final Label       
-            newTitle = new Label("Добавить альбом");
+            newTitle = new Label(Lang.ASDNewElement_newTitle);
 
     private final ASDNewElementActionListener
             elAL;
@@ -29,7 +30,7 @@ public class ASDNewElement extends HBox{
 
     public ASDNewElement(ASDNewElementActionListener al, long pid) {
         super(4);
-        this.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("ASDNewElement_HBox");
 
         elAL = al;

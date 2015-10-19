@@ -1,6 +1,7 @@
 package albums;
 
 import dataaccess.ImageEngine;
+import dataaccess.Lang;
 import java.io.File;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -44,11 +45,11 @@ public class AlbumsListElement extends HBox {
 
     private final Button
             checkBtn = new Button(),
-            saveBtn = new Button("", edit_i);
+            saveBtn = new Button(Lang.NullString, edit_i);
 
     public AlbumsListElement(Long id, Long pid, String xtitle, ASDElementActionListener al) {
         super();
-        this.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("AlbumsListElement_HBox");
 
         ID          = id;
@@ -86,7 +87,7 @@ public class AlbumsListElement extends HBox {
 
     private void _init() {
         GUITools.setFixedSize(saveBtn, 16, 16);
-        saveBtn.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        saveBtn.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         saveBtn.getStyleClass().add("AlbumsListElement_saveBtn");
         saveBtn.setOnMouseClicked((MouseEvent event) -> {
             if (editMode) {
@@ -101,7 +102,7 @@ public class AlbumsListElement extends HBox {
         });
 
         GUITools.setFixedSize(checkBtn, 16, 16);
-        checkBtn.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        checkBtn.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         checkBtn.getStyleClass().add("AlbumsListElement_checkBtn");
         checkBtn.setOnMouseClicked((MouseEvent event) -> {
             selectState = !selectState;
@@ -118,7 +119,7 @@ public class AlbumsListElement extends HBox {
 
         GUITools.setMaxSize(titleLabel, 9999, 16);
         titleLabel.setAlignment(Pos.CENTER_LEFT);
-        titleLabel.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        titleLabel.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         
         if (_isNotSystem(ID))
             titleLabel.getStyleClass().add("AlbumsListElement_titleLabel");
@@ -131,7 +132,7 @@ public class AlbumsListElement extends HBox {
 
         GUITools.setMaxSize(title, 9999, 16);
         title.setAlignment(Pos.CENTER_LEFT);
-        title.getStylesheets().add(getClass().getResource("app_style.css").toExternalForm());
+        title.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         title.getStyleClass().add("AlbumsListElement_title");
 
         if (_isNotSystem(ID)) {

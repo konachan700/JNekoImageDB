@@ -235,7 +235,7 @@ public class JNekoImageDB extends Application {
                 
         fileImgList = new FSImageList(mainCrypto, imgEn, SQL);
         imgList = new ImageList(imgEn, basesp);
-        albImgList = new AlbumImageList(imgEn, SQL, basesp); 
+        albImgList = new AlbumImageList(imgEn, basesp); 
         settings = new Settings(SQL);
         
         L("Количество изображений в БД: "+imgEn.getImgCount()+" штук.");

@@ -3,6 +3,7 @@ package albums;
 import dataaccess.ImageEngine;
 import dataaccess.DBEngine;
 import dataaccess.DBWrapper;
+import dataaccess.Lang;
 import imagelist.ImageList;
 import java.util.ArrayList;
 import javafx.geometry.Pos;
@@ -10,7 +11,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import jnekoimagesdb.GUITools;
 
@@ -22,8 +22,8 @@ public class AlbumImageList extends VBox {
             albumList = new VBox(2);
     
     private final Label
-            imgLabel = new Label("Картинки"),
-            albLabel = new Label("Альбомы");
+            imgLabel = new Label(Lang.AlbumImageList_Images),
+            albLabel = new Label(Lang.AlbumImageList_Albums);
     
     private long 
             albumID = 0,
@@ -35,12 +35,9 @@ public class AlbumImageList extends VBox {
     private final ImageList
             IML;
     
-    private final DBEngine SQL;
-    
-    public AlbumImageList(ImageEngine im, DBEngine sql, Pane parent) {
+    public AlbumImageList(ImageEngine im, Pane parent) {
         super(2);
         IM = im;
-        SQL = sql;
         IML = new ImageList(IM, parent);
         init();
     }
@@ -52,10 +49,10 @@ public class AlbumImageList extends VBox {
     public void setAlbID(long aoid) {
         IML.setAlbimID(aoid);
         IML.normalRefresh();
-        imgLabel.setText("Картинки альбома \"" + DBWrapper.getAlbumName(aoid) +  "\""); 
+        imgLabel.setText(Lang.AlbumImageList_ImagesInAlbum + " \"" + DBWrapper.getAlbumName(aoid) +  "\""); 
         albumID = aoid;
         genAlbList();
-        albLabel.setText("Альбомы (" + albumsCount + ")"); 
+        albLabel.setText(Lang.AlbumImageList_Albums + " (" + albumsCount + ")"); 
     }
     
     private final ASDNewElementActionListener
@@ -114,8 +111,8 @@ public class AlbumImageList extends VBox {
     }
     
     private void init() {
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        this.getStyleClass().add("AlbumImageList");
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("AlbumImageList_rootpane");
         GUITools.setMaxSize(this, 9999, 9999);
         
         GUITools.setMaxSize(albumList, 9999, 9999);
@@ -126,7 +123,7 @@ public class AlbumImageList extends VBox {
             this.getChildren().add(IML);
             event.consume();
         });
-        imgLabel.getStyleClass().add("tabLabelB");
+        imgLabel.getStyleClass().add("AlbumImageList_imgLabel");
         imgLabel.setAlignment(Pos.CENTER);
         GUITools.setMaxSize(imgLabel, 9999, 27);
         
@@ -137,11 +134,11 @@ public class AlbumImageList extends VBox {
             genAlbList();
             event.consume();
         });
-        albLabel.getStyleClass().add("tabLabelA");
+        albLabel.getStyleClass().add("AlbumImageList_albLabel");
         albLabel.setAlignment(Pos.CENTER);
         GUITools.setMaxSize(albLabel, 9999, 27);
         
-        tabsHBox.getStyleClass().add("tabsHBox");
+        tabsHBox.getStyleClass().add("AlbumImageList_tabsHBox");
         tabsHBox.setAlignment(Pos.CENTER);
         GUITools.setMaxSize(tabsHBox, 9999, 27);
         tabsHBox.setMinHeight(27); 

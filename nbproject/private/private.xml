@@ -5,10 +5,10 @@
         <group>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/ResizeHelper.java</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/albums/style.css</file>
-            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/albums/AlbumSelectDialog.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/albums/app_style.css</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/albums/AlbumsCategories.java</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/albums/panel.css</file>
-            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/JNekoImageDB.java</file>
-            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/dataaccess/DBEngine.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/imagelist/panel.css</file>
         </group>
     </open-files>
 </project-private>

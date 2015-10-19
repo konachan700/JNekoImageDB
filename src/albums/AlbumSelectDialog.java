@@ -2,17 +2,13 @@ package albums;
 
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
+import dataaccess.Lang;
 import dialogs.DialogWindow;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -65,11 +61,11 @@ public class AlbumSelectDialog {
             selectedElements = new ArrayList<>();
 
     private final Button 
-            yesImg = new Button("", new ImageView(new Image(new File("./icons/d_yes.png").toURI().toString()))), 
-            noImg  = new Button("", new ImageView(new Image(new File("./icons/d_no.png").toURI().toString())));
+            yesImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/d_yes.png").toURI().toString()))), 
+            noImg  = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/d_no.png").toURI().toString())));
     
     private final TextArea 
-            messageStr = new TextArea("");
+            messageStr = new TextArea(Lang.NullString);
         
     private final DialogWindow 
             dw = new DialogWindow(700, 800);
@@ -86,10 +82,10 @@ public class AlbumSelectDialog {
     public AlbumSelectDialog() {
         GUITools.setMaxSize(panel, 9999, 64);
         panel.setMinSize(128, 64);
-        panel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-        panel.getStyleClass().add("topPanel");
+        panel.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        panel.getStyleClass().add("AlbumSelectDialog_panel");
         
-        messageStr.setText("Выберите альбомы");
+        messageStr.setText(Lang.AlbumSelectDialog_SelectAlbums);
         messageStr.setEditable(false);
         messageStr.setWrapText(true);
         
@@ -97,15 +93,15 @@ public class AlbumSelectDialog {
         GUITools.setFixedSize(noImg, 64, 64);
         GUITools.setMaxSize(messageStr, 9999, 64);
         
-        setStyle(yesImg, "DYesButton");
-        setStyle(noImg, "DNoButton");
-        setStyle(messageStr, "DMessageStr");
+        setStyle(yesImg, "AlbumSelectDialog_YesButton");
+        setStyle(noImg, "AlbumSelectDialog_NoButton");
+        setStyle(messageStr, "AlbumSelectDialog_MessageStr");
         
         panel.getChildren().addAll(messageStr, noImg, yesImg);
         dw.getToolbox().getChildren().add(panel);
         
-        sp.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-        sp.getStyleClass().add("ImageList");
+        sp.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        sp.getStyleClass().add("AlbumSelectDialog_sp");
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setFitToHeight(true);
@@ -113,8 +109,8 @@ public class AlbumSelectDialog {
         
         GUITools.setMaxSize(sp, 9999, 9999);
         
-        mainContainer.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-        mainContainer.getStyleClass().add("mainContainer");
+        mainContainer.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        mainContainer.getStyleClass().add("AlbumSelectDialog_mainContainer");
         GUITools.setMaxSize(mainContainer, 9999, 9999);
         
         sp.setContent(mainContainer);
@@ -148,7 +144,7 @@ public class AlbumSelectDialog {
         
         albumID = aid;
         if (albumID > 0) {
-            final AlbumsListElement el_root = new AlbumsListElement(-1L, albumID, "...", elAL);
+            final AlbumsListElement el_root = new AlbumsListElement(-1L, albumID, Lang.Files3Dots, elAL);
             mainContainer.getChildren().add(el_root);
         }
         
@@ -158,8 +154,8 @@ public class AlbumSelectDialog {
         
         if (albumID <= 0) {
             final AlbumsListElement 
-                    el_del = new AlbumsListElement(ImageEngine.ALBUM_ID_DELETED, 0L, "Удаленные", elAL), 
-                    el_fav = new AlbumsListElement(ImageEngine.ALBUM_ID_FAVORITES, 0L, "Избранное", elAL);
+                    el_del = new AlbumsListElement(ImageEngine.ALBUM_ID_DELETED, 0L, Lang.AlbumsCategories_MenuItem_DELETED, elAL), 
+                    el_fav = new AlbumsListElement(ImageEngine.ALBUM_ID_FAVORITES, 0L, Lang.AlbumsCategories_MenuItem_FAVORITES, elAL);
             mainContainer.getChildren().addAll(el_fav, el_del);
         }
         
@@ -180,7 +176,7 @@ public class AlbumSelectDialog {
     }
 
     private void setStyle(Region n, String styleID) {
-        n.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
+        n.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         n.getStyleClass().add(styleID);
     }
 }
