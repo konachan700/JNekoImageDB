@@ -1,5 +1,6 @@
 package jnekoimagesdb;
 
+import dataaccess.Lang;
 import java.io.File;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -35,8 +36,8 @@ public class GUITools {
         ds.setSpread(0.5f);
         ds.setColor(Color.color(0.0f, 0.0f, 0.0f));
 
-        final Label imageName = new Label("JNeko Image Database");
-        imageName.getStyleClass().add("appnamez");
+        final Label imageName = new Label(Lang.GUITools_WinGUI_Title);
+        imageName.getStyleClass().add("GUITools_imageName");
         imageName.setMaxSize(9999, 16);
         imageName.setPrefSize(9999, 16);
         imageName.setAlignment(Pos.CENTER_LEFT);
@@ -46,7 +47,7 @@ public class GUITools {
         header_z.setPrefSize(9999, 32);
         header_z.setMinSize(32, 32);
         header_z.getStylesheets().add(THIS.getClass().getResource(css).toExternalForm());
-        header_z.getStyleClass().add("header_z");
+        header_z.getStyleClass().add("GUITools_header_z");
         header_z.setAlignment(Pos.CENTER);
 
         header_z.setOnMousePressed((MouseEvent mouseEvent) -> {
@@ -59,7 +60,7 @@ public class GUITools {
             primaryStage.setY(mouseEvent.getScreenY() + DRD.y);
         });
 
-        final Button close = new Button("", new ImageView(new Image(new File("./icons/close.png").toURI().toString())));
+        final Button close = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/close.png").toURI().toString())));
         setFixedSize(close, 16, 16);
         close.setOnMouseClicked((MouseEvent event) -> {
             switch (closeFlag) {
@@ -72,19 +73,19 @@ public class GUITools {
             }
         });
 
-        final Button expand = new Button("", new ImageView(new Image(new File("./icons/up.png").toURI().toString()))); 
+        final Button expand = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/up.png").toURI().toString()))); 
         setFixedSize(expand, 16, 16);
         expand.setOnMouseClicked((MouseEvent event) -> {
             primaryStage.setMaximized(!primaryStage.isMaximized());
         });
 
-        final Button unexpand = new Button("", new ImageView(new Image(new File("./icons/dwn.png").toURI().toString())));
+        final Button unexpand = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/dwn.png").toURI().toString())));
         setFixedSize(unexpand, 16, 16);
         unexpand.setOnMouseClicked((MouseEvent event) -> {
             primaryStage.setIconified(true);
         });
 
-        final Button iconx = new Button("", new ImageView(new Image(new File("./icons/icon.png").toURI().toString()))); 
+        final Button iconx = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/icon.png").toURI().toString()))); 
         setFixedSize(iconx, 16, 16);
 
         header_z.getChildren().addAll(getSeparator(4), iconx, imageName, unexpand, expand, close, getSeparator(8));
@@ -95,12 +96,12 @@ public class GUITools {
         StackPane root2m = new StackPane();
         root2m.getChildren().add(root);
         root2m.getStylesheets().add(THIS.getClass().getResource(css).toExternalForm());
-        root2m.getStyleClass().add("border_z");
+        root2m.getStyleClass().add("GUITools_root2m");
 
         StackPane root3m = new StackPane();
         root3m.setBackground(Background.EMPTY);
         root3m.getStylesheets().add(THIS.getClass().getResource(css).toExternalForm());
-        root3m.getStyleClass().add("border_a");
+        root3m.getStyleClass().add("GUITools_root3m");
         root3m.getChildren().add(root2m);
 
         root2m.setEffect(ds);

@@ -1,0 +1,162 @@
+.DYesNo_YesButton {
+    -fx-padding: 0px;
+    -fx-background-color: #184818;
+    -fx-background-radius: 0 4 4 0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+}
+
+.DYesNo_NoButton {
+    -fx-padding: 0px;
+    -fx-background-color: #481818;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+}
+
+.DYesNo_MessageStr, .DYesNo_MessageStr .content, .DYesNo_MessageStr .viewport, .DYesNo_MessageStr .scroll-pane   {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color:#322;
+    -fx-padding: 0 0 0 0;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+}
+
+.DYesNo_MessageStr {
+    -fx-padding: 5 0 0 7;
+    -fx-border-width: 1 4 1 20;
+    -fx-border-insets:0;
+    -fx-border-radius: 0;
+    -fx-border-color:#700;
+}
+
+.PleaseWait_RootPane {
+    -fx-background-color: #222;
+    -fx-padding: 16px;
+}
+
+.PleaseWait_RootPane .VBox {
+    -fx-background-color: #222;
+}
+
+.PleaseWait_pleaseWaitLabel {
+    -fx-font-weight:bold; 
+    -fx-font-size: 16px;
+}
+
+.PleaseWait_taLOG {
+    -fx-padding:12;
+}
+
+.PleaseWait_taLOG, .PleaseWait_taLOG .viewport, PleaseWait_taLOG .scroll-pane {
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+    -fx-border-radius: 4;
+    -fx-padding:0 0 0 0;
+    -fx-background-color:#222;
+    -fx-margin: 0px;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 6;
+}
+
+.PleaseWait_taLOG .content {
+    -fx-background-color:#000;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+}
+
+.PleaseWait_taLOG .scroll-bar:horizontal .track,
+.PleaseWait_taLOG .scroll-bar:vertical .track {
+    -fx-background-color:#222;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;  
+}
+
+.PleaseWait_taLOG .scroll-bar:horizontal .increment-button ,
+.PleaseWait_taLOG .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.PleaseWait_taLOG .scroll-bar:vertical .increment-button ,
+.PleaseWait_taLOG .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.PleaseWait_taLOG  .scroll-bar .increment-arrow,
+.PleaseWait_taLOG  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.PleaseWait_taLOG .scroll-bar:horizontal .thumb,
+.PleaseWait_taLOG .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
+
+.PleaseWait_currentSystemLoad {
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #000;
+}
+
+.DialogWindow_basevbox {
+    -fx-padding: 2px;
+}
+
+.DialogWindow_headerbox {
+    -fx-background-color: #000000;
+    -fx-padding: 0px 0px 0 0;
+}
+
+.DialogWindow_toolbox {
+    -fx-background-color: #000000;
+    -fx-padding: 3px 0px 0 0;
+}
+
+.GUITools_imageName {
+    -fx-font-weight:bold; 
+    -fx-font-size: 16px;
+    -fx-text-fill: #ddd;
+}
+
+.GUITools_header_z Label {
+    -fx-text-fill: #fff;
+    -fx-background-color: #000;
+}
+
+.GUITools_header_z Button {
+    -fx-padding: 0px;
+    -fx-background-color: #000;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.GUITools_header_z Button:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+.GUITools_root3m {
+    -fx-padding: 16px;
+    -fx-background-color: transparent;
+}
+
+.GUITools_root2m {
+    -fx-background-color: #000;
+    -fx-padding: 3px 3px 3px 3px;
+}
+

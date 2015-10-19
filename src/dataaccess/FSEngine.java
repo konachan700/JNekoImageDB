@@ -19,13 +19,10 @@ import javafx.scene.image.Image;
 import jnekoimagesdb.JNekoImageDB;
 
 public class FSEngine {   
-//    private static volatile long gcCounter = 0;
-    
     public static final int
             TYPE_JPEG = 1,
             TYPE_PNG = 2;
     
-    /* Тут сделана аццкая оптимизация, все строки вынесены в константы. Потому как где-то шла утечка памяти по char[], а вот где точно не нашел. */
     public static final String
             SQL_FIELD_START_SECTOR = "startSector",
             SQL_FIELD_SECTOR_COUNT = "sectorSize",
@@ -51,15 +48,15 @@ public class FSEngine {
     private final SplittedFile
             FILE;
     
-    private final Crypto 
-            fileCrypto;
+//    private final Crypto 
+//            fileCrypto;
 
     private final String 
             DBNameE;
 
     public FSEngine(Crypto k, String dbname, DBEngine sql) {
         DBNameE = dbname;
-        fileCrypto = k;
+//        fileCrypto = k;
         FILE = new SplittedFile(k);
         SQL = sql;
 
@@ -161,7 +158,7 @@ public class FSEngine {
             final byte[] md5_sql = dbe.prev_md5;
 
             if ((sz_sector <= 0) || (act_size <= 0)) {
-                _L("Invalid database record; null file;");
+                _L(Lang.ERR_FSEngine_null_file);
                 return null;
             }
 
@@ -174,7 +171,7 @@ public class FSEngine {
             md5 = Crypto.MD5(md5e.toByteArray());
             md5e.reset();
             if (!Arrays.equals(md5, md5_sql)) {
-                _L("Invalid database record; md5 incorrect");
+                _L(Lang.ERR_FSEngine_incorrect_md5_for_record);
                 return null;
             }
 
@@ -185,7 +182,7 @@ public class FSEngine {
             //_L("Object size = "+ret.length);
             return ret;
         } catch (IOException ex) {
-            _L(ex.getMessage());
+            //_L(ex.getMessage());
             return null;
         }
     }
@@ -210,7 +207,7 @@ public class FSEngine {
                             rs.getBytes("md5");
 
                     if ((sz_sector <= 0) || (act_size <= 0)) {
-                        _L("Invalid database record; null file;");
+                        _L(Lang.ERR_FSEngine_null_file);
                         return null;
                     }
 
@@ -223,7 +220,7 @@ public class FSEngine {
                     md5 = Crypto.MD5(md5e.toByteArray());
                     md5e.reset();
                     if (!Arrays.equals(md5, md5_sql)) {
-                        _L("Invalid database record; md5 incorrect");
+                        _L(Lang.ERR_FSEngine_incorrect_md5_for_record);
                         return null;
                     }
 
@@ -238,7 +235,7 @@ public class FSEngine {
                 }
             }
         } catch (IOException | SQLException ex) {
-            _L(ex.getMessage());
+            //_L(ex.getMessage());
             return null;
         }
         
@@ -274,7 +271,7 @@ public class FSEngine {
                     final byte[] md5_sql = rs.getBytes("md5");
 
                     if ((sz_sector <= 0) || (act_size <= 0)) {
-                        _L("Invalid database record; null file;");
+                        _L(Lang.ERR_FSEngine_null_file);
                         return -1;
                     }
                     
@@ -298,7 +295,7 @@ public class FSEngine {
                         md5 = Crypto.MD5(md5e.toByteArray());
                         //md5e.reset();
                         if (!Arrays.equals(md5, md5_sql)) {
-                            _L("Invalid database record; md5 incorrect");
+                            _L(Lang.ERR_FSEngine_incorrect_md5_for_record);
                             return -1;
                         }
                         
@@ -307,7 +304,7 @@ public class FSEngine {
 
                         return 0;
                     } catch (FileNotFoundException ex) { 
-                        _L("Cannot read/write file ["+path+"]");
+                        _L(Lang.ERR_FSEngine_cannot_read_write_file + " ["+path+"]");
                         return -1;
                     }
                 }
@@ -326,7 +323,7 @@ public class FSEngine {
 
         final Map<String, Long> allocInfo = allocateDiskSpaceMT(sectorSize, realSize, SQL_DEFAULT_FILENAME, md5Hash);
         if (allocInfo == null) {
-            _L("PushFileMT->allocateDiskSpaceMT(): [NULL] cannot allocate disk space.");
+            _L(Lang.ERR_FSEngine_no_disk_space);
             return -1;
         }
         
@@ -379,7 +376,7 @@ public class FSEngine {
 
             return myID;
         } catch (IOException ex) {
-            _L("PushFileMT():"+ex.getMessage());
+            //_L(ex.getMessage());
             return -1;
         }
     }
@@ -417,7 +414,7 @@ public class FSEngine {
             
             return retVal;
         } catch (SQLException  ex) {
-            _L(ex.getMessage());
+            //_L(ex.getMessage());
             return null;
         }
     }
@@ -458,7 +455,7 @@ public class FSEngine {
                     return 0;
             }
         } catch (SQLException ex) {
-            _L(ex.getMessage());
+            //_L(ex.getMessage());
             return -1;
         }
         return -1;

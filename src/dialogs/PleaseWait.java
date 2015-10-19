@@ -1,5 +1,6 @@
 package dialogs;
 
+import dataaccess.Lang;
 import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -36,33 +37,33 @@ public class PleaseWait extends VBox {
         logText = logTextX;
         parentPane = parent;
         
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        this.getStyleClass().add("please_wait_c");
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("PleaseWait_RootPane");
         this.setMaxSize(9999, 9999);
         this.setPrefSize(9999, 9999);
         this.setAlignment(Pos.TOP_LEFT); 
         
-        final Label pw = new Label("Пожалуйста, подождите...");
-        pw.getStyleClass().add("please_wait_c_label");
+        final Label pleaseWaitLabel = new Label(Lang.PleaseWait_PW);
+        pleaseWaitLabel.getStyleClass().add("PleaseWait_pleaseWaitLabel");
         final DropShadow ds = new DropShadow();
         ds.setOffsetY(0f);
         ds.setRadius(7f);
         ds.setSpread(0.8f);
         ds.setColor(Color.color(0.99f, 0.99f, 0.99f));
-        pw.setEffect(ds);
-        pw.setMaxSize(9999, 21);
-        pw.setPrefSize(9999, 21);
+        pleaseWaitLabel.setEffect(ds);
+        pleaseWaitLabel.setMaxSize(9999, 21);
+        pleaseWaitLabel.setPrefSize(9999, 21);
 
         taLOG.setMaxSize(9999, 9999);
         taLOG.setPrefSize(9999, 9999);
         taLOG.setWrapText(true);
-        taLOG.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        taLOG.getStyleClass().add("please_wait_c_logbox");
+        taLOG.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        taLOG.getStyleClass().add("PleaseWait_taLOG");
         
         currentSystemLoad.setEffect(ds);
-        currentSystemLoad.getStyleClass().add("please_wait_c_currentSystemLoad");
+        currentSystemLoad.getStyleClass().add("PleaseWait_currentSystemLoad");
         
-        this.getChildren().add(pw);
+        this.getChildren().add(pleaseWaitLabel);
         this.getChildren().add(currentSystemLoad);
         this.getChildren().add(taLOG);  
     }
@@ -99,5 +100,4 @@ public class PleaseWait extends VBox {
             taLOG.setScrollTop(Double.MIN_VALUE);
         });
     }
-    
 }

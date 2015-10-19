@@ -2,49 +2,23 @@ package dataaccess;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import jnekoimagesdb.JNekoImageDB;
 
 public class Crypto {
-    private byte[] 
-            MKey = null;
-    
-    private PrivateKey 
-            pRSAKey = null;
-    
-    private PublicKey
-            cRSAKey = null;
-    
     private byte[] 
             randomPool = null,
             masterKey = null,
@@ -69,7 +43,7 @@ public class Crypto {
         if (fmedia.isDirectory() && fmedia.canRead()) {
             String[] files = fmedia.list((File file, String string) -> file.isDirectory());
             for (String s: files) {
-                File ff = new File(path + "/" + s + "/" + PRIVATE_KEY_FILE);
+                File ff = new File(path + File.separator + s + File.separator + PRIVATE_KEY_FILE);
                 if (ff.exists() && ff.canRead()) return ff;
             }
         }
@@ -92,7 +66,7 @@ public class Crypto {
         
         final File ff = new File(PRIVATE_KEY_FILE_DEFAULT);
         if (ff.exists() && ff.canRead()) {
-            //_L("Info: Private key found on default location.");
+            _L(Lang.ERR_Crypto_default_master_key_found);
             return ff;
         }
         
@@ -114,7 +88,7 @@ public class Crypto {
         }
 
         if (new File(DB_PROBE).canRead()) {
-            //_L("Info: No master key found, but database exist.");
+            _L(Lang.ERR_Crypto_no_master_key_found);
             return false;
         }
         
@@ -126,7 +100,7 @@ public class Crypto {
             final FileOutputStream fos = new FileOutputStream(PRIVATE_KEY_FILE_DEFAULT);
             fos.write(masterKey);
             fos.close();
-            //_L("Info: New master key are generated, all data lost.");
+            _L(Lang.ERR_Crypto_new_master_key_generated);
             return true;
         } catch (IOException ex) {
             return false;
@@ -151,7 +125,7 @@ public class Crypto {
         }
         
         if (new File(DB_PROBE).canRead()) {
-            //_L("Info: No salt found, but database exist.");
+            _L(Lang.ERR_Crypto_no_salt_found);
             return false;
         }
         
@@ -163,7 +137,7 @@ public class Crypto {
             final FileOutputStream fos = new FileOutputStream(SALT_FILE);
             fos.write(randomPool);
             fos.close();
-            //_L("Info: New salt are generated, all data lost.");
+            _L(Lang.ERR_Crypto_new_salt_generated);
             return true;
         } catch (IOException ex) {
             return false;
@@ -227,7 +201,7 @@ public class Crypto {
         return null;
     }
 
-    public byte[] AESDecrypt(byte[] value, byte[] password) { // как сделать AES-256 без сторонних библиотек и бех IV\Padding, я так и не допер. Просто лень.
+    public byte[] AESDecrypt(byte[] value, byte[] password) { // как сделать AES-256 без сторонних библиотек и без IV\Padding, я так и не допер. Просто лень.
         try {
             final byte[] pwd = Arrays.copyOf(MD5(password), 16);
             final SecretKey key = new SecretKeySpec(pwd, AES_CRYPT);
@@ -238,7 +212,7 @@ public class Crypto {
         } 
         catch (NoSuchAlgorithmException ex)         { /*_L("__AESDecrypt: NoSuchAlgorithmException"    );*/ } 
         catch (NoSuchProviderException ex)          { /*_L("__AESDecrypt: NoSuchProviderException"     );*/ } 
-        catch (NoSuchPaddingException ex)           { /*_L("__AESDecrypt: NoSuchPaddingException"     );*/ } 
+        catch (NoSuchPaddingException ex)           { /*_L("__AESDecrypt: NoSuchPaddingException"      );*/ } 
         catch (InvalidKeyException ex)              { /*_L("__AESDecrypt: InvalidKeyException"         );*/ } 
         catch (IllegalBlockSizeException ex)        { /*_L("__AESDecrypt: IllegalBlockSizeException"   );*/ } 
         catch (BadPaddingException ex)              { /*_L("__AESDecrypt: BadPaddingException"         );*/ }

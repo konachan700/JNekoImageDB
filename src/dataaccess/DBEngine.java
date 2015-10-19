@@ -68,7 +68,7 @@ public class DBEngine {
             try {
                 if (gConnectionOld != null) {
                     gConnectionOld.close();
-                    _L("OLD SQL CONNECTION IS CLOSED;");
+                    _L(Lang.ERR_DBEngine_OLD_SQL_CONNECTION_CLOSED);
                 }
             } catch (SQLException ex) {
                 _L(ex.getMessage());
@@ -87,7 +87,7 @@ public class DBEngine {
             
             Connect("");
             queryCounter = 0;
-            _L("SQL RECONNECT;");
+            _L(Lang.ERR_DBEngine_SQL_CONNECTION_CLOSED);
         }
         return gConnection;
     }

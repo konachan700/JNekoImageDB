@@ -1,5 +1,6 @@
 package dialogs;
 
+import dataaccess.Lang;
 import java.io.File;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,7 +15,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jnekoimagesdb.DragDelta;
 import jnekoimagesdb.GUITools;
-import jnekoimagesdb.JNekoImageDB;
 import jnekoimagesdb.ResizeHelper;
 
 public class DialogWindow {
@@ -79,29 +79,29 @@ public class DialogWindow {
     }
     
     private void init(double w, double h) {
-        final Image logoImage = new Image(JNekoImageDB.class.getResourceAsStream("logo6.png"));
+        final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
         final ImageView imgLogoV = new ImageView(logoImage);
         
-        basevbox.getStylesheets().add(getClass().getResource("ILVWStyle.css").toExternalForm());
-        basevbox.getStyleClass().add("basevbox");
+        basevbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        basevbox.getStyleClass().add("DialogWindow_basevbox");
         
         mvbox.getChildren().add(toolbarvbox);
         mvbox.getChildren().add(basevbox);
         root.getChildren().add(mvbox);
 
-        toolbox.getStylesheets().add(getClass().getResource("ILVWStyle.css").toExternalForm());
-        toolbox.getStyleClass().add("toolbox");
+        toolbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        toolbox.getStyleClass().add("DialogWindow_toolbox");
         toolbox.setMaxWidth(9999);
         toolbox.setPrefWidth(9999);
         toolbox.setPadding(new Insets(0,0,0,2));
         toolbox.setAlignment(Pos.BOTTOM_LEFT);
 
-        headerbox.getStylesheets().add(getClass().getResource("ILVWStyle.css").toExternalForm());
-        headerbox.getStyleClass().add("headerbox");
+        headerbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        headerbox.getStyleClass().add("DialogWindow_headerbox");
         headerbox.setMaxWidth(9999);
         
-        logobox.getStylesheets().add(getClass().getResource("ILVWStyle.css").toExternalForm());
-        logobox.getStyleClass().add("headerbox");
+        logobox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        logobox.getStyleClass().add("DialogWindow_headerbox");
         logobox.setMaxSize(239, 64);
         logobox.setMinSize(239, 64);
         logobox.setPrefSize(239, 64);
@@ -124,7 +124,7 @@ public class DialogWindow {
         
         win.setMinWidth(w / 2);
         win.setMinHeight(h / 2);
-        win.setTitle("Images database");
+        win.setTitle(Lang.DialogWindow_Title);
         win.setScene(scene);
         
         if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(win);
@@ -137,7 +137,7 @@ public class DialogWindow {
     private Scene generateScene(double w, double h) {
         final Scene scenex;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            StackPane root3m = GUITools.getWinGUI(this, win, DRD, root, mvbox, "ILVWStyle.css", GUITools.CLOSE_HIDE_WINDOW);
+            StackPane root3m = GUITools.getWinGUI(this, win, DRD, root, mvbox, Lang.AppStyleCSS, GUITools.CLOSE_HIDE_WINDOW);
             scenex = new Scene(root3m, w, h);
             scenex.setFill(Color.TRANSPARENT);
         } else {

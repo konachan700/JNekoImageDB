@@ -1,7 +1,6 @@
 package albums;
 
 import dataaccess.ImageEngine;
-import dataaccess.DBEngine;
 import dataaccess.DBWrapper;
 import dataaccess.Lang;
 import imagelist.ImageList;
@@ -95,7 +94,7 @@ public class AlbumImageList extends VBox {
         
         long parentAlbum = DBWrapper.getParentAlbum(albumID);
         if (parentAlbum > 0) {
-            final AlbumsListElement el_root = new AlbumsListElement(-1L, albumID, "...", elAL);
+            final AlbumsListElement el_root = new AlbumsListElement(-1L, albumID, Lang.Files3Dots, elAL);
             el_root.DisableCheck();
             albumList.getChildren().add(el_root);
         }

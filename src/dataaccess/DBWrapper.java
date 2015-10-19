@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -33,13 +31,13 @@ import org.apache.commons.io.FilenameUtils;
 public class DBWrapper {
     private final static Image broken = new Image(new File("./icons/broken.png").toURI().toString());
     
-    private static volatile Crypto          xCrypto     = null;
-    private static volatile DBEngine          SQL         = null;
-    private static volatile ImageEngine     IM          = null;
-    private static volatile MenuGroupItem   MGI         = null;
+    private static volatile Crypto              xCrypto     = null;
+    private static volatile DBEngine            SQL         = null;
+    private static volatile ImageEngine         IM          = null;
+    private static volatile MenuGroupItem       MGI         = null;
     
-    private static volatile int             SQLCounter  = 0,
-                                            _SQLCounter = 0;
+    private static volatile int                 SQLCounter  = 0,
+                                                _SQLCounter = 0;
 
     public static void setCrypto(Crypto c) {
         xCrypto = c;
@@ -122,7 +120,7 @@ public class DBWrapper {
         pushHistogram("G", gist_G, iid);
         pushHistogram("B", gist_B, iid);
 
-        _L("generateHistogram time: "+(System.currentTimeMillis() - tmr));
+        //_L("generateHistogram time: "+(System.currentTimeMillis() - tmr));
     }
     
     public static Image getImage(long iid) {
@@ -148,7 +146,7 @@ public class DBWrapper {
 
             return ret_img;
         } catch (IOException | InterruptedException ex) {
-            _L("getPrerview ERROR: "+ex.getMessage());
+            _L(Lang.ERR_DBWrapper_F_getPrerview + ex.getMessage());
             return null;
         }
     }
@@ -292,7 +290,7 @@ public class DBWrapper {
                 return db;
             }
         } catch (SQLException ex) { 
-            _L("getImagesX ERROR: "+ex.getMessage());
+            _L(Lang.ERR_DBWrapper_F_getImagesX + ex.getMessage());
         }
         return null;
     }
@@ -388,8 +386,8 @@ public class DBWrapper {
     }
     
     public static synchronized String getAlbumName(long id) {
-        if (id == ImageEngine.ALBUM_ID_FAVORITES) return "Избранное";
-        if (id == ImageEngine.ALBUM_ID_DELETED) return "Удаленные";
+        if (id == ImageEngine.ALBUM_ID_FAVORITES) return Lang.AlbumsCategories_MenuItem_FAVORITES;
+        if (id == ImageEngine.ALBUM_ID_DELETED) return Lang.AlbumsCategories_MenuItem_DELETED;
         
         try {
             PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
@@ -400,12 +398,12 @@ public class DBWrapper {
                 if (rs.next()) {
                     byte ret[] = xCrypto.Decrypt(rs.getBytes("groupName"));
                     ps.close();
-                    return (ret != null) ? (new String(ret).trim()) : "";
+                    return (ret != null) ? (new String(ret).trim()) : Lang.NullString;
                 }
             }
             ps.close();
-            return "";
-        } catch (SQLException ex) { _L(ex.getMessage()); return ""; }
+            return Lang.NullString;
+        } catch (SQLException ex) { _L(ex.getMessage()); return Lang.NullString; }
     }
     
     public static synchronized BufferedImage getPrerview(int xtype, long IID, FSEngine SFS_preview) {
@@ -441,7 +439,7 @@ public class DBWrapper {
                 return null;
             }
         } catch (SQLException | IOException | InterruptedException ex) {
-            _L("getPrerview ERROR: "+ex.getMessage());
+            _L(Lang.ERR_DBWrapper_F_getPrerview + ex.getMessage());
             return null;
         }
     }
@@ -463,7 +461,7 @@ public class DBWrapper {
                 ps.close();
                 _SQLCounter++;
             } catch (SQLException ex1) {
-                _L("WriteAPPSettingsString ERROR: "+ex.getMessage());
+                _L(Lang.ERR_DBWrapper_F_WriteAPPSettingsString + ex.getMessage());
             }
         }
     }
@@ -481,9 +479,9 @@ public class DBWrapper {
                 }
             }
         } catch (SQLException ex) {
-            _L("ReadAPPSettingsString ERROR: "+ex.getMessage());
+            _L(Lang.ERR_DBWrapper_F_ReadAPPSettingsString+ex.getMessage());
         }
-        return "";
+        return Lang.NullString;
     }
     
     public static boolean ReadAPPSettingsBoolean(String optName) {
@@ -530,7 +528,7 @@ public class DBWrapper {
             _SQLCounter++;
             return 0;
         } catch (SQLException ex) { 
-            _L("delImageGroupID ERROR: "+ex.getMessage());
+            //_L("delImageGroupID ERROR: "+ex.getMessage());
         } 
         
         return -1;  
@@ -549,7 +547,7 @@ public class DBWrapper {
                     }
             }
         } catch (SQLException ex) { 
-            _L("getImagesCountInAlbum ERROR: "+ex.getMessage());
+            //_L("getImagesCountInAlbum ERROR: "+ex.getMessage());
         }
         return -1;
     }
@@ -569,7 +567,7 @@ public class DBWrapper {
                 return all;
             }
         } catch (SQLException ex) { 
-            _L("getGroupsByImageOID ERROR: "+ex.getMessage()); 
+            //_L("getGroupsByImageOID ERROR: "+ex.getMessage()); 
         }
         return null;
     }
@@ -588,7 +586,7 @@ public class DBWrapper {
                 return all;
             }
         } catch (SQLException ex) { 
-            _L("getImagesByGroupOID ERROR: "+ex.getMessage());
+            //_L("getImagesByGroupOID ERROR: "+ex.getMessage());
         }
         return null;
     }
@@ -611,7 +609,7 @@ public class DBWrapper {
             
             return 0;
         } catch (SQLException ex) { 
-            _L("setImageGroupsIDs ERROR: "+ex.getMessage());
+            //_L("setImageGroupsIDs ERROR: "+ex.getMessage());
         } 
 
         return -1;
@@ -635,7 +633,7 @@ public class DBWrapper {
             ps.close();
             return 0;
         } catch (SQLException ex) { 
-            _L("setImageGroupID ERROR: "+ex.getMessage());
+            //_L("setImageGroupID ERROR: "+ex.getMessage());
         } 
         
         return -1;
@@ -654,7 +652,7 @@ public class DBWrapper {
             ps.close();
             return 0;
         } catch (SQLException ex) { 
-            _L("addPreviewAssoc ERROR: "+ex.getMessage());
+            //_L("addPreviewAssoc ERROR: "+ex.getMessage());
         }
         return -1;
     }
@@ -678,7 +676,7 @@ public class DBWrapper {
             }
             return -1;
         } catch (SQLException ex) {
-            _L("getIDByMD5 ERROR: "+ex.getMessage());
+            //_L("getIDByMD5 ERROR: "+ex.getMessage());
             return -1;
         }
     }
@@ -702,7 +700,7 @@ public class DBWrapper {
             }
             return -1;
         } catch (SQLException ex) {
-            _L("getIDByMD5 ERROR: "+ex.getMessage());
+            //_L("getIDByMD5 ERROR: "+ex.getMessage());
             return -1;
         }
     }
@@ -726,7 +724,7 @@ public class DBWrapper {
                 return alac;
             }
         } catch (SQLException ex) {
-            _L("getAlbumsGroupsID ERROR: "+ex.getMessage());
+            //_L("getAlbumsGroupsID ERROR: "+ex.getMessage());
             return null;
         }
         
@@ -744,7 +742,7 @@ public class DBWrapper {
             Sleep(2);
             return 0;
         } catch (SQLException  ex) {
-            _L("saveAlbumsCategoryChanges ERROR: "+ex.getMessage());
+            //_L("saveAlbumsCategoryChanges ERROR: "+ex.getMessage());
             return -1;
         }
     }

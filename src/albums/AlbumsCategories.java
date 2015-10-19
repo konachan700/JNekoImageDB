@@ -85,7 +85,7 @@ public class AlbumsCategories extends ScrollPane {
         this.setVbarPolicy(ScrollBarPolicy.ALWAYS);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        this.getStyleClass().add("AlbumsCategories_Pane sroll_pane");
+        this.getStyleClass().add("AlbumsCategories_Pane");
         this.setContent(mainPane);
         this.setFitToWidth(true);
         this.setFitToHeight(true);

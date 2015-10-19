@@ -10,13 +10,10 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
-import jnekoimagesdb.JNekoImageDB;
 
 public class SplittedFile {
     public static volatile long
@@ -86,7 +83,7 @@ public class SplittedFile {
         errcode = 0;
         if (!fileCrypto.isValidKey()) {
             errcode = ERRCODE_INVALID_CRYPT_KEY;
-            _L("SplittedFile ERRCODE_INVALID_CRYPT_KEY");
+            //_L("SplittedFile ERRCODE_INVALID_CRYPT_KEY");
             return errcode;
         }
         
@@ -106,7 +103,7 @@ public class SplittedFile {
             final byte[] bx = fileCrypto.Crypt(buf_t);
             if (bx == null) {
                 errcode = ERRCODE_CRYPT_ERROR;
-                _L("SplittedFile ERRCODE_CRYPT_ERROR");
+                //_L("SplittedFile ERRCODE_CRYPT_ERROR");
                 return errcode;
             }
 
@@ -118,7 +115,7 @@ public class SplittedFile {
            
             return 0;
         } catch (IOException ex) {
-            _L(ex.getMessage());
+            //_L(ex.getMessage());
             errcode = ERRCODE_IO_EXCEPTION;
         }
         return errcode;
@@ -128,7 +125,7 @@ public class SplittedFile {
         errcode = 0;
         if (!fileCrypto.isValidKey()) {
             errcode = ERRCODE_INVALID_CRYPT_KEY;
-            _L("SplittedFile ERRCODE_INVALID_CRYPT_KEY");
+            //_L("SplittedFile ERRCODE_INVALID_CRYPT_KEY");
             return null;
         }
         
@@ -152,13 +149,13 @@ public class SplittedFile {
             int counter = fc.read(bb);
             if (counter != SECTOR_SIZE) {
                 errcode = ERRCODE_INCORRECT_SECTOR_SIZE;
-                _L("SplittedFile ERRCODE_INCORRECT_SECTOR_SIZE "+counter);
+                //_L("SplittedFile ERRCODE_INCORRECT_SECTOR_SIZE "+counter);
                 return null;
             } else {
                 final byte[] ret_crypto = fileCrypto.Decrypt(bb.array());
                 if (ret_crypto == null) {
                     errcode = ERRCODE_DECRYPT_ERROR;
-                    _L("SplittedFile ERRCODE_DECRYPT_ERROR");
+                    //_L("SplittedFile ERRCODE_DECRYPT_ERROR");
                     return null;
                 }
                 
@@ -167,7 +164,7 @@ public class SplittedFile {
             }
 
         } catch (IOException ex) {
-            _L(ex.getMessage());
+            //_L(ex.getMessage());
             errcode = ERRCODE_IO_EXCEPTION;
         }
         return null;
@@ -191,7 +188,7 @@ public class SplittedFile {
             fis.close();
             return Crypto.MD5(md5ez.toByteArray());
         } catch (IOException ex) {
-            _L(ex.getMessage());
+            //_L(ex.getMessage());
         }
         return null;
     }
@@ -205,7 +202,7 @@ public class SplittedFile {
                 md5ez.write(Crypto.MD5(sectorBuffer));
                 MyIOPS_R = MyIOPS_R + SECTOR_SIZE;
             } catch (IOException ex) {
-                Logger.getLogger(FSEngine.class.getName()).log(Level.SEVERE, null, ex);
+                //Logger.getLogger(FSEngine.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     
@@ -225,8 +222,8 @@ public class SplittedFile {
         return s.substring(s.length() - count);
     }
     
-    private static void _L(String s) {
+    //private static void _L(String s) {
         //System.out.println(s);
-        JNekoImageDB.L(s);
-    }
+    //    JNekoImageDB.L(s);
+    //}
 }

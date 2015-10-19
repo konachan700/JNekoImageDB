@@ -1,5 +1,6 @@
 package dialogs;
 
+import dataaccess.Lang;
 import java.io.File;
 import java.util.ArrayList;
 import javafx.scene.Node;
@@ -19,10 +20,10 @@ public class DYesNo {
     }
     
     private final Button 
-            yesImg = new Button("", new ImageView(new Image(new File("./icons/d_yes.png").toURI().toString()))), 
-            noImg  = new Button("", new ImageView(new Image(new File("./icons/d_no.png").toURI().toString())));
+            yesImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/d_yes.png").toURI().toString()))), 
+            noImg  = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/d_no.png").toURI().toString())));
     
-    private final TextArea MessageStr = new TextArea("");
+    private final TextArea MessageStr = new TextArea(Lang.NullString);
                 
     private final DYesNoActionListener AL;
     private final ArrayList<Node> firstNode = new ArrayList<>();
@@ -42,9 +43,9 @@ public class DYesNo {
         GUITools.setFixedSize(noImg, 64, 64);
         GUITools.setMaxSize(MessageStr, 9999, 64);
         
-        setStyle(yesImg, "DYesButton");
-        setStyle(noImg, "DNoButton");
-        setStyle(MessageStr, "DMessageStr");
+        setStyle(yesImg, "DYesNo_YesButton");
+        setStyle(noImg, "DYesNo_NoButton");
+        setStyle(MessageStr, "DYesNo_MessageStr");
         
         yesImg.setOnMouseClicked((MouseEvent event) -> {
             parent.getChildren().clear();
@@ -69,7 +70,7 @@ public class DYesNo {
     }
     
     private void setStyle(Region n, String styleID) {
-        n.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        n.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         n.getStyleClass().add(styleID);
     }
 }

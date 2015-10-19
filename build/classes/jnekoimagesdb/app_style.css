@@ -1,39 +1,33 @@
-/*.appnamez {
+.GUITools_imageName {
     -fx-font-weight:bold; 
     -fx-font-size: 16px;
     -fx-text-fill: #ddd;
-}*/
+}
 
-/*.basevbox {
-    -fx-padding: 2px;
-}*/
-
-/*.header_z Label {
+.GUITools_header_z Label {
     -fx-text-fill: #fff;
     -fx-background-color: #000;
 }
 
-.header_z Button {
+.GUITools_header_z Button {
     -fx-padding: 0px;
     -fx-background-color: #000;
     -fx-background-insets: 0, 0, 0, 0;
 }
 
-.header_z Button:hover {
+.GUITools_header_z Button:hover {
     -fx-padding: 0px;
     -fx-background-color: #fff;
     -fx-text-fill: #000;
-}*/
+}
 
-.border_a {
+.GUITools_root3m {
     -fx-padding: 16px;
     -fx-background-color: transparent;
-    //-fx-background-radius: 6;
 }
 
-.border_z {
+.GUITools_root2m {
     -fx-background-color: #000;
     -fx-padding: 3px 3px 3px 3px;
-    //-fx-background-radius: 6;
-    //-fx-background-insets: 12;
 }
+
