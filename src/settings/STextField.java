@@ -2,6 +2,7 @@ package settings;
 
 import dataaccess.DBWrapper;
 import dataaccess.DBEngine;
+import dataaccess.Lang;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
 
@@ -12,7 +13,7 @@ public class STextField extends TextField {
         super();
         ID = id;
         
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("STextField");
         
         this.setText(DBWrapper.ReadAPPSettingsString("tf_"+ID));

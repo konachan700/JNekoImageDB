@@ -1,6 +1,7 @@
 package settings;
 
 import dataaccess.DBWrapper;
+import dataaccess.Lang;
 import java.io.File;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -25,7 +26,7 @@ public class SCheckBox extends Button {
         this.setMinSize(16, 16);
         this.setPrefSize(16, 16);
         
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("SCheckBox");
         
         this.setChecked(DBWrapper.ReadAPPSettingsString("bl_"+ID).contentEquals("YES"));

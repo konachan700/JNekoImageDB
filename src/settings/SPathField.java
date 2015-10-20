@@ -2,6 +2,7 @@ package settings;
 
 import dataaccess.DBWrapper;
 import dataaccess.DBEngine;
+import dataaccess.Lang;
 import java.io.File;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
@@ -20,7 +21,7 @@ public class SPathField extends TextField {
         ID = id;
         TYPE = type;
         
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("STextField");
         
         this.setText(DBWrapper.ReadAPPSettingsString("ff_"+ID));

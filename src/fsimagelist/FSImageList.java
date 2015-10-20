@@ -5,6 +5,7 @@ import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dataaccess.DBEngine;
 import dataaccess.FSEngine;
+import dataaccess.Lang;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -43,14 +43,12 @@ import jnekoimagesdb.JNekoImageDB;
 import smallpaginator.SmallPaginator;
 
 public class FSImageList extends ScrollPane{
-    private final boolean TIME_TEST = true;
+//    private final boolean TIME_TEST = true;
     private final FSImageList THIS = this;
-    
-//    private Crypto
-//            CRYPT;
-    
+
     /*
         Тут надо рефакторить все. Глюк на глюке, костыли и велосипеды.
+        upd.20-10-2015: стили и строки отрефакторены, убраны отладочные сообщения. Надо бы поправить и код местами, но пока лень.
     */
     
     private final Image
@@ -58,12 +56,12 @@ public class FSImageList extends ScrollPane{
             fok = new Image(new File("./icons/fr2.png").toURI().toString());
     
     private final Button 
-            lvlupImg = new Button("", new ImageView(new Image(new File("./icons/lvlup.png").toURI().toString()))), 
-            toAlbImg = new Button("", new ImageView(new Image(new File("./icons/addalbum.png").toURI().toString()))),
-            todbImg = new Button("", new ImageView(new Image(new File("./icons/adddef.png").toURI().toString()))),
-            selallImg = new Button("", new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
-            selnoneImg = new Button("", new ImageView(new Image(new File("./icons/selectnone.png").toURI().toString()))),
-            navTo = new Button("→");
+            lvlupImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/lvlup.png").toURI().toString()))), 
+            toAlbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/addalbum.png").toURI().toString()))),
+            todbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/adddef.png").toURI().toString()))),
+            selallImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
+            selnoneImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/selectnone.png").toURI().toString()))),
+            navTo = new Button(Lang.ArrowNext);
     
     private final FlowPane
             this_container = new FlowPane();
@@ -85,14 +83,13 @@ public class FSImageList extends ScrollPane{
             currentSystemLoad = new Label();
     
     private volatile String 
-//            currentProgress = "",
-            currentFile2    = "";
+            currentFile2    = Lang.NullString;
 
     private SmallPaginator
             xPag = null;
     
     private volatile String 
-            currentPath = "";
+            currentPath = Lang.NullString;
     
     private volatile int
             isReloading = 0,
@@ -127,7 +124,6 @@ public class FSImageList extends ScrollPane{
 
     private FSImageListActionListener 
             FSAL = new FSImageListActionListener() {
-
                 @Override
                 public void OnClick(FSImageListItem item) {
                     if (item.getFile() == null) return;
@@ -138,7 +134,6 @@ public class FSImageList extends ScrollPane{
                             selectedFiles.remove(item.getFile());
                         }
                     }
-                    
                 }
 
                 @Override
@@ -156,12 +151,13 @@ public class FSImageList extends ScrollPane{
             ImagesFS;    
 
     private final DBEngine 
-            SQL; // = new SQLite();
+            SQL;
     
     private String[] 
             files = null;
 
-    private int tmr_counter_info = 0;
+    private int 
+            tmr_counter_info = 0;
     
     private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(100), ae -> {
         tmr_counter_info++;
@@ -214,27 +210,30 @@ public class FSImageList extends ScrollPane{
         if (isReloading == 1) {
             final StringBuilder sbx = new StringBuilder();
             sbx
-                    .append("File ")
+                    .append(Lang.FSImageList_stat_str_file)
                     .append(todbItemCounter)
-                    .append(" of ")
+                    .append(Lang.FSImageList_stat_str_of)
                     .append(todbItemsTotalCount)
-                    .append("; ");
+                    .append(Lang.FSImageList_stat_str_separator);
             if (currentFile2.length() > 0) {
                 sbx
-                        .append("File: ")
+                        .append(Lang.FSImageList_stat_str_file)
                         .append(currentFile2)
-                        .append("; ");
+                        .append(Lang.FSImageList_stat_str_separator);
                 currentSystemLoad.setText(sbx.substring(0));
             } else {
                 sbx
-                        .append("Memory use: ")
+                        .append(Lang.FSImageList_stat_str_mem_use)
                         .append((Runtime.getRuntime().totalMemory()) / (1024*1024))
-                        .append("MB/")
+                        .append(Lang.FSImageList_stat_str_mem_mb)
+                        .append(Lang.FSImageList_stat_str_slash)
                         .append((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024*1024))
-                        .append("MB;")
-                        .append("My I/O:")
+                        .append(Lang.FSImageList_stat_str_mem_mb)
+                        .append(Lang.FSImageList_stat_str_separator)
+                        .append(Lang.FSImageList_stat_str_io)
                         .append((imgEn.getIOPS_W()+imgEn.getIOPS_R())/1024)
-                        .append(" kBps; ");
+                        .append(Lang.FSImageList_stat_str_kbps)
+                        .append(Lang.FSImageList_stat_str_separator);
                 currentSystemLoad.setText(sbx.substring(0));
             }
         }
@@ -251,7 +250,7 @@ public class FSImageList extends ScrollPane{
     }
     
     private synchronized int __reload_files(String path) {
-        _toPWLog("Начинаю просматривать папку...");
+        _toPWLog(Lang.FSImageList_starting_list_folder);
         
         final File f = new File(path);
         if (!f.canRead()) return -1;
@@ -265,7 +264,7 @@ public class FSImageList extends ScrollPane{
         final FilenameFilter filterDirs = new FilenameFilter() {
             @Override
             public boolean accept(File file, String string) {
-                final File f = new File(file.getAbsolutePath() + "/" + string);
+                final File f = new File(file.getAbsolutePath() + File.separator + string);
                 
                 gflCounterForDispString++;
                 if (gflCounterForDispString > gflCountForDispString) { currentFile2 = string; gflCounterForDispString = 0; }
@@ -299,13 +298,13 @@ public class FSImageList extends ScrollPane{
 
         gflCounterForDispString = 0;
         
-        _toPWLog("Получаю список папок...");
+        _toPWLog(Lang.FSImageList_get_folder_list);
         String[] dirsArray = f.list(filterDirs);
         
-        _toPWLog("Получаю список файлов, может работать медленно...");
+        _toPWLog(Lang.FSImageList_get_files_list);
         String[] imagesArray = f.list(filterImages);
         
-        _toPWLog("Папок "+dirsArray.length+", файлов: "+imagesArray.length+".\n");
+        _toPWLog(Lang.FSImageList_log_str_folders + dirsArray.length + Lang.FSImageList_log_str_files + imagesArray.length + ".\n");
         
         currentPage = 0;
         currentPath = f.getAbsolutePath();
@@ -368,7 +367,7 @@ public class FSImageList extends ScrollPane{
                                 itemsZ.get(tval1).setSelected(selectedFiles.contains(fx));
                             });
                         else 
-                            JNekoImageDB.L("ImagesFS.PopImage(IID) ERROR READING: "+fx.getAbsolutePath());
+                            JNekoImageDB.L(Lang.FSImageList_err_pop_1 + fx.getAbsolutePath());
                     } else {
                         final long small_pns_id = ImagesFS.PushFileMT(ImageEngine.ResizeImage(fx.getAbsolutePath(), ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE), null);
                         if (small_pns_id > 0) {
@@ -380,16 +379,13 @@ public class FSImageList extends ScrollPane{
                                     itemsZ.get(tval1).setSelected(selectedFiles.contains(fx));
                                 });
                             else 
-                                JNekoImageDB.L("ImagesFS.PopImage(small_pns_id) ERROR READING: "+fx.getAbsolutePath());
+                                JNekoImageDB.L(Lang.FSImageList_err_pop_2 + fx.getAbsolutePath());
                         } 
                         else
                             Platform.runLater(() -> { 
                                 itemsZ.get(tval1).setInitInfo(fx);
                             });
                     } 
-                    
-                    
-                    
                 }
                 counterV++;
                 if (counterV >= (imagesOnPages)) break;
@@ -415,30 +411,29 @@ public class FSImageList extends ScrollPane{
     
     public FSImageList(Crypto k, ImageEngine ie, DBEngine sql) {
         super();
-//        CRYPT = k;
         SQL   = sql;
         
         ImagesFS = new FSEngine(k, "imgtfs", SQL);
         imgEn = ie;
 
-        this_container.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
+        this_container.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this_container.getStyleClass().add("FSImageList_this_container");
       
-        this.getStylesheets().add(getClass().getResource("ProgressBar.css").toExternalForm());
-        this.getStyleClass().add("MenuList");
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("FSImageList_root_pane");
         
-        paginatorPanel.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        paginatorPanel.getStyleClass().add("PagPanel");
+        paginatorPanel.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        paginatorPanel.getStyleClass().add("FSImageList_paginatorPanel");
         paginatorPanel.setAlignment(Pos.CENTER_RIGHT);
         _s1(paginatorPanel, 9999, 24);
         _s1(currPathBox, 9999, 24);
         _s2(navTo, 48, 24);
         
-        currPathBox.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        currPathBox.getStyleClass().add("CurrPath");
+        currPathBox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        currPathBox.getStyleClass().add("FSImageList_currPathBox");
         
-        navTo.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        navTo.getStyleClass().add("ImgButtonGR");
+        navTo.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        navTo.getStyleClass().add("FSImageList_button");
         
         navTo.setOnMouseClicked((MouseEvent event) -> {
             File f = new File(currPathBox.getText().trim());
@@ -455,13 +450,13 @@ public class FSImageList extends ScrollPane{
 
         paginatorPanel.getChildren().addAll(currPathBox, navTo, getSeparator1(64), xPag);
         
-        please_wait.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
+        please_wait.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         please_wait.getStyleClass().add("FSImageList_please_wait");
         please_wait.setMaxSize(9999, 9999);
         please_wait.setPrefSize(9999, 9999);
         please_wait.setAlignment(Pos.TOP_LEFT); 
         
-        final Label pw = new Label("Идет загрузка изображений...");
+        final Label pw = new Label(Lang.FSImageList_please_wait_1);
         pw.getStyleClass().add("FSImageList_please_wait_label");
         final DropShadow ds = new DropShadow();
         ds.setOffsetY(0f);
@@ -473,20 +468,20 @@ public class FSImageList extends ScrollPane{
         pw.setPrefSize(9999, 21);
         
         currentSystemLoad.setEffect(ds);
-        currentSystemLoad.getStyleClass().add("currentSystemLoad");
+        currentSystemLoad.getStyleClass().add("FSImageList_currentSystemLoad");
         
         taLOG.setMaxSize(9999, 9999);
         taLOG.setPrefSize(9999, 9999);
         taLOG.setWrapText(true);
-        taLOG.getStylesheets().add(getClass().getResource("ProgressBar.css").toExternalForm());
-        taLOG.getStyleClass().add("logbox");
-        taLOG.getStyleClass().add("MenuList");
+        taLOG.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        taLOG.getStyleClass().add("FSImageList_logbox");
+        taLOG.getStyleClass().add("FSImageList_root_pane");
         
         please_wait.getChildren().add(pw);
         please_wait.getChildren().add(currentSystemLoad);
         please_wait.getChildren().add(taLOG);
         
-        this.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+        this.setVbarPolicy(ScrollBarPolicy.NEVER);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.setMaxSize(9999, 9999);
         this.setPrefSize(9999, 9999);
@@ -567,14 +562,14 @@ public class FSImageList extends ScrollPane{
         
         _s1(topPanel, 9999, 64);
         topPanel.setMinSize(128, 64);
-        topPanel.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        topPanel.getStyleClass().add("topPanel");
+        topPanel.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        topPanel.getStyleClass().add("FSImageList_topPanel");
         
-        lvlupImg.getStyleClass().add("ImgButtonG");
-        selallImg.getStyleClass().add("ImgButtonB");
-        selnoneImg.getStyleClass().add("ImgButtonB");
-        todbImg.getStyleClass().add("ImgButtonR");
-        toAlbImg.getStyleClass().add("ImgButtonR2");
+        lvlupImg.getStyleClass().add("FSImageList_button");
+        selallImg.getStyleClass().add("FSImageList_button");
+        selnoneImg.getStyleClass().add("FSImageList_button");
+        todbImg.getStyleClass().add("FSImageList_button");
+        toAlbImg.getStyleClass().add("FSImageList_button");
         
         final int sz = 64;
         _s2(lvlupImg, sz, sz);
@@ -617,7 +612,7 @@ public class FSImageList extends ScrollPane{
         final Task taskFullReload = new Task<Void>() {
             @Override 
             public Void call() {
-                long xt = new Date().getTime();
+//                long xt = new Date().getTime();
                 if (isReloading == 1) {
                     return null;
                 }
@@ -629,7 +624,7 @@ public class FSImageList extends ScrollPane{
                 isReloading = 2;
                 fsWorker = 0;
 
-                if (TIME_TEST) JNekoImageDB.L("__reloadAll exec time: "+(new Date().getTime() - xt));
+                //if (TIME_TEST) JNekoImageDB.L("__reloadAll exec time: "+(new Date().getTime() - xt));
                 return null;
             }
         };
@@ -643,12 +638,12 @@ public class FSImageList extends ScrollPane{
         final Task taskForPage = new Task<Void>() {
             @Override 
             public Void call() {
-                long xt = new Date().getTime();
+//                long xt = new Date().getTime();
                 if (isReloading == 1) return null;
                 isReloading = 1;
                 __addAll();
                 isReloading = 2;
-                if (TIME_TEST) JNekoImageDB.L("__reloadPage() exec time: "+(new Date().getTime() - xt));
+                //if (TIME_TEST) JNekoImageDB.L("__reloadPage() exec time: "+(new Date().getTime() - xt));
                 return null;
             }
         };
@@ -657,31 +652,32 @@ public class FSImageList extends ScrollPane{
         t.start();
     }
     
+    /*
+        TODO: Тут нужно сделать формирование лог-файла со списком всех файлов, которые не получилось добавить.
+    */
     private void __x1() {
         final File f = selectedFiles.get(todbItemCounter);
         final String fl = f.getAbsolutePath();
         long xt = new Date().getTime();
 
-        //_toPWLog("["+(new Date().getTime() - xt)+"] Проверка дубликатов файла ["+f.getName()+"]...");
         final byte[] b = FSEngine.getFileMD5MT(fl);
         if (b != null) {
             if (imgEn.isMD5(b)) {
-                _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] уже есть в базе данных, пропускаем. MD5: "+Arrays.toString(b)); 
+                _toPWLog("["+(new Date().getTime() - xt)+"] "+Lang.FSImageList_log_str_file+" ["+f.getName()+"] " + Lang.FSImageList_log_str_already_exist); 
             } else {
-                //_toPWLog("["+(new Date().getTime() - xt)+"] Файла ["+f.getName()+"] еще нет базе данных, добавляем...");
                 final long res = imgEn.UploadImage(fl, b);
                 if (res <= 0)
-                    _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не может быть добавлен в БД, см. логи.");
-//                else
+                    _toPWLog("["+(new Date().getTime() - xt)+"] "+Lang.FSImageList_log_str_file+" ["+f.getName()+"] " + Lang.FSImageList_log_str_cannoit_be_added);
+//                else // не думаю, что сообщать о каждом успешно добавленном есть хорошая идея. 
 //                    _toPWLog("["+(new Date().getTime() - xt)+"] ["+todbItemCounter+"] Файл ["+f.getName()+"] успешно добавлен.");
             }
         } else {
-            _toPWLog("["+(new Date().getTime() - xt)+"] Файл ["+f.getName()+"] не читаем или поврежден, пропускаем...");
+            _toPWLog("["+(new Date().getTime() - xt)+"] "+Lang.FSImageList_log_str_file+" ["+f.getName()+"] " + Lang.FSImageList_log_broken);
         }
     }
     
     private synchronized void __toDB() {
-        taLOG.setText("");
+        taLOG.setText(Lang.NullString);
         if (isReloading == 1) return;
         isReloading         = 1; // Блокирует повторное выполнение метода, по факту не нужно
         fsWorker            = 1; // Показывает заставку с прогрессом выполнения
@@ -689,7 +685,6 @@ public class FSImageList extends ScrollPane{
         todbItemCounter     = 0;
         
         final Runnable taskR = () -> {
-//            long xt;
             for (; todbItemCounter<todbItemsTotalCount; todbItemCounter++) {
                 __x1();
             }
@@ -716,12 +711,9 @@ public class FSImageList extends ScrollPane{
     
     private void _toPWLog(String s) {
         Platform.runLater(() -> { 
-            if (taLOG.getText().length() > (128 * 1024)) taLOG.setText("");
-            final SimpleDateFormat DF = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
+            if (taLOG.getText().length() > (128 * 1024)) taLOG.setText(Lang.NullString);
+            final SimpleDateFormat DF = new SimpleDateFormat(Lang.DateTimeFormatWithSeconds);
             taLOG.appendText("[" + DF.format(new Date()) + "] " + s + "\n");
-            //taLOG.setText( "[" + DF.format(new Date()) + "] " + s + "\n" + taLOG.getText());
-            //taLOG.setEditable(false);
-            //JNekoNetCC.L(s);
             taLOG.setScrollTop(Double.MIN_VALUE);
         });
     }

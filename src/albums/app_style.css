@@ -24,8 +24,8 @@
 .ASDNewElement_newTitle {
     -fx-padding: 0 0 0 12;
     -fx-background-color:transparent;
-    -fx-font-weight:bold; 
-    -fx-font-size: 12px;
+    //-fx-font-weight:bold; 
+    -fx-font-size: 14px;
     -fx-text-fill: #ccc;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-underline:false;

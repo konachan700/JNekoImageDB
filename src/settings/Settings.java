@@ -1,6 +1,7 @@
 package settings;
 
 import dataaccess.DBEngine;
+import dataaccess.Lang;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
@@ -25,9 +26,9 @@ public class Settings extends VBox {
         uploadPath.setMaxWidth(9999);
         uploadPath.setPrefWidth(9999);
                 
-        this.getChildren().add(new SettingsElementContainer("Путь к папке для выгрузки картинок", uploadPath));
-        this.getChildren().add(new SettingsElementContainer("Показывать группу удаленных", showDeleted));
-        this.getChildren().add(new SettingsElementContainer("Показывать полные миниатюры", showNonSquaredPreview));
+        this.getChildren().add(new SettingsElementContainer(Lang.Settings_path_for_default_uploading, uploadPath));
+        this.getChildren().add(new SettingsElementContainer(Lang.Settings_show_deleted, showDeleted));
+        this.getChildren().add(new SettingsElementContainer(Lang.Settings_show_full_preview, showNonSquaredPreview));
     }
     
     

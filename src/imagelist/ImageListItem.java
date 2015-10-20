@@ -2,6 +2,7 @@ package imagelist;
 
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
+import dataaccess.Lang;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import javafx.geometry.Insets;
@@ -69,8 +70,8 @@ public class ImageListItem extends Pane {
     }
 
     private void init() {
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        this.getStyleClass().add("ImageListX");
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("ImageListItem_root_pane");
         this.setMinSize(ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2), ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2));
         this.setMaxSize(ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2), ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2));
         this.setPrefSize(ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2), ImageEngine.SMALL_PREVIEW_SIZE+(PADDING*2));
@@ -172,8 +173,8 @@ public class ImageListItem extends Pane {
         imageZ.setCache(false);
         imageZ.setPreserveRatio(true);
         imageZ.setImage(new Image(new ByteArrayInputStream(img)));
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        this.getStyleClass().add("ImageListX");
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("ImageListItem_root_pane");
     }
     
     public void setImg(double sizeW, double sizeH, Image img) {
@@ -182,8 +183,8 @@ public class ImageListItem extends Pane {
         imageZ.setCache(false);
         imageZ.setPreserveRatio(true);
         imageZ.setImage(img);
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        this.getStyleClass().add("ImageListX");
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("ImageListItem_root_pane");
     }
 
     public void setID(Long i) {

@@ -1,130 +1,42 @@
-/* The main scrollbar **track** CSS class  */
-.paginator_1 {
-    -fx-background-color: #000000;
-    -fx-padding: 0 0 0 0px;
-    -fx-background-radius: 0; //0 0 0 6;
-}
-
-.appnamez {
-    -fx-font-weight:bold; 
-    -fx-font-size: 14px;
-    -fx-text-fill: #ccc;
-}
-
-.header_z {
-    //-fx-background-color: #000;
-    -fx-background-color: linear-gradient(#000 0%, #333 40%, #333 60%, #000 100%);
-    -fx-padding: 0 0 0 0px;
-    -fx-background-radius: 0;
-    //-fx-border-width: 0 0 2px 0; 
-    //-fx-border-color: #444; 
-    //-fx-border-style:solid;
-}
-
-.border_a {
-    -fx-padding: 14px;
-    -fx-background-color: transparent;
-    -fx-background-radius: 0;
-}
-
-.header_z Label {
-    -fx-text-fill: #ddd;
-    -fx-padding: 14px;
-}
-
-.header_z Button {
-    -fx-padding: 0px;
-    -fx-background-color: transparent;
-    -fx-background-insets: 0, 0, 0, 0;
-}
-
-.header_z Button:hover {
-    -fx-padding: 0px;
-    -fx-background-color: #fff;
-    -fx-text-fill: #000;
-}
-
-.border_z {
-    -fx-background-color: #000;
-    -fx-padding: 3px 3px 0px 3px;
-    -fx-background-radius: 0;
-    //-fx-background-insets: 12;
-}
 
 .MenuList {
     -fx-border-width: 0 0 0 2px; 
     -fx-border-color: #000000; 
     -fx-border-style:solid;
-    -fx-background-radius: 0;//0 0 6 0;
-}
-
-/*.BaseBox2 {
-    -fx-background-color: #222222;
-    -fx-background-radius: 4;
-}*/
-
-.BaseBox {
-    //-fx-border-width: 0 0 0 6px; 
-    //-fx-border-color: #000000; 
-    //-fx-border-style:solid; 
-    -fx-background-color: #000;
-    //-fx-padding: 0 0 0 4px;
-    -fx-border-radius: 0;
     -fx-background-radius: 0;
-    -fx-padding: 0 0 0 0px;
-}
-
-.headerbox {
-    -fx-background-color: #000000;
-    -fx-padding: 0px 0px 0 0;
-}
-
-.toolbox {
-    -fx-background-color: #000000;
-    -fx-padding: 3px 0px 0 0;
 }
 
 .MenuList .scroll-bar:horizontal .track,
 .MenuList .scroll-bar:vertical .track{
-	-fx-background-color:#333;
-	-fx-border-color:#555;
-	-fx-background-radius: 0em;
-	-fx-border-radius:2em;
-        
+    -fx-background-color:#333;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
 }
 
-/* The increment and decrement button CSS class of scrollbar */
 .MenuList .scroll-bar:horizontal .increment-button ,
 .MenuList .scroll-bar:horizontal .decrement-button {
     -fx-background-color:#000;
-	-fx-background-radius: 0em;
-	-fx-padding:0 0 10 0;
-
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
 }
-
-/* The increment and decrement button CSS class of scrollbar */
 
 .MenuList .scroll-bar:vertical .increment-button ,
 .MenuList .scroll-bar:vertical .decrement-button {
-
     -fx-background-color:#000;
-	-fx-background-radius: 0em;
-	-fx-padding:0 10 0 0;
-
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
 }
 
 .MenuList  .scroll-bar .increment-arrow,
-.MenuList  .scroll-bar .decrement-arrow 
- {
-	-fx-shape: " ";	
-	-fx-padding:0;
+.MenuList  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
 }
 
-/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
 .MenuList .scroll-bar:horizontal .thumb,
 .MenuList .scroll-bar:vertical .thumb {
     -fx-background-color:#000;
-	-fx-background-insets: 2, 0, 0;
-	-fx-background-radius: 2em;
-
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
 }

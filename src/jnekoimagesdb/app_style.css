@@ -31,3 +31,121 @@
     -fx-padding: 3px 3px 3px 3px;
 }
 
+.JNekoImageDB_taLOG {
+    -fx-padding:12;
+}
+
+.JNekoImageDB_taLOG, .JNekoImageDB_taLOG .viewport, JNekoImageDB_taLOG .scroll-pane {
+    -fx-background-color:#222;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+    -fx-border-radius: 4;
+}
+
+.JNekoImageDB_taLOG .content {
+    -fx-background-color:#222;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+}
+
+.JNekoImageDB_taLOG .scroll-bar:horizontal .track,
+.JNekoImageDB_taLOG .scroll-bar:vertical .track {
+    -fx-background-color:#222;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+
+.JNekoImageDB_taLOG .scroll-bar:horizontal .increment-button ,
+.JNekoImageDB_taLOG .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.JNekoImageDB_taLOG .scroll-bar:vertical .increment-button ,
+.JNekoImageDB_taLOG .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.JNekoImageDB_taLOG  .scroll-bar .increment-arrow,
+.JNekoImageDB_taLOG  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.JNekoImageDB_taLOG .scroll-bar:horizontal .thumb,
+.JNekoImageDB_taLOG .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
+
+.JNekoImageDB_paginator_1 {
+    -fx-background-color: #000000;
+    -fx-padding: 0 0 0 0px;
+    -fx-background-radius: 0;
+}
+
+.JNekoImageDB_basesp {
+    -fx-background-color: #000;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0 0 0 0px;
+}
+
+.JNekoImageDB_headerbox {
+    -fx-background-color: #000000;
+    -fx-padding: 0px 0px 0 0;
+}
+
+.JNekoImageDB_toolbox {
+    -fx-background-color: #000000;
+    -fx-padding: 3px 0px 0 0;
+}
+
+.JNekoImageDB_MenuList {
+    -fx-border-width: 0 0 0 2px; 
+    -fx-border-color: #000000; 
+    -fx-border-style:solid;
+    -fx-background-radius: 0;
+}
+
+.JNekoImageDB_MenuList .scroll-bar:horizontal .track,
+.JNekoImageDB_MenuList .scroll-bar:vertical .track{
+    -fx-background-color:#333;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+
+.JNekoImageDB_MenuList .scroll-bar:horizontal .increment-button ,
+.JNekoImageDB_MenuList .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.JNekoImageDB_MenuList .scroll-bar:vertical .increment-button ,
+.JNekoImageDB_MenuList .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.JNekoImageDB_MenuList  .scroll-bar .increment-arrow,
+.JNekoImageDB_MenuList  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.JNekoImageDB_MenuList .scroll-bar:horizontal .thumb,
+.JNekoImageDB_MenuList .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
+
+

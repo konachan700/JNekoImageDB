@@ -1,6 +1,7 @@
 package settings;
 
 import dataaccess.DBEngine;
+import dataaccess.Lang;
 import java.io.File;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -42,7 +43,7 @@ public class SPlusMinusValueField extends HBox {
     public SPlusMinusValueField(String id) {
         ID  = id;
         
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("SPlusMinusValueField");
         
         textField = new STextField(ID);

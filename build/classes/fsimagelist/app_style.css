@@ -1,0 +1,153 @@
+.FSImageListItem_root_pane, .FSImageListItem_root_pane:hover {
+    -fx-padding: 2px;
+    -fx-background-color: #fff;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+.FSImageListItem_root_pane {
+    -fx-border-color: #fff;
+}
+
+.FSImageListItem_root_pane:hover {
+    -fx-border-color: #5f5;
+}
+
+.FSImageListItem_root_pane_folder {
+    -fx-padding: 2px;
+    -fx-background-color: transparent;
+}
+
+.FSImageList_root_pane {
+    -fx-padding:0 0 0 0;
+    -fx-background-color:#222;
+    -fx-margin: 0px;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    //-fx-background-radius: 6;
+}
+
+.FSImageList_root_pane .viewport {
+    -fx-padding:0 0 0 0;
+    -fx-background-color:#000;
+    -fx-margin: 0px;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+}
+
+.FSImageList_root_pane .scroll-bar:horizontal .track,
+.FSImageList_root_pane .scroll-bar:vertical .track {
+    -fx-background-color:#222;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+
+.FSImageList_root_pane .scroll-bar:horizontal .increment-button ,
+.FSImageList_root_pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.FSImageList_root_pane .scroll-bar:vertical .increment-button ,
+.FSImageList_root_pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.FSImageList_root_pane  .scroll-bar .increment-arrow,
+.FSImageList_root_pane  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.FSImageList_root_pane .scroll-bar:horizontal .thumb,
+.FSImageList_root_pane .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
+
+.FSImageList_please_wait_label {
+    -fx-font-weight:bold; 
+    -fx-font-size: 16px;
+}
+
+.FSImageList_please_wait {
+    -fx-background-color: #222;
+    -fx-padding: 16px;
+}
+
+.FSImageList_please_wait .VBox {
+    -fx-background-color: #222;
+}
+
+.FSImageList_this_container {
+    -fx-background-color: #222;
+    -fx-padding: 8px;
+    -fx-margin: 0px;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+}
+
+.FSImageList_button {
+    -fx-padding: 0px;
+    -fx-background-color: #333;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-text-fill: #fff;
+}
+
+.FSImageList_button:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+.FSImageList_topPanel {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0px;
+}
+
+.FSImageList_logbox {
+    -fx-padding:12;
+}
+
+.FSImageList_logbox, .FSImageList_logbox .viewport, FSImageList_logbox .scroll-pane {
+    -fx-background-color:#000;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+    -fx-border-radius: 0;
+}
+
+.FSImageList_logbox .content {
+    -fx-background-color:#000;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+}
+
+.FSImageList_currentSystemLoad {
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #000;
+}
+
+.FSImageList_currPathBox {
+    -fx-padding: 0 0 0 7;
+    -fx-background-color: #222;
+    -fx-background-radius: 0;
+    -fx-font-size: 10px;
+    -fx-text-fill: #fff;
+}
+
+.FSImageList_paginatorPanel {
+    -fx-padding: 0;
+}
+

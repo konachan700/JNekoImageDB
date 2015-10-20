@@ -4,8 +4,8 @@ import albums.AlbumSelectDialog;
 import dataaccess.DBImageX;
 import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
-import dataaccess.DBEngine;
 import dataaccess.ImageCache;
+import dataaccess.Lang;
 import dialogs.DYesNo;
 import dialogs.PleaseWait;
 import java.io.File;
@@ -116,11 +116,13 @@ public class ImageList extends FlowPane {
         if (isProcessRunning == 1) {
             toptxt.delete(0, toptxt.length());
             toptxt
-                    .append("Memory use: ")
+                    .append(Lang.ImageList_mem_used)
                     .append((Runtime.getRuntime().totalMemory()) / (1024 * 1024))
-                    .append("MB; My I/O:")
+                    .append(Lang.FSImageList_stat_str_mem_mb)
+                    .append(Lang.FSImageList_stat_str_separator)
+                    .append(Lang.FSImageList_stat_str_io)
                     .append((IMG.getIOPS_W() + IMG.getIOPS_R()) / 1024)
-                    .append(" kBps; ")
+                    .append(Lang.FSImageList_stat_str_kbps)
                     ;
             PW.Update();
         }
@@ -220,7 +222,7 @@ public class ImageList extends FlowPane {
             totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
         }
         
-        currCountLabel.setText(totalImagesCount+" images");
+        currCountLabel.setText(totalImagesCount+Lang.ImageList_images_total);
     }
 
     public ImageListItem getItem(int id) {
@@ -260,12 +262,12 @@ public class ImageList extends FlowPane {
         });
         GUITools.setFixedSize(xPag, 220, 24);
         
-        paginatorPanel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-        paginatorPanel.getStyleClass().add("PagPanel");
+        paginatorPanel.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        paginatorPanel.getStyleClass().add("ImageList_paginatorPanel");
         paginatorPanel.setAlignment(Pos.CENTER_RIGHT);
         GUITools.setMaxSize(paginatorPanel, 9999, 24);
         
-        currCountLabel.getStyleClass().add("PagCountLabel");
+        currCountLabel.getStyleClass().add("ImageList_currCountLabel");
         currCountLabel.setAlignment(Pos.CENTER);
         GUITools.setFixedSize(currCountLabel, 192, 24);
         
@@ -273,25 +275,19 @@ public class ImageList extends FlowPane {
         
         GUITools.setMaxSize(topPanel, 9999, 64);
         topPanel.setMinSize(128, 64);
-        topPanel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-        topPanel.getStyleClass().add("topPanel");
-        
-        //selallImg.getStyleClass().add("ImgButtonB");
-        //selnoneImg.getStyleClass().add("ImgButtonB");
-        addtagImg.getStyleClass().add("ImgButtonG");
-//        deltagImg.getStyleClass().add("ImgButtonR2");
-        toTempImg.getStyleClass().add("ImgButtonR");
-        toAlbImg.getStyleClass().add("ImgButtonR2");
-        delAlbImg.getStyleClass().add("ImgButtonR2");
+        topPanel.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        topPanel.getStyleClass().add("ImageList_topPanel");
+
+        addtagImg.getStyleClass().add("ImageList_button");
+        toTempImg.getStyleClass().add("ImageList_button");
+        toAlbImg.getStyleClass().add("ImageList_button");
+        delAlbImg.getStyleClass().add("ImageList_button");
         
         final int sz = 64;
         GUITools.setFixedSize(toAlbImg, sz, sz);
         GUITools.setFixedSize(toTempImg, sz, sz);
         GUITools.setFixedSize(addtagImg, sz, sz);
         GUITools.setFixedSize(delAlbImg, sz, sz);
-//        GUITools.setFixedSize(deltagImg, sz, sz);
-        //GUITools.setFixedSize(selallImg, sz, sz);
-        //GUITools.setFixedSize(selnoneImg, sz, sz);
         
         PW = new PleaseWait(xParent, toptxt, logtxt);
         
@@ -331,27 +327,11 @@ public class ImageList extends FlowPane {
             event.consume();
         });
         
-//        selnoneImg.setOnMouseClicked((MouseEvent event) -> {
-//            if ((isProcessRunning == 1) || (is_resized == 1)) return;
-//                       
-//            selectedItems.clear();
-//            is_resized = 1;
-//            event.consume();
-//        });
-//        
-//        selallImg.setOnMouseClicked((MouseEvent event) -> {
-//            if ((isProcessRunning == 1) || (is_resized == 1)) return;
-//            
-//            _selectAll();
-//            is_resized = 1;
-//            event.consume();
-//        });
-
-        this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
-        this.getStyleClass().add("ImageList");
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("ImageList_root");
         
         totalImagesCount = (int) IMG.getImgCount();
-        currCountLabel.setText(totalImagesCount+" images");
+        currCountLabel.setText(totalImagesCount+Lang.ImageList_images_total);
         
         TMR.setCycleCount(Animation.INDEFINITE);
         TMR.play();

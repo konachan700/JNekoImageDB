@@ -1,6 +1,7 @@
 package fsimagelist;
 
 import dataaccess.ImageEngine;
+import dataaccess.Lang;
 import java.io.File;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -10,8 +11,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -78,7 +77,6 @@ public class FSImageListItem extends Pane {
                     } else {
                         FLAL.OnDblFolderClick(THIS, myFile);
                     }
-                    
                 }
             }
         }
@@ -99,9 +97,9 @@ public class FSImageListItem extends Pane {
         final String fname = f.getName().trim();
         
         this.getStylesheets().clear();
-        this.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().clear();
-        this.getStyleClass().add("FSImageListX");
+        this.getStyleClass().add("FSImageListItem_root_pane");
         this.applyCss();
         
         selImg.setVisible(false);
@@ -137,9 +135,9 @@ public class FSImageListItem extends Pane {
         myFile = f;
         final String fname = f.getName().trim();
         this.getStylesheets().clear();
-        this.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().clear();
-        this.getStyleClass().add((isFolder) ? "FSImageListY" : "FSImageListX");
+        this.getStyleClass().add((isFolder) ? "FSImageListItem_root_pane_folder" : "FSImageListItem_root_pane");
         this.applyCss();
         
         selImg.setVisible(false);
@@ -157,15 +155,15 @@ public class FSImageListItem extends Pane {
     }
     
     public void clearIt() {
-        imageName.setText("");
+        imageName.setText(Lang.NullString);
         imageZ.setImage(empty);
     }
     
     public void hideIt() {
-        imageName.setText("");
+        imageName.setText(Lang.NullString);
         imageZ.setImage(transparent);
         this.getStyleClass().clear();
-        this.getStyleClass().add("FSImageListY");
+        this.getStyleClass().add("FSImageListItem_root_pane_folder");
     }
     
     public FSImageListItem() {
@@ -203,7 +201,7 @@ public class FSImageListItem extends Pane {
         imgBox.setAlignment(Pos.TOP_CENTER);
         imgBox.getChildren().add(imageZ);
         
-        imageName.getStyleClass().add("FSImageListLabel");
+        //imageName.getStyleClass().add("FSImageListItem_FSImageListLabel");
         imageName.setMaxSize(128, 16);
         imageName.setPrefSize(128, 16);
         imageName.setAlignment(Pos.CENTER);

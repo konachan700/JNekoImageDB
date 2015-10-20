@@ -2,25 +2,22 @@ package imagelist;
 
 import albums.AlbumSelectDialog;
 import dataaccess.DBWrapper;
-import dataaccess.ImageEngine;
+import dataaccess.Lang;
 import dialogs.DialogWindow;
 import java.io.File;
 import java.util.ArrayList;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import jnekoimagesdb.GUITools;
-import jnekoimagesdb.JNekoImageDB;
 
 public class ImageListViewScreen {
     private final ImageView 
@@ -92,20 +89,20 @@ public class ImageListViewScreen {
     public ImageListViewScreen() {
         GUITools.setMaxSize(panel, 9999, 64);
         panel.setMinSize(128, 64);
-        panel.getStylesheets().add(getClass().getResource("panel.css").toExternalForm());
-        panel.getStyleClass().add("topPanel");
+        panel.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        panel.getStyleClass().add("ImageListViewScreen_panel");
         
-        nextBtn.getStyleClass().add("ImgButtonB");
-        prevBtn.getStyleClass().add("ImgButtonB");
-        zoomInBtn.getStyleClass().add("ImgButtonB");
-        zoomOutBtn.getStyleClass().add("ImgButtonB");
-        toTempBtn.getStyleClass().add("ImgButtonB");
-        likeBtn.getStyleClass().add("ImgButtonB");
-        delBtn.getStyleClass().add("ImgButtonB");
-        toAlbumBtn.getStyleClass().add("ImgButtonB");
-        toTagBtn.getStyleClass().add("ImgButtonB");
-        zoomOrigBtn.getStyleClass().add("ImgButtonB");
-        zoomFitToWinBtn.getStyleClass().add("ImgButtonB");
+        nextBtn.getStyleClass().add("ImageListViewScreen_button");
+        prevBtn.getStyleClass().add("ImageListViewScreen_button");
+        zoomInBtn.getStyleClass().add("ImageListViewScreen_button");
+        zoomOutBtn.getStyleClass().add("ImageListViewScreen_button");
+        toTempBtn.getStyleClass().add("ImageListViewScreen_button");
+        likeBtn.getStyleClass().add("ImageListViewScreen_button");
+        delBtn.getStyleClass().add("ImageListViewScreen_button");
+        toAlbumBtn.getStyleClass().add("ImageListViewScreen_button");
+        toTagBtn.getStyleClass().add("ImageListViewScreen_button");
+        zoomOrigBtn.getStyleClass().add("ImageListViewScreen_button");
+        zoomFitToWinBtn.getStyleClass().add("ImageListViewScreen_button");
         
         GUITools.setFixedSize(nextBtn, 64, 64);
         GUITools.setFixedSize(prevBtn, 64, 64);
@@ -126,8 +123,8 @@ public class ImageListViewScreen {
                 toTempBtn, GUITools.getSeparator());
         dw.getToolbox().getChildren().add(panel);
         
-        sp.getStylesheets().add(getClass().getResource("ILWSStyle.css").toExternalForm());
-        sp.getStyleClass().add("ImageList");
+        sp.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        sp.getStyleClass().add("ImageListViewScreen_root_pane");
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sp.setFitToHeight(true);
@@ -286,9 +283,4 @@ public class ImageListViewScreen {
         _show(iid);
         dw.show();
     }
-    
-//    public void show(long iid, long aid) {
-//        IID = iid;
-//        AID = aid;
-//    }
 }

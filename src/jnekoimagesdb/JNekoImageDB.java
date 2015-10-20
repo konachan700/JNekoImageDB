@@ -20,19 +20,12 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -43,7 +36,6 @@ import menulist.MenuGroupItemActionListener;
 import menulist.MenuLabel;
 import menulist.MenuList;
 import settings.Settings;
-
 
 public class JNekoImageDB extends Application {
     public static final String TEMPORARY_DIR = "./temp/";
@@ -102,7 +94,7 @@ public class JNekoImageDB extends Application {
     
     private final Timeline TMRLOG = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
        if (taLOG.getText().length() < LOG.length()) {
-           taLOG.setText("");
+           taLOG.setText(Lang.NullString);
            taLOG.appendText(LOG.toString());
            taLOG.setScrollTop(Double.MIN_VALUE);
        }
@@ -139,8 +131,6 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-01")) showAlbCats();
                     if (l.getID().contentEquals("M03-02")) showSettings();
-                    
-                    
                 }
             };
     
@@ -195,24 +185,24 @@ public class JNekoImageDB extends Application {
         new File(JNekoImageDB.TEMPORARY_DIR).mkdir();
         
         if (!mainCrypto.genSecureRandomSalt()) {
-            System.err.println("Error #1: Cannot open some crypt files.");
-            Platform.exit(); return;//while(true) {}
+            System.err.println(Lang.JNekoImageDB_no_salt_file);
+            Platform.exit(); return;
         }
         
         if (!mainCrypto.genMasterKey()) {
-            System.err.println("Error #2: Cannot open some crypt files.");
-            Platform.exit(); return;//while(true) {}
+            System.err.println(Lang.JNekoImageDB_no_master_key);
+            Platform.exit(); return;
         }
         
         if (!mainCrypto.genMasterKeyAES()) {
-            System.err.println("Error #3: JVM not support some crypt function.");
-            Platform.exit(); return;//while(true) {}
+            System.err.println(Lang.JNekoImageDB_no_crypt_support);
+            Platform.exit(); return;
         }
         DBWrapper.setCrypto(mainCrypto);
         
         SQL = new DBEngine();
         if (SQL.Connect(SplittedFile.DATABASE_FOLDER + "fs") == -1) {
-            System.err.println("Error #4: Cannot connect to DB.");
+            System.err.println(Lang.JNekoImageDB_no_DB_connection);
             Platform.exit(); return;
         }
         DBWrapper.setSQLite(SQL);
@@ -221,7 +211,7 @@ public class JNekoImageDB extends Application {
         TMRLOG.setCycleCount(Animation.INDEFINITE);
         TMRLOG.play();
         
-        final Image logoImage = new Image(JNekoImageDB.class.getResourceAsStream("logo6.png"));
+        final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
         final ImageView imgLogoV = new ImageView(logoImage);
         
         imgEn = new ImageEngine(mainCrypto, SQL);
@@ -232,13 +222,13 @@ public class JNekoImageDB extends Application {
         albImgList = new AlbumImageList(imgEn, basesp); 
         settings = new Settings(SQL);
         
-        L("Количество изображений в БД: "+imgEn.getImgCount()+" штук.");
+        //L("Количество изображений в БД: "+imgEn.getImgCount()+" штук.");
         
         taLOG.setMaxSize(9999, 9999);
         taLOG.setPrefSize(9999, 9999);
         taLOG.setWrapText(true);
-        taLOG.getStylesheets().add(getClass().getResource("ProgressBar.css").toExternalForm());
-        taLOG.getStyleClass().add("logbox");
+        taLOG.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        taLOG.getStyleClass().add("JNekoImageDB_taLOG");
         taLOG.textProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
             taLOG.setScrollTop(Double.MAX_VALUE);
         });
@@ -258,19 +248,18 @@ public class JNekoImageDB extends Application {
         mvbox.getChildren().add(basevbox);
         root.getChildren().add(mvbox);
 
-        toolbox.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        toolbox.getStyleClass().add("toolbox");
+        toolbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        toolbox.getStyleClass().add("JNekoImageDB_toolbox");
         toolbox.setMaxWidth(9999);
         toolbox.setPrefWidth(9999);
-        //toolbox.setPadding(new Insets(0,0,0,0));
         toolbox.setAlignment(Pos.BOTTOM_LEFT);
 
-        headerbox.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        headerbox.getStyleClass().add("headerbox");
+        headerbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        headerbox.getStyleClass().add("JNekoImageDB_headerbox");
         headerbox.setMaxWidth(9999);
         
-        logobox.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        logobox.getStyleClass().add("headerbox");
+        logobox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        logobox.getStyleClass().add("JNekoImageDB_headerbox");
         logobox.setMaxSize(240, 64);
         logobox.setMinSize(240, 64);
         logobox.setPrefSize(240, 64);
@@ -287,38 +276,36 @@ public class JNekoImageDB extends Application {
         
         toolbarvbox.getChildren().add(headerbox);
 
-        paginator_1.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        paginator_1.getStyleClass().add("paginator_1");
+        paginator_1.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        paginator_1.getStyleClass().add("JNekoImageDB_paginator_1");
         paginator_1.setMaxSize(9999, 32);
         paginator_1.setPrefSize(9999, 32);
         paginator_1.setMinSize(32, 32);
         paginator_1.setAlignment(Pos.CENTER_RIGHT);
 
-
-        
         basevbox.getChildren().add(basehbox);
 
-        basesp.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        basesp.getStyleClass().add("BaseBox");
+        basesp.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        basesp.getStyleClass().add("JNekoImageDB_basesp");
         basesp.setPrefSize(9999, 9999);
         basesp.setMaxSize(9999, 9999);
         
         ml.getMenu().setActionListener(menuAL);
         
-        ml.getMenu().addGroup("M01", "Основное", null, "331111");
-        ml.getMenu().addItem("M01", "M01-01", "Все картинки");
-        ml.getMenu().addItem("M01", "M01-02", "Облако тегов");
-        ml.getMenu().addItem("M01", "M01-03", "Избранные теги");
-        ml.getMenu().addItem("M01", "M01-04", "Параметрический поиск");
-        ml.getMenu().addItem("M01", "M01-05", "Добавить картинки");
+        ml.getMenu().addGroup("M01", Lang.JNekoImageDB_menu_title_main, null, "331111");
+        ml.getMenu().addItem("M01", "M01-01", Lang.JNekoImageDB_menu_main_all_images);
+        ml.getMenu().addItem("M01", "M01-02", Lang.JNekoImageDB_menu_main_tagcloud);
+        ml.getMenu().addItem("M01", "M01-03", Lang.JNekoImageDB_menu_main_fav_tags);
+        //ml.getMenu().addItem("M01", "M01-04", "Параметрический поиск");
+        ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
         
-        ml.getMenu().addGroup("M02", "Альбомы", null, "113311");
+        ml.getMenu().addGroup("M02", Lang.JNekoImageDB_menu_title_albums, null, "113311");
         //ml.getMenu().addItem("M02", "M02-01", "Избранное");
         
-        ml.getMenu().addGroup("M03", "Настройки", null, "111133");
-        ml.getMenu().addItem("M03", "M03-01", "Управление альбомами");
-        ml.getMenu().addItem("M03", "M03-02", "Настройки");
-        ml.getMenu().addItem("M03", "M03-03", "Логи");
+        ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
+        ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);
+        ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
+        ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
         
         MGI = ml.getMenu().getGroup("M02");
         DBWrapper.setMenuGroupItem2(MGI);
@@ -330,10 +317,9 @@ public class JNekoImageDB extends Application {
         ml.setMaxSize(240, 9999);
         ml.setMinSize(240, 300);
         
-        ml.getStylesheets().add(getClass().getResource("Main.css").toExternalForm());
-        ml.getStyleClass().add("MenuList");
+        ml.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        ml.getStyleClass().add("JNekoImageDB_MenuList");
         
-        //base2vbox.getStyleClass().add("BaseBox2");
         base2vbox.getChildren().add(basesp);
         base2vbox.getChildren().add(paginator_1);
         
@@ -346,7 +332,7 @@ public class JNekoImageDB extends Application {
         
         primaryStage.setMinWidth(840);
         primaryStage.setMinHeight(480);
-        primaryStage.setTitle("Images database");
+        primaryStage.setTitle(Lang.JNekoImageDB_title);
         primaryStage.setScene(scene);
         primaryStage.show();
         
@@ -361,31 +347,8 @@ public class JNekoImageDB extends Application {
         launch(args);
     }
     
-    private VBox getSeparator1() {
-        VBox sep1 = new VBox();
-        _s1(sep1, 9999, 16);
-        return sep1;
-    }
-    
-    private VBox getSeparator1(double sz) {
-        VBox sep1 = new VBox();
-        _s2(sep1, sz, 16);
-        return sep1;
-    }
-    
-    private void _s2(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
-        n.setMinSize(w, h);
-    }
-    
-    private void _s1(Region n, double w, double h) {
-        n.setMaxSize(w, h);
-        n.setPrefSize(w, h);
-    }
-    
     public static final void L(String s) {
-        final SimpleDateFormat DF = new SimpleDateFormat("HH:mm dd.MM.yyyy");
+        final SimpleDateFormat DF = new SimpleDateFormat(Lang.DateTimeFormat);
         LOG.append("[").append(DF.format(new Date())).append("]\t");
         LOG.append(s).append("\n");
     }
