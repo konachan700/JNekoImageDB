@@ -127,6 +127,7 @@ public class JNekoImageDB extends Application {
                     }
                     
                     if (l.getID().contentEquals("M01-01")) showAllImages();
+                    if (l.getID().contentEquals("M01-06")) showAllImages(DBWrapper.ALBUM_ID_WO_GROUPS);
                     if (l.getID().contentEquals("M01-05")) showFileDialog();
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-01")) showAlbCats();
@@ -164,7 +165,7 @@ public class JNekoImageDB extends Application {
             paginator_1.getChildren().add(fileImgList.getPaginator());
             toolbox.getChildren().add(fileImgList.getTopPanel());  
             basesp.getChildren().add(fileImgList);
-        } catch (IOException ex) { }
+        } catch (IOException ex) {}
     }
     
     private void showAlbCats() {
@@ -294,6 +295,7 @@ public class JNekoImageDB extends Application {
         
         ml.getMenu().addGroup("M01", Lang.JNekoImageDB_menu_title_main, null, "331111");
         ml.getMenu().addItem("M01", "M01-01", Lang.JNekoImageDB_menu_main_all_images);
+        ml.getMenu().addItem("M01", "M01-06", Lang.JNekoImageDB_menu_main_all_images_wo_groups);
         ml.getMenu().addItem("M01", "M01-02", Lang.JNekoImageDB_menu_main_tagcloud);
         ml.getMenu().addItem("M01", "M01-03", Lang.JNekoImageDB_menu_main_fav_tags);
         //ml.getMenu().addItem("M01", "M01-04", "Параметрический поиск");

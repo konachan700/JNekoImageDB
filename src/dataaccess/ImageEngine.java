@@ -287,7 +287,7 @@ public class ImageEngine {
                 int height = r.getHeight(r.getMinIndex());
                 r.dispose();
                 if ((width * height * 8) < IMAGE_MAX_SIZE) 
-                    return !DBWrapper.isMD5InMetadata(path);
+                    return true;//!DBWrapper.isMD5InMetadata(path);
                 //else 
                     //_L("WARNING: Image ["+path+"] too large! Height: "+height+"px; width: "+width+"px;");
             } catch (IOException e) {

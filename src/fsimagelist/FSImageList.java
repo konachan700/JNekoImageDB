@@ -355,8 +355,6 @@ public class FSImageList extends ScrollPane{
                     else
                         Platform.runLater(() -> { itemsZ.get(tval1).setInitInfo(fna, fx, true); });
                 } else {
-                    
-                    
                     final byte[] md5e = Crypto.MD5(fx.getAbsolutePath().getBytes());
                     final long IID = DBWrapper.getIDByMD5(md5e);
                     if (IID != -1) {

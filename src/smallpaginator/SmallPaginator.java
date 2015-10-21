@@ -1,5 +1,6 @@
 package smallpaginator;
 
+import dataaccess.Lang;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 
@@ -51,7 +52,7 @@ public class SmallPaginator extends HBox  {
         prevLabel.setValue(1);
         nextLabel.setValue(2);
 
-        this.getStylesheets().add(getClass().getResource("MainStyles.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("SmallPaginator");
         prevLabel.getStyleClass().add("SmallPaginatorPREV");
         nextLabel.getStyleClass().add("SmallPaginatorNEXT");

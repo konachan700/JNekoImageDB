@@ -13,9 +13,8 @@ import javafx.scene.layout.VBox;
 
 public class MenuGroupItem extends VBox {
     /*
-        Этот модуль притащен из проекта тстовой софтины для робота. Тут все надо рефакторить, ибо 
+        Этот модуль притащен из проекта тестовой софтины для робота. Тут все надо рефакторить, ибо все криво.
     */
-    
     private final MenuLabel 
             header      = new MenuLabel(),
             noitems     = new MenuLabel();

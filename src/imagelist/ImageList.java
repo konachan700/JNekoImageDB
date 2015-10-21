@@ -216,7 +216,7 @@ public class ImageList extends FlowPane {
         is_resized = 1;
         isPaginatorActive = true;
         
-        if (albumID == 0){
+        if (albumID <= 0){
             totalImagesCount = (int) IMG.getImgCount();
         } else {
             totalImagesCount = (int) DBWrapper.getImagesCountInAlbum(albumID);
@@ -361,7 +361,7 @@ public class ImageList extends FlowPane {
     
     private void _addButtonsPanel() {
         topPanel.getChildren().clear();
-        if (albumID == 0)
+        if (albumID <= 0)
             topPanel.getChildren().addAll(toAlbImg, addtagImg, GUITools.getSeparator(), toTempImg);
         else
             topPanel.getChildren().addAll(toAlbImg, delAlbImg, addtagImg, GUITools.getSeparator(), toTempImg);

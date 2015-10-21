@@ -97,7 +97,7 @@ public class DBWrapper {
     }
     
     public static void generateHistogram(BufferedImage im2, long iid) {
-        final long tmr = System.currentTimeMillis();
+//        final long tmr = System.currentTimeMillis();
         final byte[] 
                 gist_B = new byte[256],
                 gist_R = new byte[256],
@@ -177,85 +177,128 @@ public class DBWrapper {
         return 0;
     }
     
+    public static final int 
+            ALBUM_ID_ALL = -1,
+            ALBUM_ID_WO_GROUPS = -2;
     public static synchronized ArrayList<DBImageX> getImagesX(long album_id, long start, long limit) {
         try {
             final PreparedStatement ps;
-            if ((album_id != -1)) {
-                ps = SQL.getConnection().prepareStatement(
-                        "SELECT " 
-                                + "FS_preview_files.oid                 AS prev_oid, "
-                                + "FS_preview_files.md5                 AS prev_md5, "
-                                + "FS_preview_files.startSector         AS prev_startSector, "
-                                + "FS_preview_files.sectorSize          AS prev_sectorSize, "
-                                + "FS_preview_files.actualSize          AS prev_actualSize, "
-                                + "FS_preview_files.fileType            AS prev_fileType, "
-                                + "previews_list.oid                    AS pl_oid, "
-                                + "previews_list.idid                   AS pl_idid, "
-                                + "previews_list.pdid                   AS pl_pdid, "
-                                + "previews_list.imgtype                AS pl_imgtype, "
-                                //+ "images_albums.oid                    AS ia_oid, "
-                                + "images_albums.imgoid                 AS ia_imgoid, "
-                                + "images_albums.alboid                 AS ia_alboid "
-                                +
-                        "FROM "
-                                + "previews_list "
-                                + 
-                        "LEFT JOIN "
-                                + "FS_preview_files "
-                                +
-                        "ON "
-                                + "(previews_list.pdid=FS_preview_files.oid) "
-                                +
-                        "LEFT JOIN "
-                                + "images_albums "
-                                +
-                        "ON "
-                                + "(previews_list.idid=images_albums.imgoid) "
-                                +
-                        "WHERE "
-                                + "previews_list.imgtype=? "
-                                + "AND "
-                                + "images_albums.alboid=? "
-                                + 
-                        "LIMIT "
-                                + "?,?; ");
+            switch ((int)album_id) {
+                case ALBUM_ID_ALL:
+                    ps = SQL.getConnection().prepareStatement(
+                            "SELECT " 
+                                    + "FS_preview_files.oid                 AS prev_oid, "
+                                    + "FS_preview_files.md5                 AS prev_md5, "
+                                    + "FS_preview_files.startSector         AS prev_startSector, "
+                                    + "FS_preview_files.sectorSize          AS prev_sectorSize, "
+                                    + "FS_preview_files.actualSize          AS prev_actualSize, "
+                                    + "FS_preview_files.fileType            AS prev_fileType, "
+                                    + "previews_list.oid                    AS pl_oid, "
+                                    + "previews_list.idid                   AS pl_idid, "
+                                    + "previews_list.pdid                   AS pl_pdid, "
+                                    + "previews_list.imgtype                AS pl_imgtype "
+                                    +
+                            "FROM "
+                                    + "previews_list "
+                                    + 
+                            "LEFT JOIN "
+                                    + "FS_preview_files "
+                                    +
+                            "ON "
+                                    + "previews_list.pdid=FS_preview_files.oid "
+                                    +
+                            "WHERE "
+                                    + "previews_list.imgtype=? "
+                                    + 
+                            "ORDER BY prev_oid DESC " +
+                            "LIMIT "
+                                    + "?,?; ");
 
-                ps.setLong(1, (ReadAPPSettingsBoolean("bl_showNSPreview")) ? ImageEngine.PREVIEW_TYPE_SMALL_NONSQUARED : ImageEngine.PREVIEW_TYPE_SMALL);
-                ps.setLong(2, album_id);
-                ps.setLong(3, start);
-                ps.setLong(4, limit);
-            } else {
-                ps = SQL.getConnection().prepareStatement(
-                        "SELECT " 
-                                + "FS_preview_files.oid                 AS prev_oid, "
-                                + "FS_preview_files.md5                 AS prev_md5, "
-                                + "FS_preview_files.startSector         AS prev_startSector, "
-                                + "FS_preview_files.sectorSize          AS prev_sectorSize, "
-                                + "FS_preview_files.actualSize          AS prev_actualSize, "
-                                + "FS_preview_files.fileType            AS prev_fileType, "
-                                + "previews_list.oid                    AS pl_oid, "
-                                + "previews_list.idid                   AS pl_idid, "
-                                + "previews_list.pdid                   AS pl_pdid, "
-                                + "previews_list.imgtype                AS pl_imgtype "
-                                +
-                        "FROM "
-                                + "previews_list "
-                                + 
-                        "LEFT JOIN "
-                                + "FS_preview_files "
-                                +
-                        "ON "
-                                + "previews_list.pdid=FS_preview_files.oid "
-                                +
-                        "WHERE "
-                                + "previews_list.imgtype=? "
-                                + 
-                        "LIMIT "
-                                + "?,?; ");
-                
-                ps.setLong(1, (ReadAPPSettingsBoolean("bl_showNSPreview")) ? ImageEngine.PREVIEW_TYPE_SMALL_NONSQUARED : ImageEngine.PREVIEW_TYPE_SMALL);
-                ps.setLong(2, start);
-                ps.setLong(3, limit);
+                    ps.setLong(1, (ReadAPPSettingsBoolean("bl_showNSPreview")) ? ImageEngine.PREVIEW_TYPE_SMALL_NONSQUARED : ImageEngine.PREVIEW_TYPE_SMALL);
+                    ps.setLong(2, start);
+                    ps.setLong(3, limit);
+                    break;
+                case ALBUM_ID_WO_GROUPS:
+                    ps = SQL.getConnection().prepareStatement(
+                            "SELECT " 
+                                    + "FS_preview_files.oid                 AS prev_oid, "
+                                    + "FS_preview_files.md5                 AS prev_md5, "
+                                    + "FS_preview_files.startSector         AS prev_startSector, "
+                                    + "FS_preview_files.sectorSize          AS prev_sectorSize, "
+                                    + "FS_preview_files.actualSize          AS prev_actualSize, "
+                                    + "FS_preview_files.fileType            AS prev_fileType, "
+                                    + "previews_list.oid                    AS pl_oid, "
+                                    + "previews_list.idid                   AS pl_idid, "
+                                    + "previews_list.pdid                   AS pl_pdid, "
+                                    + "previews_list.imgtype                AS pl_imgtype "
+                                    +
+                            "FROM "
+                                    + "previews_list "
+                                    + 
+                            "LEFT JOIN "
+                                    + "FS_preview_files "
+                                    +
+                            "ON "
+                                    + "previews_list.pdid=FS_preview_files.oid "
+                                    +
+                            "WHERE "
+                                    + "previews_list.imgtype=? AND "
+                                    + "previews_list.idid NOT IN (SELECT imgoid FROM images_albums) "
+                                    + 
+                            "ORDER BY prev_oid DESC " +
+                            "LIMIT "
+                                    + "?,?; ");
+
+                    ps.setLong(1, (ReadAPPSettingsBoolean("bl_showNSPreview")) ? ImageEngine.PREVIEW_TYPE_SMALL_NONSQUARED : ImageEngine.PREVIEW_TYPE_SMALL);
+                    ps.setLong(2, start);
+                    ps.setLong(3, limit);
+                    break;
+                default:
+                    ps = SQL.getConnection().prepareStatement(
+                            "SELECT " 
+                                    + "FS_preview_files.oid                 AS prev_oid, "
+                                    + "FS_preview_files.md5                 AS prev_md5, "
+                                    + "FS_preview_files.startSector         AS prev_startSector, "
+                                    + "FS_preview_files.sectorSize          AS prev_sectorSize, "
+                                    + "FS_preview_files.actualSize          AS prev_actualSize, "
+                                    + "FS_preview_files.fileType            AS prev_fileType, "
+                                    + "previews_list.oid                    AS pl_oid, "
+                                    + "previews_list.idid                   AS pl_idid, "
+                                    + "previews_list.pdid                   AS pl_pdid, "
+                                    + "previews_list.imgtype                AS pl_imgtype, "
+                                    //+ "images_albums.oid                    AS ia_oid, "
+                                    + "images_albums.imgoid                 AS ia_imgoid, "
+                                    + "images_albums.alboid                 AS ia_alboid "
+                                    +
+                            "FROM "
+                                    + "previews_list "
+                                    + 
+                            "LEFT JOIN "
+                                    + "FS_preview_files "
+                                    +
+                            "ON "
+                                    + "(previews_list.pdid=FS_preview_files.oid) "
+                                    +
+                            "LEFT JOIN "
+                                    + "images_albums "
+                                    +
+                            "ON "
+                                    + "(previews_list.idid=images_albums.imgoid) "
+                                    +
+                            "WHERE "
+                                    + "previews_list.imgtype=? "
+                                    + "AND "
+                                    + "images_albums.alboid=? "
+                                    + 
+                            "ORDER BY prev_oid DESC " +
+                            "LIMIT "
+                                    + "?,?; ");
+
+                    ps.setLong(1, (ReadAPPSettingsBoolean("bl_showNSPreview")) ? ImageEngine.PREVIEW_TYPE_SMALL_NONSQUARED : ImageEngine.PREVIEW_TYPE_SMALL);
+                    ps.setLong(2, album_id);
+                    ps.setLong(3, start);
+                    ps.setLong(4, limit);
+                    break;
             }
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -275,7 +318,7 @@ public class DBWrapper {
                     dbe.pl_imgtype          = rs.getLong("prev_fileType");
                     dbe.prev_md5            = rs.getBytes("prev_md5");
                     
-                    if ((album_id != -1)) {
+                    if ((album_id >= 0)) {
                         dbe.ia_alboid       = rs.getLong("ia_alboid");
                         dbe.ia_imgoid       = rs.getLong("ia_imgoid");
                         dbe.ia_oid          = -1; //rs.getLong("ia_oid");

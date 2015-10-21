@@ -4,7 +4,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
 
 public class SmallPaginatorLabel extends Label {
     private String ID = "";

@@ -32,6 +32,7 @@ public class Lang {
             JNekoImageDB_menu_title_albums                                      = "Альбомы",
             JNekoImageDB_menu_title_settings                                    = "Настройки",
             JNekoImageDB_menu_main_all_images                                   = "Все картинки",
+            JNekoImageDB_menu_main_all_images_wo_groups                         = "Все без категорий",
             JNekoImageDB_menu_main_tagcloud                                     = "Облако тегов",
             JNekoImageDB_menu_main_fav_tags                                     = "Избранные теги",
             JNekoImageDB_menu_main_add_images                                   = "Добавить картинки",

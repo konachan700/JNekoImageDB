@@ -1,5 +1,6 @@
 package fsimagelist;
 
+import dataaccess.DBWrapper;
 import dataaccess.ImageEngine;
 import dataaccess.Lang;
 import java.io.File;
@@ -92,6 +93,10 @@ public class FSImageListItem extends Pane {
         ds.setColor(Color.color(((isSelected) ? 0.70f : 0.99f), 0.99f, ((isSelected) ? 0.70f : 0.99f)));
     }
     
+    public void setRed(boolean b) {
+        if (b) ds.setColor(Color.color(0.99f, 0.44f, 0.44f)); else ds.setColor(Color.color(0.99f, 0.99f, 0.99f));
+    }
+    
     public final void setInitInfo(File f) {
         myFile = f;
         final String fname = f.getName().trim();
@@ -104,6 +109,7 @@ public class FSImageListItem extends Pane {
         
         selImg.setVisible(false);
         isSelected = false;
+        //if (DBWrapper.isMD5InMetadata(f.getAbsolutePath())) ds.setColor(Color.color(0.99f, 0.44f, 0.44f)); else 
         ds.setColor(Color.color(0.99f, 0.99f, 0.99f));
         
         final Image im = new Image("file:///"+f.getAbsolutePath().replace("\\", "/"));
@@ -142,6 +148,7 @@ public class FSImageListItem extends Pane {
         
         selImg.setVisible(false);
         isSelected = false;
+        //if (DBWrapper.isMD5InMetadata(f.getAbsolutePath())) ds.setColor(Color.color(0.99f, 0.44f, 0.44f)); else 
         ds.setColor(Color.color(0.99f, 0.99f, 0.99f));
         
         imageZ.setImage(im);
