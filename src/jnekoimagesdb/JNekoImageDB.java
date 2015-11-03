@@ -171,7 +171,7 @@ public class JNekoImageDB extends Application {
     private void showAlbCats() {
         albumCats.RefreshAll();
         basesp.getChildren().add(albumCats);
-        toolbox.getChildren().add(albumCats.getToolbox());
+        //toolbox.getChildren().add(albumCats.getToolbox());
     }
     
     private void showLog() {
@@ -296,10 +296,13 @@ public class JNekoImageDB extends Application {
         ml.getMenu().addGroup("M01", Lang.JNekoImageDB_menu_title_main, null, "331111");
         ml.getMenu().addItem("M01", "M01-01", Lang.JNekoImageDB_menu_main_all_images);
         ml.getMenu().addItem("M01", "M01-06", Lang.JNekoImageDB_menu_main_all_images_wo_groups);
-        ml.getMenu().addItem("M01", "M01-02", Lang.JNekoImageDB_menu_main_tagcloud);
-        ml.getMenu().addItem("M01", "M01-03", Lang.JNekoImageDB_menu_main_fav_tags);
         //ml.getMenu().addItem("M01", "M01-04", "Параметрический поиск");
         ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
+        
+        ml.getMenu().addGroup("M04", Lang.JNekoImageDB_menu_title_tags, null, "331133");
+        ml.getMenu().addItem("M04", "M04-01", Lang.JNekoImageDB_menu_main_tagcloud);
+        ml.getMenu().addItem("M04", "M04-02", Lang.JNekoImageDB_menu_main_fav_tags);
+        ml.getMenu().addItem("M04", "M04-03", Lang.JNekoImageDB_menu_main_tags_parser);
         
         ml.getMenu().addGroup("M02", Lang.JNekoImageDB_menu_title_albums, null, "113311");
         //ml.getMenu().addItem("M02", "M02-01", "Избранное");

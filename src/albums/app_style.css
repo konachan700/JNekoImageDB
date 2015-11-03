@@ -155,29 +155,54 @@
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
-    -fx-background-color: #222;
+    /*-fx-background-color: #222;*/
+    -fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
 }
 
 .AlbumsCategories_toolbox {
-    -fx-padding: 0 0 0 0;
+/*    -fx-padding: 0 0 0 0;
     -fx-background-insets:0;
     -fx-border-width:0;
     -fx-border-insets:0;
-    -fx-background-color: #000;
+    -fx-background-color: #000;*/
+    -fx-background-color: #222;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: #555;
+    -fx-padding: 6px;
+    -fx-border-insets: 0;
 }
 
 .AlbumsCategories_txtAddNew { 
-    -fx-padding: 0 0 0 24;
+/*    -fx-padding: 0 0 0 24;
     -fx-background-color: #fff;
     -fx-background-radius: 0;
     -fx-font-size: 22px;
     -fx-font-weight:bold;
-    -fx-text-fill: #555;
+    -fx-text-fill: #555;*/
+    -fx-padding: 4px;
+    -fx-border-insets: 0;
+    -fx-border-color: #777;
+    -fx-background-color: #fff;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-width: 1px;
+    -fx-text-fill: #000;
+    -fx-font-weight:bold; 
+    -fx-font-size: 14px;
+}
+
+.AlbumsCategories_txtAddNew .viewport { 
+    -fx-border-insets: 0;
+    -fx-background-insets: 0, 0, 0, 0;
 }
 
 .AlbumsCategories_todbImg {
-    -fx-padding: 0px;
+/*    -fx-padding: 0px;
     -fx-background-color: #333;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;*/
+    -fx-padding: 0px;
+    -fx-background-color: transparent;
     -fx-background-radius: 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
@@ -189,19 +214,46 @@
 }
 
 .AlbumsCategories_ACListItem_itemHBox, .AlbumsCategories_ACListItem_itemLabel {
-    -fx-padding: 0px;
+/*    -fx-padding: 0px;
     -fx-background-color: #444;
     -fx-background-insets: 0, 0, 0, 0;
+    -fx-text-fill: #fff;*/
+    /*-fx-background-color: #222;*/
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-color: #555;
+    -fx-padding: 6px;
+    -fx-border-insets: 0;
     -fx-text-fill: #fff;
 }
 
+.AlbumsCategories_ACListItem_itemHBox {
+    -fx-border-width: 0 0 1px 0;
+}
+
+.AlbumsCategories_ACListItem_itemLabel:focused {
+    -fx-border-width: 1px;
+}
+
+/*.AlbumsCategories_ACListItem_itemLabel:hover {
+    -fx-border-width: 1px;
+}*/
+
+.AlbumsCategories_ACListItem_itemLabel, .AlbumsCategories_ACListItem_itemLabel .viewport {
+    -fx-border-insets: 0;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-width: 0;
+}
+
 .AlbumsCategories_ACListItem_itemLabel:hover {
-    -fx-background-color: #888;
+    /*-fx-background-color: #888;*/
 }
 
 .AlbumsCategories_ACListItem_itemButton {
     -fx-padding: 0px;
-    -fx-background-color: #444;
+    /*-fx-background-color: #444;*/
+    -fx-background-color: transparent;
     -fx-background-radius: 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
@@ -353,5 +405,53 @@
     -fx-padding: 0;
 }
 
+.AlbumImageList_scrollpane, .AlbumImageList_scrollpane .viewport {
+    -fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
+    -fx-background-radius: 0;
+    -fx-padding: 0 0 0 0px;
+    -fx-background-insets:0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-border-color:#000;
+}
 
+.AlbumImageList_albumList {
+    -fx-background-color: transparent;
+}
+
+.AlbumImageList_scrollpane .scroll-bar:horizontal .track,
+.AlbumImageList_scrollpane .scroll-bar:vertical .track {
+    -fx-background-color:#333;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+
+.AlbumImageList_scrollpane .scroll-bar:horizontal .increment-button ,
+.AlbumImageList_scrollpane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.AlbumImageList_scrollpane .scroll-bar:vertical .increment-button ,
+.AlbumImageList_scrollpane .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+
+}
+
+.AlbumImageList_scrollpane  .scroll-bar .increment-arrow,
+.AlbumImageList_scrollpane  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.AlbumImageList_scrollpane .scroll-bar:horizontal .thumb,
+.AlbumImageList_scrollpane .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
 

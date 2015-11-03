@@ -19,8 +19,8 @@ public class MenuGroupItem extends VBox {
             header      = new MenuLabel(),
             noitems     = new MenuLabel();
 
-    private Label
-            selLabel    = null;
+//    private Label
+//            selLabel    = null;
 
     private final javafx.scene.layout.VBox 
             spoiler     = new javafx.scene.layout.VBox(),
@@ -85,19 +85,19 @@ public class MenuGroupItem extends VBox {
                     if (actionListener != null) actionListener.OnItemHover((MenuLabel) event.getSource());
                 }
 
-                if (selLabel != null) selLabel.setStyle(subItemStyle + "-fx-text-fill:" + selectedFontColor + "; -fx-background-color:" + bgColor + ";");
+                //if (selLabel != null) selLabel.setStyle(subItemStyle + "-fx-text-fill:" + selectedFontColor + "; -fx-background-color:" + bgColor + ";");
             }
 
             if (event.getEventType() == MouseEvent.MOUSE_EXITED) {
                 unselectAll();
-                if (selLabel != null) selLabel.setStyle(subItemStyle + "-fx-text-fill:" + selectedFontColor + "; -fx-background-color:" + bgColor + ";");
+                //if (selLabel != null) selLabel.setStyle(subItemStyle + "-fx-text-fill:" + selectedFontColor + "; -fx-background-color:" + bgColor + ";");
             }
 
             if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
                 if (event.getClickCount() == 1) {
                     if (event.getSource() instanceof MenuLabel) {
-                        ((MenuLabel) event.getSource()).setStyle(subItemStyle + "-fx-text-fill:" + selectedFontColor + "; -fx-underline:true; -fx-background-color:" + bgColor + ";");
-                        selLabel = ((MenuLabel) event.getSource());
+                        //((MenuLabel) event.getSource()).setStyle(subItemStyle + "-fx-text-fill:" + selectedFontColor + "; -fx-underline:true; -fx-background-color:" + bgColor + ";");
+//                        selLabel = ((MenuLabel) event.getSource());
                     }
 
                     if (actionListener != null) actionListener.OnItemClicked((MenuLabel) event.getSource());

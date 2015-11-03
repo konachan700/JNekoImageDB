@@ -19,7 +19,7 @@ public class AlbumsListElement extends HBox {
             unsel = new Image(new File("./icons/unselected16.png").toURI().toString());
 
     private boolean     
-            selectState     = false;
+            selectState = false;
     
     public  final Long  
             ID, 
@@ -143,7 +143,6 @@ public class AlbumsListElement extends HBox {
     }
     
     private boolean _isNotSystem(long id) {
-        return
-                !((ID == 0) || (ID == -1L) || (ID == ImageEngine.ALBUM_ID_DELETED) || (ID == ImageEngine.ALBUM_ID_FAVORITES));
+        return !((ID == 0) || (ID == -1L) || (ID == ImageEngine.ALBUM_ID_DELETED) || (ID == ImageEngine.ALBUM_ID_FAVORITES));
     }
 }

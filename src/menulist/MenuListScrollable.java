@@ -1,13 +1,11 @@
 
 package menulist;
 
+import dataaccess.Lang;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 public class MenuListScrollable extends ScrollPane {
@@ -19,12 +17,11 @@ public class MenuListScrollable extends ScrollPane {
     
     public MenuListScrollable() {
         super();
-        this.getStylesheets().add(getClass().getResource("ProgressBar.css").toExternalForm());
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         this.getStyleClass().add("MenuList");
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED); 
         this.setContent(rootVBox); 
-        this.setPadding(new Insets(0, 0, 0, 0));
     }
 
     public void addGroup(String ID, String title, ImageView icon, String color) {

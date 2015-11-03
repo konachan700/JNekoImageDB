@@ -57,7 +57,7 @@ public class FSImageList extends ScrollPane{
     
     private final Button 
             lvlupImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/lvlup.png").toURI().toString()))), 
-            toAlbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/addalbum.png").toURI().toString()))),
+            //toAlbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/addalbum.png").toURI().toString()))),
             todbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/adddef.png").toURI().toString()))),
             selallImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/selectall.png").toURI().toString()))),
             selnoneImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/selectnone.png").toURI().toString()))),
@@ -567,16 +567,16 @@ public class FSImageList extends ScrollPane{
         selallImg.getStyleClass().add("FSImageList_button");
         selnoneImg.getStyleClass().add("FSImageList_button");
         todbImg.getStyleClass().add("FSImageList_button");
-        toAlbImg.getStyleClass().add("FSImageList_button");
+        //toAlbImg.getStyleClass().add("FSImageList_button");
         
         final int sz = 64;
         _s2(lvlupImg, sz, sz);
         _s2(selallImg, sz, sz);
         _s2(selnoneImg, sz, sz);
-        _s2(toAlbImg, sz, sz);
+        //_s2(toAlbImg, sz, sz);
         _s2(todbImg, sz, sz);
 
-        topPanel.getChildren().addAll(lvlupImg, getSeparator1(12), selallImg, selnoneImg, getSeparator1(), toAlbImg, todbImg);
+        topPanel.getChildren().addAll(lvlupImg, getSeparator1(12), selallImg, selnoneImg, getSeparator1(), todbImg);
         
         TMR.setCycleCount(Animation.INDEFINITE);
         TMR.play();

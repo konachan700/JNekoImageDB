@@ -22,7 +22,7 @@ public class AlbumsCategories extends ScrollPane {
         private TextField itemLabel;
         
         public ACListItem(AlbumsCategory ac) {
-            super(2);
+            super(0);
             AC = ac;
 
             this.getStyleClass().add("AlbumsCategories_ACListItem_itemHBox");
@@ -71,10 +71,11 @@ public class AlbumsCategories extends ScrollPane {
             toolbox = new HBox(2);
     
     private final TextField
-            txtAddNew = new TextField(Lang.AlbumsCategories_txtAddNew);
+            txtAddNew = new TextField();
     
     private final Button
-            todbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/add-to-album.png").toURI().toString())));
+            todbImg = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/plus32.png").toURI().toString())));
+            //new Button(Lang.NullString, new ImageView(new Image(new File("./icons/add-to-album.png").toURI().toString())));
        
     private MenuGroupItem MGI;
     
@@ -94,12 +95,14 @@ public class AlbumsCategories extends ScrollPane {
         
         mainPane.getStyleClass().add("AlbumsCategories_mainPane");
         
+        txtAddNew.setPromptText(Lang.AlbumsCategories_txtAddNew);
+        
         toolbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         toolbox.getStyleClass().add("AlbumsCategories_toolbox");
-        GUITools.setMaxSize(toolbox, 9999, 64);
+        GUITools.setMaxSize(toolbox, 9999, 32);
         txtAddNew.getStyleClass().add("AlbumsCategories_txtAddNew");
-        GUITools.setMaxSize(txtAddNew, 9999, 64);
-        GUITools.setFixedSize(todbImg, 64, 64);
+        GUITools.setMaxSize(txtAddNew, 9999, 32);
+        GUITools.setFixedSize(todbImg, 32, 32);
         todbImg.getStyleClass().add("AlbumsCategories_todbImg");
         toolbox.getChildren().addAll(txtAddNew, todbImg);
         
@@ -110,9 +113,9 @@ public class AlbumsCategories extends ScrollPane {
         });
     }
     
-    public HBox getToolbox() {
-        return toolbox;
-    }
+//    public HBox getToolbox() {
+//        return toolbox;
+//    }
     
     public final void RefreshAll() {
         ArrayList<AlbumsCategory> alac = DBWrapper.getAlbumsGroupsID();
@@ -133,6 +136,8 @@ public class AlbumsCategories extends ScrollPane {
             }
         });
         
+        mainPane.getChildren().add(toolbox);
+
         MGI.addLabel(Long.toString(ImageEngine.ALBUM_ID_DELETED), Lang.AlbumsCategories_MenuItem_DELETED);
         MGI.Commit();
     }

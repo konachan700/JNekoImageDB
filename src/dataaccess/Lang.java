@@ -30,6 +30,8 @@ public class Lang {
             JNekoImageDB_title                                                  = "Images database",
             JNekoImageDB_menu_title_main                                        = "Основное",
             JNekoImageDB_menu_title_albums                                      = "Альбомы",
+            JNekoImageDB_menu_title_tags                                        = "Теги",
+            JNekoImageDB_menu_main_tags_parser                                  = "Парсер тегов",
             JNekoImageDB_menu_title_settings                                    = "Настройки",
             JNekoImageDB_menu_main_all_images                                   = "Все картинки",
             JNekoImageDB_menu_main_all_images_wo_groups                         = "Все без категорий",

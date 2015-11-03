@@ -1,28 +1,12 @@
 package menulist;
 
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.Border;
+import dataaccess.Lang;
 import javafx.scene.layout.VBox;
 
 public class MenuList extends VBox {
     private final VBox
-            scrollable = new VBox(),
-            helptext = new VBox();
-    
-    /*
-    
-        ТУТ, КАК И ВО ВСЕМ ПАКЕТЕ, ОБЯЗАТЕЛЬНО НУЖЕН РЕФАКТОРИНГ
-    
-    */
-    
-//    private final TextArea
-//            helpTextArea = new TextArea();
-    
-    @SuppressWarnings("FieldMayBeFinal")
-    private String 
-            bgColor = "#000",
-            scrollableBgColor = "#000";
-    
+            scrollable = new VBox();
+
     final MenuListScrollable 
             ms = new MenuListScrollable();
     
@@ -31,23 +15,10 @@ public class MenuList extends VBox {
         ms.setPrefWidth(Integer.MAX_VALUE);
         
         scrollable.getChildren().add(ms);
-        scrollable.setStyle("-fx-background-color:" + scrollableBgColor + ";");
         this.getChildren().add(scrollable);
         
-//        helpTextArea.setEditable(false);
-//        helpTextArea.setBorder(Border.EMPTY);
-//        helpTextArea.setText("Select element for help");
-//        helpTextArea.setWrapText(true);
-        this.getStylesheets().add(getClass().getResource("HelpTextArea.css").toExternalForm());
-        this.getStyleClass().add("text-area");
-//        helptext.getChildren().add(helpTextArea);
-        
-//        helptext.setPrefSize(Integer.MAX_VALUE, 70);
-//        helptext.setMaxSize(Integer.MAX_VALUE, 70);
-//        helptext.setMinSize(0, 70);
-//        helptext.setStyle("-fx-background-color:" + bgColor + ";");
-//        
-//        this.getChildren().add(helptext);
+        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("MenuList_pane");
     }
     
     public final MenuListScrollable getMenu() {

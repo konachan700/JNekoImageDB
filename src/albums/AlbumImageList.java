@@ -7,6 +7,7 @@ import imagelist.ImageList;
 import java.util.ArrayList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -18,7 +19,10 @@ public class AlbumImageList extends VBox {
             tabsHBox = new HBox(6);
     
     private final VBox
-            albumList = new VBox(2);
+            albumList = new VBox(0);
+    
+    private final ScrollPane
+            albumListScroll = new ScrollPane();
     
     private final Label
             imgLabel = new Label(Lang.AlbumImageList_Images),
@@ -114,10 +118,21 @@ public class AlbumImageList extends VBox {
         this.getStyleClass().add("AlbumImageList_rootpane");
         GUITools.setMaxSize(this, 9999, 9999);
         
-        GUITools.setMaxSize(albumList, 9999, 9999);
+        albumListScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        albumListScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        albumListScroll.setFitToWidth(true);
+        albumListScroll.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        albumListScroll.getStyleClass().add("AlbumImageList_scrollpane");
+        albumListScroll.setContent(albumList); 
+        GUITools.setMaxSize(albumListScroll, 9999, 9999);
+        
+        //GUITools.setMaxSize(albumList, 9999, 9999);
+        albumList.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        albumList.getStyleClass().add("AlbumImageList_albumList");
         
         imgLabel.setOnMouseClicked((MouseEvent event) -> {
-            this.getChildren().remove(albumList);
+//            this.getChildren().remove(albumList);
+            this.getChildren().remove(albumListScroll);
             this.getChildren().remove(IML);
             this.getChildren().add(IML);
             event.consume();
@@ -128,11 +143,14 @@ public class AlbumImageList extends VBox {
         
         albLabel.setOnMouseClicked((MouseEvent event) -> {
             this.getChildren().remove(IML);
-            this.getChildren().remove(albumList);
-            this.getChildren().add(albumList);
+//            this.getChildren().remove(albumList);
+//            this.getChildren().add(albumList);
+            this.getChildren().remove(albumListScroll);
+            this.getChildren().add(albumListScroll);
             genAlbList();
             event.consume();
         });
+        
         albLabel.getStyleClass().add("AlbumImageList_albLabel");
         albLabel.setAlignment(Pos.CENTER);
         GUITools.setMaxSize(albLabel, 9999, 27);
