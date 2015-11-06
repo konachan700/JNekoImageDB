@@ -7,7 +7,7 @@ import java.sql.Statement;
 import jnekoimagesdb.JNekoImageDB;
 
 public class DBEngine {   
-    public static final     String      QUOTE           = "";
+    public static           String      QUOTE           = "";
     private                 Statement   gStatement      = null;
     private                 Connection  
             gConnection     = null,
@@ -18,12 +18,30 @@ public class DBEngine {
 
     public DBEngine() { }
     
-    public int Connect(String filename) {
+    private void _mysqlConnect() throws SQLException {
+        gConnection = DriverManager.getConnection("jdbc:mysql://localhost:43001/jneko", "jneko", "jneko");
+        gConnection.setAutoCommit(true);
+        gStatement = gConnection.createStatement();
+        gStatement.setQueryTimeout(25);
+    }
+    
+    private void _h2Connect() throws SQLException {
         try {
-            gConnection = DriverManager.getConnection("jdbc:mysql://localhost:43001/jneko", "jneko", "jneko");
+            QUOTE = "`";
+            Class.forName("org.h2.Driver").newInstance();
+            gConnection = DriverManager.getConnection("jdbc:h2:"+SplittedFile.DATABASE_FOLDER+"datastore;CIPHER=AES;MODE=MySQL;", "jneko", DBWrapper.getDBKey()+" "+DBWrapper.getDBKey());
             gConnection.setAutoCommit(true);
             gStatement = gConnection.createStatement();
             gStatement.setQueryTimeout(25);
+        } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
+            throw new SQLException("Database error: org.h2.Driver");
+        }
+    }
+    
+    public int Connect(String filename) { 
+        try {
+            //_mysqlConnect();
+            _h2Connect();
             
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"AlbumsGroup"+QUOTE+"(oid bigint not null primary key, groupName blob, paid bigint, state int);");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"previews_list"+QUOTE+" (oid bigint not null primary key, idid bigint, pdid bigint, imgtype int);");
@@ -36,6 +54,7 @@ public class DBEngine {
             createHistogramTable("G");
             createHistogramTable("B");
             
+            //gStatement.close();
         } catch (SQLException ex) {
             _L(ex.getMessage());
             return -1;

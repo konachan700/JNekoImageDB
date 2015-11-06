@@ -55,6 +55,10 @@ public class DBWrapper {
         MGI = m;
     }
     
+    public static String getDBKey() {
+        return xCrypto.getPasswordFromMasterKey();
+    }
+    
     public static void DBWrapperTmrStart() {
         final Timeline IOPS_TMR = new Timeline(new KeyFrame(Duration.millis(1000), ae -> {
             SQLCounter = _SQLCounter;
@@ -80,9 +84,11 @@ public class DBWrapper {
     }
     
     private static void pushHistogram(String color, byte[] h, long iid) {
+        Sleep(1);
+        final long tmr = new Date().getTime();
         final StringBuilder q = new StringBuilder();
         q.append("INSERT INTO ").append(QUOTE).append("Histogram").append(color).append(QUOTE);
-        q.append(" VALUES (").append(System.currentTimeMillis()).append(", ").append(iid);
+        q.append(" VALUES (").append(tmr).append(", ").append(iid);
         for (int i=0; i<256; i++) q.append(", ").append(h[i]);
         q.append(");");
         
@@ -90,13 +96,12 @@ public class DBWrapper {
             final PreparedStatement ps = SQL.getConnection().prepareStatement(q.substring(0));
             ps.execute();
             ps.close();
-            Sleep(1);
         } catch (SQLException ex) {
             _L(ex.getMessage());
         }
     }
     
-    public static void generateHistogram(BufferedImage im2, long iid) {
+    public static synchronized void generateHistogram(BufferedImage im2, long iid) {
 //        final long tmr = System.currentTimeMillis();
         final byte[] 
                 gist_B = new byte[256],

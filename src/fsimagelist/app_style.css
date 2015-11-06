@@ -21,6 +21,7 @@
 .FSImageList_root_pane {
     -fx-padding:0 0 0 0;
     -fx-background-color:#222;
+    /*-fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);*/
     -fx-margin: 0px;
     -fx-background-insets:0;
     -fx-border-width:0;
@@ -87,7 +88,8 @@
 }
 
 .FSImageList_this_container {
-    -fx-background-color: #222;
+    /*-fx-background-color: #222;*/
+    -fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
     -fx-padding: 8px;
     -fx-margin: 0px;
     -fx-background-insets:0;
