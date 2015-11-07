@@ -355,9 +355,9 @@ public class FSImageList extends ScrollPane{
                     else
                         Platform.runLater(() -> { itemsZ.get(tval1).setInitInfo(fna, fx, true); });
                 } else {
-                    final byte[] md5e = Crypto.MD5(fx.getAbsolutePath().getBytes());
-                    final long IID = DBWrapper.getIDByMD5(md5e);
-                    if (IID != -1) {
+                    //final byte[] md5e = Crypto.MD5(fx.getAbsolutePath().getBytes());
+                    final long IID = DBWrapper.isFileMD5Exist(fx);//  .getIDByMD5(md5e);
+                    if (IID > 0) {
                         final Image imgc = ImagesFS.PopImage(IID);
                         if (imgc != null) 
                             Platform.runLater(() -> { 
@@ -369,8 +369,9 @@ public class FSImageList extends ScrollPane{
                     } else {
                         final long small_pns_id = ImagesFS.PushFileMT(ImageEngine.ResizeImage(fx.getAbsolutePath(), ImageEngine.SMALL_PREVIEW_SIZE, ImageEngine.SMALL_PREVIEW_SIZE), null);
                         if (small_pns_id > 0) {
-                            DBWrapper.addPreviewAssoc(small_pns_id, md5e); 
+                            DBWrapper.pushFileMD5(small_pns_id, fx);   //.addPreviewAssoc(small_pns_id, md5e); 
                             final Image imgc = ImagesFS.PopImage(small_pns_id);
+                            //JNekoImageDB.L("small_pns_id="+small_pns_id);
                             if (imgc != null) 
                                 Platform.runLater(() -> { 
                                     itemsZ.get(tval1).setInitInfo(imgc, fx, false);

@@ -146,8 +146,8 @@ public class FSEngine {
     
     public synchronized byte[] PopPrewievFile(DBImageX dbe) {
         try {
-            byte md5[];
-            final ByteArrayOutputStream md5e = new ByteArrayOutputStream();
+//            byte md5[];
+//            final ByteArrayOutputStream md5e = new ByteArrayOutputStream();
             final ByteArrayOutputStream read_buf = new ByteArrayOutputStream();
 
             final long 
@@ -155,7 +155,7 @@ public class FSEngine {
                     sz_sector = dbe.prev_sectorSize,
                     act_size  = dbe.prev_actualSize;
 
-            final byte[] md5_sql = dbe.prev_md5;
+//            final byte[] md5_sql = dbe.prev_md5;
 
             if ((sz_sector <= 0) || (act_size <= 0)) {
                 _L(Lang.ERR_FSEngine_null_file);
@@ -165,15 +165,15 @@ public class FSEngine {
             for (long i=st_sector; i<(st_sector + sz_sector); i++) {
                 final byte[] buf_w = FILE.ReadFileSector(DBNameE, (int)i);
                 read_buf.write(buf_w); 
-                md5e.write(Crypto.MD5(buf_w));
+//                md5e.write(Crypto.MD5(buf_w));
             }
 
-            md5 = Crypto.MD5(md5e.toByteArray());
-            md5e.reset();
-            if (!Arrays.equals(md5, md5_sql)) {
-                _L(Lang.ERR_FSEngine_incorrect_md5_for_record);
-                return null;
-            }
+//            md5 = Crypto.MD5(md5e.toByteArray());
+//            md5e.reset();
+//            if (!Arrays.equals(md5, md5_sql)) {
+//                _L(Lang.ERR_FSEngine_incorrect_md5_for_record);
+//                return null;
+//            }
 
             final byte[] ret = new byte[(int)act_size];
             System.arraycopy(read_buf.toByteArray(), 0, ret, 0, (int)act_size);

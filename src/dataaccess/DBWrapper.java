@@ -2,12 +2,17 @@ package dataaccess;
 
 import albums.AlbumsCategory;
 import static dataaccess.DBEngine.QUOTE;
+import static dataaccess.SplittedFile.ERRCODE_IO_EXCEPTION;
+import static dataaccess.SplittedFile.SECTOR_SIZE;
 import java.awt.Container;
 import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +34,7 @@ import menulist.MenuGroupItem;
 import org.apache.commons.io.FilenameUtils;
 
 public class DBWrapper {
-    private final static Image broken = new Image(new File("./icons/broken.png").toURI().toString());
+    private final static Image broken = new Image(new File("./icons/broken.png").toURI().toString()); // previews_files
     
     private static volatile Crypto              xCrypto     = null;
     private static volatile DBEngine            SQL         = null;
@@ -72,6 +77,74 @@ public class DBWrapper {
     public static long getSQLCounter() {
         return SQLCounter;
     }
+    
+    
+    private static byte[] getFilePartMD5(String path) {
+        try {
+            final FileInputStream fis = new FileInputStream(path);
+            FileChannel fc = fis.getChannel();
+            fc.position(0);
+            final ByteBuffer bb = ByteBuffer.allocate(1024 * 16);
+            int counter = fc.read(bb);
+            if (counter > 0) {
+                return Crypto.MD5(bb.array());
+            } else 
+                return null;
+        } catch (IOException ex) {
+            _L(ex.getMessage());
+            return null;
+        }
+    }
+    
+    public static synchronized long isFileMD5Exist(File path) {
+        return isFileMD5Exist(path.getAbsolutePath());
+    }
+    
+    public static synchronized long isFileMD5Exist(String path) {
+        byte md5_b[] = getFilePartMD5(path);
+        try {
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT iid FROM "+DBEngine.QUOTE+"file_MD5"+DBEngine.QUOTE+" WHERE xmd5=?;");
+            ps.setBytes(1, md5_b);
+            ResultSet rs = ps.executeQuery();
+            _SQLCounter++;
+            if (rs != null) {
+                if (rs.next()) {
+                    long iid  = rs.getLong("iid");
+                    ps.close();
+                    rs.close();
+                    if (iid > 0) return iid;
+                }
+            }
+            return -3;
+        } catch (SQLException ex) {
+            _L(ex.getMessage());
+            return -4;
+        }
+    }
+    
+    public static synchronized int pushFileMD5(long imgID, File path) {
+        return pushFileMD5(imgID, path.getAbsolutePath());
+    }
+    
+    public static synchronized int pushFileMD5(long imgID, String path) {
+        byte md5_b[] = getFilePartMD5(path);
+        try {
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"file_MD5"+DBEngine.QUOTE+" VALUES(?, ?);");
+            ps.setBytes(1, md5_b);
+            ps.setLong(2, imgID);
+            ps.execute();
+            _SQLCounter++;
+            ps.close();
+            return 0;
+        } catch (SQLException ex) { 
+            _L("pushFileMD5 ERROR: "+ex.getMessage());
+        }
+        return -1;
+    }
+    
+    
+    
+    
     
     public static void downloadImageToTempDir(long IID) {
         if (IID <= 0) return;
@@ -687,23 +760,23 @@ public class DBWrapper {
         return -1;
     }
     
-    public static synchronized int addPreviewAssoc(long imgID, byte[] md5) {
-        try {
-            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" VALUES(?, ?, ?);");
-            final long tmr = new Date().getTime();
-            ps.setLong(1, tmr);
-            ps.setLong(2, imgID);
-            ps.setBytes(3, md5);
-            ps.execute();
-            _SQLCounter++;
-            Sleep(2);
-            ps.close();
-            return 0;
-        } catch (SQLException ex) { 
-            //_L("addPreviewAssoc ERROR: "+ex.getMessage());
-        }
-        return -1;
-    }
+//    public static synchronized int addPreviewAssoc(long imgID, byte[] md5) {
+//        try {
+//            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" VALUES(?, ?, ?);");
+//            final long tmr = new Date().getTime();
+//            ps.setLong(1, tmr);
+//            ps.setLong(2, imgID);
+//            ps.setBytes(3, md5);
+//            ps.execute();
+//            _SQLCounter++;
+//            Sleep(2);
+//            ps.close();
+//            return 0;
+//        } catch (SQLException ex) { 
+//            //_L("addPreviewAssoc ERROR: "+ex.getMessage());
+//        }
+//        return -1;
+//    }
     
     public static synchronized long getIDByMD5(byte[] md5r) {
         try {

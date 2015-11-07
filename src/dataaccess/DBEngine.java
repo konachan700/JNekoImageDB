@@ -39,16 +39,20 @@ public class DBEngine {
     }
     
     public int Connect(String filename) { 
-        try {
+        try { 
             //_mysqlConnect();
             _h2Connect();
+            
+            gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"file_MD5"+QUOTE+"(xmd5 BINARY(16) not null primary key, iid bigint not null);");
+            gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"img_MD5"+QUOTE+"(xmd5 BINARY(16) not null primary key, iid bigint not null);");
             
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"AlbumsGroup"+QUOTE+"(oid bigint not null primary key, groupName blob, paid bigint, state int);");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"previews_list"+QUOTE+" (oid bigint not null primary key, idid bigint, pdid bigint, imgtype int);");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"images_albums"+QUOTE+" (imgoid bigint, alboid bigint, UNIQUE KEY (imgoid, alboid));");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"images_basic_meta"+QUOTE+" (oid bigint not null primary key, imgoid bigint, width int, height int, wh1 double, wh2 bigint, fn_md5 BINARY(16));");
+            //gStatement.executeUpdate("CREATE INDEX if not exists "+QUOTE+"imgMetaIndexMD5"+QUOTE+" ON "+QUOTE+"images_basic_meta"+QUOTE+" (fn_md5);");
             gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"StringSettings"+QUOTE+" (xname char(64), xvalue char(250), UNIQUE(xname));");
-            gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"previews_files"+QUOTE+"(oid bigint not null primary key, idid bigint, md5 BINARY(16));");
+            //gStatement.executeUpdate("CREATE TABLE if not exists "+QUOTE+"previews_files"+QUOTE+"(oid bigint not null primary key, idid bigint, md5 BINARY(16));");
             
             createHistogramTable("R");
             createHistogramTable("G");
@@ -89,6 +93,8 @@ public class DBEngine {
         if (queryCounter == (queryPerConnect / 2)) {
             try {
                 if (gConnectionOld != null) {
+//                    gConnectionOld.setReadOnly(true);
+                    gConnectionOld.commit();
                     gConnectionOld.close();
                     _L(Lang.ERR_DBEngine_OLD_SQL_CONNECTION_CLOSED);
                 }
@@ -100,8 +106,10 @@ public class DBEngine {
             
         if (queryCounter >= queryPerConnect) {
             try {
-                gConnection.commit();
+//                gConnection.setReadOnly(true);
+//                gConnection.commit();
                 gConnection.clearWarnings();
+//                gConnection.setReadOnly(false);
                 gConnectionOld = gConnection;
             } catch (SQLException ex) {
                 _L(ex.getMessage());
