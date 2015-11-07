@@ -108,7 +108,7 @@ public class ImageEngine {
     public long UploadImage(String path, byte[] hash) {
         if (!isImage(path)) return -2;
         try {
-            if (SQL.getConnection().isClosed()) return -3;
+            if (SQL.getConnection(false).isClosed()) return -3;
         } catch (SQLException ex) {
             return -4;
         }

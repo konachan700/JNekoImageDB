@@ -93,7 +93,7 @@ public class DBWrapper {
         q.append(");");
         
         try {
-            final PreparedStatement ps = SQL.getConnection().prepareStatement(q.substring(0));
+            final PreparedStatement ps = SQL.getConnection(true).prepareStatement(q.substring(0));
             ps.execute();
             ps.close();
         } catch (SQLException ex) {
@@ -166,7 +166,7 @@ public class DBWrapper {
     
     private static synchronized long getNearImage(long oid, String where) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT oid FROM "+DBEngine.QUOTE+"FS_images_files"+DBEngine.QUOTE+ " " + where + " LIMIT 0, 1;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT oid FROM "+DBEngine.QUOTE+"FS_images_files"+DBEngine.QUOTE+ " " + where + " LIMIT 0, 1;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -190,7 +190,7 @@ public class DBWrapper {
             final PreparedStatement ps;
             switch ((int)album_id) {
                 case ALBUM_ID_ALL:
-                    ps = SQL.getConnection().prepareStatement(
+                    ps = SQL.getConnection(false).prepareStatement(
                             "SELECT " 
                                     + "FS_preview_files.oid                 AS prev_oid, "
                                     + "FS_preview_files.md5                 AS prev_md5, "
@@ -224,7 +224,7 @@ public class DBWrapper {
                     ps.setLong(3, limit);
                     break;
                 case ALBUM_ID_WO_GROUPS:
-                    ps = SQL.getConnection().prepareStatement(
+                    ps = SQL.getConnection(false).prepareStatement(
                             "SELECT " 
                                     + "FS_preview_files.oid                 AS prev_oid, "
                                     + "FS_preview_files.md5                 AS prev_md5, "
@@ -259,7 +259,7 @@ public class DBWrapper {
                     ps.setLong(3, limit);
                     break;
                 default:
-                    ps = SQL.getConnection().prepareStatement(
+                    ps = SQL.getConnection(false).prepareStatement(
                             "SELECT " 
                                     + "FS_preview_files.oid                 AS prev_oid, "
                                     + "FS_preview_files.md5                 AS prev_md5, "
@@ -362,7 +362,7 @@ public class DBWrapper {
                 long
                         wh2 = width * height;
                 
-                final PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_basic_meta"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?, ?, ?, ?);");
+                final PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_basic_meta"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?, ?, ?, ?);");
                 final long tmr = new Date().getTime();
                 ps.setLong(1, tmr);
                 ps.setLong(2, oid);
@@ -387,7 +387,7 @@ public class DBWrapper {
     
     public static synchronized boolean isMD5InMetadata(String path) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_basic_meta"+DBEngine.QUOTE+" WHERE fn_md5=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_basic_meta"+DBEngine.QUOTE+" WHERE fn_md5=?;");
             ps.setBytes(1, Crypto.MD5(path.getBytes()));
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -403,7 +403,7 @@ public class DBWrapper {
     
     public static synchronized int addImageAndPreviewAssoc(long imgID, long previewID, int type) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_list"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_list"+DBEngine.QUOTE+" VALUES(?, ?, ?, ?);");
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setLong(2, imgID);
@@ -423,7 +423,7 @@ public class DBWrapper {
     
     public static synchronized void addNewAlbumGroup(String name, long parent) {
             try {
-                PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" VALUES(?, ?, ?, 1);");
+                PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" VALUES(?, ?, ?, 1);");
                 final long tmr = new Date().getTime();
                 ps.setLong(1, tmr);
                 ps.setBytes(2, xCrypto.Crypt(xCrypto.align16b(name.getBytes())));
@@ -438,7 +438,7 @@ public class DBWrapper {
         if (id == ImageEngine.ALBUM_ID_DELETED) return Lang.AlbumsCategories_MenuItem_DELETED;
         
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -456,7 +456,7 @@ public class DBWrapper {
     
     public static synchronized BufferedImage getPrerview(int xtype, long IID, FSEngine SFS_preview) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"previews_list"+DBEngine.QUOTE+" WHERE idid=? AND imgtype=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"previews_list"+DBEngine.QUOTE+" WHERE idid=? AND imgtype=?;");
             ps.setLong(1, IID);
             ps.setInt(2, xtype);
             ResultSet rs = ps.executeQuery();
@@ -494,7 +494,7 @@ public class DBWrapper {
     
     public static void WriteAPPSettingsString(String optName, String value) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" VALUES(?, ?);");
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" VALUES(?, ?);");
             ps.setString(1, optName);
             ps.setString(2, value); 
             ps.execute();
@@ -502,7 +502,7 @@ public class DBWrapper {
             _SQLCounter++;
         } catch (SQLException ex) {
             try {
-                PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" SET xvalue=? WHERE xname=?;");
+                PreparedStatement ps = SQL.getConnection(true).prepareStatement("UPDATE "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" SET xvalue=? WHERE xname=?;");
                 ps.setString(1, value);
                 ps.setString(2, optName);
                 ps.execute();
@@ -516,7 +516,7 @@ public class DBWrapper {
     
     public static String ReadAPPSettingsString(String optName) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" WHERE xname=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"StringSettings"+DBEngine.QUOTE+" WHERE xname=?;");
             ps.setString(1, optName); 
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -569,7 +569,7 @@ public class DBWrapper {
     
     public static synchronized int delImageGroupID(long imgOID, long groupOID) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("DELETE FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE imgoid=? AND alboid=?;");
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("DELETE FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE imgoid=? AND alboid=?;");
             ps.setLong(1, imgOID);
             ps.setLong(2, groupOID);
             ps.execute();
@@ -584,7 +584,7 @@ public class DBWrapper {
     
     public static synchronized long getImagesCountInAlbum(long oid) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(imgoid) FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT COUNT(imgoid) FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -602,7 +602,7 @@ public class DBWrapper {
     
     public static synchronized ArrayList<Long> getGroupsByImageOID(long oid) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE imgoid=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE imgoid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -622,7 +622,7 @@ public class DBWrapper {
     
     public static synchronized ArrayList<Long> getImagesByGroupOID(long oid, int limStart, int limCount) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=? ORDER BY alboid ASC LIMIT "+limStart+","+limCount+";");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" WHERE alboid=? ORDER BY alboid ASC LIMIT "+limStart+","+limCount+";");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -642,7 +642,7 @@ public class DBWrapper {
     @SuppressWarnings("SleepWhileHoldingLock")
     public static synchronized int setImageGroupsIDs(ArrayList<Long> imgOIDs, ArrayList<Long> groupOIDs) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT IGNORE INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?);");
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT IGNORE INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?);");
             for (long ioid : imgOIDs) {
                 for (long goid : groupOIDs) {
                     ps.setLong(1, ioid);
@@ -672,7 +672,7 @@ public class DBWrapper {
         }
         
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?);");
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"images_albums"+DBEngine.QUOTE+" VALUES(?, ?);");
             ps.setLong(1, imgOID);
             ps.setLong(2, groupOID);
             ps.execute();
@@ -689,7 +689,7 @@ public class DBWrapper {
     
     public static synchronized int addPreviewAssoc(long imgID, byte[] md5) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" VALUES(?, ?, ?);");
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("INSERT INTO "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" VALUES(?, ?, ?);");
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setLong(2, imgID);
@@ -707,7 +707,7 @@ public class DBWrapper {
     
     public static synchronized long getIDByMD5(byte[] md5r) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" WHERE md5=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"previews_files"+DBEngine.QUOTE+" WHERE md5=?;");
             ps.setBytes(1, md5r);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -734,7 +734,7 @@ public class DBWrapper {
         if (child_paid == ImageEngine.ALBUM_ID_DELETED) return 0;
         
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT paid FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT paid FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE oid=?;");
             ps.setLong(1, child_paid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -759,7 +759,7 @@ public class DBWrapper {
     
     public static synchronized ArrayList<AlbumsCategory> getAlbumsGroupsID(long paid) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE paid=? ORDER BY oid DESC;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" WHERE paid=? ORDER BY oid DESC;");
             ps.setLong(1, paid);
             ResultSet rs = ps.executeQuery();
             _SQLCounter++;
@@ -781,7 +781,7 @@ public class DBWrapper {
     
     public static synchronized int saveAlbumsCategoryChanges(String name, int state, long ID) {
         try { 
-            PreparedStatement ps = SQL.getConnection().prepareStatement("UPDATE "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" SET groupName=?, state=? WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement("UPDATE "+DBEngine.QUOTE+"AlbumsGroup"+DBEngine.QUOTE+" SET groupName=?, state=? WHERE oid=?;");
             ps.setBytes(1, xCrypto.Crypt(xCrypto.align16b(name.getBytes())));
             ps.setInt(2, state);
             ps.setLong(3, ID);

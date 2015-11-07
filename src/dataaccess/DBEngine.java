@@ -14,7 +14,7 @@ public class DBEngine {
             gConnectionOld  = null;
     private volatile        int         
             queryCounter    = 0,
-            queryPerConnect = 12000;
+            queryPerConnect = 1000;//12000;
 
     public DBEngine() { }
     
@@ -30,9 +30,9 @@ public class DBEngine {
             QUOTE = "`";
             Class.forName("org.h2.Driver").newInstance();
             gConnection = DriverManager.getConnection("jdbc:h2:"+SplittedFile.DATABASE_FOLDER+"datastore;CIPHER=AES;MODE=MySQL;", "jneko", DBWrapper.getDBKey()+" "+DBWrapper.getDBKey());
-            gConnection.setAutoCommit(true);
+            gConnection.setAutoCommit(false);
             gStatement = gConnection.createStatement();
-            gStatement.setQueryTimeout(25);
+            gStatement.setQueryTimeout(33);
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
             throw new SQLException("Database error: org.h2.Driver");
         }
@@ -75,7 +75,10 @@ public class DBEngine {
         gStatement.executeUpdate(q.substring(0));
     }
 
-    public synchronized Connection getConnection() {
+    public synchronized Connection getConnection(boolean isUpdate) {
+        if (!isUpdate) {
+            return gConnection;
+        }
         /*
             Весь этот странный код тут для того, чтобы устранить пока не отловленную утечку памяти при работе с sql.
             Почему-то, если использовать одно постоянное подключение, происходит небольшая утечка памяти, где-то 30-50мб на 2-3 тысячи insert/update запросов, 
@@ -97,6 +100,7 @@ public class DBEngine {
             
         if (queryCounter >= queryPerConnect) {
             try {
+                gConnection.commit();
                 gConnection.clearWarnings();
                 gConnectionOld = gConnection;
             } catch (SQLException ex) {

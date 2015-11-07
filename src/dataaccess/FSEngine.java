@@ -85,7 +85,7 @@ public class FSEngine {
 
     public long getCount() {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT COUNT(oid) FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums)"); //("SELECT COUNT(oid) FROM 'FS_"+DBNameE+"_files';");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT COUNT(oid) FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums)"); //("SELECT COUNT(oid) FROM 'FS_"+DBNameE+"_files';");
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 if (rs.next()) {
@@ -101,7 +101,7 @@ public class FSEngine {
     
     public ArrayList<Long> getImages(String _sql) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT oid FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums) " + _sql);
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT oid FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid NOT IN (SELECT DISTINCT imgoid FROM images_albums) " + _sql);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 ArrayList<Long> all = new ArrayList<>();
@@ -125,7 +125,7 @@ public class FSEngine {
         sql_q.append(SQL_SELECT_ALL_FROM).append(DBEngine.QUOTE).append(SQL_TABLE_PREFIX).append(DBNameE)
                 .append(SQL_TABLE_SUFFIX).append(DBEngine.QUOTE).append(SQL_MD5_PRESENT_WHERE_X1);
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement(sql_q.substring(0));
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement(sql_q.substring(0));
             ps.setBytes(1, md5);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
@@ -193,7 +193,7 @@ public class FSEngine {
         final ByteArrayOutputStream md5e = new ByteArrayOutputStream();
         final ByteArrayOutputStream read_buf = new ByteArrayOutputStream();
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
@@ -245,7 +245,7 @@ public class FSEngine {
     @SuppressWarnings("ConvertToTryWithResources")
     public synchronized int PopFile(long oid, String path) {
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid=?;");
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement("SELECT * FROM "+DBEngine.QUOTE+"FS_"+DBNameE+"_files"+DBEngine.QUOTE+" WHERE oid=?;");
             ps.setLong(1, oid);
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
@@ -390,7 +390,7 @@ public class FSEngine {
         sql_q.append(SQL_INSERT_INTO).append(DBEngine.QUOTE).append(SQL_TABLE_PREFIX).append(DBNameE).append(SQL_TABLE_SUFFIX).append(DBEngine.QUOTE).append(SQL_ADS_VALUES);
         
         try { 
-            PreparedStatement ps = SQL.getConnection().prepareStatement(sql_q.substring(0));
+            PreparedStatement ps = SQL.getConnection(true).prepareStatement(sql_q.substring(0));
             final long tmr = new Date().getTime();
             ps.setLong(1, tmr);
             ps.setBytes(2, md5Hash);
@@ -443,7 +443,7 @@ public class FSEngine {
         sql_q.append(SQL_SELECT_ALL_FROM).append(DBEngine.QUOTE).append(SQL_TABLE_PREFIX).append(DBNameE).append(SQL_TABLE_SUFFIX).append(DBEngine.QUOTE).append(SQL_ORDER_BY_X1);
         
         try {
-            PreparedStatement ps = SQL.getConnection().prepareStatement(sql_q.substring(0));
+            PreparedStatement ps = SQL.getConnection(false).prepareStatement(sql_q.substring(0));
             ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 if (rs.next()) {
