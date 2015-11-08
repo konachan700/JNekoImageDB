@@ -341,6 +341,8 @@ public class JNekoImageDB extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         
+        //L("procs="+Runtime.getRuntime().availableProcessors());
+        
         if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(primaryStage);
     }
 
