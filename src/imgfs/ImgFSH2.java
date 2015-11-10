@@ -2,7 +2,6 @@ package imgfs;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,10 +10,15 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jnekoimagesdb.JNekoImageDB;
+import org.h2.jdbcx.JdbcConnectionPool;
 
 public class ImgFSH2 {
     private Connection 
-            currentH2Connection;
+            connWrite,
+            connRead;
+    
+    private JdbcConnectionPool 
+            pool;
     
     private boolean 
             isConnectedFlag = false;
@@ -29,9 +33,12 @@ public class ImgFSH2 {
     
     public void h2Close() {
         try {
-            currentH2Connection.commit();
-            currentH2Connection.clearWarnings();
-            currentH2Connection.close();
+            connWrite.commit();
+            connWrite.clearWarnings();
+            connWrite.close();
+            connRead.clearWarnings();
+            connRead.clearWarnings();
+            pool.dispose();
         } catch (SQLException ex) {
             Logger.getLogger(ImgFSH2.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -41,18 +48,23 @@ public class ImgFSH2 {
     public void h2DatabaseConnect(String database, String password) throws SQLException {
         try {
             Class.forName("org.h2.Driver").newInstance();
-            currentH2Connection = DriverManager.getConnection("jdbc:h2:"+database+"0;CIPHER=AES;MODE=MySQL;", "jneko", password+" "+password);
-            currentH2Connection.setAutoCommit(false);
+            pool = JdbcConnectionPool.create("jdbc:h2:"+database+";CIPHER=AES;MODE=MySQL;", "jneko", password+" "+password);
             
-            final Statement initStatement = currentH2Connection.createStatement();
+            connWrite = pool.getConnection();
+            connWrite.setAutoCommit(false);
+            
+            final Statement initStatement = connWrite.createStatement();
             initStatement.addBatch("CREATE TABLE if not exists `fsPreviews`(xmd5 BINARY(16) not null primary key, startSector bigint, endSector bigint, sectorSize bigint, actualSize bigint);");
             //initStatement.addBatch("CREATE TABLE if not exists `mainImages`(xmd5 BINARY(16) not null primary key, startSector bigint, sectorSize int, actualSize int, fileType int, imgType int);");
             
             initStatement.executeBatch();
             initStatement.close();
             
-            currentH2Connection.commit();
-            currentH2Connection.clearWarnings();
+            connWrite.commit();
+            connWrite.clearWarnings();
+            
+            connRead = pool.getConnection();
+            connRead.setAutoCommit(false);
             
             isConnectedFlag = true;
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
@@ -61,25 +73,61 @@ public class ImgFSH2 {
         }
     }
     
-    public PreparedStatement getPS(String sql) throws SQLException {
-        return currentH2Connection.prepareStatement(sql);
+    protected PreparedStatement getPSW(String sql) throws SQLException {
+        return connWrite.prepareStatement(sql);
     }
     
-    public void commitPS(PreparedStatement ps) throws SQLException {
+    protected PreparedStatement getPSR(String sql) throws SQLException {
+        return connRead.prepareStatement(sql);
+    }
+    
+    protected ResultSet getFirstR(PreparedStatement ps) throws SQLException {
+        ResultSet rs = ps.executeQuery();
+        if (rs != null) {
+            if (rs.next()) {
+                return rs; 
+            }   
+        }
+        closePSR(ps, rs);
+        throw new SQLException("getFirstR: No data found;");
+    }
+    
+    protected long getFirstRLong(PreparedStatement ps, String field) throws SQLException {
+        final ResultSet rs = getFirstR(ps);
+        final long retVal = rs.getLong(field);
+        closePSR(ps, rs);
+        return retVal;
+    }
+    
+    
+    protected void closePSR(PreparedStatement ps, ResultSet rs) throws SQLException {
+        rs.close();
+        ps.clearWarnings();
+        ps.close();
+    }
+    
+    protected void commitPSW(PreparedStatement ps) throws SQLException {
         ps.executeBatch();
         ps.close();
-        currentH2Connection.commit();
-        currentH2Connection.clearWarnings();
+        connWrite.commit();
+        connWrite.clearWarnings();
+    }
+    
+    /*---***********************************************************************************************---*/
+    
+    public boolean isMD5NotPresentInFSPreviews(byte xmd5[]) {
+        try {
+            final PreparedStatement ps = getPSR("SELECT `actualSize` FROM `fsPreviews` WHERE xmd5=? LIMIT 0,1");
+            ps.setBytes(1, xmd5);
+            return (getFirstRLong(ps, "actualSize") > 0);
+        } catch (SQLException ex) { }
+        return false;
     }
     
     public long getLastSectorForFSPreviews() {
         try {
-            PreparedStatement ps = getPS("SELECT `endSector` FROM `fsPreviews` ORDER BY `endSector` DESC LIMIT 0,1");
-            ResultSet rs = ps.executeQuery();
-            if (rs != null) {
-                if (rs.next()) 
-                    return rs.getLong("endSector");
-            }
+            PreparedStatement ps = getPSR("SELECT `endSector` FROM `fsPreviews` ORDER BY `endSector` DESC LIMIT 0,1");
+            return getFirstRLong(ps, "endSector");
         } catch (SQLException ex) { }
         return 0;
     }
@@ -87,7 +135,7 @@ public class ImgFSH2 {
     public void writeRecords(ArrayList<ImgFSRecord> fsElements) throws IOException {
         if (fsElements.isEmpty()) return;
         try {
-            final PreparedStatement ps = getPS("INSERT IGNORE INTO `fsPreviews` (?, ?, ?, ?, ?);");
+            final PreparedStatement ps = getPSW("INSERT IGNORE INTO `fsPreviews` (?, ?, ?, ?, ?);");
             fsElements.stream().forEach((record) -> {
                 try {
                     ps.setBytes(1, record.getMD5());
@@ -101,7 +149,7 @@ public class ImgFSH2 {
                 }
             });
             
-            commitPS(ps);
+            commitPSW(ps);
         } catch (SQLException ex) {
             throw new IOException("cannot write element to DB, " + ex.getMessage());
         }

@@ -3,16 +3,18 @@ package imgfs;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javafx.application.Platform;
+import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
@@ -28,6 +30,9 @@ public class ImgFSImages {
     
     public static boolean
             isSquaredFSPreview = false;
+    
+    private static ImgFSPreviewsFSReporter 
+            alFSPreview = null;
     
     @SuppressWarnings("ConvertToTryWithResources")
     public static boolean isImage(String path) {
@@ -53,6 +58,10 @@ public class ImgFSImages {
         return false;
     }
     
+    public static void setFSPreviewCompleteListener(ImgFSPreviewsFSReporter al) {
+        alFSPreview = al;
+    }
+    
     @SuppressWarnings("ConvertToTryWithResources")
     public static byte[] getPreviewFS(String in_path) throws IOException {
         final BufferedImage image = intResizeImage(in_path, previewWidth, previewHeight, isSquaredFSPreview);
@@ -62,6 +71,15 @@ public class ImgFSImages {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);
         final byte retVal[] = baos.toByteArray();
+        
+        if (alFSPreview != null) {
+            final Image img = new Image(new ByteArrayInputStream(retVal));
+            final String path = in_path;
+            Platform.runLater(() -> {
+                alFSPreview.OnPreviewGenerateComplete(img, path); 
+            });
+        }
+        
         baos.close();
         return retVal;
     }
@@ -70,7 +88,7 @@ public class ImgFSImages {
         final File img_file = new File(in_path);
         if (!img_file.canRead()) return null;
         try {
-            final Image image2 = Toolkit.getDefaultToolkit().createImage(in_path);
+            final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(in_path);
             final MediaTracker mediaTracker = new MediaTracker(new Container()); 
             mediaTracker.addImage(image2, 0); 
             mediaTracker.waitForAll();
@@ -112,7 +130,7 @@ public class ImgFSImages {
         final File img_file = new File(in_path);
         if (!img_file.canRead()) return null;
         try {
-            final Image image2 = Toolkit.getDefaultToolkit().createImage(in_path);
+            final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(in_path);
             final MediaTracker mediaTracker = new MediaTracker(new Container()); 
             mediaTracker.addImage(image2, 0); 
             mediaTracker.waitForAll();

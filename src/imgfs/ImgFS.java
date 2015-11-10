@@ -59,16 +59,13 @@ public class ImgFS {
     public ImgFS(String dbname) {
         dbName = dbname;
         
-        databaseH2File            = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator + "db.H");
+        databaseH2File            = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator + "db");
         databaseFileForFSPreviews = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator + "db." + ImgFSRecord.FS_PREVIEW);
         databaseFileForFullImages = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator + "db." + ImgFSRecord.FULL_IMAGE);
         randomPool                = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator + "db.R");
         masterKey                 = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator + "db.M");
         
         cryptModule = new ImgFSCrypto();
-        cryptModule.genSecureRandomSalt(randomPool);
-        cryptModule.genMasterKey(masterKey);
-        cryptModule.genMasterKeyAES();
     }
     
     public File getRandomPoolFile() {
@@ -80,8 +77,13 @@ public class ImgFS {
     }
     
     public void init() throws IOException {
-        if (!new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator).mkdir())
-            throw new IOException("init: cannot create db folder ["+dbName+"];");
+        cryptModule.genSecureRandomSalt(randomPool);
+        cryptModule.genMasterKey(masterKey);
+        cryptModule.genMasterKeyAES();
+        
+        final File myFolder = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator);
+        if (!myFolder.mkdir())
+            if (!myFolder.exists()) throw new IOException("init: cannot create db folder ["+dbName+"];");
         
         mainDBW = new FileOutputStream(databaseFileForFullImages, true);
         fsPreviewDBW = new FileOutputStream(databaseFileForFSPreviews, true);
@@ -141,6 +143,8 @@ public class ImgFS {
         final ImgFSRecord jobElement = new ImgFSRecord(startSector, endSector, sectorSize, jobFile.length(), fileMD5, type, jobFile);
         switch (type) {
             case ImgFSRecord.FS_PREVIEW:
+                if (!database.isMD5NotPresentInFSPreviews(fileMD5)) throw new IOException("addFileToJob: file ["+path+"] already exist in database!");
+                
                 currentJobFSPrev.get(currentJobFSPrevCounter).add(jobElement);
                 lastJobElement = jobElement;
                 currentJobFSPrevCounter++;

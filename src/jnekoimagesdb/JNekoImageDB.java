@@ -10,10 +10,13 @@ import dataaccess.Lang;
 import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
+import imgfs.ImgFS;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -61,6 +64,9 @@ public class JNekoImageDB extends Application {
     
     private final TextArea
             taLOG = new TextArea();
+    
+    private final ImgFS
+            xImgFS = new ImgFS("test");
     
     private MenuGroupItem
             MGI = null;
@@ -184,6 +190,13 @@ public class JNekoImageDB extends Application {
     public void start(Stage primaryStage) {
         new File(SplittedFile.DATABASE_FOLDER).mkdir();
         new File(JNekoImageDB.TEMPORARY_DIR).mkdir();
+        
+        try {
+            xImgFS.init();
+        } catch (IOException ex) {
+            Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
         
         if (!mainCrypto.genSecureRandomSalt()) {
             System.err.println(Lang.JNekoImageDB_no_salt_file);

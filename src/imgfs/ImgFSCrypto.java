@@ -87,6 +87,7 @@ public class ImgFSCrypto {
             _L(Lang.ERR_Crypto_new_salt_generated);
             return true;
         } catch (IOException ex) {
+            _L(ex.getMessage());
             return false;
         }
     }
