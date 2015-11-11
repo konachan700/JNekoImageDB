@@ -11,6 +11,7 @@ import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
 import imgfs.ImgFS;
+import imgfsgui.InfinityList;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -138,6 +139,13 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-01")) showAlbCats();
                     if (l.getID().contentEquals("M03-02")) showSettings();
+                    
+                    if (l.getID().contentEquals("M03-04")) {
+                        InfinityList il = new InfinityList();
+                        
+                        basesp.getChildren().add(il);
+                        //il.centerScroll();
+                    }
                 }
             };
     
@@ -324,6 +332,7 @@ public class JNekoImageDB extends Application {
         ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);
         ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
         ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
+        ml.getMenu().addItem("M03", "M03-04", "For test");
         
         MGI = ml.getMenu().getGroup("M02");
         DBWrapper.setMenuGroupItem2(MGI);

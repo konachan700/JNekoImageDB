@@ -1,0 +1,15 @@
+.InfinityList_mainContainer {
+    -fx-background-color: #f99;
+}
+
+.InfinityList_topDummy {
+    -fx-background-color: #9f9;
+}
+
+.InfinityList_bottomDummy {
+    -fx-background-color: #99f;
+}
+
+.InfinityList_bottomT {
+    -fx-background-color: #00f;
+}
