@@ -11,11 +11,18 @@ import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
 import imgfs.ImgFS;
+import imgfsgui.FileList;
 import imgfsgui.InfinityList;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
@@ -141,13 +148,35 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        InfinityList il = new InfinityList();
+                        FileList fl = new FileList();
+                        basesp.getChildren().add(fl);
                         
-                        basesp.getChildren().add(il);
-                        //il.centerScroll();
+//                        long t = System.currentTimeMillis();
+//                        System.err.println("mem="+Runtime.getRuntime().totalMemory());
+                        
+//                        ArrayList<Path> al = new ArrayList<>(150000);
+//                        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg"))) {
+//                            for (Path p : stream) {
+//                                al.add(p);
+//                            }
+//                            stream.close();
+//                        } catch (IOException ex) {
+//
+//                        }
+//                        getFilesCount(new File("G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg"));
+//                        System.err.println(/*"p.sz="+al.size()+*/"; t="+(System.currentTimeMillis() - t));
+//                        System.err.println("mem="+Runtime.getRuntime().totalMemory());
                     }
                 }
             };
+    
+//    private int getFilesCount(File f) throws IOException {
+//        final DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(f.getAbsolutePath()));
+//        int counter = 0;
+//        for (Path p : stream) counter++;
+//        stream.close();
+//        return counter;
+//    }
     
     private void clearAll() {
         basesp.getChildren().clear();

@@ -10,12 +10,11 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class InfinityList extends ScrollPane{
+public class InfinityList extends ScrollPane {
     public static final int
             ACTION_TYPE_SCROLL_UP      = 1,
             ACTION_TYPE_SCROLL_DOWN    = 2,
@@ -23,7 +22,8 @@ public class InfinityList extends ScrollPane{
             ACTION_TYPE_H_RESIZE       = 4;
     
     private final VBox 
-            rootPanel = new VBox();
+            rootPanel = new VBox(),
+            waitPanel = new VBox();
     
     private final Pane
             topDummy = new Pane(),
@@ -33,23 +33,32 @@ public class InfinityList extends ScrollPane{
             mainContainer = new FlowPane();
     
     private int
-            rowSize             = (128 + 16),
+            spaceSize           = 4,
+            rowSize             = (128 + spaceSize),
+            itemUnvisibleLines  = 6,
             scrollSpeed         = 16, // скорость прокрутки
             scrollCounter       = 0, // счетчик прокрутки, сбрасывается при превышении rowSize
             scrollCounterLast   = 0;
+    
+    private long
+            scrollBlockCounter      = 0,
+            scrollBlockCounterMax   = Long.MAX_VALUE;
     
     private double
             myFullHeigth        = 0D, // полная высота контейнера
             myVisibleHeight     = 0D, // высота видимого окна листа
             myVisibleWidth      = 0D;
             
+    private final StringBuilder 
+            waitingText = new StringBuilder();
+    
     private InfinityListActionListener
             actionListener = null;
     
     private volatile boolean
             isScrolled = false;
     
-    private final Timeline animationTimer = new Timeline(new KeyFrame(Duration.millis(5), ae -> {
+    private final Timeline animationTimer = new Timeline(new KeyFrame(Duration.millis(1), ae -> {
         if (isScrolled) {
             if (scrollCounterLast < scrollCounter) {
                 scrollCounterLast++;
@@ -72,6 +81,7 @@ public class InfinityList extends ScrollPane{
         this.setFitToWidth(true);
         this.setFitToHeight(false);
         this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+        this.getStyleClass().add("InfinityList");
         
         this.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
@@ -83,7 +93,7 @@ public class InfinityList extends ScrollPane{
         this.heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
                 myVisibleHeight = newValue.doubleValue();
-                myFullHeigth = myVisibleHeight + (rowSize * 4);
+                myFullHeigth = myVisibleHeight + (rowSize * itemUnvisibleLines);
                 rootPanel.setMaxHeight(myFullHeigth);
                 rootPanel.setMinHeight(myFullHeigth);
                 rootPanel.setPrefHeight(myFullHeigth);
@@ -91,6 +101,18 @@ public class InfinityList extends ScrollPane{
             }
             centerScroll();
         });
+        
+        waitPanel.setAlignment(Pos.CENTER);
+        rootPanel.setOnScroll((ScrollEvent event) -> {
+            centerScroll();
+            event.consume();
+        });
+        
+        setTopDummyHeight(2 * rowSize);
+        setBottomDummyHeight(0);
+        scrollCounter = (2 * rowSize) - 1;
+        scrollCounterLast = scrollCounter;
+        isScrolled = true;
         
         rootPanel.setAlignment(Pos.CENTER);
         rootPanel.getChildren().addAll(topDummy, mainContainer, bottomDummy);
@@ -106,22 +128,38 @@ public class InfinityList extends ScrollPane{
             event.consume();
             
             if (event.getDeltaY() < 0) {
-                scrollCounter += scrollSpeed;
-                if (scrollCounter > rowSize) {
-                    scrollCounter = (-1 * rowSize);
-                    setTopDummyHeight(rowSize + scrollCounter);
-                    setBottomDummyHeight(rowSize - scrollCounter);
-                    if (actionListener != null) actionListener.onItemsUpdateNeeded(ACTION_TYPE_SCROLL_DOWN, myVisibleWidth, myVisibleHeight, myFullHeigth);
-                    return;
+                if (scrollBlockCounter > 0) {
+                    scrollCounter += scrollSpeed;
+                    
+                    if (scrollCounter > rowSize) {
+                        scrollBlockCounter--;
+//                        if (scrollBlockCounter > 0) {
+                            scrollCounter = (-1 * rowSize);
+                            setTopDummyHeight(rowSize + scrollCounter);
+                            setBottomDummyHeight(rowSize - scrollCounter);
+                            if (actionListener != null) actionListener.onItemsUpdateNeeded(ACTION_TYPE_SCROLL_DOWN, myVisibleWidth, myVisibleHeight, myFullHeigth);
+                            return;
+//                        } else {
+//                            if (actionListener != null) actionListener.onItemsUpdateNeeded(ACTION_TYPE_SCROLL_DOWN, myVisibleWidth, myVisibleHeight, myFullHeigth);
+//                            return;
+//                        }
+                    }
+                } else {
+                    if (scrollCounter < 2*rowSize) scrollCounter += scrollSpeed;
                 }
             } else {
-                scrollCounter -= scrollSpeed;
-                if ((scrollCounter < (-1 * rowSize))) {
-                    scrollCounter = Math.abs(rowSize);
-                    setTopDummyHeight(rowSize + scrollCounter);
-                    setBottomDummyHeight(rowSize - scrollCounter);
-                    if (actionListener != null) actionListener.onItemsUpdateNeeded(ACTION_TYPE_SCROLL_UP, myVisibleWidth, myVisibleHeight, myFullHeigth);
-                    return;
+                if (scrollBlockCounter < scrollBlockCounterMax) {
+                    scrollCounter -= scrollSpeed;
+                    if ((scrollCounter < (-1 * rowSize))) {
+                        scrollCounter = Math.abs(rowSize);
+                        setTopDummyHeight(rowSize + scrollCounter);
+                        setBottomDummyHeight(rowSize - scrollCounter);
+                        if (actionListener != null) actionListener.onItemsUpdateNeeded(ACTION_TYPE_SCROLL_UP, myVisibleWidth, myVisibleHeight, myFullHeigth);
+                        scrollBlockCounter++;
+                        return;
+                    }
+                } else {
+                    if (scrollCounter > (-1 * rowSize)) { scrollBlockCounter++; }
                 }
             }
 
@@ -131,30 +169,26 @@ public class InfinityList extends ScrollPane{
         mainContainer.setMaxHeight(9999);
         mainContainer.setPrefHeight(9999);
         mainContainer.setAlignment(Pos.CENTER);
+        mainContainer.setHgap(spaceSize);
+        mainContainer.setVgap(spaceSize);
 
-        
         mainContainer.getStyleClass().add("InfinityList_mainContainer");
         topDummy.getStyleClass().add("InfinityList_topDummy");
         bottomDummy.getStyleClass().add("InfinityList_bottomDummy");
-        
-        HBox c = new HBox();
-        mainContainer.getChildren().add(c);
-        
-        c.getStyleClass().add("InfinityList_bottomT");
-        c.setMaxHeight(rowSize);
-        c.setPrefHeight(rowSize);
-        c.setMinHeight(rowSize);
-        c.setMinWidth(rowSize);
-        
+
         animationTimer.setCycleCount(Animation.INDEFINITE);
         animationTimer.play();
     }
 
-    public void setRowSize(int sz) {
+    public final void setScrollMax(long sz) {
+        scrollBlockCounterMax = sz;
+    }
+    
+    public final void setRowSize(int sz) {
         rowSize = sz;
     }
     
-    public void setScrollSpeed(int value) {
+    public final void setScrollSpeed(int value) {
         scrollSpeed = value;
     }
 
@@ -177,15 +211,38 @@ public class InfinityList extends ScrollPane{
         this.setVvalue(this.getVmax() * ((y - 0.5 * v) / (h - v)));    
     }
     
-    public void addItem(Node n) {
+    public final void setWait(boolean wait) {
+        if (wait) {
+            animationTimer.stop();
+            this.setContent(waitPanel);
+            this.setFitToWidth(true);
+            this.setFitToHeight(true); 
+        } else {
+            this.setContent(rootPanel);
+            this.setFitToWidth(true);
+            this.setFitToHeight(false); 
+            animationTimer.setCycleCount(Animation.INDEFINITE);
+            animationTimer.play();
+        }
+    }
+    
+    public final StringBuilder getWaitText() {
+        return waitingText;
+    }
+    
+    public final void addItem(Node n) {
         mainContainer.getChildren().add(n);
     }
     
-    public void removeItem(Node n) {
+    public final void removeItem(Node n) {
         mainContainer.getChildren().remove(n);
     }
     
-    public void clearAll() {
+    public final void clearAll() {
         mainContainer.getChildren().clear();
+    }
+    
+    public final void setAL(InfinityListActionListener al) {
+        actionListener = al;
     }
 }
