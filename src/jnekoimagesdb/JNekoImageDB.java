@@ -11,8 +11,8 @@ import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
 import imgfs.ImgFS;
-import imgfsgui.FileList;
-import imgfsgui.InfinityList;
+import imgfsgui.InfiniteFileList;
+import imgfsgui.InfiniteListPane;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -148,7 +148,7 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        FileList fl = new FileList();
+                        InfiniteFileList fl = new InfiniteFileList();
                         basesp.getChildren().add(fl);
                         
 //                        long t = System.currentTimeMillis();

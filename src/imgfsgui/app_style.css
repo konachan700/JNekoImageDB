@@ -12,8 +12,16 @@
     -fx-border-insets: 0;
 }
 
-.FileListItem, .FileListItem_imageContainer, .FileListItem_imageVBox, .FileListItem_selectedIcon, .FileListItem_imageName {
+.FileListItem, .FileListItem_imageContainer, .FileListItem_imageContainer .viewport, .FileListItem_imageVBox, .FileListItem_selectedIcon, 
+.FileListItem_imageName {
     -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: transparent;
+}
+
+.FileListItem_dummyInfoBox {
+    -fx-padding: 0 0 0 35px;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-insets: 0;
     -fx-background-color: transparent;
@@ -23,4 +31,11 @@
     -fx-font-size: 12px;
     -fx-text-fill: #000;
     -fx-effect: dropshadow(three-pass-box, #fff, 12, 0.85, 0, 0);
+}
+
+.FileListItem_nullMessage {
+    -fx-font-size: 14px;
+    -fx-text-fill: #ccc;
+    -fx-font-weight:bold;
+    -fx-effect: dropshadow(three-pass-box, #444, 12, 0.50, 0, 0);
 }
