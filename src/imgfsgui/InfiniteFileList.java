@@ -1,16 +1,18 @@
 package imgfsgui;
 
 import dataaccess.Lang;
+import imgfs.ImgFS;
+import imgfs.ImgFSImages;
+import imgfs.ImgFSRecord;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.Deque;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -27,6 +29,7 @@ public class InfiniteFileList extends InfiniteListPane {
             ITEM_SELECTED   = new Image(new File("./icons/selected.png").toURI().toString()),
             ITEM_ERROR      = new Image(new File("./icons/broken2.png").toURI().toString()),
             ITEM_NOTHING    = new Image(new File("./icons/empty.png").toURI().toString()),
+            ITEM_LOADING    = new Image(new File("./icons/loading128.png").toURI().toString()),
             ICON_NOELEMENTS = new Image(new File("./icons/nondelete-48.png").toURI().toString()),
             ICON_CLOCK      = new Image(new File("./icons/clock48.png").toURI().toString()); 
     
@@ -108,8 +111,8 @@ public class InfiniteFileList extends InfiniteListPane {
             });
 
             imageContainer.getStyleClass().add("FileListItem_imageContainer");
-            imageContainer.setFitHeight(itemSize);
-            imageContainer.setFitWidth(itemSize);
+            imageContainer.setFitHeight(ImgFSImages.previewHeight);
+            imageContainer.setFitWidth(ImgFSImages.previewWidth);
             imageContainer.setPreserveRatio(true);
             imageContainer.setSmooth(true);
             imageContainer.setCache(false);
@@ -121,6 +124,7 @@ public class InfiniteFileList extends InfiniteListPane {
             imageVBox.setMaxSize(itemSize, itemSize);
             imageVBox.setPrefSize(itemSize, itemSize);
             imageVBox.getChildren().add(imageContainer);
+            imageVBox.setAlignment(Pos.CENTER);
             
             imageName.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
             imageName.getStyleClass().add("FileListItem_imageName");
@@ -138,14 +142,19 @@ public class InfiniteFileList extends InfiniteListPane {
             this.getChildren().addAll(imageVBox, selectedIcon, imageName);
             imageVBox.relocate(0, 0);
             selectedIcon.relocate(10, 10);
-            imageName.relocate(0, 100);
+            imageName.relocate(0, 105);
         }
     }
     
     protected class FileListItemPool {
-        private final Map<Integer, FileListItem> 
-                pool = new HashMap<>();
+        public static final int 
+                DIR_LEFT    = 1,
+                DIR_RIGHT   = 2;
         
+        private final Deque<FileListItem> 
+                rootPool = new ArrayDeque<>(),
+                temporaryPool = new ArrayDeque<>();
+
         private final FileListItemActionListener
                 actionListener;
         
@@ -153,48 +162,67 @@ public class InfiniteFileList extends InfiniteListPane {
             actionListener = al;
         }
         
-        public synchronized void shift(int shiftCount) {
-            final Map<Integer, FileListItem> temporaryPool = new HashMap<>();
-            final int poolSize = pool.size();
-            if (shiftCount > 0) {
-                for (int i=0; i<poolSize; i++) {
-                    final int currVal = i - shiftCount;
-                    if (currVal >= 0) temporaryPool.put(i, pool.get(currVal));
+        public synchronized void shift(int shiftCount, int direction) {
+            final Deque<FileListItem> 
+                    aPool = new ArrayDeque<>(),
+                    bPool = new ArrayDeque<>();
+            int counter = 0;
+            
+            switch (direction) {
+                case DIR_LEFT:
+                    while (true) {
+                        if (rootPool.isEmpty()) break;
+                        if (counter < shiftCount) aPool.add(rootPool.pollFirst()); else bPool.add(rootPool.pollFirst());
+                        counter++;
+                    }
+                    break;
+                case DIR_RIGHT:
+                    final int poolSz = rootPool.size();
+                    while (true) {
+                        if (rootPool.isEmpty()) break;
+                        if (counter < (poolSz - shiftCount)) aPool.add(rootPool.pollFirst()); else bPool.add(rootPool.pollFirst());
+                        counter++;
+                    }
+                    break;
+            }
+            rootPool.addAll(bPool);
+            rootPool.addAll(aPool);
+        }
+        
+        public synchronized void setSize(int currPoolSize) {
+            if (currPoolSize <= 0) return;
+            
+            final int poolSz = rootPool.size();
+            if (poolSz < currPoolSize) {
+                for (int i=poolSz; i<currPoolSize; i++) {
+                    final FileListItem fsi = new FileListItem(actionListener);
+                    fsi.setName("");
+                    fsi.setPath(null);
+                    fsi.setNullImage();
+                    rootPool.add(fsi);
                 }
-            } else if (shiftCount < 0) {
-                for (int i=0; i<poolSize; i++) {
-                    final int currVal = i + Math.abs(shiftCount);
-                    if (currVal < poolSize) temporaryPool.put(i, pool.get(currVal));
-                }
             }
-            pool.clear();
-            pool.putAll(temporaryPool);
         }
         
-        public synchronized FileListItem get(int id) {
-            if (!pool.containsKey(id)) {
-                final FileListItem fsi = new FileListItem(actionListener);
-                pool.put(id, fsi);
-            }
-            return pool.get(id);
+        public synchronized void init() {           
+            temporaryPool.clear();
+            temporaryPool.addAll(rootPool);
         }
         
-        public synchronized FileListItem getNull(int id) {
-            if (!pool.containsKey(id)) {
-                final FileListItem fsi = new FileListItem(actionListener);
-                pool.put(id, fsi);
-            }
-            pool.get(id).setName("");
-            pool.get(id).setNullImage();     
-            return pool.get(id);
-        }
-
-        public synchronized boolean elementExist(int id) {
-            return pool.containsKey(id);
+        public synchronized FileListItem pollFirst() {
+            return temporaryPool.pollFirst();
         }
         
-        public synchronized int getSize() {
-            return pool.size();
+        public synchronized FileListItem pollLast() {
+            return temporaryPool.pollLast();
+        }
+        
+        public synchronized boolean isEmpty() {
+            return temporaryPool.isEmpty();
+        }
+        
+        public synchronized boolean itemExist(FileListItem i) {
+            return temporaryPool.contains(i);
         }
     }
        
@@ -220,7 +248,7 @@ public class InfiniteFileList extends InfiniteListPane {
             waitText = new Label();
     
     private File 
-            currentFile = new File("G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg"); //"G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg");
+            currentFile = new File("G:\\Фотографии\\TRAVEL\\TR Питер июнь 2013"); //"G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg");
     
     private ArrayList<Path>
             mainFileList = null;
@@ -246,6 +274,9 @@ public class InfiniteFileList extends InfiniteListPane {
     
     private final FileListItemPool
             itemPool = new FileListItemPool(actListener);
+    
+    private final ImgFS
+            imgFS;
     
     private volatile double
             winWidth = 0,
@@ -279,8 +310,26 @@ public class InfiniteFileList extends InfiniteListPane {
         regenerateView(actionType);
     };
 
-    public InfiniteFileList() {
+    public InfiniteFileList(ImgFS f) {
         super();
+        imgFS = f;
+        imgFS.addPreviewActionListener((Image im, Path path) -> {
+            Platform.runLater(() -> {
+                itemPool.init();
+                while (true) {
+                    if (itemPool.isEmpty()) break;
+                    final FileListItem fsi = itemPool.pollFirst();
+                    final Path p = fsi.getPath();
+                    if (p != null) {
+                        if (fsi.getPath().compareTo(path) == 0) {
+                            fsi.setImage(im);
+                            break; 
+                        }
+                    }
+                }
+            });
+        });
+        
         this.setRowSize(itemSize);
         this.setInvisibleItemsCount(invisibleLines);
         this.setAL(ilal); 
@@ -369,87 +418,133 @@ public class InfiniteFileList extends InfiniteListPane {
         }
         
         this.clearAll();
-        //this.setDisableScroll(false);
+        if (this.isScrollDisabled()) this.setDisableScroll(false);
         
         int 
                 total = (invisibleLines * itemCountOnOneLine * 2) + (itemCountOnOneColoumn * itemCountOnOneLine),
-                maxLines = mainFileList.size() / itemCountOnOneLine;
+                maxLines = mainFileList.size() / itemCountOnOneLine,
+                counter = 0;
         
         long 
                 firstItem = this.getCurrentRow() * itemCountOnOneLine;
 
+        itemPool.setSize(total); 
         switch (actionType) {
-            case InfiniteListPane.ACTION_TYPE_SCROLL_DOWN:
-                itemPool.shift(itemCountOnOneLine);
-                for (int a=0; a<total; a++) {
-                    if (itemPool.elementExist(a)) {
-                        this.addItem(itemPool.get(a));
-                    } else {
+            case InfiniteListPane.ACTION_TYPE_SCROLL_DOWN:   
+                itemPool.shift(itemCountOnOneLine, FileListItemPool.DIR_RIGHT);
+                itemPool.init();
+                
+                while (true) {
+                    if (itemPool.isEmpty()) break;
+                    if (counter >= total) break;
+                    int currentIndex = counter + ((int)firstItem - itemCountOnOneLine);
+                    
+                    if (counter < itemCountOnOneLine){
+                        final FileListItem fsi = itemPool.pollFirst();
                         if (THIS.isMinimum()) {
-                            this.addItem(itemPool.getNull(a));
+                            fsi.setName("");
+                            fsi.setPath(null);
+                            fsi.setNullImage();
                         } else {
-                            int currentIndex = a + ((int)firstItem - itemCountOnOneLine);
-                            loadImage(mainFileList.get(currentIndex), itemPool.get(a), a, currentIndex);
-                            if (selectedFileList.contains(itemPool.get(a).getPath())) itemPool.get(a).setSelected(true);
-                            this.addItem(itemPool.get(a));
+                            final Path p = mainFileList.get(currentIndex);
+                            fsi.setPath(p);
+                            fsi.setName(p.getFileName().toString());
+                            loadImage(mainFileList.get(currentIndex), fsi, counter, currentIndex);
                         }
+                        this.addItem(fsi);
+                    } else {
+                        this.addItem(itemPool.pollFirst());
                     }
+                    
+                    counter++;
                 }
+                imgFS.commitJob();
                 break;
             case InfiniteListPane.ACTION_TYPE_SCROLL_UP:
-                itemPool.shift(-1 * itemCountOnOneLine);
-                for (int a=0; a<total; a++) {
-                    if (itemPool.elementExist(a)) {
-                        this.addItem(itemPool.get(a));
-                    } else {
-                        int currentIndex = a + ((int)firstItem - itemCountOnOneLine);
-                        if (currentIndex >= mainFileList.size()) 
-                            this.addItem(itemPool.getNull(a)); 
-                        else {
-                            loadImage(mainFileList.get(currentIndex), itemPool.get(a), a, currentIndex);
-                            if (selectedFileList.contains(itemPool.get(a).getPath())) itemPool.get(a).setSelected(true);
-                            this.addItem(itemPool.get(a));
+                itemPool.shift(itemCountOnOneLine, FileListItemPool.DIR_LEFT);
+                itemPool.init();
+                
+                while (true) {
+                    if (itemPool.isEmpty()) break;
+                    if (counter >= total) break;
+                    int currentIndex = counter + ((int)firstItem - itemCountOnOneLine);
+                    
+                    if (counter >= (total - itemCountOnOneLine)) {
+                        final FileListItem fsi = itemPool.pollFirst();
+                        if (currentIndex >= mainFileList.size()) {
+                            fsi.setName("");
+                            fsi.setPath(null);
+                            fsi.setNullImage();
+                        } else {
+                            final Path p = mainFileList.get(currentIndex);
+                            fsi.setPath(p);
+                            fsi.setName(p.getFileName().toString());
+                            loadImage(mainFileList.get(currentIndex), fsi, counter, currentIndex);
                         }
+                        this.addItem(fsi);
+                    } else {
+                        this.addItem(itemPool.pollFirst());
                     }
+                    counter++;
                 }
+                imgFS.commitJob();
                 break;
             default:
                 regenerateFull(total, firstItem);
                 break;
         }
+
         if ((maxLines - itemCountOnOneColoumn) > 0) this.setScrollMax(maxLines - itemCountOnOneColoumn);
     }
     
     private void regenerateFull(int total, long firstItem) {
         if (waitLock) return;
-        this.setDisableScroll(false);
-        System.err.println("REGEN FULL");
+        if (this.isScrollDisabled()) this.setDisableScroll(false);
+        L("REGEN FULL START");
+        
         int counter = 0;
-        for (int i=0; i<total; i++) {
-            int currentIndex = counter + (int)firstItem;
-            if ((currentIndex >= mainFileList.size()) || ((THIS.isMinimum()) && ((i < itemCountOnOneLine)))) {
-                itemPool.getNull(i);
+        final int fileListSize = mainFileList.size();
+        itemPool.init();
+        
+        while (true) {
+            if (itemPool.isEmpty()) break;
+            if (counter >= total) break;
+            
+            int currentIndex = counter + ((int)firstItem - itemCountOnOneLine);
+            
+            final FileListItem fsi = itemPool.pollFirst();
+            if ((currentIndex >= 0) && (currentIndex < fileListSize)) {
+                final Path p = mainFileList.get(currentIndex);
+                fsi.setPath(p);
+                fsi.setName(p.getFileName().toString());
+                loadImage(mainFileList.get(currentIndex), fsi, counter, currentIndex);
             } else {
-                loadImage(mainFileList.get(currentIndex), itemPool.get(i), i, currentIndex);
-                if (selectedFileList.contains(itemPool.get(i).getPath())) itemPool.get(i).setSelected(true);
-                counter++;
+                fsi.setName("");
+                fsi.setPath(null);
+                fsi.setNullImage();
             }
-
-            this.addItem(itemPool.get(i));
+            
+            this.addItem(fsi);
+            counter++;
         }
+        
+        imgFS.commitJob();
+        L("REGEN FULL END");
     }
     
     private void loadImage(Path p, FileListItem f, int localItemIndex, int pathIndex) {
+        L("IMG: "+p.getFileName().toString());
+        
         f.setName(p.getFileName().toString());
         f.setPath(p);
-        if (actionListenerIFL != null) {
-            final Image img = actionListenerIFL.OnImageNedded(p);
-            if (img != null)
-                f.setImage(img);
-            else
-                f.setImage(ITEM_ERROR);
-        } else 
-            f.setImage(ITEM_ERROR); 
+        f.setImage(ITEM_LOADING);
+        
+        try {
+            imgFS.addFileToJob(p.toString(), ImgFSRecord.FS_PREVIEW);
+        } catch (IOException ex) {
+            f.setImage(ITEM_ERROR);
+            L(ex.getMessage());
+        }
     }
     
     private void setNull() {
@@ -477,7 +572,7 @@ public class InfiniteFileList extends InfiniteListPane {
     @SuppressWarnings("ConvertToTryWithResources")
     private ArrayList<Path> generateFileList(int count, File f) throws IOException {
         // На первый взгляд странное решение, ведь можно использовать DirectoryStream.Filter. Но нет, тут проход по списку с фильтрами один, а в случае DirectoryStream.Filter их будет два.
-        // Памяти жрет намного больше, безусловно, но это сильно лучше, чем сканирование директории в 100к файлов за время 20-30 сек.
+        // Памяти настоящее решение жрет намного больше, безусловно, но это сильно лучше, чем сканирование директории в 100к файлов за время 20-30 сек.
         long tmr = System.currentTimeMillis();
         final ArrayList<Path> 
                 alt = new ArrayList<>(count);
@@ -518,5 +613,10 @@ public class InfiniteFileList extends InfiniteListPane {
             counter = 0;
         }
         return counter;
+    }
+    
+    private final static boolean DEBUG = true;
+    private static void L(String s) {
+        if (DEBUG) System.out.println("Time: "+System.currentTimeMillis()+"; Message: "+s);
     }
 }

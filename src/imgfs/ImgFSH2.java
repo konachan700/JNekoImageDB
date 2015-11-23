@@ -64,7 +64,7 @@ public class ImgFSH2 {
             connWrite.clearWarnings();
             
             connRead = pool.getConnection();
-            connRead.setAutoCommit(false);
+            connRead.setAutoCommit(true);
             
             isConnectedFlag = true;
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
@@ -95,6 +95,7 @@ public class ImgFSH2 {
     protected long getFirstRLong(PreparedStatement ps, String field) throws SQLException {
         final ResultSet rs = getFirstR(ps);
         final long retVal = rs.getLong(field);
+//        _L("retVal="+retVal);
         closePSR(ps, rs);
         return retVal;
     }
@@ -117,25 +118,39 @@ public class ImgFSH2 {
     
     public boolean isMD5NotPresentInFSPreviews(byte xmd5[]) {
         try {
-            final PreparedStatement ps = getPSR("SELECT `actualSize` FROM `fsPreviews` WHERE xmd5=? LIMIT 0,1");
+            final PreparedStatement ps = getPSR("SELECT actualSize FROM `fsPreviews` WHERE xmd5=? LIMIT 0,1;");
             ps.setBytes(1, xmd5);
             return (getFirstRLong(ps, "actualSize") > 0);
-        } catch (SQLException ex) { }
+        } catch (SQLException ex) { _L("isMD5NotPresentInFSPreviews ex="+ex.getMessage()); }
         return false;
     }
     
     public long getLastSectorForFSPreviews() {
         try {
-            PreparedStatement ps = getPSR("SELECT `endSector` FROM `fsPreviews` ORDER BY `endSector` DESC LIMIT 0,1");
+            PreparedStatement ps = getPSR("SELECT endSector FROM `fsPreviews` ORDER BY endSector DESC LIMIT 0,1;");
             return getFirstRLong(ps, "endSector");
-        } catch (SQLException ex) { }
+        } catch (SQLException ex) { _L("getLastSectorForFSPreviews ex="+ex.getMessage()); }
         return 0;
+    }
+    
+    public ImgFSRecord getFSPreviewsRecord(byte[] md5) {
+        try {
+            final PreparedStatement ps = getPSR("SELECT * FROM `fsPreviews` WHERE xmd5=? LIMIT 0,1;");
+            ps.setBytes(1, md5);
+            final ResultSet rs = getFirstR(ps);
+            final ImgFSRecord imr = new ImgFSRecord(rs.getLong("startSector"), rs.getLong("endSector"), 
+                    rs.getLong("sectorSize"), rs.getLong("actualSize"), rs.getBytes("xmd5"), ImgFSRecord.FS_PREVIEW, null);
+            closePSR(ps, rs);
+            return imr;
+        } catch (SQLException ex) { _L("getRecord ex="+ex.getMessage()); }
+        return null;
     }
     
     public void writeRecords(ArrayList<ImgFSRecord> fsElements) throws IOException {
         if (fsElements.isEmpty()) return;
+        
         try {
-            final PreparedStatement ps = getPSW("INSERT IGNORE INTO `fsPreviews` (?, ?, ?, ?, ?);");
+            final PreparedStatement ps = getPSW("INSERT INTO fsPreviews VALUES(?, ?, ?, ?, ?);");
             fsElements.stream().forEach((record) -> {
                 try {
                     ps.setBytes(1, record.getMD5());
@@ -150,6 +165,7 @@ public class ImgFSH2 {
             });
             
             commitPSW(ps);
+            
         } catch (SQLException ex) {
             throw new IOException("cannot write element to DB, " + ex.getMessage());
         }

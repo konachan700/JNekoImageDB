@@ -1,23 +1,41 @@
 package imgfs;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.scene.image.Image;
 import jnekoimagesdb.JNekoImageDB;
 
 public class ImgFS {
+    public static interface PreviewGeneratorActionListener {
+        public void OnPreviewGenerateComplete(Image im, Path path);
+    }
+    
+    public static class FileIsNotImageException extends IOException {
+        public FileIsNotImageException(String s) {
+            super(s);
+        }
+    }
+    
     private final File 
-            myPath          = new File("."),
+            myPath = new File("."),
             databaseFileForFSPreviews,
             databaseFileForFullImages,
             databaseH2File,
@@ -34,8 +52,8 @@ public class ImgFS {
             cryptModule;
     
     private FileOutputStream
-            mainDBW,
-            fsPreviewDBW;
+            mainDBW;
+//            fsPreviewDBW;
     
     public static final long
             DATABASE_SECTOR_SIZE = 1024 * 8;
@@ -51,10 +69,14 @@ public class ImgFS {
             lastJobElement = null;
     
     private volatile int 
-            currentJobFSPrevCounter = 0;
+            currentJobFSPrevCounter = 0,
+            currentGlobalLastSectorForFSPreview = 0;
     
     private final ArrayList<ImgFSPreviewsFSReporter> 
             actionListener = new ArrayList<>();
+    
+    private final ArrayList<PreviewGeneratorActionListener> 
+            previewAL = new ArrayList<>();
     
     public ImgFS(String dbname) {
         dbName = dbname;
@@ -66,6 +88,15 @@ public class ImgFS {
         masterKey                 = new File(myPath.getAbsoluteFile() + File.separator + dbName + File.separator + "db.M");
         
         cryptModule = new ImgFSCrypto();
+        ImgFSImages.setPreviewCompleteListener(previewAL);
+    }
+    
+    public void addPreviewActionListener(PreviewGeneratorActionListener al) {
+        previewAL.add(al);
+    }
+    
+    public void removePreviewActionListener(PreviewGeneratorActionListener al) {
+        previewAL.remove(al);
     }
     
     public File getRandomPoolFile() {
@@ -86,7 +117,7 @@ public class ImgFS {
             if (!myFolder.exists()) throw new IOException("init: cannot create db folder ["+dbName+"];");
         
         mainDBW = new FileOutputStream(databaseFileForFullImages, true);
-        fsPreviewDBW = new FileOutputStream(databaseFileForFSPreviews, true);
+//        fsPreviewDBW = new FileOutputStream(databaseFileForFSPreviews, true);
             
         try {
             database.h2DatabaseConnect(databaseH2File.getAbsolutePath(), cryptModule.getPasswordFromMasterKey());
@@ -112,13 +143,13 @@ public class ImgFS {
         try {
             database.h2Close();
             mainDBW.close();
-            fsPreviewDBW.close();
+//            fsPreviewDBW.close();
         } catch (IOException ex) {
             Logger.getLogger(ImgFS.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public synchronized void addFileToJob(String path, int type) throws IOException {
+    public synchronized void addFileToJob(String path, int type) throws FileIsNotImageException, IOException {
         if (!database.isConnected())
             throw new IOException("addFileToJob: database not connected!");
         
@@ -132,18 +163,36 @@ public class ImgFS {
         if (jobFile.length() <= 0)  throw new IOException("addFileToJob: file ["+path+"] has null size!");
         
         if (!ImgFSImages.isImage(jobFile.getAbsolutePath()))
-            throw new IOException("addFileToJob: file ["+path+"] is not image!");
+            throw new FileIsNotImageException("addFileToJob: file ["+path+"] is not image!");
         
         final byte[] fileMD5 = ImgFSFileOps.getFilePartMD5(jobFile.getAbsolutePath());
         
-        final long startSector = (lastJobElement == null) ? (database.getLastSectorForFSPreviews() + 1) : (lastJobElement.getEndSector() + 1);
-        final long sectorSize = getSectorSize(jobFile.length());
-        final long endSector = startSector + sectorSize;
+        //final long startSector = (lastJobElement == null) ? (database.getLastSectorForFSPreviews() + 1) : (lastJobElement.getEndSector() + 1);
+        //final long sectorSize = getSectorSize(jobFile.length());
+        //final long endSector = startSector + sectorSize;
         
-        final ImgFSRecord jobElement = new ImgFSRecord(startSector, endSector, sectorSize, jobFile.length(), fileMD5, type, jobFile);
+//        _L("startSector="+startSector);
+        
+        
         switch (type) {
             case ImgFSRecord.FS_PREVIEW:
-                if (!database.isMD5NotPresentInFSPreviews(fileMD5)) throw new IOException("addFileToJob: file ["+path+"] already exist in database!");
+                final ImgFSRecord jobElement = new ImgFSRecord(0, 0, 0, 0, fileMD5, type, jobFile);
+                
+                if (database.isMD5NotPresentInFSPreviews(fileMD5)) {
+                    final ImgFSRecord fsElement = database.getFSPreviewsRecord(fileMD5);
+                    if (fsElement != null) {
+                        final Image img = readFSPreviewRecord(fsElement);
+                        if (img == null) throw new IOException("null image");
+                        for (ImgFS.PreviewGeneratorActionListener al : previewAL) {
+                            final Path p = FileSystems.getDefault().getPath(jobFile.getAbsolutePath());
+                            al.OnPreviewGenerateComplete(img, p); 
+                            //_L("al.OnPreviewGenerateComplete "+p.toString());
+                        }
+                        return;
+                    } else {
+                        throw new IOException("null image element");
+                    }
+                }
                 
                 currentJobFSPrev.get(currentJobFSPrevCounter).add(jobElement);
                 lastJobElement = jobElement;
@@ -188,12 +237,14 @@ public class ImgFS {
     }
     
     protected synchronized void insertFSPreviewsToDB(int threadID, boolean immed) {
-        if ((currentJobFSPrev.size() > QUERY_COUNT_IN_BATCH) || (immed == true)) {
+        if ((currentJobTemporaryFSPrev.size() > QUERY_COUNT_IN_BATCH) || (immed == true)) {
             final ArrayList<ImgFSRecord> tempList = new ArrayList<>();
             while (true) {
-                final ImgFSRecord element = currentJobFSPrev.get(threadID).poll();
+                final ImgFSRecord element = currentJobTemporaryFSPrev.get(threadID).poll();
                 if (element != null) tempList.add(element); else break;
             }
+            //_L("tempList="+tempList.size());
+            
             try {
                 database.writeRecords(tempList);
             } catch (IOException ex) {
@@ -203,28 +254,54 @@ public class ImgFS {
     }
 
     public synchronized void commitJob() {
+        currentGlobalLastSectorForFSPreview = (int)(database.getLastSectorForFSPreviews() + 1);
         this.notifyAll();
     }
 
     @SuppressWarnings("ConvertToTryWithResources")
     protected void writeFSPreviewRecord(ImgFSRecord fsElement, int threadID) throws IOException {
-        try {
-            final FileChannel fc = fsPreviewDBW.getChannel();
-            try {
-                final byte previewImg[] = cryptModule.Crypt(ImgFSImages.getPreviewFS(fsElement.getFile().getAbsolutePath()));
-                final ByteBuffer bbOut = ByteBuffer.wrap(previewImg);
-                fc.position(fsElement.getStartSector() * DATABASE_SECTOR_SIZE);
-                fc.write(bbOut);
-                currentJobTemporaryFSPrev.get(threadID).add(fsElement);
-            } catch (IOException ex) {
-                fc.close();
-                throw new IOException("error while write preview ["+fsElement.getFile().getAbsolutePath()+"] do DB, " + ex.getMessage());
-            }
+        final FileOutputStream fos = new FileOutputStream(databaseFileForFSPreviews, true);
+        final FileChannel fc = fos.getChannel();
 
-            fc.close();
-        } catch (IOException ex) {
-            throw new IOException("error while write preview ["+fsElement.getFile().getAbsolutePath()+"] do DB, " + ex.getMessage());
-        }
+        final byte preview[] = ImgFSImages.getPreviewFS(fsElement.getFile().getAbsolutePath());
+        fsElement.setStartSector(currentGlobalLastSectorForFSPreview);
+        fsElement.setActualSize(preview.length);
+        fsElement.setSectorSize((preview.length / DATABASE_SECTOR_SIZE) + (((preview.length % DATABASE_SECTOR_SIZE) == 0) ? 0 : 1)); 
+        fsElement.setEndSector(fsElement.getSectorSize() + fsElement.getStartSector()); 
+        
+        final byte previewNonCrypted[] = new byte[(int)(fsElement.getSectorSize()*DATABASE_SECTOR_SIZE)];
+        Arrays.fill(previewNonCrypted, (byte) 0);
+        System.arraycopy(preview, 0, previewNonCrypted, 0, preview.length);
+
+        currentGlobalLastSectorForFSPreview += fsElement.getSectorSize();
+        final byte previewImg[] = cryptModule.Crypt(cryptModule.align16b(previewNonCrypted));
+        final ByteBuffer bbOut = ByteBuffer.wrap(previewImg);
+        
+        fc.position(fsElement.getStartSector() * DATABASE_SECTOR_SIZE);
+        fc.write(bbOut);
+        currentJobTemporaryFSPrev.get(threadID).add(fsElement);
+
+        fc.close();
+        fos.close();
+    }
+    
+    @SuppressWarnings("ConvertToTryWithResources")
+    protected Image readFSPreviewRecord(ImgFSRecord fsElement) throws IOException {
+        //_L("READ "+fsElement.toString());
+        
+        final FileInputStream fis = new FileInputStream(databaseFileForFSPreviews);
+        final FileChannel fc = fis.getChannel();
+        ByteBuffer bbIn = ByteBuffer.allocate((int)(fsElement.getSectorSize() * DATABASE_SECTOR_SIZE));
+        fc.position(fsElement.getStartSector() * DATABASE_SECTOR_SIZE);
+        fc.read(bbIn);
+        final byte uncrypt[] = cryptModule.Decrypt(bbIn.array());
+        //final byte cutted[] = Arrays.copyOfRange(uncrypt, 0, (int)fsElement.getActualSize());
+        final Image img = new Image(new ByteArrayInputStream(uncrypt));
+        
+        fc.close();
+        fis.close();
+        
+        return img;
     }
 
     private long getSectorSize(long actualSize) {

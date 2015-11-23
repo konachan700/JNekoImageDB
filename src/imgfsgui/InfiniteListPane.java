@@ -168,6 +168,10 @@ public class InfiniteListPane extends ScrollPane {
         scrollBlockCounterMax = sz;
     }
     
+    public final boolean isScrollDisabled() {
+        return scrollDisable;
+    }
+    
     public final void setDisableScroll(boolean e) {
         scrollDisable = e;
         if (e) {

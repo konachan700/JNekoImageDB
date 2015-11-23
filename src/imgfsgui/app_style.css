@@ -12,12 +12,25 @@
     -fx-border-insets: 0;
 }
 
-.FileListItem, .FileListItem_imageContainer, .FileListItem_imageContainer .viewport, .FileListItem_imageVBox, .FileListItem_selectedIcon, 
+.FileListItem_imageContainer, .FileListItem_imageContainer .viewport, .FileListItem_imageVBox, .FileListItem_selectedIcon, 
 .FileListItem_imageName {
     -fx-padding:0;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-insets: 0;
     -fx-background-color: transparent;
+}
+
+.FileListItem {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: #444;
+    //-fx-effect: dropshadow(three-pass-box, #444, 5, 0.80, 0, 0);
+}
+
+.FileListItem:hover {
+    -fx-background-color: #444;
+    -fx-effect: dropshadow(three-pass-box, #494, 4, 0.80, 0, 0);
 }
 
 .FileListItem_dummyInfoBox {
@@ -30,7 +43,7 @@
 .FileListItem_imageName {
     -fx-font-size: 12px;
     -fx-text-fill: #000;
-    -fx-effect: dropshadow(three-pass-box, #fff, 12, 0.85, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, #fff, 6, 0.85, 0, 0);
 }
 
 .FileListItem_nullMessage {

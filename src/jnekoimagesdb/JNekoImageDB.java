@@ -148,7 +148,7 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        InfiniteFileList fl = new InfiniteFileList();
+                        InfiniteFileList fl = new InfiniteFileList(xImgFS);
                         basesp.getChildren().add(fl);
                         
 //                        long t = System.currentTimeMillis();

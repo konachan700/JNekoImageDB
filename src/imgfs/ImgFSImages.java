@@ -10,6 +10,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,13 +28,13 @@ import org.imgscalr.Scalr;
 
 public class ImgFSImages {
     public static int 
-            previewHeight = 128,
-            previewWidth = 128;
+            previewHeight = 120,
+            previewWidth = 120;
     
     public static boolean
             isSquaredFSPreview = false;
     
-    private static ImgFSPreviewsFSReporter 
+    private static ArrayList<ImgFS.PreviewGeneratorActionListener> 
             alFSPreview = null;
     
     @SuppressWarnings("ConvertToTryWithResources")
@@ -58,7 +61,7 @@ public class ImgFSImages {
         return false;
     }
     
-    public static void setFSPreviewCompleteListener(ImgFSPreviewsFSReporter al) {
+    public static void setPreviewCompleteListener(ArrayList<ImgFS.PreviewGeneratorActionListener> al) {
         alFSPreview = al;
     }
     
@@ -75,9 +78,11 @@ public class ImgFSImages {
         if (alFSPreview != null) {
             final Image img = new Image(new ByteArrayInputStream(retVal));
             final String path = in_path;
-            Platform.runLater(() -> {
-                alFSPreview.OnPreviewGenerateComplete(img, path); 
-            });
+            for (ImgFS.PreviewGeneratorActionListener al : alFSPreview) {
+                //Platform.runLater(() -> {
+                    al.OnPreviewGenerateComplete(img, FileSystems.getDefault().getPath(path)); 
+                //});
+            }
         }
         
         baos.close();

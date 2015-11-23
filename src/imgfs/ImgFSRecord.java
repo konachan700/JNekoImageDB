@@ -7,7 +7,7 @@ public class ImgFSRecord {
             FS_PREVIEW = 1,
             FULL_IMAGE = 2;
     
-    private final long 
+    private long 
             startSector,
             endSector,
             sectorSize,
@@ -33,6 +33,11 @@ public class ImgFSRecord {
         imageFile       = f;
     }
     
+    @Override
+    public String toString() {
+        return "startSector="+startSector+"; endSector="+endSector+"; sectorSize="+sectorSize+"; actualSize="+actualSize+";";
+    }
+    
     public File getFile() {
         return imageFile;
     }
@@ -41,16 +46,32 @@ public class ImgFSRecord {
         return imgType;
     }
     
+    public void setStartSector(long l) {
+        startSector = l;
+    }
+    
     public long getStartSector() {
         return startSector;
+    }
+    
+    public void setEndSector(long l) {
+        endSector = l;
     }
     
     public long getEndSector() {
         return endSector;
     }
     
+    public void setSectorSize(long l) {
+        sectorSize = l;
+    }
+    
     public long getSectorSize() {
         return sectorSize;
+    }
+    
+    public void setActualSize(long l) {
+        actualSize = l;
     }
     
     public long getActualSize() {
