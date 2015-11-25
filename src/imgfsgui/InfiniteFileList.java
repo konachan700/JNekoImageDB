@@ -24,7 +24,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-public class InfiniteFileList extends InfiniteListPane {
+public class InfiniteFileList extends InfiniteListPane {  
     public static final Image
             ITEM_SELECTED   = new Image(new File("./icons/selected.png").toURI().toString()),
             ITEM_ERROR      = new Image(new File("./icons/broken2.png").toURI().toString()),
