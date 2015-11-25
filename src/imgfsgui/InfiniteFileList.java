@@ -1,9 +1,9 @@
 package imgfsgui;
 
 import dataaccess.Lang;
-import imgfs.ImgFS;
+import imgfs.ImgFSCrypto;
 import imgfs.ImgFSImages;
-import imgfs.ImgFSRecord;
+import imgfs.ImgFSPreviewGen;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -67,12 +67,14 @@ public class InfiniteFileList extends InfiniteListPane {
             imageContainer.setImage(ITEM_NOTHING);
             imageContainer.setVisible(false);
             this.getChildren().clear();
+            this.getStyleClass().clear();
         }
         
         public final void setImage(Image img) {
             imageContainer.setImage(img);
             imageContainer.setVisible(true);
             if (this.getChildren().isEmpty()) addAll();
+            this.getStyleClass().add("FileListItem");
         }
 
         public final void setName(String fname) {
@@ -274,9 +276,9 @@ public class InfiniteFileList extends InfiniteListPane {
     
     private final FileListItemPool
             itemPool = new FileListItemPool(actListener);
-    
-    private final ImgFS
-            imgFS;
+
+    private final ImgFSPreviewGen
+            previewGen;
     
     private volatile double
             winWidth = 0,
@@ -301,34 +303,50 @@ public class InfiniteFileList extends InfiniteListPane {
                 }
                 break;
             case InfiniteListPane.ACTION_TYPE_SCROLL_DOWN:
-                System.err.println("InfinityList.ACTION_TYPE_SCROLL_DOWN");
+                //System.err.println("InfinityList.ACTION_TYPE_SCROLL_DOWN");
                 break;
             case InfiniteListPane.ACTION_TYPE_SCROLL_UP:
-                System.err.println("InfinityList.ACTION_TYPE_SCROLL_UP");
+                //System.err.println("InfinityList.ACTION_TYPE_SCROLL_UP");
                 break;
         }
         regenerateView(actionType);
     };
 
-    public InfiniteFileList(ImgFS f) {
-        super();
-        imgFS = f;
-        imgFS.addPreviewActionListener((Image im, Path path) -> {
-            Platform.runLater(() -> {
-                itemPool.init();
-                while (true) {
-                    if (itemPool.isEmpty()) break;
-                    final FileListItem fsi = itemPool.pollFirst();
-                    final Path p = fsi.getPath();
-                    if (p != null) {
-                        if (fsi.getPath().compareTo(path) == 0) {
-                            fsi.setImage(im);
-                            break; 
-                        }
-                    }
+    private synchronized void displayImg(Image im, Path path) {
+        itemPool.init();
+        while (true) {
+            if (itemPool.isEmpty()) break;
+            final FileListItem fsi = itemPool.pollFirst();
+            final Path p = fsi.getPath();
+            if (p != null) {
+                if (fsi.getPath().compareTo(path) == 0) {
+                    fsi.setImage(im);
+                    fsi.setName(path.getFileName().toString());
+                    break; 
                 }
+            }
+        }
+    }
+    
+    public void dispose() {
+        previewGen.killAll();
+    }
+    
+    public InfiniteFileList(ImgFSCrypto c, String dbname) {
+        super();
+        previewGen = new ImgFSPreviewGen(c, dbname, "cache", (Image im, Path path) -> {
+            Platform.runLater(() -> {
+                displayImg(im, path);
             });
         });
+        
+        boolean init = true;
+        try {
+            previewGen.init();
+        } catch (IOException ex) {
+            L("init() error; " + ex.getMessage());
+            init = false;
+        }
         
         this.setRowSize(itemSize);
         this.setInvisibleItemsCount(invisibleLines);
@@ -370,7 +388,7 @@ public class InfiniteFileList extends InfiniteListPane {
         dummyInfoBox.getChildren().addAll(icon, text);
         pleaseWaitBox.getChildren().addAll(iconClock, waitText);
         
-        setPath(currentFile);
+        if (init) setPath(currentFile); else setNull();
     }
     
     public final void setActionListener(InfiniteFileListActionListener al) {
@@ -449,7 +467,7 @@ public class InfiniteFileList extends InfiniteListPane {
                             final Path p = mainFileList.get(currentIndex);
                             fsi.setPath(p);
                             fsi.setName(p.getFileName().toString());
-                            loadImage(mainFileList.get(currentIndex), fsi, counter, currentIndex);
+                            loadImage(p, fsi, counter, currentIndex);
                         }
                         this.addItem(fsi);
                     } else {
@@ -458,7 +476,8 @@ public class InfiniteFileList extends InfiniteListPane {
                     
                     counter++;
                 }
-                imgFS.commitJob();
+                
+                previewGen.startJob();
                 break;
             case InfiniteListPane.ACTION_TYPE_SCROLL_UP:
                 itemPool.shift(itemCountOnOneLine, FileListItemPool.DIR_LEFT);
@@ -479,7 +498,7 @@ public class InfiniteFileList extends InfiniteListPane {
                             final Path p = mainFileList.get(currentIndex);
                             fsi.setPath(p);
                             fsi.setName(p.getFileName().toString());
-                            loadImage(mainFileList.get(currentIndex), fsi, counter, currentIndex);
+                            loadImage(p, fsi, counter, currentIndex);
                         }
                         this.addItem(fsi);
                     } else {
@@ -487,7 +506,8 @@ public class InfiniteFileList extends InfiniteListPane {
                     }
                     counter++;
                 }
-                imgFS.commitJob();
+                
+                previewGen.startJob();
                 break;
             default:
                 regenerateFull(total, firstItem);
@@ -500,7 +520,7 @@ public class InfiniteFileList extends InfiniteListPane {
     private void regenerateFull(int total, long firstItem) {
         if (waitLock) return;
         if (this.isScrollDisabled()) this.setDisableScroll(false);
-        L("REGEN FULL START");
+        //L("REGEN FULL START");
         
         int counter = 0;
         final int fileListSize = mainFileList.size();
@@ -517,7 +537,7 @@ public class InfiniteFileList extends InfiniteListPane {
                 final Path p = mainFileList.get(currentIndex);
                 fsi.setPath(p);
                 fsi.setName(p.getFileName().toString());
-                loadImage(mainFileList.get(currentIndex), fsi, counter, currentIndex);
+                loadImage(p, fsi, counter, currentIndex);
             } else {
                 fsi.setName("");
                 fsi.setPath(null);
@@ -528,22 +548,20 @@ public class InfiniteFileList extends InfiniteListPane {
             counter++;
         }
         
-        imgFS.commitJob();
-        L("REGEN FULL END");
+        previewGen.startJob();
+        //("REGEN FULL END");
     }
     
     private void loadImage(Path p, FileListItem f, int localItemIndex, int pathIndex) {
-        L("IMG: "+p.getFileName().toString());
-        
         f.setName(p.getFileName().toString());
         f.setPath(p);
         f.setImage(ITEM_LOADING);
         
         try {
-            imgFS.addFileToJob(p.toString(), ImgFSRecord.FS_PREVIEW);
+            previewGen.addFileToJob(p);
         } catch (IOException ex) {
             f.setImage(ITEM_ERROR);
-            L(ex.getMessage());
+            L("loadImage:: "+ex.getMessage());
         }
     }
     

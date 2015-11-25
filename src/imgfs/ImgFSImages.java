@@ -6,18 +6,12 @@ import java.awt.Graphics2D;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import javafx.application.Platform;
-import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
@@ -27,15 +21,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 
 public class ImgFSImages {
-    public static int 
+    public static volatile int 
             previewHeight = 120,
             previewWidth = 120;
     
     public static boolean
             isSquaredFSPreview = false;
-    
-    private static ArrayList<ImgFS.PreviewGeneratorActionListener> 
-            alFSPreview = null;
     
     @SuppressWarnings("ConvertToTryWithResources")
     public static boolean isImage(String path) {
@@ -61,10 +52,6 @@ public class ImgFSImages {
         return false;
     }
     
-    public static void setPreviewCompleteListener(ArrayList<ImgFS.PreviewGeneratorActionListener> al) {
-        alFSPreview = al;
-    }
-    
     @SuppressWarnings("ConvertToTryWithResources")
     public static byte[] getPreviewFS(String in_path) throws IOException {
         final BufferedImage image = intResizeImage(in_path, previewWidth, previewHeight, isSquaredFSPreview);
@@ -74,16 +61,6 @@ public class ImgFSImages {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);
         final byte retVal[] = baos.toByteArray();
-        
-        if (alFSPreview != null) {
-            final Image img = new Image(new ByteArrayInputStream(retVal));
-            final String path = in_path;
-            for (ImgFS.PreviewGeneratorActionListener al : alFSPreview) {
-                //Platform.runLater(() -> {
-                    al.OnPreviewGenerateComplete(img, FileSystems.getDefault().getPath(path)); 
-                //});
-            }
-        }
         
         baos.close();
         return retVal;

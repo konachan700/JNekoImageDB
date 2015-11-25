@@ -10,21 +10,12 @@ import dataaccess.Lang;
 import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
-import imgfs.ImgFS;
+import imgfs.ImgFSCrypto;
 import imgfsgui.InfiniteFileList;
-import imgfsgui.InfiniteListPane;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -73,8 +64,11 @@ public class JNekoImageDB extends Application {
     private final TextArea
             taLOG = new TextArea();
     
-    private final ImgFS
-            xImgFS = new ImgFS("test");
+//    private final ImgFS
+//            xImgFS = new ImgFS("test");
+    
+    private String 
+            databaseName    = "default";
     
     private MenuGroupItem
             MGI = null;
@@ -99,6 +93,9 @@ public class JNekoImageDB extends Application {
     
     private final Crypto
             mainCrypto      = new Crypto();
+    
+    private final ImgFSCrypto
+            cryptoEx        = new ImgFSCrypto();
     
     private DBEngine
             SQL = null;
@@ -148,7 +145,7 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        InfiniteFileList fl = new InfiniteFileList(xImgFS);
+                        InfiniteFileList fl = new InfiniteFileList(cryptoEx, databaseName);
                         basesp.getChildren().add(fl);
                         
 //                        long t = System.currentTimeMillis();
@@ -228,12 +225,12 @@ public class JNekoImageDB extends Application {
         new File(SplittedFile.DATABASE_FOLDER).mkdir();
         new File(JNekoImageDB.TEMPORARY_DIR).mkdir();
         
-        try {
-            xImgFS.init();
-        } catch (IOException ex) {
-            Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        }
+//        try {
+//            xImgFS.init();
+//        } catch (IOException ex) {
+//            Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
+//            return;
+//        }
         
         if (!mainCrypto.genSecureRandomSalt()) {
             System.err.println(Lang.JNekoImageDB_no_salt_file);
@@ -250,6 +247,26 @@ public class JNekoImageDB extends Application {
             Platform.exit(); return;
         }
         DBWrapper.setCrypto(mainCrypto);
+        
+        //cryptoEx
+        if (!cryptoEx.genSecureRandomSalt(new File("./test/2"))) {
+            System.err.println(Lang.JNekoImageDB_no_salt_file);
+            Platform.exit(); return;
+        }
+        
+        if (!cryptoEx.genMasterKey(new File("./test/1"))) {
+            System.err.println(Lang.JNekoImageDB_no_master_key);
+            Platform.exit(); return;
+        }
+        
+        if (!cryptoEx.genMasterKeyAES()) {
+            System.err.println(Lang.JNekoImageDB_no_crypt_support);
+            Platform.exit(); return;
+        }
+        
+        
+
+        
         
         SQL = new DBEngine();
         if (SQL.Connect(SplittedFile.DATABASE_FOLDER + "fs") == -1) {

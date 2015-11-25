@@ -15,3 +15,5 @@ database/*
 dist/*
 nbproject/private/profiler/*
 test/*
+default/*
+temp/*

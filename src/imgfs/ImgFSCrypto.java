@@ -17,6 +17,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 import jnekoimagesdb.JNekoImageDB;
 
 public class ImgFSCrypto {
@@ -117,6 +118,10 @@ public class ImgFSCrypto {
     public byte[] Decrypt(byte[] value) {
         if (masterKeyAES == null) return null;
         return AESDecrypt(value, masterKeyAES);
+    }
+    
+    public String getPassword() {
+        return DatatypeConverter.printHexBinary(masterKeyAES);
     }
     
     public String getPasswordFromMasterKey() {
