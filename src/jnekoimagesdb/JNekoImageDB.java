@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -95,7 +97,11 @@ public class JNekoImageDB extends Application {
             mainCrypto      = new Crypto();
     
     private final ImgFSCrypto
-            cryptoEx        = new ImgFSCrypto();
+            cryptoEx        = new ImgFSCrypto(() -> {
+                
+                
+                return null;
+            });
     
     private DBEngine
             SQL = null;
@@ -248,20 +254,12 @@ public class JNekoImageDB extends Application {
         }
         DBWrapper.setCrypto(mainCrypto);
         
-        //cryptoEx
-        if (!cryptoEx.genSecureRandomSalt(new File("./test/2"))) {
-            System.err.println(Lang.JNekoImageDB_no_salt_file);
-            Platform.exit(); return;
-        }
-        
-        if (!cryptoEx.genMasterKey(new File("./test/1"))) {
-            System.err.println(Lang.JNekoImageDB_no_master_key);
-            Platform.exit(); return;
-        }
-        
-        if (!cryptoEx.genMasterKeyAES()) {
-            System.err.println(Lang.JNekoImageDB_no_crypt_support);
-            Platform.exit(); return;
+        try {
+            cryptoEx.init(databaseName);
+        } catch (Exception ex) {
+            Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
+            Platform.exit(); 
+            return;
         }
         
         

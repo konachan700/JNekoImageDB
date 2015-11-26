@@ -1,206 +1,309 @@
 package imgfs;
 
-import dataaccess.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
-import javax.crypto.BadPaddingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import jnekoimagesdb.JNekoImageDB;
 
 public class ImgFSCrypto {
-    private byte[] 
-            randomPool = null,
-            masterKey = null,
-            masterKeyAES = null;
+    public static final int
+            RSA_KEY_LEN = 4096;
     
-    private static final String
-            AES_CRYPT = "AES",
-            AES_MODE = "AES/ECB/NoPadding",
-            AES_MODE2 = "SunJCE",
-            SHA256 = "SHA-256",
-            MD5 = "MD5";
+    private static class CryptInfoData implements Serializable {
+        public byte[]
+                masterKey256    = null, 
+                IV128           = null,
+                salt128         = null;
+        
+        public CryptInfoData() {}
+    }
+    
+    private static class CryptInfo {        
+        private final CryptInfoData
+                cid;
 
-    public boolean genMasterKey(File f) {
-        if (f.exists() && f.canRead() && (f.length() == 4096)) {
+        public CryptInfo(CryptInfoData c) {
+            cid = c;
+        }
+        
+        public CryptInfo() {
+            final SecureRandom sr = new SecureRandom();
+            cid = new CryptInfoData();
+            
+            final byte[] 
+                IV              = new byte[1024 * 4], 
+                masterKey       = new byte[1024 * 4], 
+                salt            = new byte[1024 * 4];
+            
+            sr.nextBytes(masterKey); 
+            sr.nextBytes(salt); 
+            sr.nextBytes(IV);
+            
+            cid.IV128           = MD5(IV);
+            cid.salt128         = MD5(salt);            
+            cid.masterKey256    = SHA256(masterKey);
+        }
+        
+        public CryptInfoData getData() {
+            return cid;
+        }
+        
+        private byte[] MD5(byte[] unsafe) {
+            final MessageDigest md;
             try {
-                final FileInputStream fis = new FileInputStream(f);
-                masterKey = new byte[4096];
-                int c = fis.read(masterKey);
-                fis.close();
-                if (c == 4096) {
-                    return true;
-                }
-            } catch (IOException ex) { }
+                md = MessageDigest.getInstance("MD5");
+                md.update(unsafe);
+                return md.digest();
+            } catch (NoSuchAlgorithmException ex) { }
+            return null;
         }
-
-        final SecureRandom sr = new SecureRandom();
-        masterKey = new byte[4096];
-        sr.nextBytes(masterKey);
         
-        try {
-            final FileOutputStream fos = new FileOutputStream(f);
-            fos.write(masterKey);
-            fos.close();
-            _L(Lang.ERR_Crypto_new_master_key_generated);
-            return true;
-        } catch (IOException ex) {
-            return false;
-        }
-    }
-    
-    public boolean genSecureRandomSalt(File ff) {
-        if (ff.exists() && ff.canRead() && (ff.length() == 4096)) {
+        private byte[] SHA256(byte[] b) {
+            final MessageDigest md;
             try {
-                final FileInputStream fis = new FileInputStream(ff);
-                randomPool = new byte[4096];
-                final int readed = fis.read(randomPool);
-                if (readed == 4096) {
-                    fis.close();
-                    return true;
-                } else {
-                    fis.close();
-                    randomPool = null;
-                }
-            } catch (IOException ex) { }
+                md = MessageDigest.getInstance("SHA-256");
+                md.update(cid.salt128);
+                md.update(b);
+                md.update(cid.salt128);
+                return md.digest();
+            } catch (NoSuchAlgorithmException ex) { return null; }
         }
         
-        final SecureRandom sr = new SecureRandom();
-        randomPool = new byte[4096];
-        sr.nextBytes(randomPool);
+        public byte[] getIV() {
+            return cid.IV128;
+        }
         
-        try {
-            final FileOutputStream fos = new FileOutputStream(ff);
-            fos.write(randomPool);
-            fos.close();
-            _L(Lang.ERR_Crypto_new_salt_generated);
-            return true;
-        } catch (IOException ex) {
-            _L(ex.getMessage());
-            return false;
+        public byte[] getKey256() {
+            return cid.masterKey256;
+        }
+        
+        public String getPassword() {
+            return DatatypeConverter.printHexBinary(SHA256(cid.masterKey256));
         }
     }
     
-    public boolean genMasterKeyAES() {
-        final MessageDigest md;
-        try {
-            md = MessageDigest.getInstance(SHA256);
-            md.update(randomPool);
-            md.update(masterKey);
-            masterKeyAES = md.digest();
-            if (masterKeyAES != null) return true;
-        } catch (NoSuchAlgorithmException ex) { }
-        return false;
+    public static interface CryptActionListener {
+        public byte[] PrivateKeyRequired();
     }
+    
+    private CryptInfo 
+            CI = null;
+    
+    private RSAPublicKey 
+            pubKey = null;
+    
+    private RSAPrivateKey
+            privKey = null;
+    
+    private File
+            privateKeyFile, publicKeyFile, keystoreFile;
+    
+    private final CryptActionListener
+            actionListener;
+    
+    private boolean 
+            notInit = true;
+    
+    public ImgFSCrypto(CryptActionListener c) { 
+        actionListener = c;
+    }
+    
+    @SuppressWarnings("ConvertToTryWithResources")
+    public void init(String dbname) throws Exception {
+        publicKeyFile  = new File("." + File.separator + dbname + File.separator + "public.key");
+        privateKeyFile = new File("." + File.separator + dbname + File.separator + "private.key");
+        
+        if (!publicKeyFile.exists()) {
+            final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(RSA_KEY_LEN);
+            final KeyPair kp = kpg.generateKeyPair();
 
-    public boolean isValidKey() {
-        if (masterKeyAES == null) return false;
-        return true;
-    }
-    
-    public byte[] Crypt(byte[] value) {
-        if (masterKeyAES == null) return null;
-        return AESCrypt(value, masterKeyAES);
-    }
-    
-    public byte[] Decrypt(byte[] value) {
-        if (masterKeyAES == null) return null;
-        return AESDecrypt(value, masterKeyAES);
+            pubKey = (RSAPublicKey) kp.getPublic();
+            privKey = (RSAPrivateKey) kp.getPrivate();
+            
+            final X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(pubKey.getEncoded());
+            final FileOutputStream fos1 = new FileOutputStream(publicKeyFile);
+            fos1.write(x509EncodedKeySpec.getEncoded());
+            fos1.close();
+            
+            final PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(privKey.getEncoded());
+            final FileOutputStream fos2 = new FileOutputStream(privateKeyFile);
+            fos2.write(pkcs8EncodedKeySpec.getEncoded());
+            fos2.close();
+        } else {
+            final byte[] priv, pub;
+            if (!privateKeyFile.exists()) 
+                priv = actionListener.PrivateKeyRequired();
+            else 
+                priv = Files.readAllBytes(FileSystems.getDefault().getPath(privateKeyFile.getAbsolutePath()));
+            if (priv == null) throw new IOException("Private key cannot be null");
+            
+            pub = Files.readAllBytes(FileSystems.getDefault().getPath(publicKeyFile.getAbsolutePath()));
+            if (pub == null) throw new IOException("Public key cannot be null");
+            
+            final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            final X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(pub);
+            final PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(priv);
+            
+            pubKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+            privKey = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
+        }
+        
+        keystoreFile = new File("." + File.separator + dbname + File.separator + "keystore.bin");
+        final CryptInfo ci;
+        if (!keystoreFile.exists() || (keystoreFile.length() <= 0)) {
+            ci = new CryptInfo();
+            writeKeystore(ci.getData(), keystoreFile);
+        } else {
+            final CryptInfoData cid = readKeystore(keystoreFile);
+            ci = new CryptInfo(cid);
+        }
+        
+        CI = ci;
+        notInit = false;
     }
     
     public String getPassword() {
-        return DatatypeConverter.printHexBinary(masterKeyAES);
+        if (notInit) return null; else return CI.getPassword();
     }
     
-    public String getPasswordFromMasterKey() {
-        final StringBuilder sb = new StringBuilder();
-        for (byte b : masterKeyAES) {
-            sb.append(Integer.toHexString((int) b));
+    public byte[] Crypt(byte[] value) {
+        if (notInit) return null;
+        try {
+            return AESCrypt256(value, CI.getData().masterKey256, CI.getData().IV128);
+        } catch (Exception ex) {
+            Logger.getLogger(ImgFSCrypto.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        } 
+    }
+    
+    public byte[] Decrypt(byte[] value) {
+        if (notInit) return null;
+        try {
+            return AESDecrypt256(value, CI.getData().masterKey256, CI.getData().IV128);
+        } catch (Exception ex) {
+            Logger.getLogger(ImgFSCrypto.class.getName()).log(Level.SEVERE, null, ex);
+            _L("Crypt error: "+ex.getMessage());
+            return null;
         }
-        return sb.substring(0);
     }
     
-    public static byte[] MD5(byte[] unsafe) {
-        final MessageDigest md;
-        try {
-            md = MessageDigest.getInstance(MD5);
-            md.update(unsafe);
-            final byte[] dig = md.digest();
-            return dig;
-        } catch (NoSuchAlgorithmException ex) { }
-        return null;
+    private CryptInfoData readKeystore(File f) throws Exception {
+        final byte[] retNC = Files.readAllBytes(FileSystems.getDefault().getPath(f.getAbsolutePath()));
+        final byte[] ret = RSADecrypt(retNC);
+
+        final ByteArrayInputStream bais = new ByteArrayInputStream(ret);
+        final ObjectInputStream oos = new ObjectInputStream(bais);
+        
+        final CryptInfoData ci = (CryptInfoData) oos.readObject();
+        
+        oos.close();
+        bais.close();
+        
+        return ci;
     }
     
-    public static byte[] SHA256(byte[] unsafe) {
-        final MessageDigest md;
-        try {
-            md = MessageDigest.getInstance(SHA256);
-            md.update(unsafe);
-            final byte[] dig = md.digest();
-            return dig;
-        } catch (NoSuchAlgorithmException ex) { }
-        return null;
+    @SuppressWarnings("ConvertToTryWithResources")
+    private void writeKeystore(CryptInfoData e, File f) throws Exception {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(e);
+        oos.flush();
+        
+        final byte[] nonCrypted = baos.toByteArray();
+        final byte[] crypted = RSACrypt(nonCrypted);
+
+        Files.write(FileSystems.getDefault().getPath(f.getAbsolutePath()), crypted, StandardOpenOption.CREATE);
+        
+        oos.close();
+        baos.close();
+    }
+    
+    private byte[] RSADecrypt(byte[] ct) throws Exception {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        rsaCipher.init(Cipher.DECRYPT_MODE, privKey);
+        
+        final int 
+                iterCount = (RSA_KEY_LEN / 8),
+                arrayLen = ct.length;
+
+        for (int i=0; i<arrayLen; i=i+iterCount) {
+            baos.write(rsaCipher.doFinal(Arrays.copyOfRange(ct, i, i+iterCount)));
+        }
+        
+        final byte[] crypted = baos.toByteArray();
+        baos.close();
+        return crypted;
+    }
+    
+    private byte[] RSACrypt(byte[] ct) throws Exception {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        rsaCipher.init(Cipher.ENCRYPT_MODE, pubKey);
+        
+        final int 
+                iterCount = (RSA_KEY_LEN / 8) - 16, 
+                arrayLen = ct.length;
+
+        for (int i=0; i<arrayLen; i=i+iterCount) {
+            baos.write(rsaCipher.doFinal(Arrays.copyOfRange(ct, i, i+iterCount)));
+        }
+        
+        final byte[] crypted = baos.toByteArray();
+        baos.close();
+        return crypted;
     }
 
-    private byte[] AESDecrypt(byte[] value, byte[] password) { // как сделать AES-256 без сторонних библиотек и без IV\Padding, я так и не допер. Просто лень.
+    public byte[] MD5(byte[] unsafe) {
+        final MessageDigest md;
         try {
-            final byte[] pwd = Arrays.copyOf(MD5(password), 16);
-            final SecretKey key = new SecretKeySpec(pwd, AES_CRYPT);
-            final Cipher cipher = Cipher.getInstance(AES_MODE, AES_MODE2);
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            final byte[] decrypted = cipher.doFinal(value);
-            return decrypted;
-        } 
-        catch (NoSuchAlgorithmException ex)         { _L("__AESDecrypt: NoSuchAlgorithmException"    ); } 
-        catch (NoSuchProviderException ex)          { _L("__AESDecrypt: NoSuchProviderException"     ); } 
-        catch (NoSuchPaddingException ex)           { _L("__AESDecrypt: NoSuchPaddingException"      ); } 
-        catch (InvalidKeyException ex)              { _L("__AESDecrypt: InvalidKeyException"         ); } 
-        catch (IllegalBlockSizeException ex)        { _L("__AESDecrypt: IllegalBlockSizeException"   ); } 
-        catch (BadPaddingException ex)              { _L("__AESDecrypt: BadPaddingException"         ); }
+            md = MessageDigest.getInstance("MD5");
+            md.update(unsafe);
+            return md.digest();
+        } catch (NoSuchAlgorithmException ex) { }
         return null;
     }
     
-    private byte[] AESCrypt(byte[] value, byte[] password) {
-        try {
-            final byte[] pwd = Arrays.copyOf(MD5(password), 16);
-            final SecretKey key = new SecretKeySpec(pwd, AES_CRYPT);
-            final Cipher cipher = Cipher.getInstance(AES_MODE, AES_MODE2);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            final byte[] encrypted = cipher.doFinal(value);
-            return encrypted;
-        } 
-        catch (NoSuchAlgorithmException ex)         { _L("__AESCrypt: NoSuchAlgorithmException"     ); } 
-        catch (NoSuchPaddingException ex)           { _L("__AESCrypt: NoSuchPaddingException"       ); } 
-        catch (NoSuchProviderException ex)          { _L("__AESCrypt: NoSuchProviderException"      ); } 
-        catch (InvalidKeyException ex)              { _L("__AESCrypt: InvalidKeyException"          ); } 
-        catch (IllegalBlockSizeException ex)        { _L("__AESCrypt: IllegalBlockSizeException"    ); } 
-        catch (BadPaddingException ex)              { _L("__AESCrypt: BadPaddingException"          ); }
-        return null;
+    private byte[] AESDecrypt256(byte[] value, byte[] key, byte[] iv) throws Exception { 
+        final SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+        final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, new IvParameterSpec(iv));
+        return cipher.doFinal(value);
     }
     
-    public byte[] align16b(byte[] b) {
-        int 
-                sz = b.length / 16,
-                tail = b.length % 16;
-        if (tail != 0) sz++;
-        
-        final byte fn[] = new byte[sz*16];
-        for (int i=0; i<(sz*16); i++) if (i < b.length) fn[i] = b[i]; else fn[i] = 0;
-        return fn;
+    private byte[] AESCrypt256(byte[] value, byte[] key, byte[] iv) throws Exception {
+        final SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+        final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(iv));
+        return cipher.doFinal(value);
     }
-    
+
     private void _L(String s) {
         System.out.println(s);
         JNekoImageDB.L(s); 

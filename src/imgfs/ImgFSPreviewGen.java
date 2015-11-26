@@ -234,7 +234,7 @@ public class ImgFSPreviewGen {
                     if (pe == null) break;
                     try {
                         final byte[] md5e = getFilePartMD5(pe.getFile().getAbsolutePath());
-                        final PreviewElement peDB = readEntry(md5e);
+                        final PreviewElement peDB = readEntry(imCrypt, md5e);
                         final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
                         if (im != null) 
                             actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath()); 
@@ -249,7 +249,7 @@ public class ImgFSPreviewGen {
                                     ImgFSImages.isSquaredFSPreview = c.isSquared;
                                     
                                     final byte preview[] = ImgFSImages.getPreviewFS(pe.getFile().getAbsolutePath());
-                                    final byte previewCrypted[] = imCrypt.Crypt(imCrypt.align16b(preview));
+                                    final byte previewCrypted[] = imCrypt.Crypt(preview);
                                     
                                     pe.setCryptedImageBytes(previewCrypted, c.toString());
                                 } catch (IOException ex1) {
@@ -257,9 +257,9 @@ public class ImgFSPreviewGen {
                                 }    
                             });
 
-                            addEntry(md5e, pe);
+                            addEntry(imCrypt, md5e, pe);
                             
-                            final PreviewElement peDB = readEntry(md5e);
+                            final PreviewElement peDB = readEntry(imCrypt, md5e);
                             final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
                             if (im != null) 
                                 actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath());
@@ -288,11 +288,11 @@ public class ImgFSPreviewGen {
                 fis.close();
                 if (counter > 0) {
                     if (counter == FILE_PART_SIZE_FOR_CHECKING_MD5) 
-                        return ImgFSCrypto.MD5(bb.array());
+                        return imCrypt.MD5(bb.array());
                     else {
                         final ByteBuffer bb_cutted = ByteBuffer.allocate(counter);
                         bb_cutted.put(bb.array(), 0, counter);
-                        return ImgFSCrypto.MD5(bb_cutted.array());
+                        return imCrypt.MD5(bb_cutted.array());
                     }
                 } else 
                     throw new IOException("cannot calculate MD5 for file ["+path+"]");
@@ -391,7 +391,7 @@ public class ImgFSPreviewGen {
     }
     
     @SuppressWarnings("ConvertToTryWithResources")
-    private synchronized void addEntry(byte[] md5b, PreviewElement e) throws IOException {
+    private synchronized void addEntry(ImgFSCrypto c, byte[] md5b, PreviewElement e) throws IOException {
         if (levelDB == null) throw new IOException("database not opened;");
         if (e == null) throw new IOException("array is a null;");
         
@@ -400,17 +400,23 @@ public class ImgFSPreviewGen {
         oos.writeObject(e);
         oos.flush();
         
-        levelDB.put(md5b, baos.toByteArray());
+        final byte[] crypted = c.Crypt(baos.toByteArray());
+        if (crypted == null) throw new IOException("Crypt() return null;");
+        
+        levelDB.put(md5b, crypted);
         
         oos.close();
         baos.close();
     }
     
-    private synchronized PreviewElement readEntry(byte[] md5b) throws RecordNotFoundException, IOException, ClassNotFoundException {
+    private synchronized PreviewElement readEntry(ImgFSCrypto c, byte[] md5b) throws RecordNotFoundException, IOException, ClassNotFoundException {
         if (levelDB == null) throw new IOException("database not opened;");
         
-        final byte[] ret = levelDB.get(md5b);
-        if (ret == null ) throw new RecordNotFoundException("");
+        final byte[] retnc = levelDB.get(md5b);
+        if (retnc == null ) throw new RecordNotFoundException("");
+        
+        final byte[] ret = c.Decrypt(retnc);
+        if (ret == null ) throw new IOException("Decrypt() return null value;");
         
         final ByteArrayInputStream bais = new ByteArrayInputStream(ret);
         final ObjectInputStream oos = new ObjectInputStream(bais);

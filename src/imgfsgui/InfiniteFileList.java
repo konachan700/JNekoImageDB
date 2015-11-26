@@ -31,6 +31,7 @@ public class InfiniteFileList extends InfiniteListPane {
             ITEM_NOTHING    = new Image(new File("./icons/empty.png").toURI().toString()),
             ITEM_LOADING    = new Image(new File("./icons/loading128.png").toURI().toString()),
             ICON_NOELEMENTS = new Image(new File("./icons/nondelete-48.png").toURI().toString()),
+            ICON_DIR        = new Image(new File("./icons/fr2.png").toURI().toString()),
             ICON_CLOCK      = new Image(new File("./icons/clock48.png").toURI().toString()); 
     
     protected interface FileListItemActionListener {
@@ -52,11 +53,19 @@ public class InfiniteFileList extends InfiniteListPane {
         private Path
                 currentPath = null;
         
+        private boolean
+                isDir = false;
+        
         private final FileListItemActionListener
                 actionListener;
         
+        public boolean isDirectory() {
+            return isDir;
+        }
+        
         public final void setPath(Path p) {
             currentPath = p;
+            if (p != null) isDir = Files.isDirectory(p); else isDir = false;
         }
         
         public final Path getPath() {
@@ -83,7 +92,7 @@ public class InfiniteFileList extends InfiniteListPane {
         }
         
         public final void setSelected(boolean s) {
-            if (imageContainer.isVisible()) selectedIcon.setVisible(s);
+            if (imageContainer.isVisible() && (!isDir)) selectedIcon.setVisible(s);
         }
         
         public final boolean getSelected() {
@@ -250,9 +259,9 @@ public class InfiniteFileList extends InfiniteListPane {
             waitText = new Label();
     
     private File 
-            currentFile = new File("G:\\Фотографии\\TRAVEL\\TR Питер июнь 2013"); //"G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg");
+            currentFile = new File("E:\\#ForTest\\TR Берлин"); //"G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg");
     
-    private ArrayList<Path>
+    private ArrayList<Path> 
             mainFileList = null;
     
     private final ArrayList<Path>
@@ -555,13 +564,16 @@ public class InfiniteFileList extends InfiniteListPane {
     private void loadImage(Path p, FileListItem f, int localItemIndex, int pathIndex) {
         f.setName(p.getFileName().toString());
         f.setPath(p);
-        f.setImage(ITEM_LOADING);
-        
-        try {
-            previewGen.addFileToJob(p);
-        } catch (IOException ex) {
-            f.setImage(ITEM_ERROR);
-            L("loadImage:: "+ex.getMessage());
+        if (f.isDirectory()) {
+            f.setImage(ICON_DIR); 
+        } else {
+            f.setImage(ITEM_LOADING); 
+            try {
+                previewGen.addFileToJob(p);
+            } catch (IOException ex) {
+                f.setImage(ITEM_ERROR);
+                L("loadImage:: "+ex.getMessage());
+            }
         }
     }
     
@@ -609,7 +621,8 @@ public class InfiniteFileList extends InfiniteListPane {
             waitCounter = setWaitStr(waitCounter, a);
             return a;
         }).filter((a) -> (Files.isRegularFile(a))).forEach((a) -> {
-            al2.add(a);
+            final String fn = a.getFileName().toString().toLowerCase();
+            if ((fn.endsWith(".jpg")) || (fn.endsWith(".jpeg")) || (fn.endsWith(".png"))) al2.add(a);
             waitCounter = setWaitStr(waitCounter, a);
         });
         
