@@ -34,6 +34,9 @@ public class ImgFSCrypto {
     public static final int
             RSA_KEY_LEN = 4096;
     
+    private static volatile boolean
+            isAES256Enable = true;
+    
     private static class CryptInfoData implements Serializable {
         public byte[]
                 masterKey256    = null, 
@@ -64,9 +67,12 @@ public class ImgFSCrypto {
             sr.nextBytes(salt); 
             sr.nextBytes(IV);
             
-            cid.IV128           = MD5(IV);
-            cid.salt128         = MD5(salt);            
-            cid.masterKey256    = SHA256(masterKey);
+            cid.IV128            = MD5(IV);
+            cid.salt128          = MD5(salt); 
+            if (isAES256Enable)
+                cid.masterKey256 = SHA256(masterKey);
+            else
+                cid.masterKey256 = MD5(masterKey);
         }
         
         public CryptInfoData getData() {
@@ -137,6 +143,8 @@ public class ImgFSCrypto {
     public void init(String dbname) throws Exception {
         publicKeyFile  = new File("." + File.separator + dbname + File.separator + "public.key");
         privateKeyFile = new File("." + File.separator + dbname + File.separator + "private.key");
+        
+        isAES256Enable = isAES256Support();
         
         if (!publicKeyFile.exists()) {
             final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -210,6 +218,21 @@ public class ImgFSCrypto {
             Logger.getLogger(ImgFSCrypto.class.getName()).log(Level.SEVERE, null, ex);
             _L("Crypt error: "+ex.getMessage());
             return null;
+        }
+    }
+    
+    private boolean isAES256Support() {
+        final SecureRandom sr = new SecureRandom();
+        final byte[] tkey = sr.generateSeed(32);
+        final byte[] tIV = sr.generateSeed(16);
+        final byte[] tdata = sr.generateSeed(32);
+        
+        try {
+            final byte[] outdata = AESCrypt256(tdata, tkey, tIV);
+            return (outdata.length > 0);
+        } catch (Exception ex) {
+            _L("AES256 not supported. Please, install the patch: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html");
+            return false;
         }
     }
     
