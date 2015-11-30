@@ -7,12 +7,15 @@ import imgfs.ImgFSPreviewGen;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -32,8 +35,14 @@ public class InfiniteFileList extends InfiniteListPane {
             ITEM_LOADING    = new Image(new File("./icons/loading128.png").toURI().toString()),
             ICON_NOELEMENTS = new Image(new File("./icons/nondelete-48.png").toURI().toString()),
             ICON_DIR        = new Image(new File("./icons/fr2.png").toURI().toString()),
+            ICON_DIR_NA     = new Image(new File("./icons/fr2na.png").toURI().toString()),
+            ICON_FILE_NA    = new Image(new File("./icons/file-na-128.png").toURI().toString()),
             ICON_CLOCK      = new Image(new File("./icons/clock48.png").toURI().toString()); 
     
+    public static interface InfiniteFileListActionListener {
+        public void OnLeftClick(Path itemPath);
+    }
+
     protected interface FileListItemActionListener {
         public void OnSelect(boolean isSelected, Path itemPath);
         public void OnOpen(Path itemPath);
@@ -246,7 +255,9 @@ public class InfiniteFileList extends InfiniteListPane {
             waitCounter             = 0;
     
     private volatile boolean
-            waitLock = false;
+            waitLock = false, 
+            pathChangeLock = true,
+            isExit   = false;
     
     private final InfiniteFileList
             THIS = this;
@@ -293,6 +304,51 @@ public class InfiniteFileList extends InfiniteListPane {
             winWidth = 0,
             winVH = 0;
     
+    private final Runnable fileListGenerator = () -> {
+        synchronized (selectedFileList) {
+            selectedFileList.notify();
+        }
+
+        while (true) {
+            pathChangeLock = false;
+            synchronized (selectedFileList) {
+                try { selectedFileList.wait(); } catch (Exception ex) {}
+            }
+            
+            if (isExit) return;
+            
+            try {
+                final int count = getFilesCount(currentFile);
+                if (count <= 0) {
+                    Platform.runLater(() -> { 
+                        setNull(); 
+                        waitLock = false;
+                    });
+                    return;
+                }
+
+                mainFileList = generateFileList(count, currentFile);
+                Platform.runLater(() -> { 
+                    waitLock = false;
+                    regenerateView(-1); 
+                    this.setScrollTop();
+                });
+            } catch (IOException ex) {
+                Platform.runLater(() -> { 
+                    setNull(); 
+                    waitLock = false;
+                    L("EX ERROR: " + ex.getMessage());
+                });
+            }  catch (Error ex) {
+                Platform.runLater(() -> { 
+                    setNull(); 
+                    waitLock = false;
+                    L("RT ERROR: " + ex.getMessage());
+                });
+            }
+        }
+    };
+    
     private final InfiniteListPaneActionListener ilal = (int actionType, double windowWidth, double windowVisibleHeight, double windowTotalHeight) -> {
         switch (actionType) {
             case InfiniteListPane.ACTION_TYPE_V_RESIZE:
@@ -331,6 +387,7 @@ public class InfiniteFileList extends InfiniteListPane {
                 if (fsi.getPath().compareTo(path) == 0) {
                     fsi.setImage(im);
                     fsi.setName(path.getFileName().toString());
+                    fsi.setSelected(selectedFileList.contains(p));
                     break; 
                 }
             }
@@ -339,8 +396,10 @@ public class InfiniteFileList extends InfiniteListPane {
     
     public void dispose() {
         previewGen.killAll();
+        isExit = true;
     }
     
+    @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public InfiniteFileList(ImgFSCrypto c, String dbname) {
         super();
         previewGen = new ImgFSPreviewGen(c, dbname, "cache", (Image im, Path path) -> {
@@ -349,12 +408,10 @@ public class InfiniteFileList extends InfiniteListPane {
             });
         });
         
-        boolean init = true;
         try {
             previewGen.init();
         } catch (IOException ex) {
             L("init() error; " + ex.getMessage());
-            init = false;
         }
         
         this.setRowSize(itemSize);
@@ -396,44 +453,55 @@ public class InfiniteFileList extends InfiniteListPane {
 
         dummyInfoBox.getChildren().addAll(icon, text);
         pleaseWaitBox.getChildren().addAll(iconClock, waitText);
-        
-        if (init) setPath(currentFile); else setNull();
+    }
+    
+    public final void init() {
+        final Thread t = new Thread(fileListGenerator);
+        t.start();
+        synchronized (selectedFileList) {
+            try { selectedFileList.wait(); } catch (InterruptedException ex) { }
+        }
     }
     
     public final void setActionListener(InfiniteFileListActionListener al) {
         actionListenerIFL = al;
     }
     
+    public final File getPath() {
+        return currentFile;
+    }
+    
+    public final File getParentPath() {
+        return currentFile.getParentFile();
+    }
+    
+    public final void setWindowsRootPath(File[] rootList) {
+//        if (pathChangeLock) return;
+//        pathChangeLock = true;
+        if (waitLock) return;
+        
+        mainFileList.clear();
+        for (File f : rootList) {
+            mainFileList.add(FileSystems.getDefault().getPath(f.getAbsolutePath()));
+        }
+        regenerateView(-1);
+        this.setScrollTop();
+        
+        pathChangeLock = false;
+    }
+    
     public final void setPath(File fl) {
+        if (waitLock) return;
+//        if (pathChangeLock) return;
+//        pathChangeLock = true;
+        
         currentFile = fl;
         setWaitE();
         waitText.setText("Идет построение списка...");
-        final Runnable fileListGenerator = () -> {
-            try {
-                final int count = getFilesCount(currentFile);
-                if (count <= 0) {
-                    Platform.runLater(() -> { 
-                        setNull(); 
-                        waitLock = false;
-                    });
-                    return;
-                }
-
-                mainFileList = generateFileList(count, currentFile);
-                Platform.runLater(() -> { 
-                    waitLock = false;
-                    regenerateView(-1); 
-                });
-            } catch (IOException ex) {
-                Platform.runLater(() -> { 
-                    setNull(); 
-                    waitLock = false;
-                });
-            }
-        };
-
-        final Thread t = new Thread(fileListGenerator);
-        t.start();
+        
+        synchronized (selectedFileList) {
+            selectedFileList.notify();
+        }
     }
     
     private void regenerateView(int actionType) {
@@ -519,16 +587,25 @@ public class InfiniteFileList extends InfiniteListPane {
                 previewGen.startJob();
                 break;
             default:
+                firstItem = 0;
                 regenerateFull(total, firstItem);
+                this.setScrollTop();
                 break;
         }
 
-        if ((maxLines - itemCountOnOneColoumn) > 0) this.setScrollMax(maxLines - itemCountOnOneColoumn);
+        if ((maxLines - itemCountOnOneColoumn) > 0) 
+            this.setScrollMax(maxLines - itemCountOnOneColoumn); 
+        else {
+            this.setDisableScroll(true);
+            this.setScrollTop();
+        }
     }
     
     private void regenerateFull(int total, long firstItem) {
         if (waitLock) return;
         if (this.isScrollDisabled()) this.setDisableScroll(false);
+        this.setScrollTop();
+        
         //L("REGEN FULL START");
         
         int counter = 0;
@@ -544,9 +621,17 @@ public class InfiniteFileList extends InfiniteListPane {
             final FileListItem fsi = itemPool.pollFirst();
             if ((currentIndex >= 0) && (currentIndex < fileListSize)) {
                 final Path p = mainFileList.get(currentIndex);
+                final String fName = (p.getFileName() != null) ? p.getFileName().toString() : p.toString();
                 fsi.setPath(p);
-                fsi.setName(p.getFileName().toString());
-                loadImage(p, fsi, counter, currentIndex);
+                fsi.setName(fName);
+                if (Files.isReadable(p)) 
+                    loadImage(p, fsi, counter, currentIndex);
+                else {
+                    if (Files.isDirectory(p)) 
+                        fsi.setImage(ICON_DIR_NA);
+                    else
+                        fsi.setImage(ICON_FILE_NA);
+                }
             } else {
                 fsi.setName("");
                 fsi.setPath(null);
@@ -562,7 +647,8 @@ public class InfiniteFileList extends InfiniteListPane {
     }
     
     private void loadImage(Path p, FileListItem f, int localItemIndex, int pathIndex) {
-        f.setName(p.getFileName().toString());
+        final String fName = (p.getFileName() != null) ? p.getFileName().toString() : p.toString();
+        f.setName(fName);
         f.setPath(p);
         if (f.isDirectory()) {
             f.setImage(ICON_DIR); 
@@ -601,13 +687,14 @@ public class InfiniteFileList extends InfiniteListPane {
     
     @SuppressWarnings("ConvertToTryWithResources")
     private ArrayList<Path> generateFileList(int count, File f) throws IOException {
+        // System.err.println("-------------generateFileList--------------- :: " + f.getCanonicalPath());
         // На первый взгляд странное решение, ведь можно использовать DirectoryStream.Filter. Но нет, тут проход по списку с фильтрами один, а в случае DirectoryStream.Filter их будет два.
         // Памяти настоящее решение жрет намного больше, безусловно, но это сильно лучше, чем сканирование директории в 100к файлов за время 20-30 сек.
         long tmr = System.currentTimeMillis();
         final ArrayList<Path> 
                 alt = new ArrayList<>(count);
         
-        DirectoryStream<Path> stream2 = Files.newDirectoryStream(Paths.get(f.getAbsolutePath()));
+        DirectoryStream<Path> stream2 = Files.newDirectoryStream(Paths.get(f.getCanonicalPath()));
         for (Path p : stream2) alt.add(p); 
         stream2.close(); 
         

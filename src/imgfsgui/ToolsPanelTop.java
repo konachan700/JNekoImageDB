@@ -7,7 +7,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class TopPanel extends HBox {
+public class ToolsPanelTop extends HBox {
     public static final int 
             BUTTON_SIZE = 64,
             SEPARATOR_SIZE = 16;
@@ -40,7 +40,7 @@ public class TopPanel extends HBox {
     public final TopPanelButtonActionListener
             actListener;
     
-    public TopPanel(TopPanelButtonActionListener al) {
+    public ToolsPanelTop(TopPanelButtonActionListener al) {
         super(4);
         actListener = al;
         this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());

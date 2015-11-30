@@ -172,6 +172,13 @@ public class InfiniteListPane extends ScrollPane {
         return scrollDisable;
     }
     
+    public final void setScrollTop() {
+        scrollCounterX = rowSize - 1;
+        setTopDummyHeight(rowSize - 1);
+        setBottomDummyHeight(1);
+        scrollBlockCounter = 0;
+    }
+    
     public final void setDisableScroll(boolean e) {
         scrollDisable = e;
         if (e) {

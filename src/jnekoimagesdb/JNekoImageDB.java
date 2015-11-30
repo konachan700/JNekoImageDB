@@ -12,6 +12,7 @@ import fsimagelist.FSImageList;
 import imagelist.ImageList;
 import imgfs.ImgFSCrypto;
 import imgfsgui.InfiniteFileList;
+import imgfsgui.TabAddImagesToDB;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -151,8 +152,10 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        InfiniteFileList fl = new InfiniteFileList(cryptoEx, databaseName);
-                        basesp.getChildren().add(fl);
+                        TabAddImagesToDB fl = new TabAddImagesToDB(cryptoEx, databaseName);
+                        basesp.getChildren().add(fl.getList());
+                        toolbox.getChildren().add(fl.getTopPanel());
+                        paginator_1.getChildren().add(fl.getBottomPanel());
                         
 //                        long t = System.currentTimeMillis();
 //                        System.err.println("mem="+Runtime.getRuntime().totalMemory());
