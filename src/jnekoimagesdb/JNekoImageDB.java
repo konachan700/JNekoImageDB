@@ -305,7 +305,7 @@ public class JNekoImageDB extends Application {
         StackPane root = new StackPane();
         final Scene scene;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            StackPane root3m = GUITools.getWinGUI(this, primaryStage, DRD, root, mvbox, Lang.AppStyleCSS, GUITools.CLOSE_EXIT);
+            StackPane root3m = GUITools.getWinGUI(this, primaryStage, DRD, root, mvbox, Lang.AppStyleCSS, GUITools.CLOSE_EXIT, false);
             scene = new Scene(root3m, 950, 650);
             scene.setFill(Color.TRANSPARENT);
              

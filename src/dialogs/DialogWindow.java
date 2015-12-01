@@ -49,7 +49,7 @@ public class DialogWindow {
     }
     
     public void show() {
-        win.initModality(Modality.NONE); 
+        //win.initModality(Modality.NONE); 
         win.show();
     }
     
@@ -62,7 +62,7 @@ public class DialogWindow {
     }
     
     public void showModal() {
-        win.initModality(Modality.APPLICATION_MODAL); 
+//        win.initModality(Modality.APPLICATION_MODAL); 
         win.showAndWait();
     }
     
@@ -126,6 +126,7 @@ public class DialogWindow {
         win.setMinHeight(h / 2);
         win.setTitle(Lang.DialogWindow_Title);
         win.setScene(scene);
+        win.initModality(Modality.APPLICATION_MODAL); 
         
         if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(win);
     }
@@ -137,7 +138,7 @@ public class DialogWindow {
     private Scene generateScene(double w, double h) {
         final Scene scenex;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            StackPane root3m = GUITools.getWinGUI(this, win, DRD, root, mvbox, Lang.AppStyleCSS, GUITools.CLOSE_HIDE_WINDOW);
+            StackPane root3m = GUITools.getWinGUI(this, win, DRD, root, mvbox, Lang.AppStyleCSS, GUITools.CLOSE_HIDE_WINDOW, true);
             scenex = new Scene(root3m, w, h);
             scenex.setFill(Color.TRANSPARENT);
         } else {

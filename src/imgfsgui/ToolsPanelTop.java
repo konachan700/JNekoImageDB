@@ -28,7 +28,7 @@ public class ToolsPanelTop extends HBox {
             this.setMinSize(BUTTON_SIZE, BUTTON_SIZE);
             this.setPrefSize(BUTTON_SIZE, BUTTON_SIZE);
             this.setOnMouseClicked((c) -> {
-                if (c.isPrimaryButtonDown()) al.OnClick(xID); 
+                al.OnClick(xID); 
             });
         }
         

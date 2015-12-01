@@ -324,15 +324,14 @@ public class InfiniteFileList extends InfiniteListPane {
                         setNull(); 
                         waitLock = false;
                     });
-                    return;
+                } else {
+                    mainFileList = generateFileList(count, currentFile);
+                    Platform.runLater(() -> { 
+                        waitLock = false;
+                        regenerateView(-1); 
+                        this.setScrollTop();
+                    });
                 }
-
-                mainFileList = generateFileList(count, currentFile);
-                Platform.runLater(() -> { 
-                    waitLock = false;
-                    regenerateView(-1); 
-                    this.setScrollTop();
-                });
             } catch (IOException ex) {
                 Platform.runLater(() -> { 
                     setNull(); 
@@ -487,7 +486,7 @@ public class InfiniteFileList extends InfiniteListPane {
         regenerateView(-1);
         this.setScrollTop();
         
-        pathChangeLock = false;
+//        pathChangeLock = false;
     }
     
     public final void setPath(File fl) {
@@ -682,6 +681,7 @@ public class InfiniteFileList extends InfiniteListPane {
         int counter = 0;
         for (Path p : stream) counter++;
         stream.close();
+        System.err.println("files count: " + counter);
         return counter;
     }
     

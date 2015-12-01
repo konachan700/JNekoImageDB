@@ -160,3 +160,14 @@
     -fx-padding: 3px 3px 3px 3px;
 }
 
+.DialogYesNoBox_textarea, .DialogYesNoBox_textarea .viewport {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-text-fill: #fff;
+    -fx-font-size: 14px;
+    -fx-background-color: #222;
+    -fx-font-weight:bold;
+    -fx-effect: dropshadow(three-pass-box, #222, 4, 0.85, 0, 0);
+}
+

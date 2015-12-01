@@ -24,7 +24,11 @@ public class GUITools {
             CLOSE_EXIT = 0,
             CLOSE_HIDE_WINDOW = 1;
     
-    public static StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag) {
+    public static volatile float 
+            redColor = 0.0f;
+    
+    public static StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag, boolean red) {
+        redColor = (red) ? 0.7f : 0.0f;
         /*
             Делаем красивый гуй для windows-систем. В линуксах это не нужно, так как там с темами оформления полный порядок и каждый запиливает тему себе сам.
         */
@@ -34,7 +38,7 @@ public class GUITools {
         ds.setWidth(12f); 
         ds.setHeight(12f);
         ds.setSpread(0.5f);
-        ds.setColor(Color.color(0.0f, 0.0f, 0.0f));
+        ds.setColor(Color.color(redColor, 0.0f, 0.0f));
 
         final Label imageName = new Label(Lang.GUITools_WinGUI_Title);
         imageName.getStyleClass().add("GUITools_imageName");

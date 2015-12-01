@@ -1,6 +1,8 @@
 package imgfsgui;
 
 import dataaccess.Lang;
+import dialogs.DialogWindow;
+import dialogs.DialogYesNoBox;
 import imgfs.ImgFSCrypto;
 import java.io.File;
 import java.nio.file.Files;
@@ -46,6 +48,9 @@ public class TabAddImagesToDB {
     private final String 
             databaseName;
     
+    private final DialogYesNoBox
+            dialogYN = new DialogYesNoBox();
+    
     public TabAddImagesToDB(ImgFSCrypto c, String dbname) {
         crypt           = c;
         databaseName    = dbname;
@@ -68,7 +73,8 @@ public class TabAddImagesToDB {
                     
                     break;
                 case BTN_LELEL_UP:
-                    final File parentFile = fileList.getParentPath();
+                    // очень, очень странно. Просто fileList.getParentPath() при первом запуске возвращает null, а вот эта дикая конструкция - нет. Хотя одно и тоже.
+                    final File parentFile = new File(fileList.getPath().getAbsolutePath()).getParentFile();
                     if (parentFile != null) {
                         fileList.setPath(parentFile);
                         panelBottom.getTextField("path").setText(parentFile.getAbsolutePath());
@@ -116,7 +122,7 @@ public class TabAddImagesToDB {
                     
                     break;
                 case BTN_DEL:
-                    
+                    final int result = dialogYN.showYesNo("Точно удалить выбранные файлы с диска?");
                     break;
                 case BTN_ADD:
                     
