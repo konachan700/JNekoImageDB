@@ -68,7 +68,7 @@ public class AlbumSelectDialog {
             messageStr = new TextArea(Lang.NullString);
         
     private final DialogWindow 
-            dw = new DialogWindow(700, 800);
+            dw = new DialogWindow(700, 800, false);
     
     private final ScrollPane
             sp = new ScrollPane();

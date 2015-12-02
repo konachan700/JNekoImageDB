@@ -129,8 +129,8 @@
 
 .GUITools_imageName {
     -fx-font-weight:bold; 
-    -fx-font-size: 16px;
-    -fx-text-fill: #ddd;
+    -fx-font-size: 12px;
+    -fx-text-fill: #888;
 }
 
 .GUITools_header_z Label {
@@ -145,29 +145,30 @@
 }
 
 .GUITools_header_z Button:hover {
-    -fx-padding: 0px;
-    -fx-background-color: #fff;
+    -fx-padding: 1px 0 0 1px;
     -fx-text-fill: #000;
 }
 
-.GUITools_root3m {
-    -fx-padding: 16px;
+/*.GUITools_root3m {
+    -fx-padding: 14px;
     -fx-background-color: transparent;
-}
+}*/
 
 .GUITools_root2m {
     -fx-background-color: #000;
-    -fx-padding: 3px 3px 3px 3px;
+    -fx-padding: 3px 3px 0px 3px;
 }
 
-.DialogYesNoBox_textarea, .DialogYesNoBox_textarea .viewport {
-    -fx-padding:0;
+.DialogYesNoBox_textarea, .DialogYesNoBox_textarea .viewport, .DialogYesNoBox_textarea .content, DialogYesNoBox_textarea .scroll-pane  {
+    -fx-padding: 9px;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-insets: 0;
     -fx-text-fill: #fff;
     -fx-font-size: 14px;
-    -fx-background-color: #222;
+    -fx-background-color: #000;
     -fx-font-weight:bold;
-    -fx-effect: dropshadow(three-pass-box, #222, 4, 0.85, 0, 0);
+    //-fx-effect: dropshadow(three-pass-box, #222, 4, 0.85, 0, 0);
+    -fx-background-radius: 0;
+    -fx-border-radius:0;
 }
 

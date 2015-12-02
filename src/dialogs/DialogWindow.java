@@ -6,7 +6,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -29,19 +28,19 @@ public class DialogWindow {
     
     private final HBox 
             headerbox       = new HBox(), 
-            toolbox         = new HBox(),
-            logobox         = new HBox();
+            toolbox         = new HBox();//,
+//            logobox         = new HBox();
     
     private final Scene scene;
     
     public DialogWindow() {
         scene = generateScene();
-        init();
+        init(false);
     }
     
-    public DialogWindow(double w, double h) {
+    public DialogWindow(double w, double h, boolean dialog) {
         scene = generateScene(w, h);
-        init(w, h);
+        init(w, h, dialog);
     }
     
     public void hide() {
@@ -74,19 +73,25 @@ public class DialogWindow {
         return basevbox;
     }
     
-    private void init() {
-        init(1200, 800);
+    private void init(boolean dialog) {
+        init(1200, 800, dialog);
     }
     
-    private void init(double w, double h) {
-        final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
-        final ImageView imgLogoV = new ImageView(logoImage);
+    private void init(double w, double h, boolean dialog) {
+//        final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
+//        final ImageView imgLogoV = new ImageView(logoImage);
         
         basevbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         basevbox.getStyleClass().add("DialogWindow_basevbox");
         
-        mvbox.getChildren().add(toolbarvbox);
-        mvbox.getChildren().add(basevbox);
+        if (!dialog) {
+            mvbox.getChildren().add(toolbarvbox);
+            mvbox.getChildren().add(basevbox);
+        } else {
+            mvbox.getChildren().add(basevbox);
+            mvbox.getChildren().add(toolbarvbox);
+        }
+        
         root.getChildren().add(mvbox);
 
         toolbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
@@ -100,16 +105,16 @@ public class DialogWindow {
         headerbox.getStyleClass().add("DialogWindow_headerbox");
         headerbox.setMaxWidth(9999);
         
-        logobox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        logobox.getStyleClass().add("DialogWindow_headerbox");
-        logobox.setMaxSize(239, 64);
-        logobox.setMinSize(239, 64);
-        logobox.setPrefSize(239, 64);
-        logobox.setAlignment(Pos.CENTER_RIGHT);
-        logobox.getChildren().add(imgLogoV);
+//        logobox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
+//        logobox.getStyleClass().add("DialogWindow_headerbox");
+//        logobox.setMaxSize(239, 64);
+//        logobox.setMinSize(239, 64);
+//        logobox.setPrefSize(239, 64);
+//        logobox.setAlignment(Pos.CENTER_RIGHT);
+//        logobox.getChildren().add(imgLogoV);
         
         headerbox.getChildren().add(toolbox);
-        headerbox.getChildren().add(logobox);
+//        headerbox.getChildren().add(logobox);
         
         toolbarvbox.setPrefSize(9999, 70);
         toolbarvbox.setMaxSize(9999, 70);

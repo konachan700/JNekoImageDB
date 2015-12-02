@@ -1,7 +1,7 @@
 .GUITools_imageName {
     -fx-font-weight:bold; 
-    -fx-font-size: 16px;
-    -fx-text-fill: #ddd;
+    -fx-font-size: 14px;
+    -fx-text-fill: #aaa;
 }
 
 .GUITools_header_z Label {
@@ -16,19 +16,19 @@
 }
 
 .GUITools_header_z Button:hover {
-    -fx-padding: 0px;
-    -fx-background-color: #fff;
+    -fx-padding: 1px 0 0 1px;
+    /*-fx-background-color: #fff;*/
     -fx-text-fill: #000;
 }
 
-.GUITools_root3m {
-    -fx-padding: 16px;
-    -fx-background-color: transparent;
-}
+/*.GUITools_root3m {
+    -fx-padding: 1px;
+    -fx-background-color: #333;
+}*/
 
 .GUITools_root2m {
     -fx-background-color: #000;
-    -fx-padding: 3px 3px 3px 3px;
+    -fx-padding: 3px 3px 0px 3px;
 }
 
 .JNekoImageDB_taLOG {

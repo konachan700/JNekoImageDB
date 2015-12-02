@@ -36,18 +36,20 @@ public class DialogYesNoBox extends DialogWindow {
             });
     
     public DialogYesNoBox() {
-        super(750, 330);
+        super(550, 250, true);
         
         messageText.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
         messageText.getStyleClass().add("DialogYesNoBox_textarea");
         messageText.setMaxSize(9999, 9999);
         messageText.setPrefSize(9999, 9999);
         messageText.setWrapText(true);
+        messageText.setEditable(false);
         this.getMainContainer().getChildren().add(messageText);
         
         this.getToolbox().getChildren().add(panel);
-        panel.addButton(IMG64_SELECT_YES, SELECT_YES);
+        panel.addSeparator();
         panel.addButton(IMG64_SELECT_NO,  SELECT_NO);
+        panel.addButton(IMG64_SELECT_YES, SELECT_YES);
     }
     
     public int showYesNo(String text) {

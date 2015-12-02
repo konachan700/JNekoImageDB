@@ -592,8 +592,8 @@ public class InfiniteFileList extends InfiniteListPane {
                 break;
         }
 
-        if ((maxLines - itemCountOnOneColoumn) > 0) 
-            this.setScrollMax(maxLines - itemCountOnOneColoumn); 
+        if (maxLines >= itemCountOnOneColoumn) 
+            this.setScrollMax((maxLines - itemCountOnOneColoumn) + 1); 
         else {
             this.setDisableScroll(true);
             this.setScrollTop();
