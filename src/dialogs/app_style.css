@@ -149,11 +149,6 @@
     -fx-text-fill: #000;
 }
 
-/*.GUITools_root3m {
-    -fx-padding: 14px;
-    -fx-background-color: transparent;
-}*/
-
 .GUITools_root2m {
     -fx-background-color: #000;
     -fx-padding: 3px 3px 0px 3px;
@@ -171,4 +166,3 @@
     -fx-background-radius: 0;
     -fx-border-radius:0;
 }
-

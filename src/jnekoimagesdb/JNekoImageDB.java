@@ -11,8 +11,7 @@ import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
 import imgfs.ImgFSCrypto;
-import imgfsgui.InfiniteFileList;
-import imgfsgui.TabAddImagesToDB;
+import imgfstabs.TabAddImagesToDB;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -25,6 +24,7 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
@@ -35,6 +35,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import menulist.MenuGroupItem;
 import menulist.MenuGroupItemActionListener;
@@ -67,8 +68,8 @@ public class JNekoImageDB extends Application {
     private final TextArea
             taLOG = new TextArea();
     
-//    private final ImgFS
-//            xImgFS = new ImgFS("test");
+    private TabAddImagesToDB
+            addNewImagesTab = null;
     
     private String 
             databaseName    = "default";
@@ -152,26 +153,9 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        TabAddImagesToDB fl = new TabAddImagesToDB(cryptoEx, databaseName);
-                        basesp.getChildren().add(fl.getList());
-                        toolbox.getChildren().add(fl.getTopPanel());
-                        paginator_1.getChildren().add(fl.getBottomPanel());
-                        
-//                        long t = System.currentTimeMillis();
-//                        System.err.println("mem="+Runtime.getRuntime().totalMemory());
-                        
-//                        ArrayList<Path> al = new ArrayList<>(150000);
-//                        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg"))) {
-//                            for (Path p : stream) {
-//                                al.add(p);
-//                            }
-//                            stream.close();
-//                        } catch (IOException ex) {
-//
-//                        }
-//                        getFilesCount(new File("G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg"));
-//                        System.err.println(/*"p.sz="+al.size()+*/"; t="+(System.currentTimeMillis() - t));
-//                        System.err.println("mem="+Runtime.getRuntime().totalMemory());
+                        basesp.getChildren().add(addNewImagesTab.getList());
+                        toolbox.getChildren().add(addNewImagesTab.getTopPanel());
+                        paginator_1.getChildren().add(addNewImagesTab.getBottomPanel());
                     }
                 }
             };
@@ -259,16 +243,13 @@ public class JNekoImageDB extends Application {
         
         try {
             cryptoEx.init(databaseName);
+            addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
         } catch (Exception ex) {
             Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
             Platform.exit(); 
             return;
         }
-        
-        
-
-        
-        
+      
         SQL = new DBEngine();
         if (SQL.Connect(SplittedFile.DATABASE_FOLDER + "fs") == -1) {
             System.err.println(Lang.JNekoImageDB_no_DB_connection);
@@ -403,6 +384,13 @@ public class JNekoImageDB extends Application {
         primaryStage.getIcons().add(new Image(new File("./icons/icon128.png").toURI().toString()));
         primaryStage.getIcons().add(new Image(new File("./icons/icon64.png").toURI().toString()));
         primaryStage.getIcons().add(new Image(new File("./icons/icon32.png").toURI().toString()));
+        
+        primaryStage.setOnHiding((WindowEvent event) -> {
+            if (addNewImagesTab != null) {
+                addNewImagesTab.dispose();
+                Platform.exit(); 
+            }
+        });
         
         primaryStage.setMinWidth(840);
         primaryStage.setMinHeight(480);

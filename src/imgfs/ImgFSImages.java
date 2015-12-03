@@ -21,15 +21,23 @@ import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 
 public class ImgFSImages {
-    public static volatile int 
+    private volatile int 
             previewHeight = 120,
             previewWidth = 120;
     
-    public static boolean
+    private boolean
             isSquaredFSPreview = false;
     
+    public ImgFSImages() { }
+    
+    public void setPreviewSize(int w, int h, boolean s) {
+        previewWidth = w;
+        previewHeight = h;
+        isSquaredFSPreview = s;
+    }
+    
     @SuppressWarnings("ConvertToTryWithResources")
-    public static boolean isImage(String path) {
+    public boolean isImage(String path) {
         final String ext = FilenameUtils.getExtension(path);
         if (ext.length() < 2) return false;
         
@@ -53,7 +61,7 @@ public class ImgFSImages {
     }
     
     @SuppressWarnings("ConvertToTryWithResources")
-    public static byte[] getPreviewFS(String in_path) throws IOException {
+    public byte[] getPreviewFS(String in_path) throws IOException {
         final BufferedImage image = intResizeImage(in_path, previewWidth, previewHeight, isSquaredFSPreview);
         if (image == null) 
             throw new IOException("getPreviewFS: cannot create preview for image ["+in_path+"]!");;
@@ -66,7 +74,7 @@ public class ImgFSImages {
         return retVal;
     }
     
-    private static BufferedImage intResizeImage(String in_path, int sizeW, int sizeH, boolean crop) {
+    private BufferedImage intResizeImage(String in_path, int sizeW, int sizeH, boolean crop) {
         final File img_file = new File(in_path);
         if (!img_file.canRead()) return null;
         try {
@@ -108,7 +116,7 @@ public class ImgFSImages {
         }
     }
     
-    private static Map<String, BufferedImage> intResizeImage(String in_path, int sizeW, int sizeH) {
+    private Map<String, BufferedImage> intResizeImage(String in_path, int sizeW, int sizeH) {
         final File img_file = new File(in_path);
         if (!img_file.canRead()) return null;
         try {

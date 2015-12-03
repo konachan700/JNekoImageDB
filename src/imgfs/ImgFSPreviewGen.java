@@ -181,6 +181,9 @@ public class ImgFSPreviewGen {
         
         private final ImgFSCrypto
                 imCrypt;
+        
+        private final ImgFSImages
+                imgConverter = new ImgFSImages();
 
         public PreviewWorker(Object o, PreviewGeneratorActionListener al, ImgFSCrypto ic) {
             super();
@@ -244,16 +247,13 @@ public class ImgFSPreviewGen {
                             final byte[] md5e = getFilePartMD5(pe.getFile().getAbsolutePath());
                             prevSizes.stream().forEach((c) -> {
                                 try {
-                                    ImgFSImages.previewHeight = c.height;
-                                    ImgFSImages.previewWidth = c.width;
-                                    ImgFSImages.isSquaredFSPreview = c.isSquared;
-                                    
-                                    final byte preview[] = ImgFSImages.getPreviewFS(pe.getFile().getAbsolutePath());
+                                    imgConverter.setPreviewSize(c.width, c.height, c.isSquared);
+                                    final byte preview[] = imgConverter.getPreviewFS(pe.getFile().getAbsolutePath());
                                     final byte previewCrypted[] = imCrypt.Crypt(preview);
                                     
                                     pe.setCryptedImageBytes(previewCrypted, c.toString());
                                 } catch (IOException ex1) {
-                                    L("cannot insert image from db; c=" + c.toString() + "; " + ex.getMessage());
+                                    L("cannot insert image from db; c=" + c.toString() + "; " + ex1.getMessage());
                                 }    
                             });
 
@@ -264,10 +264,12 @@ public class ImgFSPreviewGen {
                             if (im != null) 
                                 actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath());
                         
-                        } catch (RecordNotFoundException ex1) {
+                        }  catch (Error e) {
+                            L("cannot insert image from db; RTE; " + e.getMessage());
+                        }catch (RecordNotFoundException ex1) {
                             
                         } catch (IOException | ClassNotFoundException ex1) {
-                            L("cannot insert image from db; " + ex.getMessage());
+                            L("cannot insert image from db; " + ex1.getMessage());
                         }
                     } catch (ClassNotFoundException | IOException ex) {
                         L("cannot load image from db; " + ex.getMessage());
@@ -354,7 +356,9 @@ public class ImgFSPreviewGen {
         options.createIfMissing(true);     
         levelDB = factory.open(levelDBFile, options);
         
-        processorsCount = Runtime.getRuntime().availableProcessors();
+        processorsCount = (Runtime.getRuntime().availableProcessors() / 2);
+        if (processorsCount < 2) processorsCount = 2;
+        
         for (int i=0; i<processorsCount; i++) {
             final PreviewWorker pw = new PreviewWorker(this, actionListenerY, imCryptoY);
             workersTreads.add(pw);
@@ -372,6 +376,11 @@ public class ImgFSPreviewGen {
         workersTreads.stream().forEach((p) -> {
             p.exit();
         });
+        
+        synchronized (this){
+            this.notifyAll();
+        }
+        
         try {
             levelDB.close();
         } catch (IOException ex) { }

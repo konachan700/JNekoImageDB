@@ -48,7 +48,6 @@ public class DialogWindow {
     }
     
     public void show() {
-        //win.initModality(Modality.NONE); 
         win.show();
     }
     
@@ -87,9 +86,11 @@ public class DialogWindow {
         if (!dialog) {
             mvbox.getChildren().add(toolbarvbox);
             mvbox.getChildren().add(basevbox);
+            win.initModality(Modality.NONE);
         } else {
             mvbox.getChildren().add(basevbox);
             mvbox.getChildren().add(toolbarvbox);
+            win.initModality(Modality.APPLICATION_MODAL);
         }
         
         root.getChildren().add(mvbox);
@@ -131,7 +132,7 @@ public class DialogWindow {
         win.setMinHeight(h / 2);
         win.setTitle(Lang.DialogWindow_Title);
         win.setScene(scene);
-        win.initModality(Modality.APPLICATION_MODAL); 
+        //win.initModality(Modality.APPLICATION_MODAL); 
         
         if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(win);
     }

@@ -1,16 +1,13 @@
-package imgfsgui;
+package imgfstabs;
 
-import dataaccess.Lang;
-import dialogs.DialogWindow;
 import dialogs.DialogYesNoBox;
 import imgfs.ImgFSCrypto;
+import imgfsgui.InfiniteFileList;
+import imgfsgui.ToolsPanelBottom;
+import imgfsgui.ToolsPanelTop;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import jnekoimagesdb.JNekoImageDB;
 
 public class TabAddImagesToDB {
     private final int
@@ -116,10 +113,14 @@ public class TabAddImagesToDB {
         panelTop = new ToolsPanelTop((index) -> {
             switch (index) {
                 case BTN_SELALL:
-                    
+                    if (fileList.getElementCount() > 4300) {
+                        if (dialogYN.showYesNo("Опepация может занять некторое время. Продолжить?") == DialogYesNoBox.SELECT_YES) fileList.selectAll();
+                    } else {
+                        fileList.selectAll();
+                    }   
                     break;
                 case BTN_SELNONE:
-                    
+                    fileList.clearSelection();
                     break;
                 case BTN_DEL:
                     final int result = dialogYN.showYesNo("Точно удалить выбранные файлы с диска?");
@@ -136,10 +137,6 @@ public class TabAddImagesToDB {
         panelTop.addButton(IMG64_DELETE, BTN_DEL);
         panelTop.addSeparator();
         panelTop.addButton(IMG64_ADD_TO_DB, BTN_ADD);
-        
-        
-        
-        
     }
     
     public ToolsPanelBottom getBottomPanel() {
@@ -152,5 +149,9 @@ public class TabAddImagesToDB {
     
     public InfiniteFileList getList() {
         return fileList;
+    }
+    
+    public void dispose() {
+        fileList.dispose();
     }
 }

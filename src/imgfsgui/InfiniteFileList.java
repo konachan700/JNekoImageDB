@@ -14,8 +14,6 @@ import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -131,8 +129,8 @@ public class InfiniteFileList extends InfiniteListPane {
             });
 
             imageContainer.getStyleClass().add("FileListItem_imageContainer");
-            imageContainer.setFitHeight(ImgFSImages.previewHeight);
-            imageContainer.setFitWidth(ImgFSImages.previewWidth);
+//            imageContainer.setFitHeight(120);
+//            imageContainer.setFitWidth(120);
             imageContainer.setPreserveRatio(true);
             imageContainer.setSmooth(true);
             imageContainer.setCache(false);
@@ -393,9 +391,16 @@ public class InfiniteFileList extends InfiniteListPane {
         }
     }
     
+    public int getElementCount() {
+        return selectedFileList.size();
+    }
+    
     public void dispose() {
         previewGen.killAll();
         isExit = true;
+        synchronized (selectedFileList) {
+            selectedFileList.notify();
+        }
     }
     
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
@@ -468,6 +473,22 @@ public class InfiniteFileList extends InfiniteListPane {
     
     public final File getPath() {
         return currentFile;
+    }
+    
+    public void clearSelection() {
+        selectedFileList.clear();
+        regenerateView(-1);
+        this.setScrollTop();
+    }
+    
+    public void selectAll() {
+        selectedFileList.clear();
+        mainFileList.forEach((c) -> {
+            if (Files.isRegularFile(c)) selectedFileList.add(c);
+        });
+
+        regenerateView(-1);
+        this.setScrollTop();
     }
     
     public final File getParentPath() {
