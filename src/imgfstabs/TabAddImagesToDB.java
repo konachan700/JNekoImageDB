@@ -1,12 +1,16 @@
 package imgfstabs;
 
+import dialogs.DialogFSImageView;
 import dialogs.DialogYesNoBox;
+import imgfs.ImgFS;
 import imgfs.ImgFSCrypto;
 import imgfsgui.InfiniteFileList;
 import imgfsgui.ToolsPanelBottom;
 import imgfsgui.ToolsPanelTop;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import javafx.scene.image.Image;
 
 public class TabAddImagesToDB {
@@ -47,6 +51,9 @@ public class TabAddImagesToDB {
     
     private final DialogYesNoBox
             dialogYN = new DialogYesNoBox();
+    
+    private final DialogFSImageView
+            imageViewer = new DialogFSImageView();
     
     public TabAddImagesToDB(ImgFSCrypto c, String dbname) {
         crypt           = c;
@@ -104,7 +111,10 @@ public class TabAddImagesToDB {
                 }
             } else {
                 if (Files.isReadable(path)) {
-                    //todo: view image in new window
+                    final ArrayList<Path> alp = fileList.getMainList();
+                    imageViewer.setFiles(alp);
+                    imageViewer.setFileIndex(path);
+                    imageViewer.show();
                 }
             }
         });
@@ -126,7 +136,7 @@ public class TabAddImagesToDB {
                     final int result = dialogYN.showYesNo("Точно удалить выбранные файлы с диска?");
                     break;
                 case BTN_ADD:
-                    
+                    ImgFS.progressShow();
                     break;
             }
         });

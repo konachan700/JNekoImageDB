@@ -413,7 +413,7 @@ public class InfiniteFileList extends InfiniteListPane {
         });
         
         try {
-            previewGen.init();
+            previewGen.init(true);
         } catch (IOException ex) {
             L("init() error; " + ex.getMessage());
         }
@@ -493,6 +493,10 @@ public class InfiniteFileList extends InfiniteListPane {
     
     public final File getParentPath() {
         return currentFile.getParentFile();
+    }
+    
+    public final ArrayList<Path> getMainList() {
+        return mainFileList;
     }
     
     public final void setWindowsRootPath(File[] rootList) {

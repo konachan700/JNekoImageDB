@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -44,6 +45,14 @@ public class ImgFSPreviewGen {
 
     public static interface PreviewGeneratorActionListener {
         public void OnPreviewGenerateComplete(Image im, Path path);
+    }
+    
+    public static interface PreviewGeneratorProgressListener {
+        public void OnStartThread(int itemsCount, int tID);
+        public void OnNewItemGenerated(int itemsCount, Path p, int tID, String quene);
+        public void OnError(int tID);
+        public void OnComplete(int tID);
+        public void OnCreated(int tID);
     }
     
     public static class FileIsNotImageException extends IOException {
@@ -174,7 +183,8 @@ public class ImgFSPreviewGen {
         
         private volatile boolean 
                 isExit = false,
-                isWaiting = false;
+                isWaiting = false,
+                isDisplayProgress = false;
         
         private final PreviewGeneratorActionListener
                 actionListenerX;
@@ -184,12 +194,20 @@ public class ImgFSPreviewGen {
         
         private final ImgFSImages
                 imgConverter = new ImgFSImages();
+        
+        private final String 
+                queneName;
 
-        public PreviewWorker(Object o, PreviewGeneratorActionListener al, ImgFSCrypto ic) {
+        public PreviewWorker(Object o, PreviewGeneratorActionListener al, ImgFSCrypto ic, String quene) {
             super();
+            queneName       = quene;
             syncObject      = o;
             actionListenerX = al;
             imCrypt         = ic;
+        }
+        
+        public void setProgressDisplay(boolean b) {
+            isDisplayProgress = b;
         }
         
         public boolean isWaiting() {
@@ -232,6 +250,8 @@ public class ImgFSPreviewGen {
                     return;
                 }
                 
+                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnStartThread(threadQueue.size(), this.hashCode()); });
+                
                 while (true) {
                     final PreviewElement pe = threadQueue.poll();
                     if (pe == null) break;
@@ -254,6 +274,7 @@ public class ImgFSPreviewGen {
                                     pe.setCryptedImageBytes(previewCrypted, c.toString());
                                 } catch (IOException ex1) {
                                     L("cannot insert image from db; c=" + c.toString() + "; " + ex1.getMessage());
+                                    if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                                 }    
                             });
 
@@ -261,18 +282,25 @@ public class ImgFSPreviewGen {
                             
                             final PreviewElement peDB = readEntry(imCrypt, md5e);
                             final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
-                            if (im != null) 
+                            if (im != null) {
                                 actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath());
+                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnNewItemGenerated(threadQueue.size(), pe.getPath(), this.hashCode(), queneName); });
+                            } else {
+                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
+                            }
                         
                         }  catch (Error e) {
                             L("cannot insert image from db; RTE; " + e.getMessage());
+                            if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                         }catch (RecordNotFoundException ex1) {
-                            
+                            if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                         } catch (IOException | ClassNotFoundException ex1) {
                             L("cannot insert image from db; " + ex1.getMessage());
+                            if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                         }
                     } catch (ClassNotFoundException | IOException ex) {
                         L("cannot load image from db; " + ex.getMessage());
+                        if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                     }
                 }
             }
@@ -351,7 +379,7 @@ public class ImgFSPreviewGen {
     private final ImgFSCrypto
             imCryptoY;
 
-    public void init() throws IOException {
+    public void init(boolean isDisplayProgress) throws IOException {
         Options options = new Options();
         options.createIfMissing(true);     
         levelDB = factory.open(levelDBFile, options);
@@ -360,9 +388,11 @@ public class ImgFSPreviewGen {
         if (processorsCount < 2) processorsCount = 2;
         
         for (int i=0; i<processorsCount; i++) {
-            final PreviewWorker pw = new PreviewWorker(this, actionListenerY, imCryptoY);
+            final PreviewWorker pw = new PreviewWorker(this, actionListenerY, imCryptoY, levelDBName);
+            pw.setProgressDisplay(isDisplayProgress);
             workersTreads.add(pw);
             new Thread(pw).start();
+            if (isDisplayProgress) ImgFS.getProgressListener().OnCreated(pw.hashCode());
         }
     }
     

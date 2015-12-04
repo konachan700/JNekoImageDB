@@ -1,17 +1,11 @@
 package dialogs;
 
-import dataaccess.Lang;
 import imgfsgui.ToolsImageViewer;
 import imgfsgui.ToolsPanelTop;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import javafx.scene.Cursor;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import jnekoimagesdb.GUITools;
 
 public class DialogFSImageView extends DialogWindow {
     public static final int 
@@ -33,12 +27,12 @@ public class DialogFSImageView extends DialogWindow {
             imgViewer = new ToolsImageViewer(new ToolsImageViewer.ToolsImageViewerActionListener() {
                 @Override
                 public void PrevKey() {
-
+                    prev();
                 }
 
                 @Override
                 public void NextKey() {
-
+                    next();
                 }
             });
 
@@ -46,31 +40,48 @@ public class DialogFSImageView extends DialogWindow {
             panel = new ToolsPanelTop((index) -> {
                 switch (index) {
                     case BUTTON_PREV:
-                        
+                        prev();
                         break;
                     case BUTTON_NEXT:
-                        
+                        next();
                         break;
                     case BUTTON_ZOOM_IN: 
-                        
+                        imgViewer.zoomIn();
                         break;
                     case BUTTON_ZOOM_OUT:
-                        
+                        imgViewer.zoomOut();
                         break;
                     case BUTTON_ORIG:
-                        
+                        imgViewer.zoomOrig();
                         break;
                     case BUTTON_FITTOWIN:
-                        
+                        imgViewer.zoomFitToWin();
                         break;
                 }
             });
     
+    private void next() {
+        if (filesList.size() <= 1) return;
+        if (fileIndex >= filesList.size()) return;
+        
+        fileIndex++;
+        showImage(filesList.get(fileIndex));
+    }
+    
+    private void prev() {
+        if (filesList.size() <= 1) return;
+        if (fileIndex <= 0) return;
+        
+        fileIndex--;
+        showImage(filesList.get(fileIndex));
+    }
+    
     public DialogFSImageView() {
-        super(1024, 768, false);
+        super(1336, 768, false); // todo: сделать запоминание размера
+        
         this.getToolbox().getChildren().add(panel);
-        panel.addButton(new Image(new File("./icons/arrow-right.png").toURI().toString()), BUTTON_PREV);
-        panel.addButton(new Image(new File("./icons/arrow-left.png").toURI().toString()), BUTTON_NEXT);
+        panel.addButton(new Image(new File("./icons/arrow-left.png").toURI().toString()), BUTTON_PREV);
+        panel.addButton(new Image(new File("./icons/arrow-right.png").toURI().toString()), BUTTON_NEXT);
         panel.addFixedSeparator();
         panel.addButton(new Image(new File("./icons/zoom-in.png").toURI().toString()), BUTTON_ZOOM_IN);
         panel.addButton(new Image(new File("./icons/zoom-out.png").toURI().toString()), BUTTON_ZOOM_OUT);
@@ -81,7 +92,15 @@ public class DialogFSImageView extends DialogWindow {
     }
     
     public void setFiles(ArrayList<Path> p) {
+        filesList.clear();
         filesList.addAll(p);
+    }
+    
+    public void setFileIndex(Path p) {
+        fileIndex = 0;
+        for (int i=0; i<filesList.size(); i++) {
+            if (filesList.get(i).compareTo(p) == 0) fileIndex = i;
+        }
     }
     
     public void setFileIndex(int index) {
@@ -90,11 +109,12 @@ public class DialogFSImageView extends DialogWindow {
     
     @Override
     public void show() {
+        showImage(filesList.get(fileIndex));
         super.show();
-        
     }
     
     private void showImage(Path imgPath) {
-        
+        final Image img = new Image(imgPath.toFile().toURI().toString());
+        imgViewer.setImage(img);
     }
 }

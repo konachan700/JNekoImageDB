@@ -10,6 +10,7 @@ import dataaccess.Lang;
 import dataaccess.SplittedFile;
 import fsimagelist.FSImageList;
 import imagelist.ImageList;
+import imgfs.ImgFS;
 import imgfs.ImgFSCrypto;
 import imgfstabs.TabAddImagesToDB;
 import java.io.File;
@@ -68,8 +69,8 @@ public class JNekoImageDB extends Application {
     private final TextArea
             taLOG = new TextArea();
     
-    private TabAddImagesToDB
-            addNewImagesTab = null;
+//    private TabAddImagesToDB
+//            addNewImagesTab = null;
     
     private String 
             databaseName    = "default";
@@ -98,12 +99,12 @@ public class JNekoImageDB extends Application {
     private final Crypto
             mainCrypto      = new Crypto();
     
-    private final ImgFSCrypto
-            cryptoEx        = new ImgFSCrypto(() -> {
-                
-                
-                return null;
-            });
+//    private final ImgFSCrypto
+//            cryptoEx        = new ImgFSCrypto(() -> {
+//                
+//                
+//                return null;
+//            });
     
     private DBEngine
             SQL = null;
@@ -153,9 +154,9 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        basesp.getChildren().add(addNewImagesTab.getList());
-                        toolbox.getChildren().add(addNewImagesTab.getTopPanel());
-                        paginator_1.getChildren().add(addNewImagesTab.getBottomPanel());
+                        basesp.getChildren().add(ImgFS.getAddImagesTab().getList());
+                        toolbox.getChildren().add(ImgFS.getAddImagesTab().getTopPanel());
+                        paginator_1.getChildren().add(ImgFS.getAddImagesTab().getBottomPanel());
                     }
                 }
             };
@@ -242,8 +243,9 @@ public class JNekoImageDB extends Application {
         DBWrapper.setCrypto(mainCrypto);
         
         try {
-            cryptoEx.init(databaseName);
-            addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
+            ImgFS.init(databaseName);
+//            cryptoEx.init(databaseName);
+//            addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
         } catch (Exception ex) {
             Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
             Platform.exit(); 
@@ -386,10 +388,12 @@ public class JNekoImageDB extends Application {
         primaryStage.getIcons().add(new Image(new File("./icons/icon32.png").toURI().toString()));
         
         primaryStage.setOnHiding((WindowEvent event) -> {
-            if (addNewImagesTab != null) {
-                addNewImagesTab.dispose();
-                Platform.exit(); 
-            }
+            ImgFS.dispose();
+            Platform.exit(); 
+//            if (addNewImagesTab != null) {
+//                addNewImagesTab.dispose();
+//                Platform.exit(); 
+//            }
         });
         
         primaryStage.setMinWidth(840);

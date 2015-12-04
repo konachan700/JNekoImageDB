@@ -166,3 +166,94 @@
     -fx-background-radius: 0;
     -fx-border-radius:0;
 }
+
+.DialogMTPrevGenProgress_root_pane {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color:transparent;
+}
+
+.DialogMTPrevGenProgress_root_pane:focused {
+    -fx-background-insets: 0;
+}
+
+.DialogMTPrevGenProgress_root_pane .corner {
+    -fx-background-insets: 0;
+}
+
+.DialogMTPrevGenProgress_root_pane .viewport {
+    -fx-background-insets: 0;
+    -fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
+}
+
+.DialogMTPrevGenProgress_root_pane .scroll-bar:horizontal .track,
+.DialogMTPrevGenProgress_root_pane .scroll-bar:vertical .track {
+    -fx-background-color:#333;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:2em;
+}
+
+.DialogMTPrevGenProgress_root_pane .scroll-bar:horizontal .increment-button ,
+.DialogMTPrevGenProgress_root_pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.DialogMTPrevGenProgress_root_pane .scroll-bar:vertical .increment-button ,
+.DialogMTPrevGenProgress_root_pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.DialogMTPrevGenProgress_root_pane  .scroll-bar .increment-arrow,
+.DialogMTPrevGenProgress_root_pane  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.DialogMTPrevGenProgress_root_pane .scroll-bar:horizontal .thumb,
+.DialogMTPrevGenProgress_root_pane .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
+
+.DialogMTPrevGenProgress_cVBox, .ProgressElement_middle {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    //-fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
+    -fx-background-color: transparent;
+}
+
+.ProgressElement_root_pane {
+    -fx-padding: 3px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: #333;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: #777;
+}
+
+.ProgressElement_tIDLabel {
+    -fx-padding: 0 9px 0 0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: transparent;
+    -fx-text-fill: #aaa;
+    -fx-font-size: 18px;
+    -fx-font-weight:bold;
+}
+
+.ProgressElement_label {
+    -fx-padding: 0 0 0 9px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: transparent;
+    -fx-text-fill: #fff;
+    -fx-font-size: 11px;
+}

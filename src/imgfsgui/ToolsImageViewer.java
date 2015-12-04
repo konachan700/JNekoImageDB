@@ -1,6 +1,7 @@
 package imgfsgui;
 
 import dataaccess.Lang;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Cursor;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -35,26 +36,26 @@ public class ToolsImageViewer extends ScrollPane {
     private Image
             currImg = null;
     
-    public void zoomIn() {
+    public final void zoomIn() {
         if (scale < 10d) scale = scale + 0.3d; 
         setImg(currImg);
     }
     
-    public void zoomOut() {
+    public final void zoomOut() {
         if (scale > 0.4) scale = scale - 0.3d; 
         setImg(currImg);
     }
     
-    public void zoomOrig() {
+    public final void zoomOrig() {
         setImgOrig(currImg);
     }
     
-    public void zoomFitToWin() {
+    public final void zoomFitToWin() {
         scale = 0.95d;
         setImg(currImg);
     }
     
-    public void setImage(Image im) {
+    public final void setImage(Image im) {
         currImg = im;
         zoomFitToWin();
     }
@@ -106,6 +107,16 @@ public class ToolsImageViewer extends ScrollPane {
                 last_x = t.getSceneX();
                 last_y = t.getSceneY();
             }
+        });
+        
+        this.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            width = newValue.doubleValue();
+            if ((height > 0) && (width > 0)) setImg(currImg);
+        });
+        
+        this.heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            height = newValue.doubleValue();
+            if ((height > 0) && (width > 0)) setImg(currImg);
         });
     }
     
