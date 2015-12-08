@@ -1,6 +1,5 @@
 package imgfsgui;
 
-import dataaccess.Lang;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Cursor;
 import javafx.scene.control.ScrollPane;
@@ -60,12 +59,12 @@ public class ToolsImageViewer extends ScrollPane {
         zoomFitToWin();
     }
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public ToolsImageViewer(ToolsImageViewerActionListener al) {
         super();
         actListener = al;
         
-        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        this.getStyleClass().add("ToolsImageViewer_root_pane");
+        GUITools.setStyle(this, "ToolsImageViewer", "root_pane");
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         this.setFitToHeight(true);

@@ -1,8 +1,6 @@
 package dialogs;
 
-import dataaccess.Lang;
 import imgfsgui.ToolsPanelTop;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,10 +15,10 @@ import jnekoimagesdb.GUITools;
 
 public class DialogMTPrevGenProgress extends DialogWindow {
     private static final Image 
-            IMG64_SELECT_NO     = new Image(new File("./icons/d_no.png").toURI().toString()),
-            IMG32_IN_PROGRESS   = new Image(new File("./icons/inprogress.png").toURI().toString()),
-            IMG32_IN_UNKNOWN    = new Image(new File("./icons/unknown32.png").toURI().toString()),
-            IMG32_COMPLETED     = new Image(new File("./icons/selected.png").toURI().toString());
+            IMG64_SELECT_NO     = GUITools.loadIcon("delete-48"), 
+            IMG32_IN_PROGRESS   = GUITools.loadIcon("inprogress-32"),  
+            IMG32_IN_UNKNOWN    = GUITools.loadIcon("unknown-32"), 
+            IMG32_COMPLETED     = GUITools.loadIcon("selected-32"); 
     
     public static class ProgressElement extends HBox {
         public static final int ELEMENT_HEIGHT = 32; 
@@ -41,29 +39,25 @@ public class DialogMTPrevGenProgress extends DialogWindow {
         public ProgressElement() {
             super(0);
             
-            this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-            this.getStyleClass().add("ProgressElement_root_pane");
+            GUITools.setStyle(this, "ProgressElement", "root_pane");
             this.setAlignment(Pos.CENTER);
             
             icon.setPreserveRatio(true);
             icon.setSmooth(true);
             
-            tIDLabel.getStyleClass().add("ProgressElement_tIDLabel");
+            GUITools.setStyle(tIDLabel, "ProgressElement", "tIDLabel");
             GUITools.setFixedSize(tIDLabel, 130, ELEMENT_HEIGHT);
-            tIDLabel.setMinSize(130, ELEMENT_HEIGHT);
-            tIDLabel.setPrefSize(130, ELEMENT_HEIGHT);
-            tIDLabel.setMaxSize(130, ELEMENT_HEIGHT);
             tIDLabel.setAlignment(Pos.CENTER_RIGHT);
             
-            middle.getStyleClass().add("ProgressElement_middle");
+            GUITools.setStyle(middle, "ProgressElement", "middle");
             GUITools.setMaxSize(middle, 9999, ELEMENT_HEIGHT);
             middle.setAlignment(Pos.CENTER_LEFT);
             
-            countLabel.getStyleClass().add("ProgressElement_label");
+            GUITools.setStyle(countLabel, "ProgressElement", "label");
             GUITools.setMaxSize(countLabel, 9999, ELEMENT_HEIGHT / 2);
             countLabel.setAlignment(Pos.CENTER_LEFT);
             
-            pathLabel.getStyleClass().add("ProgressElement_label");
+            GUITools.setStyle(pathLabel, "ProgressElement", "label");
             GUITools.setMaxSize(pathLabel, 9999, ELEMENT_HEIGHT / 2);
             pathLabel.setAlignment(Pos.CENTER_LEFT);
             
@@ -139,12 +133,10 @@ public class DialogMTPrevGenProgress extends DialogWindow {
         panel.addButton(IMG64_SELECT_NO, SELECT_NO);
         this.getToolbox().getChildren().add(panel);
         
-        cVBox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        cVBox.getStyleClass().add("DialogMTPrevGenProgress_cVBox");
+        GUITools.setStyle(cVBox, "DialogMTPrevGenProgress", "cVBox");
         GUITools.setMaxSize(cVBox, 9999, 9999);
 
-        sPane.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        sPane.getStyleClass().add("DialogMTPrevGenProgress_root_pane");
+        GUITools.setStyle(sPane, "DialogMTPrevGenProgress", "root_pane");
         sPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         sPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         sPane.setFitToHeight(true);

@@ -2,10 +2,10 @@ package dialogs;
 
 import imgfsgui.ToolsImageViewer;
 import imgfsgui.ToolsPanelTop;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import javafx.scene.image.Image;
+import jnekoimagesdb.GUITools;
 
 public class DialogFSImageView extends DialogWindow {
     public static final int 
@@ -80,13 +80,13 @@ public class DialogFSImageView extends DialogWindow {
         super(1336, 768, false); // todo: сделать запоминание размера
         
         this.getToolbox().getChildren().add(panel);
-        panel.addButton(new Image(new File("./icons/arrow-left.png").toURI().toString()), BUTTON_PREV);
-        panel.addButton(new Image(new File("./icons/arrow-right.png").toURI().toString()), BUTTON_NEXT);
+        panel.addButton(GUITools.loadIcon("arrow-left-48"), BUTTON_PREV);
+        panel.addButton(GUITools.loadIcon("arrow-right-48"), BUTTON_NEXT);
         panel.addFixedSeparator();
-        panel.addButton(new Image(new File("./icons/zoom-in.png").toURI().toString()), BUTTON_ZOOM_IN);
-        panel.addButton(new Image(new File("./icons/zoom-out.png").toURI().toString()), BUTTON_ZOOM_OUT);
-        panel.addButton(new Image(new File("./icons/zoom-original.png").toURI().toString()), BUTTON_ORIG);
-        panel.addButton(new Image(new File("./icons/zoom-fit-best.png").toURI().toString()), BUTTON_FITTOWIN);
+        panel.addButton(GUITools.loadIcon("zoom-in-48"), BUTTON_ZOOM_IN);
+        panel.addButton(GUITools.loadIcon("zoom-out-48"), BUTTON_ZOOM_OUT);
+        panel.addButton(GUITools.loadIcon("zoom-original-48"), BUTTON_ORIG);
+        panel.addButton(GUITools.loadIcon("zoom-fit-best-48"), BUTTON_FITTOWIN);
         
         this.getMainContainer().getChildren().add(imgViewer);
     }

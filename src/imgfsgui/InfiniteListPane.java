@@ -1,6 +1,5 @@
 package imgfsgui;
 
-import dataaccess.Lang;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -13,6 +12,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import jnekoimagesdb.GUITools;
 
 public class InfiniteListPane extends ScrollPane {
     public static final int
@@ -90,6 +90,7 @@ public class InfiniteListPane extends ScrollPane {
         }
     }));
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public InfiniteListPane() {
         super();
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -97,8 +98,7 @@ public class InfiniteListPane extends ScrollPane {
         this.setContent(rootPanel);
         this.setFitToWidth(true);
         this.setFitToHeight(false);
-        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        this.getStyleClass().add("InfinityList");
+        GUITools.setStyle(this, "InfinityList", "root_pane");
         
         this.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
@@ -152,10 +152,10 @@ public class InfiniteListPane extends ScrollPane {
         mainContainer.setHgap(spaceSize);
         mainContainer.setVgap(spaceSize);
 
-        mainContainer.getStyleClass().add("InfinityList_mainContainer");
-        topDummy.getStyleClass().add("InfinityList_topDummy");
-        bottomDummy.getStyleClass().add("InfinityList_bottomDummy");
-        
+        GUITools.setStyle(mainContainer, "InfinityList", "mainContainer");
+        GUITools.setStyle(topDummy, "InfinityList", "topDummy");
+        GUITools.setStyle(bottomDummy, "InfinityList", "bottomDummy");
+
         scrollCounterX = rowSize - 1;
         setTopDummyHeight(rowSize - 1);
         setBottomDummyHeight(1);

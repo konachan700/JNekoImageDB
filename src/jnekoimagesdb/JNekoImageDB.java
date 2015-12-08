@@ -8,13 +8,9 @@ import dataaccess.ImageEngine;
 import dataaccess.DBEngine;
 import dataaccess.Lang;
 import dataaccess.SplittedFile;
-import fsimagelist.FSImageList;
 import imagelist.ImageList;
 import imgfs.ImgFS;
-import imgfs.ImgFSCrypto;
-import imgfstabs.TabAddImagesToDB;
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
@@ -25,7 +21,6 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
@@ -38,6 +33,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import jnekoimagesdb.GUITools.DragDelta;
 import menulist.MenuGroupItem;
 import menulist.MenuGroupItemActionListener;
 import menulist.MenuLabel;
@@ -84,8 +80,8 @@ public class JNekoImageDB extends Application {
     private AlbumsCategories
             albumCats = null;
     
-    private FSImageList 
-            fileImgList     = null;
+//    private FSImageList 
+//            fileImgList     = null;
     
     private ImageList
             imgList         = null;
@@ -154,21 +150,11 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
-                        basesp.getChildren().add(ImgFS.getAddImagesTab().getList());
-                        toolbox.getChildren().add(ImgFS.getAddImagesTab().getTopPanel());
-                        paginator_1.getChildren().add(ImgFS.getAddImagesTab().getBottomPanel());
+                        
                     }
                 }
             };
-    
-//    private int getFilesCount(File f) throws IOException {
-//        final DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(f.getAbsolutePath()));
-//        int counter = 0;
-//        for (Path p : stream) counter++;
-//        stream.close();
-//        return counter;
-//    }
-    
+
     private void clearAll() {
         basesp.getChildren().clear();
         toolbox.getChildren().clear();
@@ -194,12 +180,9 @@ public class JNekoImageDB extends Application {
     }
     
     private void showFileDialog() {
-        try {
-            if (fileImgList.isStart()) fileImgList.setPath(new File(".").getCanonicalPath());
-            paginator_1.getChildren().add(fileImgList.getPaginator());
-            toolbox.getChildren().add(fileImgList.getTopPanel());  
-            basesp.getChildren().add(fileImgList);
-        } catch (IOException ex) {}
+        basesp.getChildren().add(ImgFS.getAddImagesTab().getList());
+        toolbox.getChildren().add(ImgFS.getAddImagesTab().getTopPanel());
+        paginator_1.getChildren().add(ImgFS.getAddImagesTab().getBottomPanel());
     }
     
     private void showAlbCats() {
@@ -269,7 +252,7 @@ public class JNekoImageDB extends Application {
         imgEn = new ImageEngine(mainCrypto, SQL);
         DBWrapper.setImageEngine(imgEn);
                 
-        fileImgList = new FSImageList(mainCrypto, imgEn, SQL);
+//        fileImgList = new FSImageList(mainCrypto, imgEn, SQL);
         imgList = new ImageList(imgEn, basesp);
         albImgList = new AlbumImageList(imgEn, basesp); 
         settings = new Settings(SQL);
@@ -279,8 +262,8 @@ public class JNekoImageDB extends Application {
         taLOG.setMaxSize(9999, 9999);
         taLOG.setPrefSize(9999, 9999);
         taLOG.setWrapText(true);
-        taLOG.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        taLOG.getStyleClass().add("JNekoImageDB_taLOG");
+        
+        GUITools.setStyle(taLOG, "JNekoImageDB", "taLOG");
         taLOG.textProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
             taLOG.setScrollTop(Double.MAX_VALUE);
         });
@@ -288,7 +271,7 @@ public class JNekoImageDB extends Application {
         StackPane root = new StackPane();
         final Scene scene;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            StackPane root3m = GUITools.getWinGUI(this, primaryStage, DRD, root, mvbox, Lang.AppStyleCSS, GUITools.CLOSE_EXIT, false);
+            StackPane root3m = GUITools.getWinGUI(this, primaryStage, DRD, root, mvbox, "", GUITools.CLOSE_EXIT, false);
             scene = new Scene(root3m, 950, 650);
             scene.setFill(Color.TRANSPARENT);
              
@@ -300,18 +283,15 @@ public class JNekoImageDB extends Application {
         mvbox.getChildren().add(basevbox);
         root.getChildren().add(mvbox);
 
-        toolbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        toolbox.getStyleClass().add("JNekoImageDB_toolbox");
+        GUITools.setStyle(toolbox, "JNekoImageDB", "toolbox");
         toolbox.setMaxWidth(9999);
         toolbox.setPrefWidth(9999);
         toolbox.setAlignment(Pos.BOTTOM_LEFT);
 
-        headerbox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        headerbox.getStyleClass().add("JNekoImageDB_headerbox");
+        GUITools.setStyle(headerbox, "JNekoImageDB", "headerbox");
         headerbox.setMaxWidth(9999);
         
-        logobox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        logobox.getStyleClass().add("JNekoImageDB_headerbox");
+        GUITools.setStyle(logobox, "JNekoImageDB", "headerbox");
         logobox.setMaxSize(240, 64);
         logobox.setMinSize(240, 64);
         logobox.setPrefSize(240, 64);
@@ -324,12 +304,11 @@ public class JNekoImageDB extends Application {
         toolbarvbox.setPrefSize(9999, 70);
         toolbarvbox.setMaxSize(9999, 70);
         toolbarvbox.setMinSize(64, 70);
-        toolbarvbox.setStyle("-fx-background-color: #000000;");
+        //toolbarvbox.setStyle("-fx-background-color: #000000;");
         
         toolbarvbox.getChildren().add(headerbox);
 
-        paginator_1.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        paginator_1.getStyleClass().add("JNekoImageDB_paginator_1");
+        GUITools.setStyle(paginator_1, "JNekoImageDB", "paginator_1");
         paginator_1.setMaxSize(9999, 32);
         paginator_1.setPrefSize(9999, 32);
         paginator_1.setMinSize(32, 32);
@@ -337,8 +316,7 @@ public class JNekoImageDB extends Application {
 
         basevbox.getChildren().add(basehbox);
 
-        basesp.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        basesp.getStyleClass().add("JNekoImageDB_basesp");
+        GUITools.setStyle(basesp, "JNekoImageDB", "basesp");
         basesp.setPrefSize(9999, 9999);
         basesp.setMaxSize(9999, 9999);
         
@@ -374,8 +352,7 @@ public class JNekoImageDB extends Application {
         ml.setMaxSize(240, 9999);
         ml.setMinSize(240, 300);
         
-        ml.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        ml.getStyleClass().add("JNekoImageDB_MenuList");
+        GUITools.setStyle(ml, "JNekoImageDB", "MenuList");
         
         base2vbox.getChildren().add(basesp);
         base2vbox.getChildren().add(paginator_1);

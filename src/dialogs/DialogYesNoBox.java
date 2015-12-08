@@ -1,15 +1,14 @@
 package dialogs;
 
-import dataaccess.Lang;
 import imgfsgui.ToolsPanelTop;
-import java.io.File;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
+import jnekoimagesdb.GUITools;
 
 public class DialogYesNoBox extends DialogWindow {
     private final Image 
-            IMG64_SELECT_YES = new Image(new File("./icons/d_yes.png").toURI().toString()),
-            IMG64_SELECT_NO  = new Image(new File("./icons/d_no.png").toURI().toString());
+            IMG64_SELECT_YES = GUITools.loadIcon("selected-48"), 
+            IMG64_SELECT_NO  = GUITools.loadIcon("delete-48");
     
     public final static int
             SELECT_YES = 1,
@@ -38,8 +37,7 @@ public class DialogYesNoBox extends DialogWindow {
     public DialogYesNoBox() {
         super(550, 250, true);
         
-        messageText.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        messageText.getStyleClass().add("DialogYesNoBox_textarea");
+        GUITools.setStyle(messageText, "DialogYesNoBox", "textarea");
         messageText.setMaxSize(9999, 9999);
         messageText.setPrefSize(9999, 9999);
         messageText.setWrapText(true);

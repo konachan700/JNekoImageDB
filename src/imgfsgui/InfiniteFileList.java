@@ -1,8 +1,6 @@
 package imgfsgui;
 
-import dataaccess.Lang;
 import imgfs.ImgFSCrypto;
-import imgfs.ImgFSImages;
 import imgfs.ImgFSPreviewGen;
 import java.io.File;
 import java.io.IOException;
@@ -24,18 +22,19 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import jnekoimagesdb.GUITools;
 
 public class InfiniteFileList extends InfiniteListPane {  
     public static final Image
-            ITEM_SELECTED   = new Image(new File("./icons/selected.png").toURI().toString()),
-            ITEM_ERROR      = new Image(new File("./icons/broken2.png").toURI().toString()),
-            ITEM_NOTHING    = new Image(new File("./icons/empty.png").toURI().toString()),
-            ITEM_LOADING    = new Image(new File("./icons/loading128.png").toURI().toString()),
-            ICON_NOELEMENTS = new Image(new File("./icons/nondelete-48.png").toURI().toString()),
-            ICON_DIR        = new Image(new File("./icons/fr2.png").toURI().toString()),
-            ICON_DIR_NA     = new Image(new File("./icons/fr2na.png").toURI().toString()),
-            ICON_FILE_NA    = new Image(new File("./icons/file-na-128.png").toURI().toString()),
-            ICON_CLOCK      = new Image(new File("./icons/clock48.png").toURI().toString()); 
+            ITEM_SELECTED   = GUITools.loadIcon("selected-32"),  
+            ITEM_ERROR      = GUITools.loadIcon("broken-file-128"), 
+            ITEM_NOTHING    = GUITools.loadIcon("dummy-128"), 
+            ITEM_LOADING    = GUITools.loadIcon("loading-128"), 
+            ICON_NOELEMENTS = GUITools.loadIcon("delete-gray-48"), 
+            ICON_DIR        = GUITools.loadIcon("dir-normal-128"),
+            ICON_DIR_NA     = GUITools.loadIcon("dir-na-128"), 
+            ICON_FILE_NA    = GUITools.loadIcon("file-na-128"),
+            ICON_CLOCK      = GUITools.loadIcon("clock-48"); 
     
     public static interface InfiniteFileListActionListener {
         public void OnLeftClick(Path itemPath);
@@ -90,7 +89,7 @@ public class InfiniteFileList extends InfiniteListPane {
             imageContainer.setImage(img);
             imageContainer.setVisible(true);
             if (this.getChildren().isEmpty()) addAll();
-            this.getStyleClass().add("FileListItem");
+            GUITools.setStyle(this, "FileListItem", "root_pane");
         }
 
         public final void setName(String fname) {
@@ -106,16 +105,14 @@ public class InfiniteFileList extends InfiniteListPane {
             return selectedIcon.isVisible();
         }
         
+        @SuppressWarnings("LeakingThisInConstructor")
         public FileListItem(FileListItemActionListener al) {
             super();
             
             actionListener = al;
             
-            this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-            this.getStyleClass().add("FileListItem");
-            this.setMinSize(itemSize, itemSize);
-            this.setMaxSize(itemSize, itemSize);
-            this.setPrefSize(itemSize, itemSize);
+            GUITools.setStyle(this, "FileListItem", "root_pane");
+            GUITools.setMaxSize(this, itemSize, itemSize);
             this.setOnMouseClicked((MouseEvent event) -> {
                 if (event.getClickCount() == 1) {
                     if (event.getButton() == MouseButton.SECONDARY) {
@@ -128,29 +125,21 @@ public class InfiniteFileList extends InfiniteListPane {
                 event.consume();
             });
 
-            imageContainer.getStyleClass().add("FileListItem_imageContainer");
-//            imageContainer.setFitHeight(120);
-//            imageContainer.setFitWidth(120);
             imageContainer.setPreserveRatio(true);
             imageContainer.setSmooth(true);
             imageContainer.setCache(false);
             imageContainer.setImage(ITEM_NOTHING);
                         
-            imageVBox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-            imageVBox.getStyleClass().add("FileListItem_imageVBox");
-            imageVBox.setMinSize(itemSize, itemSize);
-            imageVBox.setMaxSize(itemSize, itemSize);
-            imageVBox.setPrefSize(itemSize, itemSize);
+            GUITools.setStyle(imageVBox, "FileListItem", "imageVBox");
+            GUITools.setMaxSize(imageVBox, itemSize, itemSize);
             imageVBox.getChildren().add(imageContainer);
             imageVBox.setAlignment(Pos.CENTER);
             
-            imageName.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-            imageName.getStyleClass().add("FileListItem_imageName");
+            GUITools.setStyle(imageName, "FileListItem", "imageName");
             imageName.setMaxSize(128, 16);
             imageName.setPrefSize(128, 16);
             imageName.setAlignment(Pos.CENTER);
 
-            selectedIcon.getStyleClass().add("FileListItem_selectedIcon");
             selectedIcon.setVisible(false);
             
             addAll();
@@ -254,7 +243,7 @@ public class InfiniteFileList extends InfiniteListPane {
     
     private volatile boolean
             waitLock = false, 
-            pathChangeLock = true,
+//            pathChangeLock = true,
             isExit   = false;
     
     private final InfiniteFileList
@@ -308,7 +297,7 @@ public class InfiniteFileList extends InfiniteListPane {
         }
 
         while (true) {
-            pathChangeLock = false;
+//            pathChangeLock = false;
             synchronized (selectedFileList) {
                 try { selectedFileList.wait(); } catch (Exception ex) {}
             }
@@ -422,38 +411,23 @@ public class InfiniteFileList extends InfiniteListPane {
         this.setInvisibleItemsCount(invisibleLines);
         this.setAL(ilal); 
         
-        dummyInfoBox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        dummyInfoBox.getStyleClass().add("FileListItem_dummyInfoBox");
-        dummyInfoBox.setMinSize(48, 48);
-        dummyInfoBox.setMaxSize(9999, 48);
-        dummyInfoBox.setPrefSize(9999, 48);
+        GUITools.setStyle(dummyInfoBox, "FileListItem", "dummyInfoBox");
+        GUITools.setMaxSize(dummyInfoBox, 9999, 48);
         
-        pleaseWaitBox.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        pleaseWaitBox.getStyleClass().add("FileListItem_dummyInfoBox");
-        pleaseWaitBox.setMinSize(48, 48);
-        pleaseWaitBox.setMaxSize(9999, 48);
-        pleaseWaitBox.setPrefSize(9999, 48);
+        GUITools.setStyle(pleaseWaitBox, "FileListItem", "dummyInfoBox");
+        GUITools.setMaxSize(pleaseWaitBox, 9999, 48);
         
-        waitText.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        waitText.getStyleClass().add("FileListItem_nullMessage");
-        waitText.setMinSize(48, 48);
-        waitText.setMaxSize(9999, 48);
-        waitText.setPrefSize(9999, 48);
+        GUITools.setStyle(waitText, "FileListItem", "nullMessage");
+        GUITools.setMaxSize(waitText, 9999, 48);
         waitText.setAlignment(Pos.CENTER_LEFT);
         
         final Label text = new Label("Нет элементов для отображения");
-        text.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        text.getStyleClass().add("FileListItem_nullMessage");
-        text.setMinSize(48, 48);
-        text.setMaxSize(9999, 48);
-        text.setPrefSize(9999, 48);
+        GUITools.setStyle(text, "FileListItem", "nullMessage");
+        GUITools.setMaxSize(text, 9999, 48);
         text.setAlignment(Pos.CENTER_LEFT);
 
         final ImageView icon = new ImageView(ICON_NOELEMENTS);
-        icon.getStyleClass().add("FileListItem_selectedIcon");
-        
         final ImageView iconClock = new ImageView(ICON_CLOCK);
-        icon.getStyleClass().add("FileListItem_selectedIcon");
 
         dummyInfoBox.getChildren().addAll(icon, text);
         pleaseWaitBox.getChildren().addAll(iconClock, waitText);
@@ -500,8 +474,6 @@ public class InfiniteFileList extends InfiniteListPane {
     }
     
     public final void setWindowsRootPath(File[] rootList) {
-//        if (pathChangeLock) return;
-//        pathChangeLock = true;
         if (waitLock) return;
         
         mainFileList.clear();
@@ -510,15 +482,11 @@ public class InfiniteFileList extends InfiniteListPane {
         }
         regenerateView(-1);
         this.setScrollTop();
-        
-//        pathChangeLock = false;
     }
     
     public final void setPath(File fl) {
         if (waitLock) return;
-//        if (pathChangeLock) return;
-//        pathChangeLock = true;
-        
+
         currentFile = fl;
         setWaitE();
         waitText.setText("Идет построение списка...");

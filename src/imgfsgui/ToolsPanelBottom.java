@@ -1,6 +1,5 @@
 package imgfsgui;
 
-import dataaccess.Lang;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.geometry.Pos;
@@ -11,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import jnekoimagesdb.GUITools;
 
 public class ToolsPanelBottom extends HBox {
     public static final int
@@ -25,13 +25,11 @@ public class ToolsPanelBottom extends HBox {
     private static class ToolsPanelBottomTextField extends TextField {
         private volatile int xID = -1;
         
+        @SuppressWarnings("LeakingThisInConstructor")
         public ToolsPanelBottomTextField() {
             super("");
-            this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-            this.getStyleClass().add("TopPanel_textfield1");
-            this.setMaxSize(9999, TEXTFIELD_HEIGHT);
-            this.setMinSize(TEXTFIELD_HEIGHT, TEXTFIELD_HEIGHT);
-            this.setPrefSize(9999, TEXTFIELD_HEIGHT);
+            GUITools.setStyle(this, "TopPanel", "textfield1");
+            GUITools.setMaxSize(this, 9999, TEXTFIELD_HEIGHT);
         }
         
         public int getID() {
@@ -42,14 +40,13 @@ public class ToolsPanelBottom extends HBox {
     private static class ToolsPanelBottomButton extends Button {
         private volatile int xID = -1;
         
+        @SuppressWarnings("LeakingThisInConstructor")
         public ToolsPanelBottomButton(Image icon, int id, ToolsPanelBottomActionListener al) {
             super("", new ImageView(icon));
             xID = id;
-            this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-            this.getStyleClass().add("TopPanel_button");
-            this.setMaxSize(PANEL_HEIGHT, PANEL_HEIGHT);
-            this.setMinSize(PANEL_HEIGHT, PANEL_HEIGHT);
-            this.setPrefSize(PANEL_HEIGHT, PANEL_HEIGHT);
+            GUITools.setStyle(this, "TopPanel", "button");
+            GUITools.setFixedSize(this, PANEL_HEIGHT, PANEL_HEIGHT);
+            this.setAlignment(Pos.CENTER);
             this.setOnMouseClicked((c) -> {
                 if (al != null) al.OnClick(xID); 
                 c.consume();
@@ -71,10 +68,10 @@ public class ToolsPanelBottom extends HBox {
         actListener = al;
     }
     
+    @SuppressWarnings("LeakingThisInConstructor")
     public ToolsPanelBottom() {
         super(4);
-        this.getStylesheets().add(getClass().getResource(Lang.AppStyleCSS).toExternalForm());
-        this.getStyleClass().add("ToolsPanelBottom");
+        GUITools.setStyle(this, "ToolsPanelBottom", "root_panel");
         this.setMaxHeight(PANEL_HEIGHT);
         this.setMinHeight(PANEL_HEIGHT);
         this.setPrefHeight(PANEL_HEIGHT);
@@ -111,19 +108,15 @@ public class ToolsPanelBottom extends HBox {
     
     public void addFixedSeparator() {
         final VBox sep1 = new VBox();
-        sep1.getStyleClass().add("TopPanel_separator");
-        sep1.setMaxSize(SEPARATOR_SIZE, PANEL_HEIGHT);
-        sep1.setMinSize(SEPARATOR_SIZE, PANEL_HEIGHT);
-        sep1.setPrefSize(SEPARATOR_SIZE, PANEL_HEIGHT);
+        GUITools.setStyle(sep1, "TopPanel", "separator");
+        GUITools.setFixedSize(sep1, SEPARATOR_SIZE, PANEL_HEIGHT);
         this.getChildren().add(sep1);
     }
     
     public void addSeparator() {
         final VBox sep1 = new VBox();
-        sep1.getStyleClass().add("TopPanel_separator");
-        sep1.setMaxSize(9999, PANEL_HEIGHT);
-        sep1.setMinSize(PANEL_HEIGHT, PANEL_HEIGHT);
-        sep1.setPrefSize(9999, PANEL_HEIGHT);
+        GUITools.setStyle(sep1, "TopPanel", "separator");
+        GUITools.setMaxSize(sep1, 9999, PANEL_HEIGHT);
         this.getChildren().add(sep1);
     }
 }

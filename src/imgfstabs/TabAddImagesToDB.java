@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import javafx.scene.image.Image;
+import jnekoimagesdb.GUITools;
 
 public class TabAddImagesToDB {
     private final int
@@ -24,15 +25,15 @@ public class TabAddImagesToDB {
             BTN_ADD         = 7;
     
     private final Image 
-            IMG24_LEVEL_UP          = new Image(new File("./icons/lvlup24.png").toURI().toString()),
-            IMG24_NAVIGATE_TO       = new Image(new File("./icons/navto24.png").toURI().toString()),
-            IMG24_TO_ROOT           = new Image(new File("./icons/root24.png").toURI().toString());
+            IMG24_LEVEL_UP          = GUITools.loadIcon("lvlup-24"),
+            IMG24_NAVIGATE_TO       = GUITools.loadIcon("navto-24"),
+            IMG24_TO_ROOT           = GUITools.loadIcon("root-24"); 
     
     private final Image 
-            IMG64_SELECT_ALL        = new Image(new File("./icons/selectall.png").toURI().toString()),
-            IMG64_SELECT_NONE       = new Image(new File("./icons/selectnone.png").toURI().toString()),
-            IMG64_DELETE            = new Image(new File("./icons/del48.png").toURI().toString()),
-            IMG64_ADD_TO_DB         = new Image(new File("./icons/adddef.png").toURI().toString());
+            IMG64_SELECT_ALL        = GUITools.loadIcon("selectall-48"), 
+            IMG64_SELECT_NONE       = GUITools.loadIcon("selectnone-48"), 
+            IMG64_DELETE            = GUITools.loadIcon("delete-48"), 
+            IMG64_ADD_TO_DB         = GUITools.loadIcon("add-to-db-48");
     
     private final ToolsPanelBottom
             panelBottom;
