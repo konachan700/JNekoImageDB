@@ -44,7 +44,7 @@ public class GUITools {
         return new ImageView(loadIcon(name));
     }
     
-    public static final StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag, boolean red) {
+    public static final StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag, boolean isBox) {
         final Label imageName = new Label(Lang.GUITools_WinGUI_Title);
         setStyle(imageName, "GUITools", "imageName");
         imageName.setMaxSize(9999, 16);
@@ -103,7 +103,7 @@ public class GUITools {
 
         StackPane root2m = new StackPane();
         root2m.getChildren().add(root);
-        setStyle(root2m, "GUITools", "root2m");
+        setStyle(root2m, "GUITools", (!isBox) ? "root2m" : "root2m_box");
 
         return root2m;
     }

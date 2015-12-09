@@ -35,7 +35,7 @@ public class DialogWindow {
     }
     
     public DialogWindow(double w, double h, boolean dialog) {
-        scene = generateScene(w, h);
+        scene = generateScene(w, h, dialog);
         init(w, h, dialog);
     }
     
@@ -110,13 +110,13 @@ public class DialogWindow {
     }
     
     private Scene generateScene() {
-        return generateScene(1200, 800);
+        return generateScene(1200, 800, false);
     }
     
-    private Scene generateScene(double w, double h) {
+    private Scene generateScene(double w, double h, boolean isBox) {
         final Scene scenex;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            StackPane root3m = GUITools.getWinGUI(this, win, DRD, root, mvbox, "", GUITools.CLOSE_HIDE_WINDOW, true);
+            StackPane root3m = GUITools.getWinGUI(this, win, DRD, root, mvbox, "", GUITools.CLOSE_HIDE_WINDOW, isBox);
             scenex = new Scene(root3m, w, h);
             scenex.setFill(Color.TRANSPARENT);
         } else {

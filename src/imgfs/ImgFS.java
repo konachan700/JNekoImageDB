@@ -1,8 +1,8 @@
 package imgfs;
 
 import dialogs.DialogMTPrevGenProgress;
+import dialogs.DialogMessageBox;
 import imgfstabs.TabAddImagesToDB;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 public class ImgFS {
@@ -43,6 +43,7 @@ public class ImgFS {
     private static TabAddImagesToDB         addNewImagesTab;
     private static ImgFSDatastore           datastore;
     private static DialogMTPrevGenProgress  progressDialog = new DialogMTPrevGenProgress();
+    private static DialogMessageBox         messageBox = new DialogMessageBox();
 
     public static void init(String databaseName) throws Exception {
         cryptoEx.init(databaseName);
@@ -58,15 +59,15 @@ public class ImgFS {
         addNewImagesTab.dispose();
     }
     
-    public synchronized static ImgFSCrypto getCrypt() {
+    public static ImgFSCrypto getCrypt() {
         return cryptoEx;
     }
     
-    public synchronized static TabAddImagesToDB getAddImagesTab() {
+    public static TabAddImagesToDB getAddImagesTab() {
         return addNewImagesTab;
     }
     
-    public synchronized static ImgFSDatastore getDatastore() {
+    public static ImgFSDatastore getDatastore() {
         return datastore;
     }
     
@@ -76,5 +77,9 @@ public class ImgFS {
     
     public static void progressShow() {
         progressDialog.show();
+    }
+    
+    public static void msgbox(String text) {
+        messageBox.showMsgbox(text);
     }
 }

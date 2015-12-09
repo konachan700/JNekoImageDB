@@ -137,7 +137,12 @@ public class TabAddImagesToDB {
                     final int result = dialogYN.showYesNo("Точно удалить выбранные файлы с диска?");
                     break;
                 case BTN_ADD:
-                    ImgFS.progressShow();
+                    if ((fileList.getElementCount() <= 0) || (fileList.getSelectedElementCount() <= 0)) {
+                        ImgFS.msgbox("Не выбрано ни одного элемента для добавления.");
+                        break;
+                    }
+                    
+                    ImgFS.progressShow(); 
                     break;
             }
         });

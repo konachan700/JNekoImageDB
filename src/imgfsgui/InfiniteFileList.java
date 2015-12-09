@@ -380,8 +380,13 @@ public class InfiniteFileList extends InfiniteListPane {
         }
     }
     
-    public int getElementCount() {
+    
+    public int getSelectedElementCount() {
         return selectedFileList.size();
+    }
+    
+    public int getElementCount() {
+        return mainFileList.size();
     }
     
     public void dispose() {

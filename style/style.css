@@ -6,12 +6,12 @@
 
 .GUITools_header_z Label {
     -fx-text-fill: #fff;
-    -fx-background-color: #000;
+    -fx-background-color: transparent;
 }
 
 .GUITools_header_z Button {
     -fx-padding: 0px;
-    -fx-background-color: #000;
+    -fx-background-color: transparent;
     -fx-background-insets: 0, 0, 0, 0;
 }
 
@@ -29,6 +29,14 @@
 .GUITools_root2m {
     -fx-background-color: #000;
     -fx-padding: 3px 3px 0px 3px;
+}
+
+.GUITools_root2m_box {
+    -fx-background-color: #333;
+    -fx-padding: 3px 3px 0px 3px;
+	-fx-border-color: #F00;
+	-fx-border-width: 3px;
+	
 }
 
 .JNekoImageDB_taLOG {
@@ -154,40 +162,13 @@
 }
 
 .DialogWindow_headerbox {
-    -fx-background-color: #000000;
+    -fx-background-color: transparent;
     -fx-padding: 0px 0px 0 0;
 }
 
 .DialogWindow_toolbox {
-    -fx-background-color: #000000;
+    -fx-background-color: transparent;
     -fx-padding: 3px 0px 0 0;
-}
-
-.GUITools_imageName {
-    -fx-font-weight:bold; 
-    -fx-font-size: 12px;
-    -fx-text-fill: #888;
-}
-
-.GUITools_header_z Label {
-    -fx-text-fill: #fff;
-    -fx-background-color: #000;
-}
-
-.GUITools_header_z Button {
-    -fx-padding: 0px;
-    -fx-background-color: #000;
-    -fx-background-insets: 0, 0, 0, 0;
-}
-
-.GUITools_header_z Button:hover {
-    -fx-padding: 1px 0 0 1px;
-    -fx-text-fill: #000;
-}
-
-.GUITools_root2m {
-    -fx-background-color: #000;
-    -fx-padding: 3px 3px 0px 3px;
 }
 
 .DialogYesNoBox_textarea, .DialogYesNoBox_textarea .viewport, .DialogYesNoBox_textarea .content, DialogYesNoBox_textarea .scroll-pane  {
@@ -196,7 +177,7 @@
     -fx-border-insets: 0;
     -fx-text-fill: #fff;
     -fx-font-size: 14px;
-    -fx-background-color: #000;
+    -fx-background-color: #333;
     -fx-font-weight:bold;
     //-fx-effect: dropshadow(three-pass-box, #222, 4, 0.85, 0, 0);
     -fx-background-radius: 0;
@@ -441,6 +422,89 @@
     -fx-background-insets: 2, 0, 0;
     -fx-background-radius: 2em;
 }
+
+/**********************************************************************************/
+.GUIElements_button {
+    -fx-padding: 0px;
+    -fx-background-color: #333;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-text-fill: #fff;
+}
+
+.GUIElements_button:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+.GUIElements_textfield {
+    -fx-padding: 2 2 2 2;
+    -fx-background-color:#fff;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #222;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.GUIElements_textfield_valid {
+  -fx-background-image:url('/style/icons/selected-16.png');
+  -fx-background-repeat: no-repeat;
+  -fx-background-position: right center;
+}
+
+.GUIElements_textfield_error {
+  -fx-background-image:url('/style/icons/delete-16.png');
+  -fx-background-repeat: no-repeat;
+  -fx-background-position: right center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

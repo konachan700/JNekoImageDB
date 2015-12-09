@@ -129,7 +129,7 @@ public class DialogMTPrevGenProgress extends DialogWindow {
         super(600, 600, false);
         elements.clear();
         
-        panel.addSeparator();
+        //panel.addSeparator();
         panel.addButton(IMG64_SELECT_NO, SELECT_NO);
         this.getToolbox().getChildren().add(panel);
         
