@@ -4,13 +4,17 @@ import dialogs.DialogFSImageView;
 import dialogs.DialogYesNoBox;
 import imgfs.ImgFS;
 import imgfs.ImgFSCrypto;
+import imgfs.ImgFSPreviewGen;
 import imgfsgui.InfiniteFileList;
 import imgfsgui.ToolsPanelBottom;
 import imgfsgui.ToolsPanelTop;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import jnekoimagesdb.GUITools;
 
@@ -47,6 +51,9 @@ public class TabAddImagesToDB {
     private final ImgFSCrypto
             crypt;
     
+    private final ImgFSPreviewGen
+            previewGen;
+    
     private final String 
             databaseName;
     
@@ -60,6 +67,14 @@ public class TabAddImagesToDB {
         crypt           = c;
         databaseName    = dbname;
         fileList        = new InfiniteFileList(crypt, databaseName);
+        previewGen      = new ImgFSPreviewGen(crypt, "previews", (Image im, Path path) -> {
+            //Platform.runLater(() -> { });
+        });
+        try {
+            previewGen.init(true);
+        } catch (IOException ex) {
+            Logger.getLogger(TabAddImagesToDB.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         panelBottom = new ToolsPanelBottom();
         panelBottom.setAL((index) -> {
@@ -142,6 +157,19 @@ public class TabAddImagesToDB {
                         break;
                     }
                     
+                    if ((!fileList.isAnyWorkerActive()) || (!previewGen.isAnyWorkersActive())) {
+                        ImgFS.msgbox("Процесс добавления картинок уже активен, дождитесь его завершения.");
+                        break;
+                    }
+
+                    fileList.getSelectedElementsList().forEach((x) -> {
+                        try {
+                            previewGen.addFileToJob(x);
+                        } catch (IOException ex) {  }
+                    });
+                    
+                    previewGen.startJob();
+                    
                     ImgFS.progressShow(); 
                     break;
             }
@@ -169,5 +197,6 @@ public class TabAddImagesToDB {
     
     public void dispose() {
         fileList.dispose();
+        previewGen.killAll();
     }
 }

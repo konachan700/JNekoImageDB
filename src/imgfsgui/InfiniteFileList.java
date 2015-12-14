@@ -380,9 +380,16 @@ public class InfiniteFileList extends InfiniteListPane {
         }
     }
     
+    public boolean isAnyWorkerActive() {
+        return previewGen.isAnyWorkersActive();
+    }
     
     public int getSelectedElementCount() {
         return selectedFileList.size();
+    }
+    
+    public ArrayList<Path> getSelectedElementsList() {
+        return selectedFileList;
     }
     
     public int getElementCount() {
@@ -400,7 +407,7 @@ public class InfiniteFileList extends InfiniteListPane {
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public InfiniteFileList(ImgFSCrypto c, String dbname) {
         super();
-        previewGen = new ImgFSPreviewGen(c, dbname, "cache", (Image im, Path path) -> {
+        previewGen = new ImgFSPreviewGen(c, "cache", (Image im, Path path) -> {
             Platform.runLater(() -> {
                 displayImg(im, path);
             });

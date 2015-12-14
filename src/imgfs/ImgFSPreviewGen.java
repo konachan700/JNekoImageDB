@@ -26,9 +26,6 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.io.FilenameUtils;
-import static org.fusesource.leveldbjni.JniDBFactory.factory;
-import org.iq80.leveldb.DB;
-import org.iq80.leveldb.Options;
 
 public class ImgFSPreviewGen {   
     public static final int
@@ -36,12 +33,6 @@ public class ImgFSPreviewGen {
     
     private static final String 
             FIXED_FIELD_PATH = "__path";
-
-    private final String 
-                databaseFolder, databaseName;
-    
-    private final File 
-            levelDBFile;
 
     public static interface PreviewGeneratorActionListener {
         public void OnPreviewGenerateComplete(Image im, Path path);
@@ -370,25 +361,18 @@ public class ImgFSPreviewGen {
     private final PreviewGeneratorActionListener
             actionListenerY;
     
-    private DB
-            levelDB = null;
-    
-    private final String 
-            levelDBName;
-    
     private final ImgFSCrypto
             imCryptoY;
+    
+    private final String
+            dbxName;
 
-    public void init(boolean isDisplayProgress) throws IOException {
-        Options options = new Options();
-        options.createIfMissing(true);     
-        levelDB = factory.open(levelDBFile, options);
-        
+    public void init(boolean isDisplayProgress) throws IOException {       
         processorsCount = (Runtime.getRuntime().availableProcessors() / 2);
         if (processorsCount < 2) processorsCount = 2;
         
         for (int i=0; i<processorsCount; i++) {
-            final PreviewWorker pw = new PreviewWorker(this, actionListenerY, imCryptoY, levelDBName);
+            final PreviewWorker pw = new PreviewWorker(this, actionListenerY, imCryptoY, dbxName);
             pw.setProgressDisplay(isDisplayProgress);
             workersTreads.add(pw);
             new Thread(pw).start();
@@ -410,17 +394,10 @@ public class ImgFSPreviewGen {
         synchronized (this){
             this.notifyAll();
         }
-        
-        try {
-            levelDB.close();
-        } catch (IOException ex) { }
     }
     
     public boolean isAnyWorkersActive() {
-        if (workersTreads.stream().anyMatch((p) -> (p.isWaiting))) {
-            return true;
-        }
-        return false;
+        return workersTreads.stream().anyMatch((p) -> (p.isWaiting));
     }
     
     public synchronized void addFileToJob(Path p) throws FileIsNotImageException, IOException {
@@ -431,7 +408,7 @@ public class ImgFSPreviewGen {
     
     @SuppressWarnings("ConvertToTryWithResources")
     private synchronized void addEntry(ImgFSCrypto c, byte[] md5b, PreviewElement e) throws IOException {
-        if (levelDB == null) throw new IOException("database not opened;");
+        if (ImgFS.getDB(dbxName) == null) throw new IOException("database not opened;");
         if (e == null) throw new IOException("array is a null;");
         
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -442,16 +419,16 @@ public class ImgFSPreviewGen {
         final byte[] crypted = c.Crypt(baos.toByteArray());
         if (crypted == null) throw new IOException("Crypt() return null;");
         
-        levelDB.put(md5b, crypted);
+        ImgFS.getDB(dbxName).put(md5b, crypted);
         
         oos.close();
         baos.close();
     }
     
     private synchronized PreviewElement readEntry(ImgFSCrypto c, byte[] md5b) throws RecordNotFoundException, IOException, ClassNotFoundException {
-        if (levelDB == null) throw new IOException("database not opened;");
+        if (ImgFS.getDB(dbxName) == null) throw new IOException("database not opened;");
         
-        final byte[] retnc = levelDB.get(md5b);
+        final byte[] retnc = ImgFS.getDB(dbxName).get(md5b);
         if (retnc == null ) throw new RecordNotFoundException("");
         
         final byte[] ret = c.Decrypt(retnc);
@@ -465,13 +442,11 @@ public class ImgFSPreviewGen {
         return retVal;
     }
 
-    public ImgFSPreviewGen(ImgFSCrypto c, String dbName, String levelDBN, PreviewGeneratorActionListener al) {
-        levelDBName = levelDBN;
+    public ImgFSPreviewGen(ImgFSCrypto c, String dbName, PreviewGeneratorActionListener al) {
+        dbxName = dbName;
         imCryptoY = c;
-        databaseName = dbName;
-        databaseFolder  = "." + File.separator + databaseName;
-        levelDBFile = new File(databaseFolder + File.separator + levelDBName);
         actionListenerY = al;
+        ImgFS.initIDB(dbxName);
         
         prevSizes.clear();
         prevSizes.add(new PreviewSize("p120x120", 120, 120, false));

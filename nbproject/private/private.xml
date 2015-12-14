@@ -3,16 +3,19 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/imgfsgui/GUIElements.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/imgfsgui/ToolsPanelTop.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/settings/STextField.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/dialogs/DialogWindow.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/GUITools.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/dialogs/DialogMTPrevGenProgress.java</file>
+            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/JNekoImageDB.java</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/dialogs/DialogMessageBox.java</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/settings/app_style.css</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/imgfs/ImgFS.java</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/imgfsgui/InfiniteFileList.java</file>
-            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/dialogs/DialogWindow.java</file>
-            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/GUITools.java</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/smallpaginator/app_style.css</file>
             <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/imgfstabs/TabAddImagesToDB.java</file>
-            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/dialogs/DialogMTPrevGenProgress.java</file>
-            <file>file:/C:/Users/Misaki/Documents/GitHub/JNekoImageDB/src/jnekoimagesdb/JNekoImageDB.java</file>
         </group>
     </open-files>
 </project-private>
