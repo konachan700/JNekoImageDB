@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
@@ -26,6 +28,8 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.io.FilenameUtils;
+import org.iq80.leveldb.WriteBatch;
+import org.iq80.leveldb.WriteOptions;
 
 public class ImgFSPreviewGen {   
     public static final int
@@ -242,10 +246,27 @@ public class ImgFSPreviewGen {
                 }
                 
                 if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnStartThread(threadQueue.size(), this.hashCode()); });
-                
+                final WriteBatch threadBatch;
+                synchronized(ImgFS.getDB(dbxName)) {
+                    threadBatch = ImgFS.getDB(dbxName).createWriteBatch();
+                }
+
                 while (true) {
                     final PreviewElement pe = threadQueue.poll();
-                    if (pe == null) break;
+                    if (pe == null) {
+                        synchronized(ImgFS.getDB(dbxName)) {
+                            try {
+                                final WriteOptions wo = new WriteOptions();
+                                wo.sync(true);
+                                ImgFS.getDB(dbxName).write(threadBatch, wo);
+                                threadBatch.close();
+                                break;
+                            } catch (IOException ex) {
+                                L("cannot close db; " + ex.getMessage());
+                            }
+                        }
+                    }
+                    
                     try {
                         final byte[] md5e = getFilePartMD5(pe.getFile().getAbsolutePath());
                         final PreviewElement peDB = readEntry(imCrypt, md5e);
@@ -268,24 +289,33 @@ public class ImgFSPreviewGen {
                                     if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                                 }    
                             });
-
-                            addEntry(imCrypt, md5e, pe);
                             
-                            final PreviewElement peDB = readEntry(imCrypt, md5e);
-                            final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
+                            final Image im = pe.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
                             if (im != null) {
-                                actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath());
+                                actionListenerX.OnPreviewGenerateComplete(im, pe.getPath());
                                 if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnNewItemGenerated(threadQueue.size(), pe.getPath(), this.hashCode(), queneName); });
                             } else {
                                 if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                             }
+
+                            addEntryToBatch(threadBatch, imCrypt, md5e, pe);
+                            //addEntry(imCrypt, md5e, pe);
+                            
+//                            final PreviewElement peDB = readEntry(imCrypt, md5e); // блок нужен для тестов
+//                            final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
+//                            if (im != null) {
+//                                actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath());
+//                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnNewItemGenerated(threadQueue.size(), pe.getPath(), this.hashCode(), queneName); });
+//                            } else {
+//                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
+//                            }
                         
-                        }  catch (Error e) {
+                        } catch (Error e) {
                             L("cannot insert image from db; RTE; " + e.getMessage());
                             if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
-                        }catch (RecordNotFoundException ex1) {
+                        } catch (RecordNotFoundException ex1) {
                             if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
-                        } catch (IOException | ClassNotFoundException ex1) {
+                        } catch (IOException ex1) {
                             L("cannot insert image from db; " + ex1.getMessage());
                             if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
                         }
@@ -295,6 +325,24 @@ public class ImgFSPreviewGen {
                     }
                 }
             }
+        }
+        
+        @SuppressWarnings("ConvertToTryWithResources")
+        private void addEntryToBatch(WriteBatch b, ImgFSCrypto c, byte[] md5b, PreviewElement e) throws IOException {
+            if (e == null) throw new IOException("array is a null;");
+
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(e);
+            oos.flush();
+
+            final byte[] crypted = c.Crypt(baos.toByteArray());
+            if (crypted == null) throw new IOException("Crypt() return null;");
+
+            b.put(md5b, crypted);
+
+            oos.close();
+            baos.close();
         }
 
         @SuppressWarnings("ConvertToTryWithResources")
@@ -309,11 +357,11 @@ public class ImgFSPreviewGen {
                 fis.close();
                 if (counter > 0) {
                     if (counter == FILE_PART_SIZE_FOR_CHECKING_MD5) 
-                        return imCrypt.MD5(bb.array());
+                        return imCrypt.MD5(bb.array(), imCrypt.getSalt());
                     else {
                         final ByteBuffer bb_cutted = ByteBuffer.allocate(counter);
                         bb_cutted.put(bb.array(), 0, counter);
-                        return imCrypt.MD5(bb_cutted.array());
+                        return imCrypt.MD5(bb_cutted.array(), imCrypt.getSalt());
                     }
                 } else 
                     throw new IOException("cannot calculate MD5 for file ["+path+"]");
@@ -405,25 +453,25 @@ public class ImgFSPreviewGen {
         workerBalanceCounter++;
         if (workerBalanceCounter >= processorsCount) workerBalanceCounter = 0;
     }
-    
-    @SuppressWarnings("ConvertToTryWithResources")
-    private synchronized void addEntry(ImgFSCrypto c, byte[] md5b, PreviewElement e) throws IOException {
-        if (ImgFS.getDB(dbxName) == null) throw new IOException("database not opened;");
-        if (e == null) throw new IOException("array is a null;");
-        
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(e);
-        oos.flush();
-        
-        final byte[] crypted = c.Crypt(baos.toByteArray());
-        if (crypted == null) throw new IOException("Crypt() return null;");
-        
-        ImgFS.getDB(dbxName).put(md5b, crypted);
-        
-        oos.close();
-        baos.close();
-    }
+
+//    @SuppressWarnings("ConvertToTryWithResources")
+//    private synchronized void addEntry(ImgFSCrypto c, byte[] md5b, PreviewElement e) throws IOException {
+//        if (ImgFS.getDB(dbxName) == null) throw new IOException("database not opened;");
+//        if (e == null) throw new IOException("array is a null;");
+//        
+//        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        final ObjectOutputStream oos = new ObjectOutputStream(baos);
+//        oos.writeObject(e);
+//        oos.flush();
+//        
+//        final byte[] crypted = c.Crypt(baos.toByteArray());
+//        if (crypted == null) throw new IOException("Crypt() return null;");
+//        
+//        ImgFS.getDB(dbxName).put(md5b, crypted);
+//        
+//        oos.close();
+//        baos.close();
+//    }
     
     private synchronized PreviewElement readEntry(ImgFSCrypto c, byte[] md5b) throws RecordNotFoundException, IOException, ClassNotFoundException {
         if (ImgFS.getDB(dbxName) == null) throw new IOException("database not opened;");

@@ -196,6 +196,10 @@ public class ImgFSCrypto {
         notInit = false;
     }
     
+    public byte[] getSalt() {
+        return MD5(CI.getData().salt128);
+    }
+    
     public String getPassword() {
         if (notInit) return null; else return CI.getPassword();
     }
@@ -303,6 +307,16 @@ public class ImgFSCrypto {
         return crypted;
     }
 
+    public byte[] MD5(byte[] ... unsafe) {
+        final MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("MD5");
+            for (byte[] b : unsafe) md.update(b);
+            return md.digest();
+        } catch (NoSuchAlgorithmException ex) { }
+        return null;
+    }
+        
     public byte[] MD5(byte[] unsafe) {
         final MessageDigest md;
         try {
