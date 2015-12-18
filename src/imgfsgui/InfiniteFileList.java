@@ -1,5 +1,6 @@
 package imgfsgui;
 
+import imgfs.ImgFS;
 import imgfs.ImgFSCrypto;
 import imgfs.ImgFSPreviewGen;
 import java.io.File;
@@ -257,7 +258,7 @@ public class InfiniteFileList extends InfiniteListPane {
             waitText = new Label();
     
     private File 
-            currentFile = new File("E:\\#ForTest\\TR Берлин"); //"G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg");
+            currentFile = new File(""); //"G:\\#TEMP02\\Images\\Danbooru.p1\\danbooru_simple_bg");
     
     private ArrayList<Path> 
             mainFileList = null;
@@ -407,14 +408,14 @@ public class InfiniteFileList extends InfiniteListPane {
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public InfiniteFileList(ImgFSCrypto c, String dbname) {
         super();
-        previewGen = new ImgFSPreviewGen(c, "cache", (Image im, Path path) -> {
+        previewGen = new ImgFSPreviewGen(c, ImgFS.PreviewType.cahce, dbname, (Image im, Path path) -> {
             Platform.runLater(() -> {
                 displayImg(im, path);
             });
         });
         
         try {
-            previewGen.init(true);
+            previewGen.init(false);
         } catch (IOException ex) {
             L("init() error; " + ex.getMessage());
         }

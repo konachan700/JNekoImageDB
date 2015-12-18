@@ -67,7 +67,7 @@ public class TabAddImagesToDB {
         crypt           = c;
         databaseName    = dbname;
         fileList        = new InfiniteFileList(crypt, databaseName);
-        previewGen      = new ImgFSPreviewGen(crypt, "previews", (Image im, Path path) -> {
+        previewGen      = new ImgFSPreviewGen(crypt, ImgFS.PreviewType.previews, databaseName, (Image im, Path path) -> {
             //Platform.runLater(() -> { });
         });
         try {
@@ -75,6 +75,7 @@ public class TabAddImagesToDB {
         } catch (IOException ex) {
             Logger.getLogger(TabAddImagesToDB.class.getName()).log(Level.SEVERE, null, ex);
         }
+        previewGen.addPreviewSize("p120x120s", 120, 120, true);
         
         panelBottom = new ToolsPanelBottom();
         panelBottom.setAL((index) -> {

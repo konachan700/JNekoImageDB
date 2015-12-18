@@ -65,6 +65,10 @@ public class DialogMTPrevGenProgress extends DialogWindow {
             this.getChildren().addAll(icon, middle, tIDLabel);
         }
         
+        public void setInfo(String text) {
+            pathLabel.setText(text);
+        }
+        
         public void setInfo(Path p, int tid, int count, String quene) {
             final String threadID = Integer.toHexString(tid).toUpperCase() + "00000000";
             final String fname = (p != null) ? p.toString() : "";
@@ -83,6 +87,7 @@ public class DialogMTPrevGenProgress extends DialogWindow {
         
         public void setCompleted() {
             icon.setImage(IMG32_COMPLETED);
+            pathLabel.setText("Completed.");
         }
     }
 
@@ -121,12 +126,16 @@ public class DialogMTPrevGenProgress extends DialogWindow {
         elements.get(tID).setInProgress(tID);
     }
     
+    public void itemSetInfo(Integer tID, String text) {
+        elements.get(tID).setInfo(text);
+    }
+    
     public void itemSetInfo(Integer tID, Path p, int count, String quene) {
         elements.get(tID).setInfo(p, tID, count, quene); 
     }
     
     public DialogMTPrevGenProgress() {
-        super(600, 600, false);
+        super(500, 800, false);
         elements.clear();
         
         //panel.addSeparator();

@@ -13,6 +13,9 @@ import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,17 +30,19 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.FilenameUtils;
 import org.iq80.leveldb.WriteBatch;
 import org.iq80.leveldb.WriteOptions;
 
 public class ImgFSPreviewGen {   
     public static final int
-            FILE_PART_SIZE_FOR_CHECKING_MD5 = 1024 * 32;
+            FILE_PART_SIZE_FOR_CHECKING_MD5 = 1024 * 32,
+            MINIMUM_IMAGE_SIZE = 1024;
     
     private static final String 
             FIXED_FIELD_PATH = "__path";
-
+    
     public static interface PreviewGeneratorActionListener {
         public void OnPreviewGenerateComplete(Image im, Path path);
     }
@@ -48,6 +53,7 @@ public class ImgFSPreviewGen {
         public void OnError(int tID);
         public void OnComplete(int tID);
         public void OnCreated(int tID);
+        public void OnInfoUpdate(int tID, String info);
     }
     
     public static class FileIsNotImageException extends IOException {
@@ -117,7 +123,16 @@ public class ImgFSPreviewGen {
         private final Map<String, String>       stringValues    = new HashMap<>();
         private final Map<String, Long>         longValues      = new HashMap<>();
         private final Map<String, BinaryImage>  previews        = new HashMap<>();
+        private byte[] elementMD5 = null;
 
+        public void setMD5(byte[] b) {
+            elementMD5 = b;
+        }
+        
+        public byte[] getMD5() {
+            return elementMD5;
+        }
+        
         public byte[] getCryptedImageBytes(String name) {
             final BinaryImage b = previews.get(name);
             if (b == null) return null; 
@@ -171,7 +186,8 @@ public class ImgFSPreviewGen {
     
     protected class PreviewWorker implements Runnable {
         private final ConcurrentLinkedQueue<PreviewElement> 
-                threadQueue = new ConcurrentLinkedQueue<>();
+                threadQueue = new ConcurrentLinkedQueue<>(), 
+                processedQueue = new ConcurrentLinkedQueue<>();
         
         private final 
                 Object syncObject;
@@ -192,6 +208,12 @@ public class ImgFSPreviewGen {
         
         private final String 
                 queneName;
+        
+        private String
+                tempString = "";
+        
+        private final Connection
+                myConn;
 
         public PreviewWorker(Object o, PreviewGeneratorActionListener al, ImgFSCrypto ic, String quene) {
             super();
@@ -199,6 +221,16 @@ public class ImgFSPreviewGen {
             syncObject      = o;
             actionListenerX = al;
             imCrypt         = ic;
+            if (myType == ImgFS.PreviewType.previews) {
+                myConn          = ImgFS.getH2Connection();
+                try {
+                    myConn.setAutoCommit(false);
+                } catch (SQLException ex) {
+                    Logger.getLogger(ImgFSPreviewGen.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                myConn = null;
+            }
         }
         
         public void setProgressDisplay(boolean b) {
@@ -254,21 +286,57 @@ public class ImgFSPreviewGen {
                 while (true) {
                     final PreviewElement pe = threadQueue.poll();
                     if (pe == null) {
-                        synchronized(ImgFS.getDB(dbxName)) {
-                            try {
-                                final WriteOptions wo = new WriteOptions();
-                                wo.sync(true);
-                                ImgFS.getDB(dbxName).write(threadBatch, wo);
+                        try {
+                            synchronized(ImgFS.getDB(dbxName)) {    
+                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnInfoUpdate(this.hashCode(), "Writing preview to DB..."); });
+                                ImgFS.getDB(dbxName).write(threadBatch, new WriteOptions().sync(true));
                                 threadBatch.close();
-                                break;
-                            } catch (IOException ex) {
-                                L("cannot close db; " + ex.getMessage());
                             }
+
+                            if (myType == ImgFS.PreviewType.previews) {
+                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnInfoUpdate(this.hashCode(), "Writing metadata to DB..."); });
+
+                                try {
+                                    final PreparedStatement ps = myConn.prepareStatement("INSERT INTO `images` VALUES (default, ?);");
+                                    for (PreviewElement p : processedQueue) {
+                                        ps.setBytes(1, p.getMD5());
+                                        ps.addBatch();
+                                    }
+                                    ps.executeBatch();
+                                    ps.clearWarnings();
+                                    ps.close();
+                                    myConn.commit();
+                                } catch (SQLException ex) {
+                                    Logger.getLogger(ImgFSPreviewGen.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+
+                                int counterA = 0;
+                                final int queneCount = processedQueue.size();
+                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnInfoUpdate(this.hashCode(), "Copying files..."); });
+                                for (PreviewElement p : processedQueue) {
+                                    counterA++;
+                                    tempString = "Copying files "+counterA+" of "+queneCount+"...";
+                                    if (counterA > 128) {
+                                        if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnInfoUpdate(this.hashCode(), tempString); });
+                                    }
+                                    try {
+                                        pushFile(p.getMD5(), p.getPath());
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(ImgFSPreviewGen.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                }
+                            }
+
+                            if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnComplete(this.hashCode()); });
+                            break;
+                        } catch (IOException ex) {
+                            L("cannot close db; " + ex.getMessage());
                         }
                     }
                     
                     try {
                         final byte[] md5e = getFilePartMD5(pe.getFile().getAbsolutePath());
+                        pe.setMD5(md5e);
                         final PreviewElement peDB = readEntry(imCrypt, md5e);
                         final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
                         if (im != null) 
@@ -299,17 +367,7 @@ public class ImgFSPreviewGen {
                             }
 
                             addEntryToBatch(threadBatch, imCrypt, md5e, pe);
-                            //addEntry(imCrypt, md5e, pe);
-                            
-//                            final PreviewElement peDB = readEntry(imCrypt, md5e); // блок нужен для тестов
-//                            final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
-//                            if (im != null) {
-//                                actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath());
-//                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnNewItemGenerated(threadQueue.size(), pe.getPath(), this.hashCode(), queneName); });
-//                            } else {
-//                                if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
-//                            }
-                        
+
                         } catch (Error e) {
                             L("cannot insert image from db; RTE; " + e.getMessage());
                             if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnError(this.hashCode()); });
@@ -325,6 +383,19 @@ public class ImgFSPreviewGen {
                     }
                 }
             }
+        }
+        
+        private void pushFile(byte[] md5, Path file) throws Exception {
+            final String p = getPathString(md5);
+
+            final byte[] nc = Files.readAllBytes(file);
+            if (nc.length < MINIMUM_IMAGE_SIZE) throw new IOException("ImgFS: file too small;");
+
+            final byte[] cc = imCrypt.Crypt(nc);
+            if (cc.length < MINIMUM_IMAGE_SIZE) throw new IOException("ImgFS: strange crypt error;");
+
+            final Path out = FileSystems.getDefault().getPath(p);
+            Files.write(out, cc); 
         }
         
         @SuppressWarnings("ConvertToTryWithResources")
@@ -343,6 +414,8 @@ public class ImgFSPreviewGen {
 
             oos.close();
             baos.close();
+            
+            processedQueue.add(e);
         }
 
         @SuppressWarnings("ConvertToTryWithResources")
@@ -395,6 +468,9 @@ public class ImgFSPreviewGen {
         }  
     }
 
+    private final ImgFS.PreviewType
+            myType;
+    
     private final ArrayList<PreviewWorker> 
             workersTreads = new ArrayList<>();
     
@@ -413,12 +489,12 @@ public class ImgFSPreviewGen {
             imCryptoY;
     
     private final String
-            dbxName;
-
+            dbxName, storeBasePath;
+    
+    private final File
+            storeRootDirectory;
+    
     public void init(boolean isDisplayProgress) throws IOException {       
-        processorsCount = (Runtime.getRuntime().availableProcessors() / 2);
-        if (processorsCount < 2) processorsCount = 2;
-        
         for (int i=0; i<processorsCount; i++) {
             final PreviewWorker pw = new PreviewWorker(this, actionListenerY, imCryptoY, dbxName);
             pw.setProgressDisplay(isDisplayProgress);
@@ -429,6 +505,8 @@ public class ImgFSPreviewGen {
     }
     
     public void startJob() {
+        if (prevSizes.isEmpty()) return;
+        
         synchronized (this){
             this.notifyAll();
         }
@@ -454,25 +532,6 @@ public class ImgFSPreviewGen {
         if (workerBalanceCounter >= processorsCount) workerBalanceCounter = 0;
     }
 
-//    @SuppressWarnings("ConvertToTryWithResources")
-//    private synchronized void addEntry(ImgFSCrypto c, byte[] md5b, PreviewElement e) throws IOException {
-//        if (ImgFS.getDB(dbxName) == null) throw new IOException("database not opened;");
-//        if (e == null) throw new IOException("array is a null;");
-//        
-//        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        final ObjectOutputStream oos = new ObjectOutputStream(baos);
-//        oos.writeObject(e);
-//        oos.flush();
-//        
-//        final byte[] crypted = c.Crypt(baos.toByteArray());
-//        if (crypted == null) throw new IOException("Crypt() return null;");
-//        
-//        ImgFS.getDB(dbxName).put(md5b, crypted);
-//        
-//        oos.close();
-//        baos.close();
-//    }
-    
     private synchronized PreviewElement readEntry(ImgFSCrypto c, byte[] md5b) throws RecordNotFoundException, IOException, ClassNotFoundException {
         if (ImgFS.getDB(dbxName) == null) throw new IOException("database not opened;");
         
@@ -489,15 +548,54 @@ public class ImgFSPreviewGen {
         
         return retVal;
     }
+    
+    private String getPathString(byte[] md5) throws IOException {
+        if (md5.length != 16) throw new IOException("ImgFSDatastore: Input data is not correct;");
+        
+        if (!storeRootDirectory.mkdirs())
+            if (!storeRootDirectory.exists()) throw new IOException("ImgFSDatastore: Cannot create root directory;");
+        
+        final String md5s = DatatypeConverter.printHexBinary(md5).toLowerCase();
+        final String dir = storeBasePath + File.separator + md5s.substring(0, 2) + File.separator + md5s.substring(2, 4);
+        final File tdir = new File(dir);
+        if (!tdir.mkdirs())
+            if (!tdir.exists()) throw new IOException("ImgFSDatastore: Cannot create end directory;");
+                
+        final String path = dir + File.separator + md5s.substring(4);
+        return path;
+    }
 
-    public ImgFSPreviewGen(ImgFSCrypto c, String dbName, PreviewGeneratorActionListener al) {
-        dbxName = dbName;
+    public void addPreviewSize(String name, int w, int h, boolean squared) {
+        prevSizes.add(new PreviewSize(name, w, h, squared));
+    }
+    
+    public ImgFSPreviewGen(ImgFSCrypto c, ImgFS.PreviewType pt, String dbName, PreviewGeneratorActionListener al) {
         imCryptoY = c;
         actionListenerY = al;
-        ImgFS.initIDB(dbxName);
+        myType = pt;
         
         prevSizes.clear();
-        prevSizes.add(new PreviewSize("p120x120", 120, 120, false));
+        switch (myType) {
+            case cahce:
+                dbxName = ImgFS.PreviewType.cahce.name();
+                processorsCount = Runtime.getRuntime().availableProcessors();
+                if (processorsCount > 4) processorsCount = 4;
+                prevSizes.add(new PreviewSize("p120x120", 120, 120, false));
+                break;
+            case previews:
+                processorsCount = Runtime.getRuntime().availableProcessors();
+                if (processorsCount > 16) processorsCount = 16;
+                dbxName = ImgFS.PreviewType.previews.name();
+                break;
+            default:
+                dbxName = "unknown";
+        }
+        
+        storeBasePath = "." + File.separator + dbName + File.separator + "store";
+        storeRootDirectory = new File(storeBasePath);
+        storeRootDirectory.mkdirs();
+        
+        ImgFS.initIDB(dbxName);
     }
 
     public static final void L(String s) {
