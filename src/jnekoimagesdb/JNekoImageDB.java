@@ -10,6 +10,7 @@ import dataaccess.Lang;
 import dataaccess.SplittedFile;
 import imagelist.ImageList;
 import imgfs.ImgFS;
+import imgfstabs.TabAlbumImageList;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -64,6 +65,9 @@ public class JNekoImageDB extends Application {
     
     private final TextArea
             taLOG = new TextArea();
+    
+    private final TabAlbumImageList
+            tabAlbumImageList = new TabAlbumImageList(toolbox, paginator_1);
     
 //    private TabAddImagesToDB
 //            addNewImagesTab = null;
@@ -150,6 +154,7 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
+                        basesp.getChildren().add(tabAlbumImageList);
                         
                     }
                 }
@@ -257,6 +262,7 @@ public class JNekoImageDB extends Application {
         albImgList = new AlbumImageList(imgEn, basesp); 
         settings = new Settings(SQL);
         
+        tabAlbumImageList.initDB();
         //L("Количество изображений в БД: "+imgEn.getImgCount()+" штук.");
         
         taLOG.setMaxSize(9999, 9999);

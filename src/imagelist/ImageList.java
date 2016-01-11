@@ -33,6 +33,7 @@ import jnekoimagesdb.GUITools;
 import jnekoimagesdb.JNekoImageDB;
 import smallpaginator.SmallPaginator;
 
+@Deprecated
 public class ImageList extends FlowPane {
     private ImageEngine 
             IMG = null;

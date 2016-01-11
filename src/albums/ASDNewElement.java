@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import jnekoimagesdb.GUITools;
 
+@Deprecated
 public class ASDNewElement extends HBox{
     private final Button
             addBtn = new Button(Lang.NullString, new ImageView(new Image(new File("./icons/plus32.png").toURI().toString())));

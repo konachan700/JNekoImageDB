@@ -43,7 +43,7 @@
     -fx-padding:12;
 }
 
-.JNekoImageDB_taLOG, .JNekoImageDB_taLOG .viewport, JNekoImageDB_taLOG .scroll-pane {
+.JNekoImageDB_taLOG, .JNekoImageDB_taLOG .viewport, .JNekoImageDB_taLOG .scroll-pane {
     -fx-background-color:#222;
     -fx-text-fill: #fff;
     -fx-font-size: 11px;
@@ -460,12 +460,221 @@
   -fx-background-position: right center;
 }
 
+.GUIElements_STabTextButton {
+	-fx-padding: 2 10 2 10;
+    -fx-background-color:#555;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.GUIElements_STabTextButton:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+.GUIElements_SScrollPane {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color:transparent;
+}
+
+.GUIElements_SScrollPane:focused {
+    -fx-background-insets: 0;
+}
+
+.GUIElements_SScrollPane .corner {
+    -fx-background-insets: 0;
+}
+
+.GUIElements_SScrollPane .viewport {
+    -fx-background-insets: 0;
+    -fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
+}
+
+.GUIElements_SScrollPane .scroll-bar:horizontal .track,
+.GUIElements_SScrollPane .scroll-bar:vertical .track {
+    -fx-background-color:#333;
+    -fx-border-color:#555;
+    -fx-background-radius: 0em;
+    -fx-border-radius:0em;
+}
+
+.GUIElements_SScrollPane .scroll-bar:horizontal .increment-button ,
+.GUIElements_SScrollPane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0;
+    -fx-padding:0 0 10 0;
+}
+
+.GUIElements_SScrollPane .scroll-bar:vertical .increment-button ,
+.GUIElements_SScrollPane .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#000;
+    -fx-background-radius: 0;
+    -fx-padding:0 10 0 0;
+}
+
+.GUIElements_SScrollPane  .scroll-bar .increment-arrow,
+.GUIElements_SScrollPane  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.GUIElements_SScrollPane .scroll-bar:horizontal .thumb,
+.GUIElements_SScrollPane .scroll-bar:vertical .thumb {
+    -fx-background-color:#000;
+    -fx-background-insets: 0 2 2 2, 0, 0;
+    -fx-background-radius: 0;
+}
+
+.GUIElements_SVBox, .GUIElements_SHBox {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color:transparent;
+}
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+.TabAlbumImageList_RootPane, .TabAlbumImageList_header, .TabAlbumImageList_container {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color:transparent
+}
+
+.AddNewAlbumElement_newTitle {
+    -fx-padding: 0 0 0 12;
+    -fx-background-color: transparent;
+    -fx-font-size: 14px;
+    -fx-text-fill: #ccc;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline: false;
+}
+
+.AddNewAlbumElement_addBtn {
+    -fx-padding: 0px;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.AddNewAlbumElement_newItemName {
+    -fx-padding: 4px;
+    -fx-border-insets: 0;
+    -fx-border-color: #777;
+    -fx-background-color: #fff;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-width: 1px;
+    -fx-text-fill: #000;
+    -fx-font-weight:bold; 
+    -fx-font-size: 14px;
+}
+
+.AddNewAlbumElement_newItemName .viewport {
+    -fx-background-insets: 0;
+}
+
+.GUIElements_AddNewAlbumElement {
+    -fx-background-color: #222;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-width: 0;
+    -fx-padding: 6px;
+    -fx-border-insets: 0;
+}
+
+.TabAlbumImageList_rootPane_line {
+    -fx-border-width: 2px 0 0 0;
+    -fx-border-color: #555;
+	-fx-border-insets: 0;
+}
+
+.TabAlbumImageList_albumName {
+	-fx-padding: 2 10 2 10;
+    -fx-background-color:#555;
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.AlbumsListElement_rootPane {
+	-fx-background-color: #222;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-padding: 6px;
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: #555;
+	-fx-border-insets: 0;
+}
+
+.AlbumsListElement_rootPane:hover {
+    -fx-background-color: #444;
+}
+
+.AlbumsListElement_btn {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.AlbumsListElement_titleLabel {
+    -fx-padding: 0 0 0 0;
+    -fx-background-color:transparent;
+    -fx-font-weight:bold; 
+    -fx-font-size: 16px;
+    -fx-text-fill: #f82;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline: false;
+    -fx-border-width:0;
+}
+
+.AlbumsListElement_title {
+    -fx-padding: 0 0 0 0;
+    -fx-background-color:#fff;
+    -fx-font-weight:bold; 
+    -fx-font-size: 14px;
+    -fx-text-fill: #000;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-underline: false;
+    -fx-border-width:0;
+}
+
+.GUIElements_albumText, .GUIElements_albumText .content, .GUIElements_albumText .viewport, .GUIElements_albumText .scroll-pane  {
+	-fx-border-width:0;
+	-fx-font-size: 12px;
+    -fx-text-fill: #fff;
+	-fx-background-color:transparent;
+	-fx-background-insets: 0, 0, 0, 0;
+	-fx-border-insets: 0;
+}
+
+.GUIElements_albumText_EditMode {
+	-fx-border-width:0;
+	-fx-background-color:#fff;
+	-fx-font-size: 12px;
+    -fx-text-fill: #000;
+	-fx-border-insets: 0;
+	-fx-padding: 4px;
+}
 
 
 

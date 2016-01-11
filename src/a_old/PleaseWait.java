@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+@Deprecated
 public class PleaseWait extends VBox {
     private final TextArea
             taLOG = new TextArea();

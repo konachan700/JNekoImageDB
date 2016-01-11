@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import jnekoimagesdb.GUITools;
 
+@Deprecated
 public class AlbumsListElement extends HBox {
     private final Image
             sel = new Image(new File("./icons/selected16.png").toURI().toString()),

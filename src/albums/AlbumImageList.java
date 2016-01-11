@@ -14,6 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import jnekoimagesdb.GUITools;
 
+@Deprecated
 public class AlbumImageList extends VBox {
     private final HBox 
             tabsHBox = new HBox(6);

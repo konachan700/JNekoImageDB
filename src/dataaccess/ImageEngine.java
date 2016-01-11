@@ -26,6 +26,7 @@ import jnekoimagesdb.JNekoImageDB;
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 
+@Deprecated
 public class ImageEngine {
     public static final long 
             ALBUM_ID_DELETED = 99999,

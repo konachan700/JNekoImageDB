@@ -1,5 +1,6 @@
 package dataaccess;
 
+@Deprecated
 public class DBImageX {
     public volatile long
             prev_oid,

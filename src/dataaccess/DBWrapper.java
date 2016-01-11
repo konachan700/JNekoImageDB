@@ -33,6 +33,7 @@ import jnekoimagesdb.JNekoImageDB;
 import menulist.MenuGroupItem;
 import org.apache.commons.io.FilenameUtils;
 
+@Deprecated
 public class DBWrapper {
     private final static Image broken = new Image(new File("./icons/broken.png").toURI().toString()); // previews_files
     

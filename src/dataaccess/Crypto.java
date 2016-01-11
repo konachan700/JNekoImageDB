@@ -18,6 +18,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import jnekoimagesdb.JNekoImageDB;
 
+@Deprecated
 public class Crypto {
     private byte[] 
             randomPool = null,

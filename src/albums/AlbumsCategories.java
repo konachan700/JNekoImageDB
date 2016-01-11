@@ -16,6 +16,7 @@ import javafx.scene.layout.VBox;
 import jnekoimagesdb.GUITools;
 import menulist.MenuGroupItem;
 
+@Deprecated
 public class AlbumsCategories extends ScrollPane {
     public class ACListItem extends HBox {
         public AlbumsCategory AC;

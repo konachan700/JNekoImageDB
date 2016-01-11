@@ -6,12 +6,9 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.bind.DatatypeConverter;
 import org.h2.jdbcx.JdbcConnectionPool;
 
@@ -161,7 +158,7 @@ public class ImgFSDatastore {
             dbInitStatement.setQueryTimeout(33);
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `images` (iid bigint not null primary key auto_increment, xmd5 BINARY(16) not null);");
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `tags` (iid bigint not null primary key auto_increment, xtag char(175));");
-            dbInitStatement.executeUpdate("CREATE TABLE if not exists `albums` (iid bigint not null primary key auto_increment, piid bigint not null, xname char(64), flags bigint);");
+            dbInitStatement.executeUpdate("CREATE TABLE if not exists `albums` (iid bigint not null primary key auto_increment, piid bigint not null, xname char(128), xtext blob, flags bigint);");
             dbInitStatement.close();
             dbWConnection.commit();
             
@@ -171,7 +168,7 @@ public class ImgFSDatastore {
             throw new SQLException("Database error: org.h2.Driver");
         }
     }
-    
+
     private synchronized PreparedStatement dbGetAddItemPS() throws SQLException {
         final PreparedStatement ps = getWConn().prepareStatement("INSERT INTO `images` VALUES (default, ?);");
         prepareStatementWCounter++;

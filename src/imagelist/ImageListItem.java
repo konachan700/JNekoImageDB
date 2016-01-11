@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
+@Deprecated
 public class ImageListItem extends Pane {
     private Long ID = (long) 0x0;
     private ImageListItemActionListener AL = null;

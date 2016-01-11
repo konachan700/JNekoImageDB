@@ -19,6 +19,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import jnekoimagesdb.GUITools;
 
+@Deprecated
 public class ImageListViewScreen {
     private final ImageView 
             like = new ImageView(new Image(new File("./icons/like-48.png").toURI().toString())),

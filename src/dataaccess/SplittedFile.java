@@ -15,6 +15,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 
+@Deprecated
 public class SplittedFile {
     public static volatile long
             MyIOPS_R  = 0,

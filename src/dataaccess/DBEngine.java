@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import jnekoimagesdb.JNekoImageDB;
 
+@Deprecated
 public class DBEngine {   
     public static           String      QUOTE           = "";
     private                 Statement   gStatement      = null;

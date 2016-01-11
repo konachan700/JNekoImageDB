@@ -1,5 +1,6 @@
 package albums;
 
+@Deprecated
 public interface ASDElementActionListener {
     void OnCheck(Long id, AlbumsListElement e);
     void OnUncheck(Long id, AlbumsListElement e);

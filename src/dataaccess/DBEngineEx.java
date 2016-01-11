@@ -3,6 +3,7 @@ package dataaccess;
 import java.sql.Connection;
 import jnekoimagesdb.JNekoImageDB;
 
+@Deprecated
 public class DBEngineEx {
     private Connection
             readConn = null,

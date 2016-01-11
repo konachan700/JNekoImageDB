@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
     В дальнейшем этот велосипед надо переделать под нормальный, человеческий кеш
 */
 
+@Deprecated
 public class ImageCache {
     private static final ArrayList<Image> 
             cache = new ArrayList<>();

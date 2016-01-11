@@ -18,6 +18,7 @@ import java.util.Map;
 import javafx.scene.image.Image;
 import jnekoimagesdb.JNekoImageDB;
 
+@Deprecated
 public class FSEngine {   
     public static final int
             TYPE_JPEG = 1,

@@ -17,6 +17,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import jnekoimagesdb.GUITools;
 
+@Deprecated
 public class AlbumSelectDialog {
     private long 
             albumID = 0;

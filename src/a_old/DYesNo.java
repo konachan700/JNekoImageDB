@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import jnekoimagesdb.GUITools;
 
+@Deprecated
 public class DYesNo {
     public interface DYesNoActionListener {
         public void OnYes();

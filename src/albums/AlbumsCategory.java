@@ -2,6 +2,7 @@ package albums;
 
 import dataaccess.DBWrapper;
 
+@Deprecated
 public class AlbumsCategory {
     public String name;
     public long ID;
