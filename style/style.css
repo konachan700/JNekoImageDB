@@ -462,7 +462,7 @@
 
 .GUIElements_STabTextButton {
 	-fx-padding: 2 10 2 10;
-    -fx-background-color:#555;
+    -fx-background-color:#225522;
     -fx-font-weight:bold; 
     -fx-font-size: 12px;
     -fx-text-fill: #fff;
@@ -591,7 +591,7 @@
 }
 
 .GUIElements_AddNewAlbumElement {
-    -fx-background-color: #222;
+    -fx-background-color: #555;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-width: 0;
     -fx-padding: 6px;
@@ -599,16 +599,17 @@
 }
 
 .TabAlbumImageList_rootPane_line {
-    -fx-border-width: 2px 0 0 0;
+    -fx-border-width: 0px 0 0 0;
     -fx-border-color: #555;
 	-fx-border-insets: 0;
 }
 
 .TabAlbumImageList_albumName {
 	-fx-padding: 2 10 2 10;
-    -fx-background-color:#555;
+    -fx-background-color:#222;
+	-fx-font-weight:bold; 
     -fx-font-size: 12px;
-    -fx-text-fill: #fff;
+    -fx-text-fill: #bbb;
     -fx-background-radius: 0;
     -fx-background-insets: 0, 0, 0, 0;
 }
@@ -676,10 +677,79 @@
 	-fx-padding: 4px;
 }
 
+.TabAlbumImageList_bottomPanelForAlbums {
+	-fx-padding: 2 10 2 10;
+    -fx-background-color:#222;
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
 
 
 
 
+.PagedImageList_root_pane {
+    -fx-background-insets: 0;
+    -fx-background-color: linear-gradient(#333 0%, #000 20%, #000 80%, #333 100%);
+    -fx-padding: 10px;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+Pagination {
+	-fx-page-information-visible: false;
+	-fx-tooltip-visible: false;
+	-fx-max-page-indicator-count: 100;
+}
+ 
+Pagination .toggle-button, Pagination .button {
+	-fx-padding: 4px 2px 4px 2px;
+    -fx-font-size: 10px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0; 
+	-fx-border-width:0px;
+    -fx-border-insets:0;
+}
+
+Pagination .toggle-button {
+	-fx-background-color:#222;
+}
+
+Pagination .button, Pagination .toggle-button:selected {
+	-fx-background-color:#252;
+}
+
+Pagination .label {
+	visibility: hidden;
+}
+
+Pagination .toggle-button:hover, Pagination .button:hover {
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
+
+Pagination .pagination-control, Pagination, Pagination .page, Pagination .control-box {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding:0px;
+    -fx-border-width:0px;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;    
+}
+
+Pagination .control-box {
+	-fx-padding:-11 0 -7 0px;
+}
+ 
+Pagination .pagination-control .left-arrow, .right-arrow{
+    -fx-background-color: #000;
+}
 
 
 

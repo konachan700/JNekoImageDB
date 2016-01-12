@@ -5,6 +5,12 @@ public class Lang {
         В будущем все строки должны браться из ресурсов с учетом языка системы, а не быть захардкожеными.
     */
     public static final String 
+            TabAlbumImageList_root_album                                        = "Основной альбом",
+            TabAlbumImageList_db_error                                          = "Database error, see logs.",
+            TabAlbumImageList_info_format                                       = "В текущем каталоге %d альбомов и %d картинок.",
+            
+            InfiniteImageList_no_elements_found                                 = "Нет элементов для отображения",
+            
             AlbumsCategories_txtAddNew                                          = "Новая группа",
             AlbumsCategories_MenuItem_FAVORITES                                 = "Избранное",
             AlbumsCategories_MenuItem_DELETED                                   = "Удаленные",
@@ -34,7 +40,8 @@ public class Lang {
             JNekoImageDB_menu_main_tags_parser                                  = "Парсер тегов",
             JNekoImageDB_menu_title_settings                                    = "Настройки",
             JNekoImageDB_menu_main_all_images                                   = "Все картинки",
-            JNekoImageDB_menu_main_all_images_wo_groups                         = "Все без категорий",
+            JNekoImageDB_menu_main_all_images_wo_groups                         = "Все не в альбомах",
+            JNekoImageDB_menu_main_all_images_wo_tags                           = "Все без тегов",
             JNekoImageDB_menu_main_tagcloud                                     = "Облако тегов",
             JNekoImageDB_menu_main_fav_tags                                     = "Избранные теги",
             JNekoImageDB_menu_main_add_images                                   = "Добавить картинки",

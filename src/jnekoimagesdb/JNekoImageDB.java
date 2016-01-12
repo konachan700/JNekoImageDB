@@ -11,6 +11,7 @@ import dataaccess.SplittedFile;
 import imagelist.ImageList;
 import imgfs.ImgFS;
 import imgfstabs.TabAlbumImageList;
+import imgfstabs.TabAllImages;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -67,7 +68,10 @@ public class JNekoImageDB extends Application {
             taLOG = new TextArea();
     
     private final TabAlbumImageList
-            tabAlbumImageList = new TabAlbumImageList(toolbox, paginator_1);
+            tabAlbumImageList = new TabAlbumImageList(toolbox);
+    
+    private final TabAllImages
+            tabAllImages = new TabAllImages();
     
 //    private TabAddImagesToDB
 //            addNewImagesTab = null;
@@ -75,15 +79,15 @@ public class JNekoImageDB extends Application {
     private String 
             databaseName    = "default";
     
-    private MenuGroupItem
-            MGI = null;
+//    private MenuGroupItem
+//            MGI = null;
     
     private final MenuList 
             ml              = new MenuList();
     
-    private AlbumsCategories
-            albumCats = null;
-    
+//    private AlbumsCategories
+//            albumCats = null;
+//    
 //    private FSImageList 
 //            fileImgList     = null;
     
@@ -147,10 +151,12 @@ public class JNekoImageDB extends Application {
                     }
                     
                     if (l.getID().contentEquals("M01-01")) showAllImages();
-                    if (l.getID().contentEquals("M01-06")) showAllImages(DBWrapper.ALBUM_ID_WO_GROUPS);
+                    //if (l.getID().contentEquals("M01-06")) showAllImages(DBWrapper.ALBUM_ID_WO_GROUPS);
                     if (l.getID().contentEquals("M01-05")) showFileDialog();
+                    if (l.getID().contentEquals("M01-04")) showAlbCats();
+                    
                     if (l.getID().contentEquals("M03-03")) showLog();
-                    if (l.getID().contentEquals("M03-01")) showAlbCats();
+                    //if (l.getID().contentEquals("M03-01")) showAlbCats();
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     
                     if (l.getID().contentEquals("M03-04")) {
@@ -167,7 +173,9 @@ public class JNekoImageDB extends Application {
     }
     
     private void showAllImages() {
-        showAllImages(0);
+        basesp.getChildren().add(tabAllImages);
+        paginator_1.getChildren().add(tabAllImages.getPaginator());
+        tabAllImages.regenerate();
     }
     
     private void showSettings() {
@@ -191,8 +199,10 @@ public class JNekoImageDB extends Application {
     }
     
     private void showAlbCats() {
-        albumCats.RefreshAll();
-        basesp.getChildren().add(albumCats);
+        basesp.getChildren().add(tabAlbumImageList);
+        paginator_1.getChildren().add(tabAlbumImageList.getBottomPanel());
+//        albumCats.RefreshAll();
+//        basesp.getChildren().add(albumCats);
         //toolbox.getChildren().add(albumCats.getToolbox());
     }
     
@@ -318,7 +328,7 @@ public class JNekoImageDB extends Application {
         paginator_1.setMaxSize(9999, 32);
         paginator_1.setPrefSize(9999, 32);
         paginator_1.setMinSize(32, 32);
-        paginator_1.setAlignment(Pos.CENTER_RIGHT);
+        paginator_1.setAlignment(Pos.CENTER);
 
         basevbox.getChildren().add(basehbox);
 
@@ -328,31 +338,34 @@ public class JNekoImageDB extends Application {
         
         ml.getMenu().setActionListener(menuAL);
         
-        ml.getMenu().addGroup("M01", Lang.JNekoImageDB_menu_title_main, null, "331111");
+        ml.getMenu().addGroup("M01", Lang.JNekoImageDB_menu_title_main, null, "113311");
         ml.getMenu().addItem("M01", "M01-01", Lang.JNekoImageDB_menu_main_all_images);
+        ml.getMenu().addItem("M01", "M01-02", Lang.JNekoImageDB_menu_main_all_images_wo_tags);
         ml.getMenu().addItem("M01", "M01-06", Lang.JNekoImageDB_menu_main_all_images_wo_groups);
-        //ml.getMenu().addItem("M01", "M01-04", "Параметрический поиск");
+        ml.getMenu().addItem("M01", "M01-04", Lang.JNekoImageDB_menu_title_albums);
+        ml.getMenu().addItem("M01", "M01-03", Lang.JNekoImageDB_menu_main_tagcloud);
+        ml.getMenu().addItem("M01", "M01-07", Lang.JNekoImageDB_menu_main_fav_tags);
         ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
         
-        ml.getMenu().addGroup("M04", Lang.JNekoImageDB_menu_title_tags, null, "331133");
-        ml.getMenu().addItem("M04", "M04-01", Lang.JNekoImageDB_menu_main_tagcloud);
-        ml.getMenu().addItem("M04", "M04-02", Lang.JNekoImageDB_menu_main_fav_tags);
-        ml.getMenu().addItem("M04", "M04-03", Lang.JNekoImageDB_menu_main_tags_parser);
+//        ml.getMenu().addGroup("M04", Lang.JNekoImageDB_menu_title_tags, null, "331133");
+//        ml.getMenu().addItem("M04", "M04-01", Lang.JNekoImageDB_menu_main_tagcloud);
+//        ml.getMenu().addItem("M04", "M04-02", Lang.JNekoImageDB_menu_main_fav_tags);
+//        ml.getMenu().addItem("M04", "M04-03", Lang.JNekoImageDB_menu_main_tags_parser);
         
-        ml.getMenu().addGroup("M02", Lang.JNekoImageDB_menu_title_albums, null, "113311");
+        //ml.getMenu().addGroup("M02", Lang.JNekoImageDB_menu_title_albums, null, "113311");
         //ml.getMenu().addItem("M02", "M02-01", "Избранное");
         
         ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
-        ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);
+        //ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);
         ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
         ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
         ml.getMenu().addItem("M03", "M03-04", "For test");
         
-        MGI = ml.getMenu().getGroup("M02");
-        DBWrapper.setMenuGroupItem2(MGI);
+        //MGI = ml.getMenu().getGroup("M02");
+        //DBWrapper.setMenuGroupItem2(MGI);
         
-        albumCats = new AlbumsCategories(MGI);
-        albumCats.RefreshAll();
+        //albumCats = new AlbumsCategories(MGI);
+        //albumCats.RefreshAll();
         
         ml.setPrefSize(240, 9999);
         ml.setMaxSize(240, 9999);
