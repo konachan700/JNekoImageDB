@@ -21,7 +21,7 @@ import org.iq80.leveldb.Options;
 
 public class ImgFS {
     public static enum PreviewType {
-        cahce, previews
+        cache, previews
     }
         
     private static Map<String, DB>
@@ -111,6 +111,8 @@ public class ImgFS {
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `images` (iid bigint not null primary key auto_increment, xmd5 BINARY(16) not null);");
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `tags` (iid bigint not null primary key auto_increment, xtag char(255));");
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `albums` (iid bigint not null primary key auto_increment, piid bigint not null, xname char(64), xtext mediumblob, flags bigint);");
+            dbInitStatement.executeUpdate("CREATE TABLE if not exists `imggal` (img_iid bigint not null, gal_iid bigint not null primary key, UNIQUE(img_iid, gal_iid));");
+            
             dbInitStatement.close();
             
             dbWConnection.commit();

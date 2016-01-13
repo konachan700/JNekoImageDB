@@ -7,38 +7,42 @@ import imgfstabs.TabAlbumImageList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import jnekoimagesdb.GUITools;
 
 public class PagedImageList extends FlowPane {
+    public static final int 
+            IMAGES_ALL = -1,
+            IMAGES_NOTAGGED = -2,
+            IMAGES_NOT_IN_ALBUM = -3;
+    
     private volatile int 
             itemSize                = 128,
             itemCountOnOneLine      = 0,
@@ -61,19 +65,62 @@ public class PagedImageList extends FlowPane {
     
     private final ArrayList<ImageListItem>
             elementsPool = new ArrayList<>();
+            
     
     protected interface ImageListItemActionListener {
-        public void OnSelect(boolean isSelected, byte[] itemHash);
-        public void OnOpen(byte[] itemHash);
+        public void OnSelect(boolean isSelected, ImageLIByteArray itemHash);
+        public void OnOpen(ImageLIByteArray itemHash);
     }
+    
+    protected class ImageLIByteArray {
+        private byte[] itemHash;
+        
+        public ImageLIByteArray() { 
+            itemHash = null; 
+        }
+        
+        public ImageLIByteArray(byte[] b) { 
+            itemHash = b; 
+        }
+        
+        public byte[] get() { 
+            return itemHash; 
+        }
+        
+        public void set(byte[] b) { 
+            itemHash = b; 
+        }
+        
+        public int size() {  
+            return itemHash.length; 
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof ImageLIByteArray) {
+                return Arrays.equals(itemHash, ((ImageLIByteArray)o).get());
+            } else 
+                return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 59 * hash + Arrays.hashCode(this.itemHash);
+            return hash;
+        }
+    }
+    
+    private final ArrayList<ImageLIByteArray>
+            selectedElementsPool = new ArrayList<>();
     
     protected class ImageListItem extends Pane {
         private final ImageView 
             imageContainer = new ImageView(),
             selectedIcon = new ImageView(InfiniteFileList.ITEM_SELECTED);
         
-        private byte[] 
-                md5_im = null;
+        private ImageLIByteArray
+                md5_array = null;
         
         private final VBox 
             imageVBox = new VBox(0);
@@ -82,11 +129,15 @@ public class PagedImageList extends FlowPane {
                 actionListener;
        
         public byte[] getMD5() {
-            return md5_im;
+            return md5_array.get();
         }
         
         public void setMD5(byte[] b) {
-            md5_im = b;
+            md5_array.set(b);
+        }
+        
+        public ImageLIByteArray get() {
+            return md5_array;
         }
         
         public final void setNullImage() {
@@ -97,7 +148,9 @@ public class PagedImageList extends FlowPane {
         }
         
         public final void setImage(byte[] ref) {
-            md5_im = ref;
+            //md5_array.set(ref);
+            md5_array = new ImageLIByteArray(ref);
+            
             final byte[] content = ImgFS.getDB(ImgFS.PreviewType.previews.name()).get(ref);
             final byte[] decrypted = ImgFS.getCrypt().Decrypt(content);
             
@@ -142,10 +195,10 @@ public class PagedImageList extends FlowPane {
                 if (event.getClickCount() == 1) {
                     if (event.getButton() == MouseButton.SECONDARY) {
                         setSelected(!getSelected());
-                        actionListener.OnSelect(getSelected(), md5_im);
+                        actionListener.OnSelect(getSelected(), md5_array);
                     }
                 } else {
-                    actionListener.OnOpen(md5_im);
+                    actionListener.OnOpen(md5_array);
                 }
                 event.consume();
             });
@@ -175,12 +228,15 @@ public class PagedImageList extends FlowPane {
     private final ImageListItemActionListener
             elementListener = new ImageListItemActionListener() {
                 @Override
-                public void OnSelect(boolean isSelected, byte[] itemHash) {
-
+                public void OnSelect(boolean isSelected, ImageLIByteArray itemHash) {
+                    if (isSelected)
+                        selectedElementsPool.add(itemHash);
+                    else
+                        selectedElementsPool.remove(itemHash);
                 }
 
                 @Override
-                public void OnOpen(byte[] itemHash) {
+                public void OnOpen(ImageLIByteArray itemHash) {
 
                 }
             };
@@ -234,6 +290,25 @@ public class PagedImageList extends FlowPane {
             }
         });
         
+        this.setFocusTraversable(true);
+        this.setOnKeyPressed((KeyEvent key) -> {
+            int index = pag.getCurrentPageIndex();
+            if (key.getCode() == KeyCode.LEFT)  if (index > 0) pag.setCurrentPageIndex(index - 1);
+            if (key.getCode() == KeyCode.RIGHT) if (index < pag.getPageCount()) pag.setCurrentPageIndex(index + 1);
+            if (key.getCode() == KeyCode.SPACE) if (index < pag.getPageCount()) pag.setCurrentPageIndex(index + 1);
+        });
+        
+        this.setOnScroll((ScrollEvent event) -> {
+            if (isResize) return;
+            
+            int index = pag.getCurrentPageIndex();
+            if (event.getDeltaY() > 0) {
+                if (index > 0) pag.setCurrentPageIndex(index - 1);
+            } else {
+                if (index < pag.getPageCount()) pag.setCurrentPageIndex(index + 1);
+            }
+        });
+        
         pag.currentPageIndexProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             THIS.getChildren().clear();
             _calcPaginator();
@@ -243,22 +318,29 @@ public class PagedImageList extends FlowPane {
         TMR.play();
     }
     
+    public void selectNone() {
+        this.getChildren().clear();
+        selectedElementsPool.clear();
+        isResize = true;
+    }
+    
+    public ArrayList<ImageLIByteArray> getSelectedHashes() {
+        return selectedElementsPool;
+    }
+    
     private void _calcPaginator() { 
         itemTotalCount = itemCountOnOneLine * itemCountOnOneColoumn;
-        System.err.println("itemTotalCount="+itemTotalCount);
-        
         if (elementsPool.size() < itemTotalCount) {
             for (int i=elementsPool.size(); i<itemTotalCount; i++) {
                 elementsPool.add(new ImageListItem(elementListener));
             }
         }
-        System.err.println("elementsPool.size()="+elementsPool.size());
-        
+
         if ((itemTotalCount > 0) && (itemTotalRecordsCount > 0)) {
             pag.setVisible(true);
-            //pag.setCurrentPageIndex(0);
-            pag.setMaxPageIndicatorCount(itemTotalRecordsCount / itemTotalCount);
-            regenerateView(0);
+            final int pageCount = (itemTotalRecordsCount / itemTotalCount) + (((itemTotalRecordsCount % itemTotalCount) > 0) ? 1 : 0);
+            pag.setPageCount(pageCount);
+            regenerateView(IMAGES_ALL);
         } else 
             pag.setVisible(false);
     }
@@ -269,15 +351,23 @@ public class PagedImageList extends FlowPane {
         
         try {
             final PreparedStatement ps;
-            if (albumID < 0) {
-                ps = conn.prepareStatement("SELECT * FROM images ORDER BY iid ASC LIMIT ?,?;");
-                ps.setLong(1, off);
-                ps.setLong(2, itemTotalCount);
-            } else {
-                /* TODO: добавить альбомы */
-                ps = conn.prepareStatement("SELECT * FROM images ORDER BY iid ASC LIMIT ?,?;");
-                ps.setLong(1, off);
-                ps.setLong(2, itemTotalCount);
+            switch ((int)albumID) {
+                case IMAGES_ALL:
+                    ps = conn.prepareStatement("SELECT * FROM images ORDER BY iid ASC LIMIT ?,?;");
+                    ps.setLong(1, off);
+                    ps.setLong(2, itemTotalCount);
+                    break;
+//                case IMAGES_NOTAGGED:
+//                    
+//                    break;
+//                case IMAGES_NOT_IN_ALBUM:
+//                    
+//                    break;
+                default:
+                    ps = conn.prepareStatement("SELECT * FROM images ORDER BY iid ASC LIMIT ?,?;");
+                    ps.setLong(1, off);
+                    ps.setLong(2, itemTotalCount);
+                    break;
             }
             
             int counter = 0;
@@ -285,6 +375,7 @@ public class PagedImageList extends FlowPane {
             if (rs != null) {
                 while (rs.next()) {
                     elementsPool.get(counter).setImage(rs.getBytes("xmd5"));
+                    elementsPool.get(counter).setSelected(selectedElementsPool.contains(elementsPool.get(counter).get()));
                     this.getChildren().add(elementsPool.get(counter));
                     counter++;
                 }
@@ -294,7 +385,8 @@ public class PagedImageList extends FlowPane {
             if (counter < itemTotalCount) {
                 for (int i=counter; i<itemTotalCount; i++) {
                     elementsPool.get(i).setNullImage();
-                    this.getChildren().add(elementsPool.get(counter));
+                    elementsPool.get(counter).setSelected(false);
+                    this.getChildren().add(elementsPool.get(i));
                 }
             }
             

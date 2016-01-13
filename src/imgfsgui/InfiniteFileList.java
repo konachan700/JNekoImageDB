@@ -408,7 +408,7 @@ public class InfiniteFileList extends InfiniteListPane {
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public InfiniteFileList(ImgFSCrypto c, String dbname) {
         super();
-        previewGen = new ImgFSPreviewGen(c, ImgFS.PreviewType.cahce, dbname, (Image im, Path path) -> {
+        previewGen = new ImgFSPreviewGen(c, ImgFS.PreviewType.cache, dbname, (Image im, Path path) -> {
             Platform.runLater(() -> {
                 displayImg(im, path);
             });

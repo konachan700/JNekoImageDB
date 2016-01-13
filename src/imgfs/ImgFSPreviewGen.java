@@ -576,8 +576,8 @@ public class ImgFSPreviewGen {
         
         prevSizes.clear();
         switch (myType) {
-            case cahce:
-                dbxName = ImgFS.PreviewType.cahce.name();
+            case cache:
+                dbxName = ImgFS.PreviewType.cache.name();
                 processorsCount = Runtime.getRuntime().availableProcessors();
                 if (processorsCount > 4) processorsCount = 4;
                 prevSizes.add(new PreviewSize("p120x120", 120, 120, false));

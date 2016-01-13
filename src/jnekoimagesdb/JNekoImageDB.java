@@ -174,6 +174,7 @@ public class JNekoImageDB extends Application {
     
     private void showAllImages() {
         basesp.getChildren().add(tabAllImages);
+        toolbox.getChildren().add(tabAllImages.getPanel());
         paginator_1.getChildren().add(tabAllImages.getPaginator());
         tabAllImages.regenerate();
     }
@@ -184,13 +185,13 @@ public class JNekoImageDB extends Application {
         
     }
     
-    private void showAllImages(long id) {
-        basesp.getChildren().add(imgList);
-        imgList.setAlbimID(id);
-        imgList.normalRefresh();
-        toolbox.getChildren().add(imgList.getTopPanel()); 
-        paginator_1.getChildren().add(imgList.getPaginator());
-    }
+//    private void showAllImages(long id) {
+//        basesp.getChildren().add(imgList);
+//        imgList.setAlbimID(id);
+//        imgList.normalRefresh();
+//        toolbox.getChildren().add(imgList.getTopPanel()); 
+//        paginator_1.getChildren().add(imgList.getPaginator());
+//    }
     
     private void showFileDialog() {
         basesp.getChildren().add(ImgFS.getAddImagesTab().getList());

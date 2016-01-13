@@ -19,7 +19,7 @@ import javafx.scene.image.Image;
 import jnekoimagesdb.GUITools;
 
 public class TabAddImagesToDB {
-    private final int
+    public static final int
             BTN_LELEL_UP    = 1,
             BTN_NAVTO       = 2,
             BTN_NAVTO_ROOT  = 3,
@@ -28,12 +28,12 @@ public class TabAddImagesToDB {
             BTN_DEL         = 6, 
             BTN_ADD         = 7;
     
-    private final Image 
+    public static final Image 
             IMG24_LEVEL_UP          = GUITools.loadIcon("lvlup-24"),
             IMG24_NAVIGATE_TO       = GUITools.loadIcon("navto-24"),
             IMG24_TO_ROOT           = GUITools.loadIcon("root-24"); 
     
-    private final Image 
+    public static final Image 
             IMG64_SELECT_ALL        = GUITools.loadIcon("selectall-48"), 
             IMG64_SELECT_NONE       = GUITools.loadIcon("selectnone-48"), 
             IMG64_DELETE            = GUITools.loadIcon("delete-48"), 
