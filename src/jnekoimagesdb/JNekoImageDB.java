@@ -68,7 +68,7 @@ public class JNekoImageDB extends Application {
             taLOG = new TextArea();
     
     private final TabAlbumImageList
-            tabAlbumImageList = new TabAlbumImageList(toolbox);
+            tabAlbumImageList = new TabAlbumImageList(toolbox, paginator_1);
     
     private final TabAllImages
             tabAllImages = new TabAllImages();
@@ -201,7 +201,7 @@ public class JNekoImageDB extends Application {
     
     private void showAlbCats() {
         basesp.getChildren().add(tabAlbumImageList);
-        paginator_1.getChildren().add(tabAlbumImageList.getBottomPanel());
+//        paginator_1.getChildren().add(tabAlbumImageList.getBottomPanel());
 //        albumCats.RefreshAll();
 //        basesp.getChildren().add(albumCats);
         //toolbox.getChildren().add(albumCats.getToolbox());

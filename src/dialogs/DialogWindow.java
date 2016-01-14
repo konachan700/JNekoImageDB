@@ -27,6 +27,9 @@ public class DialogWindow {
             headerbox       = new HBox(), 
             toolbox         = new HBox();
     
+    private boolean 
+            isOk = false;
+    
     private final Scene scene;
     
     public DialogWindow() {
@@ -44,6 +47,7 @@ public class DialogWindow {
     }
     
     public void show() {
+        isOk = false;
         win.show();
     }
     
@@ -56,7 +60,16 @@ public class DialogWindow {
     }
     
     public void showModal() {
+        isOk = false;
         win.showAndWait();
+    }
+    
+    public boolean isRetCodeOK() {
+        return isOk;
+    }
+    
+    public void setRetCodeOK(boolean b) {
+        isOk = b;
     }
     
     public HBox getToolbox() {

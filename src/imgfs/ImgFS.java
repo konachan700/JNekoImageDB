@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -111,7 +113,7 @@ public class ImgFS {
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `images` (iid bigint not null primary key auto_increment, xmd5 BINARY(16) not null);");
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `tags` (iid bigint not null primary key auto_increment, xtag char(255));");
             dbInitStatement.executeUpdate("CREATE TABLE if not exists `albums` (iid bigint not null primary key auto_increment, piid bigint not null, xname char(64), xtext mediumblob, flags bigint);");
-            dbInitStatement.executeUpdate("CREATE TABLE if not exists `imggal` (img_iid bigint not null, gal_iid bigint not null primary key, UNIQUE(img_iid, gal_iid));");
+            dbInitStatement.executeUpdate("CREATE TABLE if not exists `imggal` (img_iid bigint not null, gal_iid bigint not null, UNIQUE(img_iid, gal_iid));");
             
             dbInitStatement.close();
             
@@ -120,6 +122,16 @@ public class ImgFS {
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
             throw new SQLException("Database error: org.h2.Driver");
         }
+    }
+    
+    public static long getSQLCount(PreparedStatement ps) throws SQLException {
+        final ResultSet rs = ps.executeQuery();
+        if (rs != null) {
+            while (rs.next()) {
+                return rs.getLong(1);
+            }
+        }
+        return -1;
     }
     
     public static void dispose() {

@@ -37,19 +37,27 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import jnekoimagesdb.GUITools;
 
-public class PagedImageList extends FlowPane {
+public class PagedImageList extends GUIElements.SScrollPane {
     public static final int 
             IMAGES_ALL = -1,
             IMAGES_NOTAGGED = -2,
             IMAGES_NOT_IN_ALBUM = -3;
     
+    private final FlowPane
+            container = new FlowPane();
+    
     private volatile int 
-            itemSize                = 128,
-            itemCountOnOneLine      = 0,
-            itemCountOnOneColoumn   = 0,
-            itemTotalCount          = 0,
-            itemTotalRecordsCount   = 0,
-            itemSpacer              = 4;
+            itemSize                    = 128,
+            itemCountOnOneLine          = 0,
+            itemCountOnOneColoumn       = 0,
+            itemTotalCount              = 0,
+            itemCountOnOneLineOld       = -1,
+            itemCountOnOneColoumnOld    = 0,
+            itemTotalRecordsCount       = 0,
+            itemSpacer                  = 4;
+    
+    private volatile long
+            currentAlbumID = IMAGES_ALL;
     
     private final PagedImageList
             THIS = this;
@@ -74,13 +82,23 @@ public class PagedImageList extends FlowPane {
     
     protected class ImageLIByteArray {
         private byte[] itemHash;
+        private long id = 0;
         
         public ImageLIByteArray() { 
             itemHash = null; 
         }
         
-        public ImageLIByteArray(byte[] b) { 
+        public ImageLIByteArray(byte[] b, long _id) { 
             itemHash = b; 
+            id = _id;
+        }
+        
+        public long getID() {
+            return id;
+        }
+        
+        public void setID(long _id) {
+            id = _id;
         }
         
         public byte[] get() { 
@@ -116,14 +134,14 @@ public class PagedImageList extends FlowPane {
     
     protected class ImageListItem extends Pane {
         private final ImageView 
-            imageContainer = new ImageView(),
-            selectedIcon = new ImageView(InfiniteFileList.ITEM_SELECTED);
+                imageContainer = new ImageView(),
+                selectedIcon = new ImageView(InfiniteFileList.ITEM_SELECTED);
         
         private ImageLIByteArray
                 md5_array = null;
         
         private final VBox 
-            imageVBox = new VBox(0);
+                imageVBox = new VBox(0);
         
         private final ImageListItemActionListener
                 actionListener;
@@ -147,28 +165,25 @@ public class PagedImageList extends FlowPane {
             this.getStyleClass().clear();
         }
         
-        public final void setImage(byte[] ref) {
-            //md5_array.set(ref);
-            md5_array = new ImageLIByteArray(ref);
+        public final void setImage(byte[] ref, long id) {
+            md5_array = new ImageLIByteArray(ref, id);
             
             final byte[] content = ImgFS.getDB(ImgFS.PreviewType.previews.name()).get(ref);
             final byte[] decrypted = ImgFS.getCrypt().Decrypt(content);
             
             Image img;
             try {
-                //System.err.println("decrypted="+decrypted.length+"; "+new String(decrypted));
                 final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decrypted));
                 final PreviewElement pe = (PreviewElement) ois.readObject();
                 ois.close();
-                img = pe.getImage(ImgFS.getCrypt(), "p120x120s"); // !!!!!!!!!!!!!!!!!!!! 
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                img = pe.getImage(ImgFS.getCrypt(), "p120x120s"); // !!!!!!!!!!!!!!!!!!!! DELETE IT !
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             } catch (IOException | ClassNotFoundException ex) {
                 img = InfiniteFileList.ITEM_ERROR;
                 Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-             
-            
-            //final Image img = (content != null) ? new Image(new ByteArrayInputStream(decrypted)) : InfiniteFileList.ITEM_ERROR; 
+ 
             imageContainer.setImage(img);
             imageContainer.setVisible(true);
             if (this.getChildren().isEmpty()) addAll();
@@ -241,24 +256,34 @@ public class PagedImageList extends FlowPane {
                 }
             };
     
-    private boolean isResize = false;
+    private boolean 
+            isResize = false,
+            forceReload = false;
+    
     private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(88), ae -> {
         if (isResize) {
+            _getCount();
             _calcPaginator();
             isResize = false;
+            forceReload = false;
         }
     }));
     
     @SuppressWarnings("LeakingThisInConstructor")
     public PagedImageList() {
         super();
+        this.setVbarPolicy(ScrollBarPolicy.NEVER);
+        this.setHbarPolicy(ScrollBarPolicy.NEVER);
+        this.setFitToHeight(true);
+        this.setFitToWidth(true);
+        this.setContent(container);
         
-        GUITools.setMaxSize(this, 9999, 9999);
-        GUITools.setStyle(this, "PagedImageList", "root_pane");
+        GUITools.setMaxSize(container, 9999, 9999);
+        GUITools.setStyle(container, "PagedImageList", "root_pane");
         
-        this.setAlignment(Pos.CENTER);
-        this.setHgap(itemSpacer);
-        this.setVgap(itemSpacer);
+        container.setAlignment(Pos.CENTER);
+        container.setHgap(itemSpacer);
+        container.setVgap(itemSpacer);
         
         pag.setMaxSize(9999, 24);
         pag.setMinSize(128, 24);
@@ -276,22 +301,30 @@ public class PagedImageList extends FlowPane {
         
         this.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
-                this.getChildren().clear();
-                itemCountOnOneLine = newValue.intValue() / (itemSize + itemSpacer);
+                itemCountOnOneLine = (newValue.intValue()-20) / (itemSize + itemSpacer);
+                if (itemCountOnOneLineOld != itemCountOnOneLine) {
+                    forceReload = true;
+                    itemCountOnOneLineOld = itemCountOnOneLine;
+                }
                 isResize = true;
             }
         });
         
         this.heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
-                this.getChildren().clear();
-                itemCountOnOneColoumn = newValue.intValue() / (itemSize + itemSpacer);
+                itemCountOnOneColoumn = (newValue.intValue()-20) / (itemSize + itemSpacer);
+                if (itemCountOnOneColoumnOld != itemCountOnOneColoumn) {
+                    forceReload = true;
+                    itemCountOnOneColoumnOld = itemCountOnOneColoumn;
+                }
                 isResize = true;
             }
         });
         
         this.setFocusTraversable(true);
         this.setOnKeyPressed((KeyEvent key) -> {
+            if (isResize || forceReload) return;
+            
             int index = pag.getCurrentPageIndex();
             if (key.getCode() == KeyCode.LEFT)  if (index > 0) pag.setCurrentPageIndex(index - 1);
             if (key.getCode() == KeyCode.RIGHT) if (index < pag.getPageCount()) pag.setCurrentPageIndex(index + 1);
@@ -299,7 +332,7 @@ public class PagedImageList extends FlowPane {
         });
         
         this.setOnScroll((ScrollEvent event) -> {
-            if (isResize) return;
+            if (isResize || forceReload) return;
             
             int index = pag.getCurrentPageIndex();
             if (event.getDeltaY() > 0) {
@@ -310,7 +343,7 @@ public class PagedImageList extends FlowPane {
         });
         
         pag.currentPageIndexProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            THIS.getChildren().clear();
+            if (isResize || forceReload) return;
             _calcPaginator();
         });
         
@@ -318,8 +351,45 @@ public class PagedImageList extends FlowPane {
         TMR.play();
     }
     
+    public void addToAlbums(ArrayList<Long> albums) {
+        if (albums.isEmpty() || selectedElementsPool.isEmpty()) return;
+        
+        try {
+            final PreparedStatement ps = conn.prepareStatement("MERGE INTO imggal KEY (img_iid,gal_iid) VALUES (?, ?)");
+            albums.forEach((album) -> {
+                selectedElementsPool.forEach((item) -> {
+                    if (item.getID() > 0) {
+                        try {
+                            ps.setLong(1, item.getID());
+                            ps.setLong(2, album);
+                            ps.addBatch();
+                        } catch (SQLException ex) {
+                            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
+            });
+
+            ps.executeBatch();
+            ps.clearWarnings();
+            ps.close();
+            
+/* test code for debug */
+//            final PreparedStatement ps_count = conn.prepareStatement("SELECT COUNT(*) FROM imggal;");
+//            final ResultSet rs_count = ps_count.executeQuery();
+//            if (rs_count != null) {
+//                if (rs_count.next()) {
+//                    System.err.println("items in table 'imggal': "+rs_count.getInt(1));
+//                }
+//                rs_count.close();
+//            }
+//            ps_count.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public void selectNone() {
-        this.getChildren().clear();
         selectedElementsPool.clear();
         isResize = true;
     }
@@ -337,17 +407,55 @@ public class PagedImageList extends FlowPane {
         }
 
         if ((itemTotalCount > 0) && (itemTotalRecordsCount > 0)) {
+            
             pag.setVisible(true);
             final int pageCount = (itemTotalRecordsCount / itemTotalCount) + (((itemTotalRecordsCount % itemTotalCount) > 0) ? 1 : 0);
             pag.setPageCount(pageCount);
-            regenerateView(IMAGES_ALL);
+            regenerateView(currentAlbumID);
         } else 
             pag.setVisible(false);
     }
 
-    public void regenerateView(long albumID) {
+    public void setAlbumID(long albumID) {
+        currentAlbumID = albumID;
+    }
+    
+    private void _getCount() {
+        try {
+            final PreparedStatement ps_c;
+            switch ((int)currentAlbumID) {
+                case IMAGES_ALL:
+                    ps_c = conn.prepareStatement("SELECT COUNT(*) FROM images;");
+                    itemTotalRecordsCount = (int) ImgFS.getSQLCount(ps_c);
+                    ps_c.close();
+                    break;
+//                case IMAGES_NOTAGGED:
+//                    
+//                    break;
+//                case IMAGES_NOT_IN_ALBUM:
+//                    
+//                    break;
+                default:
+                    ps_c = conn.prepareStatement("SELECT COUNT(*) FROM imggal WHERE gal_iid=?;");
+                    ps_c.setLong(1, currentAlbumID);
+                    itemTotalRecordsCount = (int) ImgFS.getSQLCount(ps_c);
+                    ps_c.close();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void refresh() {
+        isResize = true;
+        forceReload = true;
+        container.getChildren().clear();
+    }
+    
+    public synchronized void regenerateView(long albumID) {
         if (itemTotalCount <= 0) return;
         int off = pag.getCurrentPageIndex() * itemTotalCount;
+        if (forceReload) container.getChildren().clear();
         
         try {
             final PreparedStatement ps;
@@ -364,9 +472,26 @@ public class PagedImageList extends FlowPane {
 //                    
 //                    break;
                 default:
-                    ps = conn.prepareStatement("SELECT * FROM images ORDER BY iid ASC LIMIT ?,?;");
-                    ps.setLong(1, off);
-                    ps.setLong(2, itemTotalCount);
+                    final StringBuilder sql = new StringBuilder();
+                    sql.append("SELECT ");
+                    sql.append("     imggal.img_iid  AS aiid, ");
+                    sql.append("     imggal.gal_iid  AS aid, ");
+                    sql.append("     images.iid      AS iid, ");
+                    sql.append("     images.xmd5     AS md5 ");
+                    sql.append("FROM ");
+                    sql.append("     imggal ");
+                    sql.append("LEFT JOIN ");
+                    sql.append("     images ");
+                    sql.append("WHERE ");
+                    sql.append("     imggal.img_iid=images.iid AND ");
+                    sql.append("     imggal.gal_iid=? ");
+                    sql.append("ORDER BY iid ASC ");
+                    sql.append("LIMIT ?,?;");
+
+                    ps = conn.prepareStatement(sql.substring(0));
+                    ps.setLong(1, albumID);
+                    ps.setLong(2, off);
+                    ps.setLong(3, itemTotalCount);
                     break;
             }
             
@@ -374,9 +499,9 @@ public class PagedImageList extends FlowPane {
             final ResultSet rs = ps.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
-                    elementsPool.get(counter).setImage(rs.getBytes("xmd5"));
+                    elementsPool.get(counter).setImage(rs.getBytes("xmd5"), rs.getLong("iid"));
                     elementsPool.get(counter).setSelected(selectedElementsPool.contains(elementsPool.get(counter).get()));
-                    this.getChildren().add(elementsPool.get(counter));
+                    if (forceReload) container.getChildren().add(elementsPool.get(counter));
                     counter++;
                 }
                 rs.close();
@@ -386,7 +511,7 @@ public class PagedImageList extends FlowPane {
                 for (int i=counter; i<itemTotalCount; i++) {
                     elementsPool.get(i).setNullImage();
                     elementsPool.get(counter).setSelected(false);
-                    this.getChildren().add(elementsPool.get(i));
+                    if (forceReload) container.getChildren().add(elementsPool.get(i));
                 }
             }
             
@@ -403,19 +528,19 @@ public class PagedImageList extends FlowPane {
     
     public void initDB() {
         conn = ImgFS.getH2Connection();
-        try {
-            final PreparedStatement ps_count = conn.prepareStatement("SELECT COUNT(iid) FROM images;");
-            final ResultSet rs_count = ps_count.executeQuery();
-            if (rs_count != null) {
-                if (rs_count.next()) {
-                    itemTotalRecordsCount = rs_count.getInt(1);
-                    System.err.println("itemTotalRecordsCount="+itemTotalRecordsCount);
-                }
-                rs_count.close();
-            }
-            ps_count.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            final PreparedStatement ps_count = conn.prepareStatement("SELECT COUNT(iid) FROM images;");
+//            final ResultSet rs_count = ps_count.executeQuery();
+//            if (rs_count != null) {
+//                if (rs_count.next()) {
+//                    itemTotalRecordsCount = rs_count.getInt(1);
+//                    System.err.println("itemTotalRecordsCount="+itemTotalRecordsCount);
+//                }
+//                rs_count.close();
+//            }
+//            ps_count.close();
+//        } catch (SQLException ex) {
+//            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 }

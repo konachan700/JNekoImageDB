@@ -1,9 +1,10 @@
 package imgfstabs;
 
+import dialogs.DialogAlbumSelect;
 import imgfsgui.GUIElements;
 import imgfsgui.PagedImageList;
-import imgfsgui.ToolsPanelBottom;
 import imgfsgui.ToolsPanelTop;
+import java.util.ArrayList;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import jnekoimagesdb.GUITools;
@@ -32,6 +33,9 @@ public class TabAllImages extends GUIElements.SEVBox  {
     private final ToolsPanelTop 
             panelTop;
     
+    private final DialogAlbumSelect
+            dis = new DialogAlbumSelect();
+    
     public TabAllImages() {
         super(0, 9999, 9999);
         this.getChildren().add(pil);
@@ -45,7 +49,16 @@ public class TabAllImages extends GUIElements.SEVBox  {
                     
                     break;
                 case BTN_TO_ALBUM:
-                    
+                    if (pil.getSelectedHashes().size() > 0) {
+                        dis.refresh();
+                        dis.showModal();
+                        if (dis.isRetCodeOK()) {
+                            final ArrayList<Long> sl = dis.getSelected();
+                            pil.addToAlbums(sl);
+                            pil.selectNone();
+                            dis.clearSelected();
+                        }
+                    }
                     break;
                 case BTN_ADD_TAGS:
                     
@@ -68,6 +81,7 @@ public class TabAllImages extends GUIElements.SEVBox  {
     public void regenerate() {
         if (isNotInit) {
             pil.initDB();
+            dis.dbInit();
             isNotInit = false;
         }
         //pil.regenerateView(0);
