@@ -1,6 +1,6 @@
 package menulist;
 
-import dataaccess.Lang;
+import jnekoimagesdb.Lang;
 import javafx.scene.layout.VBox;
 
 public class MenuList extends VBox {

@@ -1,6 +1,6 @@
 package dialogs;
 
-import dataaccess.Lang;
+import jnekoimagesdb.Lang;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;

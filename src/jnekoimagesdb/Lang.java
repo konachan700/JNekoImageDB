@@ -1,4 +1,4 @@
-package dataaccess;
+package jnekoimagesdb;
 
 public class Lang {
     /*

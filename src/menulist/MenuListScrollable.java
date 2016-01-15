@@ -1,7 +1,7 @@
 
 package menulist;
 
-import dataaccess.Lang;
+import jnekoimagesdb.Lang;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javafx.scene.control.ScrollPane;

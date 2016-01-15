@@ -1,6 +1,6 @@
 package imgfsgui;
 
-import dataaccess.Lang;
+import jnekoimagesdb.Lang;
 import imgfs.ImgFS;
 import imgfs.ImgFSPreviewGen.PreviewElement;
 import imgfstabs.TabAlbumImageList;
@@ -420,6 +420,11 @@ public class PagedImageList extends GUIElements.SScrollPane {
         currentAlbumID = albumID;
     }
     
+    public long getTotalImagesCount() {
+        _getCount();
+        return itemTotalRecordsCount;
+    }
+    
     private void _getCount() {
         try {
             final PreparedStatement ps_c;
@@ -432,9 +437,11 @@ public class PagedImageList extends GUIElements.SScrollPane {
 //                case IMAGES_NOTAGGED:
 //                    
 //                    break;
-//                case IMAGES_NOT_IN_ALBUM:
-//                    
-//                    break;
+                case IMAGES_NOT_IN_ALBUM:
+                    ps_c = conn.prepareStatement("SELECT COUNT(*) FROM images WHERE iid NOT IN (SELECT img_iid FROM imggal);");
+                    itemTotalRecordsCount = (int) ImgFS.getSQLCount(ps_c);
+                    ps_c.close();
+                    break;
                 default:
                     ps_c = conn.prepareStatement("SELECT COUNT(*) FROM imggal WHERE gal_iid=?;");
                     ps_c.setLong(1, currentAlbumID);
@@ -468,9 +475,11 @@ public class PagedImageList extends GUIElements.SScrollPane {
 //                case IMAGES_NOTAGGED:
 //                    
 //                    break;
-//                case IMAGES_NOT_IN_ALBUM:
-//                    
-//                    break;
+                case IMAGES_NOT_IN_ALBUM:
+                    ps = conn.prepareStatement("SELECT * FROM images WHERE iid NOT IN (SELECT img_iid FROM imggal) ORDER BY iid ASC LIMIT ?,?;");
+                    ps.setLong(1, off);
+                    ps.setLong(2, itemTotalCount);
+                    break;
                 default:
                     final StringBuilder sql = new StringBuilder();
                     sql.append("SELECT ");

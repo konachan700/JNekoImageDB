@@ -1,6 +1,6 @@
 package dialogs;
 
-import dataaccess.Lang;
+import jnekoimagesdb.Lang;
 import imgfsgui.AlbumList;
 import imgfsgui.ToolsPanelTop;
 import static imgfstabs.TabAlbumImageList.BTN_LVL_UP;

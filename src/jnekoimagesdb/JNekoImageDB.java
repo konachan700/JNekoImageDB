@@ -1,20 +1,18 @@
 package jnekoimagesdb;
 
-import albums.AlbumImageList;
-import albums.AlbumsCategories;
-import dataaccess.Crypto;
-import dataaccess.DBWrapper;
-import dataaccess.ImageEngine;
-import dataaccess.DBEngine;
-import dataaccess.Lang;
-import dataaccess.SplittedFile;
-import imagelist.ImageList;
+import datasources.DSAlbum;
+import datasources.DSImage;
+import datasources.HibernateUtil;
 import imgfs.ImgFS;
+import imgfsgui.PagedImageList;
 import imgfstabs.TabAlbumImageList;
 import imgfstabs.TabAllImages;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
@@ -40,12 +38,12 @@ import menulist.MenuGroupItem;
 import menulist.MenuGroupItemActionListener;
 import menulist.MenuLabel;
 import menulist.MenuList;
-import settings.Settings;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 
 public class JNekoImageDB extends Application {
-    public static final String TEMPORARY_DIR = "./temp/";
-
-    private DragDelta DRD = new DragDelta();
+    private final DragDelta 
+            DRD = new DragDelta();
     
     public static final StringBuilder
             LOG = new StringBuilder();
@@ -72,50 +70,16 @@ public class JNekoImageDB extends Application {
     
     private final TabAllImages
             tabAllImages = new TabAllImages();
-    
-//    private TabAddImagesToDB
-//            addNewImagesTab = null;
-    
+
     private String 
             databaseName    = "default";
-    
-//    private MenuGroupItem
-//            MGI = null;
-    
+
     private final MenuList 
             ml              = new MenuList();
     
-//    private AlbumsCategories
-//            albumCats = null;
-//    
-//    private FSImageList 
-//            fileImgList     = null;
-    
-    private ImageList
-            imgList         = null;
-    
-    private AlbumImageList
-            albImgList      = null;
-    
-    private Settings
-            settings        = null;
-    
-    private final Crypto
-            mainCrypto      = new Crypto();
-    
-//    private final ImgFSCrypto
-//            cryptoEx        = new ImgFSCrypto(() -> {
-//                
-//                
-//                return null;
-//            });
-    
-    private DBEngine
-            SQL = null;
-    
-    private ImageEngine
-            imgEn           = null;
-    
+    private final StartSplashScreen 
+            splash = new StartSplashScreen();
+
     private final Timeline TMRLOG = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
        if (taLOG.getText().length() < LOG.length()) {
            taLOG.setText(Lang.NullString);
@@ -127,40 +91,25 @@ public class JNekoImageDB extends Application {
     private final MenuGroupItemActionListener
             menuAL = new MenuGroupItemActionListener() {
                 @Override
-                public void OnExpandGroup(boolean expanded, MenuGroupItem item) {
-                    
-                }
+                public void OnExpandGroup(boolean expanded, MenuGroupItem item) { }
 
                 @Override
-                public void OnItemHover(MenuLabel l) {
-                    
-                }
+                public void OnItemHover(MenuLabel l) { }
 
                 @Override
                 public void OnItemClicked(MenuLabel l) {
                     clearAll();
+
+                    if (l.getID().contentEquals("M01-01")) showAllImages(PagedImageList.IMAGES_ALL);
+                    if (l.getID().contentEquals("M01-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
+                    if (l.getID().contentEquals("M01-06")) showAllImages(PagedImageList.IMAGES_NOT_IN_ALBUM);
                     
-                    if (l.getGID().contentEquals("M02")) {
-                        long lv = Long.parseLong(l.getID(), 10);
-                        basesp.getChildren().add(albImgList);
-                        albImgList.setAlbID(lv);
-                        albImgList.getImageList().normalRefresh();
-                        toolbox.getChildren().add(albImgList.getImageList().getTopPanel()); 
-                        paginator_1.getChildren().add(albImgList.getImageList().getPaginator());
-                        return;
-                    }
-                    
-                    if (l.getID().contentEquals("M01-01")) showAllImages();
-                    //if (l.getID().contentEquals("M01-06")) showAllImages(DBWrapper.ALBUM_ID_WO_GROUPS);
                     if (l.getID().contentEquals("M01-05")) showFileDialog();
                     if (l.getID().contentEquals("M01-04")) showAlbCats();
                     
                     if (l.getID().contentEquals("M03-03")) showLog();
-                    //if (l.getID().contentEquals("M03-01")) showAlbCats();
                     if (l.getID().contentEquals("M03-02")) showSettings();
-                    
                     if (l.getID().contentEquals("M03-04")) {
-                        basesp.getChildren().add(tabAlbumImageList);
                         
                     }
                 }
@@ -172,27 +121,19 @@ public class JNekoImageDB extends Application {
         paginator_1.getChildren().clear();
     }
     
-    private void showAllImages() {
+    private void showAllImages(long aID) {
         basesp.getChildren().add(tabAllImages);
         toolbox.getChildren().add(tabAllImages.getPanel());
         paginator_1.getChildren().add(tabAllImages.getPaginator());
+        tabAllImages.setAlbumID(aID);
         tabAllImages.regenerate();
+        tabAllImages.refresh();
     }
     
     private void showSettings() {
-        basesp.getChildren().add(settings);
-        
-        
+
     }
-    
-//    private void showAllImages(long id) {
-//        basesp.getChildren().add(imgList);
-//        imgList.setAlbimID(id);
-//        imgList.normalRefresh();
-//        toolbox.getChildren().add(imgList.getTopPanel()); 
-//        paginator_1.getChildren().add(imgList.getPaginator());
-//    }
-    
+
     private void showFileDialog() {
         basesp.getChildren().add(ImgFS.getAddImagesTab().getList());
         toolbox.getChildren().add(ImgFS.getAddImagesTab().getTopPanel());
@@ -201,10 +142,7 @@ public class JNekoImageDB extends Application {
     
     private void showAlbCats() {
         basesp.getChildren().add(tabAlbumImageList);
-//        paginator_1.getChildren().add(tabAlbumImageList.getBottomPanel());
-//        albumCats.RefreshAll();
-//        basesp.getChildren().add(albumCats);
-        //toolbox.getChildren().add(albumCats.getToolbox());
+        tabAlbumImageList.refresh();
     }
     
     private void showLog() {
@@ -212,36 +150,12 @@ public class JNekoImageDB extends Application {
         taLOG.setScrollTop(65535);
     }
     
-    
     @Override
     public void start(Stage primaryStage) {
-        new File(SplittedFile.DATABASE_FOLDER).mkdir();
-        new File(JNekoImageDB.TEMPORARY_DIR).mkdir();
-        
-//        try {
-//            xImgFS.init();
-//        } catch (IOException ex) {
-//            Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
-//            return;
-//        }
-        
-        if (!mainCrypto.genSecureRandomSalt()) {
-            System.err.println(Lang.JNekoImageDB_no_salt_file);
-            Platform.exit(); return;
-        }
-        
-        if (!mainCrypto.genMasterKey()) {
-            System.err.println(Lang.JNekoImageDB_no_master_key);
-            Platform.exit(); return;
-        }
-        
-        if (!mainCrypto.genMasterKeyAES()) {
-            System.err.println(Lang.JNekoImageDB_no_crypt_support);
-            Platform.exit(); return;
-        }
-        DBWrapper.setCrypto(mainCrypto);
+        splash.show();
         
         try {
+            
             ImgFS.init(databaseName);
 //            cryptoEx.init(databaseName);
 //            addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
@@ -250,32 +164,15 @@ public class JNekoImageDB extends Application {
             Platform.exit(); 
             return;
         }
-      
-        SQL = new DBEngine();
-        if (SQL.Connect(SplittedFile.DATABASE_FOLDER + "fs") == -1) {
-            System.err.println(Lang.JNekoImageDB_no_DB_connection);
-            Platform.exit(); return;
-        }
-        DBWrapper.setSQLite(SQL);
-        DBWrapper.DBWrapperTmrStart();
-        
+
         TMRLOG.setCycleCount(Animation.INDEFINITE);
         TMRLOG.play();
         
         final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
         final ImageView imgLogoV = new ImageView(logoImage);
-        
-        imgEn = new ImageEngine(mainCrypto, SQL);
-        DBWrapper.setImageEngine(imgEn);
-                
-//        fileImgList = new FSImageList(mainCrypto, imgEn, SQL);
-        imgList = new ImageList(imgEn, basesp);
-        albImgList = new AlbumImageList(imgEn, basesp); 
-        settings = new Settings(SQL);
-        
+
         tabAlbumImageList.initDB();
-        //L("Количество изображений в БД: "+imgEn.getImgCount()+" штук.");
-        
+
         taLOG.setMaxSize(9999, 9999);
         taLOG.setPrefSize(9999, 9999);
         taLOG.setWrapText(true);
@@ -321,7 +218,6 @@ public class JNekoImageDB extends Application {
         toolbarvbox.setPrefSize(9999, 70);
         toolbarvbox.setMaxSize(9999, 70);
         toolbarvbox.setMinSize(64, 70);
-        //toolbarvbox.setStyle("-fx-background-color: #000000;");
         
         toolbarvbox.getChildren().add(headerbox);
 
@@ -348,26 +244,12 @@ public class JNekoImageDB extends Application {
         ml.getMenu().addItem("M01", "M01-07", Lang.JNekoImageDB_menu_main_fav_tags);
         ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
         
-//        ml.getMenu().addGroup("M04", Lang.JNekoImageDB_menu_title_tags, null, "331133");
-//        ml.getMenu().addItem("M04", "M04-01", Lang.JNekoImageDB_menu_main_tagcloud);
-//        ml.getMenu().addItem("M04", "M04-02", Lang.JNekoImageDB_menu_main_fav_tags);
-//        ml.getMenu().addItem("M04", "M04-03", Lang.JNekoImageDB_menu_main_tags_parser);
-        
-        //ml.getMenu().addGroup("M02", Lang.JNekoImageDB_menu_title_albums, null, "113311");
-        //ml.getMenu().addItem("M02", "M02-01", "Избранное");
-        
         ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
         //ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);
-        ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
+        //ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
         ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
         ml.getMenu().addItem("M03", "M03-04", "For test");
-        
-        //MGI = ml.getMenu().getGroup("M02");
-        //DBWrapper.setMenuGroupItem2(MGI);
-        
-        //albumCats = new AlbumsCategories(MGI);
-        //albumCats.RefreshAll();
-        
+
         ml.setPrefSize(240, 9999);
         ml.setMaxSize(240, 9999);
         ml.setMinSize(240, 300);
@@ -387,20 +269,16 @@ public class JNekoImageDB extends Application {
         primaryStage.setOnHiding((WindowEvent event) -> {
             ImgFS.dispose();
             Platform.exit(); 
-//            if (addNewImagesTab != null) {
-//                addNewImagesTab.dispose();
-//                Platform.exit(); 
-//            }
         });
         
         primaryStage.setMinWidth(840);
         primaryStage.setMinHeight(480);
         primaryStage.setTitle(Lang.JNekoImageDB_title);
         primaryStage.setScene(scene);
+        
+        splash.hide();
         primaryStage.show();
-        
-        //L("procs="+Runtime.getRuntime().availableProcessors());
-        
+
         if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(primaryStage);
     }
 

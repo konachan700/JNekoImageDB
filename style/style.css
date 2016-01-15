@@ -460,9 +460,8 @@
   -fx-background-position: right center;
 }
 
-.GUIElements_STabTextButton {
+.GUIElements_STabTextButton_red, .GUIElements_STabTextButton_green, .GUIElements_STabTextButton {
 	-fx-padding: 2 10 2 10;
-    -fx-background-color:#225522;
     -fx-font-weight:bold; 
     -fx-font-size: 12px;
     -fx-text-fill: #fff;
@@ -470,7 +469,19 @@
     -fx-background-insets: 0, 0, 0, 0;
 }
 
-.GUIElements_STabTextButton:hover {
+.GUIElements_STabTextButton {
+	-fx-background-color:#333;
+}
+
+.GUIElements_STabTextButton_red {
+	-fx-background-color:#552222;
+}
+
+.GUIElements_STabTextButton_green {
+	-fx-background-color:#225522;
+}
+
+.GUIElements_STabTextButton_red:hover, .GUIElements_STabTextButton_green:hover, .GUIElements_STabTextButton:hover {
     -fx-padding: 0px;
     -fx-background-color: #fff;
     -fx-text-fill: #000;

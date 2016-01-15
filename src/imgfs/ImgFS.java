@@ -1,5 +1,6 @@
 package imgfs;
 
+import datasources.HibernateUtil;
 import dialogs.DialogMTPrevGenProgress;
 import dialogs.DialogMessageBox;
 import imgfstabs.TabAddImagesToDB;
@@ -92,7 +93,9 @@ public class ImgFS {
     public static void init(String databaseName) throws Exception {
         rootDatabaseName = databaseName;
         cryptoEx.init(databaseName);
-        h2Connect();
+        
+        h2Connect(); // заменить педалирование на hibernate, чтобы оный изучить.
+        HibernateUtil.hibernateInit(rootDatabaseName, "jneko", cryptoEx.getPassword());
         
         addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
     }
@@ -137,6 +140,7 @@ public class ImgFS {
     public static void dispose() {
         addNewImagesTab.dispose();
         h2pool.dispose();
+        HibernateUtil.dispose();
 
         final Set<String> s = levelDB.keySet();
         s.forEach((x) -> {

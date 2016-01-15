@@ -78,6 +78,14 @@ public class TabAllImages extends GUIElements.SEVBox  {
         panelTop.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
     }
     
+    public void setAlbumID(long id) {
+        pil.setAlbumID(id);
+    }
+    
+    public void refresh() {
+        pil.refresh();
+    }
+    
     public void regenerate() {
         if (isNotInit) {
             pil.initDB();

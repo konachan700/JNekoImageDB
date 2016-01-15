@@ -1,6 +1,6 @@
 package imgfsgui;
 
-import dataaccess.Lang;
+import jnekoimagesdb.Lang;
 import imgfs.ImgFS;
 import imgfsgui.GUIElements.SScrollPane;
 import imgfstabs.TabAlbumImageList;
@@ -28,7 +28,8 @@ public class AlbumList extends GUIElements.SEVBox {
     private long 
             albumID = 0, 
             albumParentID = 0, 
-            albumCountInThis = 0;
+            albumCountInThis = 0, 
+            imagesCount = 0;
     
     public static final Image 
             ALBUM_DEFAULT = GUITools.loadIcon("dir-normal-128"),
@@ -317,7 +318,7 @@ public class AlbumList extends GUIElements.SEVBox {
         if (conn == null) {
             _fatalError(Lang.TabAlbumImageList_db_error);
         }
-        refresh();
+//        refresh();
     }
     
     private void _fatalError(String text) {

@@ -1,6 +1,5 @@
 package jnekoimagesdb;
 
-import dataaccess.Lang;
 import java.io.File;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -38,6 +37,10 @@ public class GUITools {
     
     public static final Image loadIcon(String name) {
         return new Image(new File("./style/icons/"+name+".png").toURI().toString());
+    }
+    
+    public static final Image loadImage(String name) {
+        return new Image(new File("./style/"+name+".jpg").toURI().toString());
     }
     
     public static final ImageView loadIconIW(String name) {

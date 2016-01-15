@@ -1,6 +1,6 @@
 package imgfstabs;
 
-import dataaccess.Lang;
+import jnekoimagesdb.Lang;
 import imgfsgui.AlbumList;
 import imgfsgui.GUIElements.STabTextButton;
 import imgfsgui.GUIElements.SEVBox;
@@ -25,13 +25,18 @@ public class TabAlbumImageList extends SEVBox {
             IMG24_LEVEL_UP = GUITools.loadIcon("lvlup-48");
     
     private long 
-            currentAlbumID = -1;
+            currentAlbumID = -1, 
+            imagesCount = 0, 
+            albumsCount = 0;
 
     private final STabTextButton 
             album, images;
 
     private final Pane
             topToolbar, bottomPanel;
+    
+    private final HBox 
+            header = new HBox(4);
     
     private final PagedImageList 
             pil = new PagedImageList();
@@ -48,18 +53,17 @@ public class TabAlbumImageList extends SEVBox {
                 @Override
                 public void OnAlbumChange(String newAlbumName, long ID, long PID) {
                     albumName.setText(newAlbumName);
-                    currentAlbumID = ID;
                 }
 
                 @Override
                 public void OnListCompleted(long count, long ID, long PID) {
                     currentAlbumID = ID;
-                    bottomPanelForAlbums.setText(String.format(Lang.TabAlbumImageList_info_format, count, 0)); 
-                    if (ID > 0) {
-                        if (!topToolbar.getChildren().contains(panelTop)) topToolbar.getChildren().add(panelTop);
-                        panelTop.clearAll();
-                        panelTop.addButton(IMG24_LEVEL_UP, BTN_LVL_UP); 
-                    }
+                    albumsCount = count;
+                    pil.setAlbumID(currentAlbumID);
+                    imagesCount = pil.getTotalImagesCount();
+                    bottomPanelForAlbums.setText(String.format(Lang.TabAlbumImageList_info_format, albumsCount, imagesCount)); 
+                    _clear();
+                    _initAlbGUI();
                 }   
             });
     
@@ -70,7 +74,6 @@ public class TabAlbumImageList extends SEVBox {
         bottomPanel = _bottomToolbar;
         topToolbar = _topToolbar;
         
-        final HBox header = new HBox();
         GUITools.setStyle(header, "TabAlbumImageList", "header");
         header.setMaxSize(9999, HEADER_VSIZE);
         header.setPrefSize(9999, HEADER_VSIZE);
@@ -78,14 +81,14 @@ public class TabAlbumImageList extends SEVBox {
         header.setAlignment(Pos.CENTER);
 
         album = new STabTextButton(Lang.AlbumImageList_Albums, 1, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
-            _clear();
             _album();
-        });
+        }, "STabTextButton_green");
         
         images = new STabTextButton(Lang.AlbumImageList_Images, 2, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
             _clear();
+            _initImgGUI();
             _images();
-        });
+        }, "STabTextButton_red");
         
         panelTop = new ToolsPanelTop((index) -> {
             switch (index) {
@@ -94,10 +97,29 @@ public class TabAlbumImageList extends SEVBox {
                     break;
             }
         });
-        topToolbar.getChildren().add(panelTop);
+        
         albumName.setAlignment(Pos.CENTER);
-        header.getChildren().addAll(albumName, GUITools.getSeparator(), album, GUITools.getSeparator(4), images);
+    }
+    
+    private void _initAlbGUI() {
+        topToolbar.getChildren().add(panelTop);
+        bottomPanel.getChildren().add(bottomPanelForAlbums);
+        if (currentAlbumID > 0) {
+            panelTop.addButton(IMG24_LEVEL_UP, BTN_LVL_UP);
+            header.getChildren().addAll(albumName, GUITools.getSeparator(), album, images);
+        } else {
+            header.getChildren().addAll(albumName, GUITools.getSeparator(), album);
+        }
         this.getChildren().addAll(header, myAL);
+    }
+    
+    private void _initImgGUI() {
+        if (currentAlbumID <= 0) return;
+        
+        topToolbar.getChildren().add(panelTop);
+        bottomPanel.getChildren().add(pil.getPaginator());
+        header.getChildren().addAll(albumName, GUITools.getSeparator(), album, images);
+        this.getChildren().addAll(header, pil);
     }
     
     public void initDB() {
@@ -105,25 +127,27 @@ public class TabAlbumImageList extends SEVBox {
         pil.initDB();
     }
     
+    public void refresh() {
+        _album();
+    }
+    
     private void _clear() {
-        this.getChildren().remove(myAL);
-        this.getChildren().remove(pil);
+        this.getChildren().clear();
+        header.getChildren().clear();
         topToolbar.getChildren().clear();
         bottomPanel.getChildren().clear();
         panelTop.clearAll();
     }
     
     private void _images() {
-        this.getChildren().add(pil);
-        bottomPanel.getChildren().add(pil.getPaginator());
         pil.setAlbumID(currentAlbumID);
         pil.refresh();
+        imagesCount = pil.getTotalImagesCount();
+        bottomPanelForAlbums.setText(String.format(Lang.TabAlbumImageList_info_format, albumsCount, imagesCount));
     }
     
     private void _album() {
-        this.getChildren().add(myAL);
         myAL.refresh();
-        bottomPanel.getChildren().add(bottomPanelForAlbums);
     }
     
     public Parent getBottomPanel() {
@@ -132,6 +156,10 @@ public class TabAlbumImageList extends SEVBox {
     
     public void setAlbumTabVisible(boolean v) {
         album.setVisible(v);
+    }
+    
+    public void setImagesTabVisible(boolean v) {
+        images.setVisible(v);
     }
     
     public void setAlbumName(String s) {
