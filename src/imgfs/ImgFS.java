@@ -7,18 +7,12 @@ import imgfstabs.TabAddImagesToDB;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
-import org.h2.jdbcx.JdbcConnectionPool;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
@@ -73,7 +67,6 @@ public class ImgFS {
     private static DialogMTPrevGenProgress  progressDialog = new DialogMTPrevGenProgress();
     private static final DialogMessageBox   messageBox = new DialogMessageBox();
     private static String                   rootDatabaseName;
-    private static JdbcConnectionPool       h2pool;
 
     public static DB getDB(String name) {
         return levelDB.get(name);
@@ -93,53 +86,13 @@ public class ImgFS {
     public static void init(String databaseName) throws Exception {
         rootDatabaseName = databaseName;
         cryptoEx.init(databaseName);
-        
-        h2Connect(); // заменить педалирование на hibernate, чтобы оный изучить.
+        ImgFSDatastore.init(cryptoEx, databaseName); 
         HibernateUtil.hibernateInit(rootDatabaseName, "jneko", cryptoEx.getPassword());
-        
         addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
     }
-    
-    @SuppressWarnings("ConvertToTryWithResources")
-    private static void h2Connect() throws SQLException {
-        try {
-            Class.forName("org.h2.Driver").newInstance();
-            h2pool = JdbcConnectionPool.create(
-                    "jdbc:h2:."+File.separator+rootDatabaseName+File.separator+"metadata;CIPHER=AES;MODE=MySQL;", "jneko", cryptoEx.getPassword()+" "+cryptoEx.getPassword());
-            h2pool.setMaxConnections(64);
-            h2pool.setLoginTimeout(60);
-            
-            final Connection dbWConnection = h2pool.getConnection();
-            dbWConnection.setAutoCommit(false);
-            
-            final Statement dbInitStatement = dbWConnection.createStatement();
-            dbInitStatement.executeUpdate("CREATE TABLE if not exists `images` (iid bigint not null primary key auto_increment, xmd5 BINARY(16) not null);");
-            dbInitStatement.executeUpdate("CREATE TABLE if not exists `tags` (iid bigint not null primary key auto_increment, xtag char(255));");
-            dbInitStatement.executeUpdate("CREATE TABLE if not exists `albums` (iid bigint not null primary key auto_increment, piid bigint not null, xname char(64), xtext mediumblob, flags bigint);");
-            dbInitStatement.executeUpdate("CREATE TABLE if not exists `imggal` (img_iid bigint not null, gal_iid bigint not null, UNIQUE(img_iid, gal_iid));");
-            
-            dbInitStatement.close();
-            
-            dbWConnection.commit();
-            dbWConnection.close();
-        } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
-            throw new SQLException("Database error: org.h2.Driver");
-        }
-    }
-    
-    public static long getSQLCount(PreparedStatement ps) throws SQLException {
-        final ResultSet rs = ps.executeQuery();
-        if (rs != null) {
-            while (rs.next()) {
-                return rs.getLong(1);
-            }
-        }
-        return -1;
-    }
-    
+
     public static void dispose() {
         addNewImagesTab.dispose();
-        h2pool.dispose();
         HibernateUtil.dispose();
 
         final Set<String> s = levelDB.keySet();
@@ -149,16 +102,7 @@ public class ImgFS {
             } catch (IOException ex) { }
         });
     }
-    
-    public static synchronized Connection getH2Connection() {
-        try {
-            return h2pool.getConnection();
-        } catch (SQLException ex) {
-            Logger.getLogger(ImgFS.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-    
+
     public static ImgFSCrypto getCrypt() {
         return cryptoEx;
     }

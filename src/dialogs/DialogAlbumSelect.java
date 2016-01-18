@@ -1,5 +1,6 @@
 package dialogs;
 
+import datasources.DSAlbum;
 import jnekoimagesdb.Lang;
 import imgfsgui.AlbumList;
 import imgfsgui.ToolsPanelTop;
@@ -24,13 +25,13 @@ public class DialogAlbumSelect extends DialogWindow {
     private final AlbumList 
             myAL = new AlbumList(new AlbumList.AlbumListActionListener() {
                 @Override
-                public void OnAlbumChange(String newAlbumName, long ID, long PID) {
+                public void OnAlbumChange(String newAlbumName, DSAlbum a) {
                     //albumName.setText(newAlbumName);
                 }
 
                 @Override
-                public void OnListCompleted(long count, long ID, long PID) {
-                    _panelInit(ID);
+                public void OnListCompleted(long count, DSAlbum a) {
+                    _panelInit((a == null) ? 0 : a.getAlbumID());
                 }   
             });
         
@@ -70,7 +71,7 @@ public class DialogAlbumSelect extends DialogWindow {
         myAL.initDB();
     }
     
-    public final ArrayList<Long> getSelected() {
+    public final ArrayList<DSAlbum> getSelected() {
         return myAL.getSelected();
     }
     

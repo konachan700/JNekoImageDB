@@ -1,18 +1,19 @@
 package imgfsgui;
 
+import datasources.DSAlbum;
+import datasources.DSImage;
+import datasources.HibernateUtil;
 import jnekoimagesdb.Lang;
 import imgfs.ImgFS;
 import imgfs.ImgFSPreviewGen.PreviewElement;
-import imgfstabs.TabAlbumImageList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
@@ -36,6 +37,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import jnekoimagesdb.GUITools;
+import org.hibernate.FetchMode;
+import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Property;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 
 public class PagedImageList extends GUIElements.SScrollPane {
     public static final int 
@@ -58,78 +66,22 @@ public class PagedImageList extends GUIElements.SScrollPane {
     
     private volatile long
             currentAlbumID = IMAGES_ALL;
-    
-    private final PagedImageList
-            THIS = this;
-    
+
     private final HBox
             dummyInfoBox = new HBox(8);
     
     private final Pagination
             pag = new Pagination();
     
-    private Connection
-            conn = null;
-    
     private final ArrayList<ImageListItem>
             elementsPool = new ArrayList<>();
-            
-    
-    protected interface ImageListItemActionListener {
-        public void OnSelect(boolean isSelected, ImageLIByteArray itemHash);
-        public void OnOpen(ImageLIByteArray itemHash);
-    }
-    
-    protected class ImageLIByteArray {
-        private byte[] itemHash;
-        private long id = 0;
-        
-        public ImageLIByteArray() { 
-            itemHash = null; 
-        }
-        
-        public ImageLIByteArray(byte[] b, long _id) { 
-            itemHash = b; 
-            id = _id;
-        }
-        
-        public long getID() {
-            return id;
-        }
-        
-        public void setID(long _id) {
-            id = _id;
-        }
-        
-        public byte[] get() { 
-            return itemHash; 
-        }
-        
-        public void set(byte[] b) { 
-            itemHash = b; 
-        }
-        
-        public int size() {  
-            return itemHash.length; 
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof ImageLIByteArray) {
-                return Arrays.equals(itemHash, ((ImageLIByteArray)o).get());
-            } else 
-                return false;
-        }
 
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 59 * hash + Arrays.hashCode(this.itemHash);
-            return hash;
-        }
+    protected interface ImageListItemActionListener {
+        public void OnSelect(boolean isSelected, DSImage item);
+        public void OnOpen(DSImage item);
     }
     
-    private final ArrayList<ImageLIByteArray>
+    private final ArrayList<DSImage>
             selectedElementsPool = new ArrayList<>();
     
     protected class ImageListItem extends Pane {
@@ -137,8 +89,8 @@ public class PagedImageList extends GUIElements.SScrollPane {
                 imageContainer = new ImageView(),
                 selectedIcon = new ImageView(InfiniteFileList.ITEM_SELECTED);
         
-        private ImageLIByteArray
-                md5_array = null;
+        private DSImage
+                img = null;
         
         private final VBox 
                 imageVBox = new VBox(0);
@@ -147,15 +99,15 @@ public class PagedImageList extends GUIElements.SScrollPane {
                 actionListener;
        
         public byte[] getMD5() {
-            return md5_array.get();
+            return img.getMD5();
         }
         
         public void setMD5(byte[] b) {
-            md5_array.set(b);
+            img.setMD5(b);
         }
         
-        public ImageLIByteArray get() {
-            return md5_array;
+        public DSImage get() {
+            return img;
         }
         
         public final void setNullImage() {
@@ -166,25 +118,25 @@ public class PagedImageList extends GUIElements.SScrollPane {
         }
         
         public final void setImage(byte[] ref, long id) {
-            md5_array = new ImageLIByteArray(ref, id);
+            img = new DSImage(ref, id);
             
             final byte[] content = ImgFS.getDB(ImgFS.PreviewType.previews.name()).get(ref);
             final byte[] decrypted = ImgFS.getCrypt().Decrypt(content);
             
-            Image img;
+            Image imgX;
             try {
                 final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decrypted));
                 final PreviewElement pe = (PreviewElement) ois.readObject();
                 ois.close();
                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                img = pe.getImage(ImgFS.getCrypt(), "p120x120s"); // !!!!!!!!!!!!!!!!!!!! DELETE IT !
+                imgX = pe.getImage(ImgFS.getCrypt(), "p120x120s"); // !!!!!!!!!!!!!!!!!!!! DELETE IT !
                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             } catch (IOException | ClassNotFoundException ex) {
-                img = InfiniteFileList.ITEM_ERROR;
+                imgX = InfiniteFileList.ITEM_ERROR;
                 Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
             }
  
-            imageContainer.setImage(img);
+            imageContainer.setImage(imgX);
             imageContainer.setVisible(true);
             if (this.getChildren().isEmpty()) addAll();
             GUITools.setStyle(this, "FileListItem", "root_pane");
@@ -210,10 +162,10 @@ public class PagedImageList extends GUIElements.SScrollPane {
                 if (event.getClickCount() == 1) {
                     if (event.getButton() == MouseButton.SECONDARY) {
                         setSelected(!getSelected());
-                        actionListener.OnSelect(getSelected(), md5_array);
+                        actionListener.OnSelect(getSelected(), img);
                     }
                 } else {
-                    actionListener.OnOpen(md5_array);
+                    actionListener.OnOpen(img);
                 }
                 event.consume();
             });
@@ -243,18 +195,21 @@ public class PagedImageList extends GUIElements.SScrollPane {
     private final ImageListItemActionListener
             elementListener = new ImageListItemActionListener() {
                 @Override
-                public void OnSelect(boolean isSelected, ImageLIByteArray itemHash) {
+                public void OnSelect(boolean isSelected, DSImage item) {
                     if (isSelected)
-                        selectedElementsPool.add(itemHash);
+                        selectedElementsPool.add(item);
                     else
-                        selectedElementsPool.remove(itemHash);
+                        selectedElementsPool.remove(item);
                 }
 
                 @Override
-                public void OnOpen(ImageLIByteArray itemHash) {
+                public void OnOpen(DSImage item) {
 
                 }
             };
+    
+    private Session 
+            hibSession = null;
     
     private boolean 
             isResize = false,
@@ -268,7 +223,7 @@ public class PagedImageList extends GUIElements.SScrollPane {
             forceReload = false;
         }
     }));
-    
+
     @SuppressWarnings("LeakingThisInConstructor")
     public PagedImageList() {
         super();
@@ -351,42 +306,21 @@ public class PagedImageList extends GUIElements.SScrollPane {
         TMR.play();
     }
     
-    public void addToAlbums(ArrayList<Long> albums) {
+    public void addToAlbums(ArrayList<DSAlbum> albums) {
         if (albums.isEmpty() || selectedElementsPool.isEmpty()) return;
-        
-        try {
-            final PreparedStatement ps = conn.prepareStatement("MERGE INTO imggal KEY (img_iid,gal_iid) VALUES (?, ?)");
-            albums.forEach((album) -> {
-                selectedElementsPool.forEach((item) -> {
-                    if (item.getID() > 0) {
-                        try {
-                            ps.setLong(1, item.getID());
-                            ps.setLong(2, album);
-                            ps.addBatch();
-                        } catch (SQLException ex) {
-                            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                });
-            });
-
-            ps.executeBatch();
-            ps.clearWarnings();
-            ps.close();
-            
-/* test code for debug */
-//            final PreparedStatement ps_count = conn.prepareStatement("SELECT COUNT(*) FROM imggal;");
-//            final ResultSet rs_count = ps_count.executeQuery();
-//            if (rs_count != null) {
-//                if (rs_count.next()) {
-//                    System.err.println("items in table 'imggal': "+rs_count.getInt(1));
-//                }
-//                rs_count.close();
-//            }
-//            ps_count.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        HibernateUtil.beginTransaction(hibSession);
+        albums.stream().map((dsa) -> {
+            if (dsa.getImages() == null) {
+                Set<DSImage> s = new HashSet<>();
+                s.addAll(selectedElementsPool);
+                dsa.setImages(s);
+            } else 
+                dsa.getImages().addAll(selectedElementsPool);
+            return dsa;
+        }).forEach((dsa) -> {
+            hibSession.save(dsa);
+        });
+        HibernateUtil.commitTransaction(hibSession);
     }
     
     public void selectNone() {
@@ -394,7 +328,7 @@ public class PagedImageList extends GUIElements.SScrollPane {
         isResize = true;
     }
     
-    public ArrayList<ImageLIByteArray> getSelectedHashes() {
+    public ArrayList<DSImage> getSelectedHashes() {
         return selectedElementsPool;
     }
     
@@ -426,31 +360,25 @@ public class PagedImageList extends GUIElements.SScrollPane {
     }
     
     private void _getCount() {
-        try {
-            final PreparedStatement ps_c;
-            switch ((int)currentAlbumID) {
-                case IMAGES_ALL:
-                    ps_c = conn.prepareStatement("SELECT COUNT(*) FROM images;");
-                    itemTotalRecordsCount = (int) ImgFS.getSQLCount(ps_c);
-                    ps_c.close();
-                    break;
-//                case IMAGES_NOTAGGED:
-//                    
-//                    break;
-                case IMAGES_NOT_IN_ALBUM:
-                    ps_c = conn.prepareStatement("SELECT COUNT(*) FROM images WHERE iid NOT IN (SELECT img_iid FROM imggal);");
-                    itemTotalRecordsCount = (int) ImgFS.getSQLCount(ps_c);
-                    ps_c.close();
-                    break;
-                default:
-                    ps_c = conn.prepareStatement("SELECT COUNT(*) FROM imggal WHERE gal_iid=?;");
-                    ps_c.setLong(1, currentAlbumID);
-                    itemTotalRecordsCount = (int) ImgFS.getSQLCount(ps_c);
-                    ps_c.close();
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
+        Number _itemTotalRecordsCount = 0;
+        switch ((int)currentAlbumID) {
+            case IMAGES_ALL:
+                _itemTotalRecordsCount = (Number) hibSession.createCriteria(DSImage.class).setProjection(Projections.rowCount()).uniqueResult();
+                itemTotalRecordsCount = _itemTotalRecordsCount.intValue();
+                break;
+            case IMAGES_NOT_IN_ALBUM: 
+                _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.albums IS EMPTY").uniqueResult();
+                itemTotalRecordsCount = _itemTotalRecordsCount.intValue();
+                break;
+            default:
+                _itemTotalRecordsCount = (Number) hibSession
+                        .createCriteria(DSImage.class)
+                        .createCriteria("albums")
+                        .add(Restrictions.eq("albumID", currentAlbumID))
+                    .setProjection(Projections.rowCount()).uniqueResult();
+                itemTotalRecordsCount = _itemTotalRecordsCount.intValue();  
         }
+        System.err.println("itemTotalRecordsCount="+itemTotalRecordsCount);
     }
     
     public void refresh() {
@@ -464,56 +392,40 @@ public class PagedImageList extends GUIElements.SScrollPane {
         int off = pag.getCurrentPageIndex() * itemTotalCount;
         if (forceReload) container.getChildren().clear();
         
-        try {
-            final PreparedStatement ps;
-            switch ((int)albumID) {
-                case IMAGES_ALL:
-                    ps = conn.prepareStatement("SELECT * FROM images ORDER BY iid ASC LIMIT ?,?;");
-                    ps.setLong(1, off);
-                    ps.setLong(2, itemTotalCount);
-                    break;
-//                case IMAGES_NOTAGGED:
-//                    
-//                    break;
-                case IMAGES_NOT_IN_ALBUM:
-                    ps = conn.prepareStatement("SELECT * FROM images WHERE iid NOT IN (SELECT img_iid FROM imggal) ORDER BY iid ASC LIMIT ?,?;");
-                    ps.setLong(1, off);
-                    ps.setLong(2, itemTotalCount);
-                    break;
-                default:
-                    final StringBuilder sql = new StringBuilder();
-                    sql.append("SELECT ");
-                    sql.append("     imggal.img_iid  AS aiid, ");
-                    sql.append("     imggal.gal_iid  AS aid, ");
-                    sql.append("     images.iid      AS iid, ");
-                    sql.append("     images.xmd5     AS md5 ");
-                    sql.append("FROM ");
-                    sql.append("     imggal ");
-                    sql.append("LEFT JOIN ");
-                    sql.append("     images ");
-                    sql.append("WHERE ");
-                    sql.append("     imggal.img_iid=images.iid AND ");
-                    sql.append("     imggal.gal_iid=? ");
-                    sql.append("ORDER BY iid ASC ");
-                    sql.append("LIMIT ?,?;");
+        List<DSImage> list = null;
+        switch ((int)albumID) {
+            case IMAGES_ALL:
+                list = (List<DSImage>) hibSession
+                        .createCriteria(DSImage.class)
+                        .setFirstResult(off)
+                        .setMaxResults(itemTotalCount)
+                        .list();
+                break;
+            case IMAGES_NOT_IN_ALBUM: 
+                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.albums IS EMPTY")
+                        .setFirstResult(off)
+                        .setMaxResults(itemTotalCount)
+                        .list();
+                break;
+            default:
+                list = hibSession
+                        .createCriteria(DSImage.class)
+                        .createCriteria("albums")
+                        .add(Restrictions.eq("albumID", currentAlbumID))
+                        .setFirstResult(off)
+                        .setMaxResults(itemTotalCount)
+                        .list();
 
-                    ps = conn.prepareStatement(sql.substring(0));
-                    ps.setLong(1, albumID);
-                    ps.setLong(2, off);
-                    ps.setLong(3, itemTotalCount);
-                    break;
-            }
-            
-            int counter = 0;
-            final ResultSet rs = ps.executeQuery();
-            if (rs != null) {
-                while (rs.next()) {
-                    elementsPool.get(counter).setImage(rs.getBytes("xmd5"), rs.getLong("iid"));
+                break;
+        }
+        
+        int counter = 0;
+        if (list != null) {
+            for (DSImage dsi : list) {
+                    elementsPool.get(counter).setImage(dsi.getMD5(), dsi.getImageID());
                     elementsPool.get(counter).setSelected(selectedElementsPool.contains(elementsPool.get(counter).get()));
                     if (forceReload) container.getChildren().add(elementsPool.get(counter));
                     counter++;
-                }
-                rs.close();
             }
             
             if (counter < itemTotalCount) {
@@ -523,11 +435,6 @@ public class PagedImageList extends GUIElements.SScrollPane {
                     if (forceReload) container.getChildren().add(elementsPool.get(i));
                 }
             }
-            
-            ps.clearWarnings();
-            ps.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -536,20 +443,6 @@ public class PagedImageList extends GUIElements.SScrollPane {
     }
     
     public void initDB() {
-        conn = ImgFS.getH2Connection();
-//        try {
-//            final PreparedStatement ps_count = conn.prepareStatement("SELECT COUNT(iid) FROM images;");
-//            final ResultSet rs_count = ps_count.executeQuery();
-//            if (rs_count != null) {
-//                if (rs_count.next()) {
-//                    itemTotalRecordsCount = rs_count.getInt(1);
-//                    System.err.println("itemTotalRecordsCount="+itemTotalRecordsCount);
-//                }
-//                rs_count.close();
-//            }
-//            ps_count.close();
-//        } catch (SQLException ex) {
-//            Logger.getLogger(TabAlbumImageList.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        hibSession = HibernateUtil.getCurrentSession();
     }
 }

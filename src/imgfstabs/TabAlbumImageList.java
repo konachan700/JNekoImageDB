@@ -1,5 +1,6 @@
 package imgfstabs;
 
+import datasources.DSAlbum;
 import jnekoimagesdb.Lang;
 import imgfsgui.AlbumList;
 import imgfsgui.GUIElements.STabTextButton;
@@ -51,13 +52,13 @@ public class TabAlbumImageList extends SEVBox {
     private final AlbumList 
             myAL = new AlbumList(new AlbumList.AlbumListActionListener() {
                 @Override
-                public void OnAlbumChange(String newAlbumName, long ID, long PID) {
+                public void OnAlbumChange(String newAlbumName, DSAlbum a) {
                     albumName.setText(newAlbumName);
                 }
 
                 @Override
-                public void OnListCompleted(long count, long ID, long PID) {
-                    currentAlbumID = ID;
+                public void OnListCompleted(long count, DSAlbum a) {
+                    currentAlbumID = (a == null) ? 0 : a.getAlbumID();
                     albumsCount = count;
                     pil.setAlbumID(currentAlbumID);
                     imagesCount = pil.getTotalImagesCount();

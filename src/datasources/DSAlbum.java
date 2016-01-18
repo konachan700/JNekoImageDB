@@ -21,6 +21,9 @@ public class DSAlbum implements Serializable {
     @Column(name="iid", unique = true, nullable = false)
     private long albumID;
     
+    @Column(name="aiid", unique = false, nullable = false)
+    private long parentAlbumID;
+    
     @Column(name="xname", unique = false, nullable = false, length = 128)
     private String albumName;
     
@@ -36,9 +39,12 @@ public class DSAlbum implements Serializable {
         )
     private Set<DSImage> images;
 
-    public DSAlbum(String name, String text) {
+    protected DSAlbum() {}
+    
+    public DSAlbum(String name, String text, long _parentAlbumID) {
         albumName = name;
         albumText = text;
+        parentAlbumID = _parentAlbumID;
     }
     
     public long getAlbumID() {
@@ -71,5 +77,13 @@ public class DSAlbum implements Serializable {
 
     public void setImages(Set<DSImage> images) {
         this.images = images;
+    }
+
+    public long getParentAlbumID() {
+        return parentAlbumID;
+    }
+
+    public void setParentAlbumID(long parentAlbumID) {
+        this.parentAlbumID = parentAlbumID;
     }
 }

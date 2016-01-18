@@ -1,5 +1,6 @@
 package imgfstabs;
 
+import datasources.DSAlbum;
 import dialogs.DialogAlbumSelect;
 import imgfsgui.GUIElements;
 import imgfsgui.PagedImageList;
@@ -53,7 +54,7 @@ public class TabAllImages extends GUIElements.SEVBox  {
                         dis.refresh();
                         dis.showModal();
                         if (dis.isRetCodeOK()) {
-                            final ArrayList<Long> sl = dis.getSelected();
+                            final ArrayList<DSAlbum> sl = dis.getSelected();
                             pil.addToAlbums(sl);
                             pil.selectNone();
                             dis.clearSelected();

@@ -5,6 +5,8 @@ public class Lang {
         В будущем все строки должны браться из ресурсов с учетом языка системы, а не быть захардкожеными.
     */
     public static final String 
+            ImgFSDatastore_ERROR_01                                             = "Use class ImgFSDatastore wo init(); Please init it first;",
+            
             TabAlbumImageList_root_album                                        = "Основной альбом",
             TabAlbumImageList_db_error                                          = "Database error, see logs.",
             TabAlbumImageList_info_format                                       = "В текущем каталоге %d альбомов и %d картинок.",

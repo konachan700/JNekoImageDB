@@ -22,6 +22,9 @@ public class HibernateUtil {
     
     private static HibernateUtil
             util = null;
+    
+    public static Session
+            currSession = null;
 
     private HibernateUtil(String rootDBName, String uname, String upass) {
         final String dbURI = "jdbc:h2:." + File.separator + rootDBName + File.separator + "database;CIPHER=AES;";//, "jneko", cryptoEx.getPassword()+" "+cryptoEx.getPassword();
@@ -61,12 +64,18 @@ public class HibernateUtil {
     }
 
     public static void hibernateInit(String rootDBName, String uname, String upass) {
-        if (util == null)
+        if (util == null) {
             util = new HibernateUtil(rootDBName, uname, upass);
+            currSession = util.getSessionFactory().openSession();
+        }
     }
     
-    public static Session getSession() {
+    public static Session getNewSession() {
         return util.getSessionFactory().openSession();
+    }
+    
+    public static Session getCurrentSession() {
+        return currSession;
     }
     
     public static void sessionClose(Session currSession) {
