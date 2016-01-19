@@ -1,11 +1,10 @@
 package dialogs;
 
 import datasources.DSAlbum;
-import jnekoimagesdb.Lang;
 import imgfsgui.AlbumList;
 import imgfsgui.ToolsPanelTop;
-import static imgfstabs.TabAlbumImageList.BTN_LVL_UP;
-import static imgfstabs.TabAlbumImageList.IMG24_LEVEL_UP;
+import static imgfsgui.tabs.TabAlbumImageList.BTN_LVL_UP;
+import static imgfsgui.tabs.TabAlbumImageList.IMG24_LEVEL_UP;
 import java.util.ArrayList;
 import javafx.scene.image.Image;
 import jnekoimagesdb.GUITools;

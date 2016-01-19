@@ -1,18 +1,12 @@
 package jnekoimagesdb;
 
-import datasources.DSAlbum;
-import datasources.DSImage;
-import datasources.HibernateUtil;
 import imgfs.ImgFS;
 import imgfsgui.PagedImageList;
-import imgfstabs.TabAlbumImageList;
-import imgfstabs.TabAllImages;
+import imgfsgui.tabs.TabAlbumImageList;
+import imgfsgui.tabs.TabAllImages;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
@@ -38,8 +32,6 @@ import menulist.MenuGroupItem;
 import menulist.MenuGroupItemActionListener;
 import menulist.MenuLabel;
 import menulist.MenuList;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 public class JNekoImageDB extends Application {
     private final DragDelta 

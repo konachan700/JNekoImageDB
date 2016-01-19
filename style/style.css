@@ -617,7 +617,7 @@
 
 .TabAlbumImageList_albumName {
 	-fx-padding: 2 10 2 10;
-    -fx-background-color:#222;
+    -fx-background-color:#444;
 	-fx-font-weight:bold; 
     -fx-font-size: 12px;
     -fx-text-fill: #bbb;

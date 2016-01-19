@@ -1,6 +1,6 @@
 package jnekoimagesdb;
 
-import imgfsgui.GUIElements.SEVBox;
+import imgfsgui.elements.SEVBox;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

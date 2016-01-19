@@ -24,6 +24,9 @@ public class DSImage implements Serializable {
 
     @ManyToMany(mappedBy = "images", fetch = FetchType.LAZY)
     private Set<DSAlbum> albums;
+    
+    @ManyToMany(mappedBy = "images", fetch = FetchType.LAZY)
+    private Set<DSTag> tags;
 
     protected DSImage() {}
     
@@ -63,9 +66,9 @@ public class DSImage implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o instanceof DSImage)
-            return (((DSImage) o).getImageID() == imageID);
+            return (((DSImage) o).getImageID() == getImageID());
         else if (o instanceof Long)
-            return (((Long) o).equals(imageID));
+            return (((Long) o).equals(getImageID()));
         else 
             return false;
     }
@@ -73,7 +76,15 @@ public class DSImage implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + (int) (this.imageID ^ (this.imageID >>> 32));
+        hash = 71 * hash + (int) (this.getImageID() ^ (this.getImageID() >>> 32));
         return hash;
+    }
+
+    public Set<DSTag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<DSTag> tags) {
+        this.tags = tags;
     }
 }

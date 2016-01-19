@@ -3,7 +3,7 @@ package imgfs;
 import datasources.HibernateUtil;
 import dialogs.DialogMTPrevGenProgress;
 import dialogs.DialogMessageBox;
-import imgfstabs.TabAddImagesToDB;
+import imgfsgui.tabs.TabAddImagesToDB;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;

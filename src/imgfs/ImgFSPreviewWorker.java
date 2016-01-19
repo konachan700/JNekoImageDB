@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import org.hibernate.Session;
+import org.iq80.leveldb.DB;
 import org.iq80.leveldb.WriteBatch;
 import org.iq80.leveldb.WriteOptions;
 
@@ -266,11 +267,15 @@ public class ImgFSPreviewWorker implements Runnable {
         }
     }
 
-    private synchronized ImgFSPreviewGen.PreviewElement readEntry(ImgFSCrypto c, byte[] md5b) throws ImgFSPreviewGen.RecordNotFoundException, IOException, ClassNotFoundException {
+    private ImgFSPreviewGen.PreviewElement readEntry(ImgFSCrypto c, byte[] md5b) throws ImgFSPreviewGen.RecordNotFoundException, IOException, ClassNotFoundException {
         if (ImgFS.getDB(queneName) == null) throw new IOException("database not opened;");
         
-        final byte[] retnc = ImgFS.getDB(queneName).get(md5b);
-        if (retnc == null ) throw new ImgFSPreviewGen.RecordNotFoundException("");
+        final DB db = ImgFS.getDB(queneName);
+        byte[] retnc;
+        synchronized (db) {
+            retnc = db.get(md5b);
+            if (retnc == null ) throw new ImgFSPreviewGen.RecordNotFoundException("");
+        }
         
         final byte[] ret = c.Decrypt(retnc);
         if (ret == null ) throw new IOException("Decrypt() return null value;");

@@ -1,16 +1,16 @@
-package imgfstabs;
+package imgfsgui.tabs;
 
 import datasources.DSAlbum;
 import dialogs.DialogAlbumSelect;
-import imgfsgui.GUIElements;
 import imgfsgui.PagedImageList;
 import imgfsgui.ToolsPanelTop;
+import imgfsgui.elements.SEVBox;
 import java.util.ArrayList;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import jnekoimagesdb.GUITools;
 
-public class TabAllImages extends GUIElements.SEVBox  {
+public class TabAllImages extends SEVBox  {
     public static final Image 
             IMG48_ADD_TAGS       = GUITools.loadIcon("add-tags-48"),
             IMG48_TO_ALBUM       = GUITools.loadIcon("add-to-album-48"),
@@ -46,9 +46,9 @@ public class TabAllImages extends GUIElements.SEVBox  {
                 case TabAddImagesToDB.BTN_SELNONE:
                     pil.selectNone();
                     break;
-                case TabAddImagesToDB.BTN_DEL:
-                    
-                    break;
+//                case TabAddImagesToDB.BTN_DEL:
+//                    
+//                    break;
                 case BTN_TO_ALBUM:
                     if (pil.getSelectedHashes().size() > 0) {
                         dis.refresh();
@@ -71,8 +71,8 @@ public class TabAllImages extends GUIElements.SEVBox  {
         });
         panelTop.addButton(TabAddImagesToDB.IMG64_SELECT_NONE, TabAddImagesToDB.BTN_SELNONE);
         panelTop.addFixedSeparator();
-        panelTop.addButton(TabAddImagesToDB.IMG64_DELETE, TabAddImagesToDB.BTN_DEL);
-        panelTop.addFixedSeparator();
+//        panelTop.addButton(TabAddImagesToDB.IMG64_DELETE, TabAddImagesToDB.BTN_DEL);
+//        panelTop.addFixedSeparator();
         panelTop.addButton(TabAllImages.IMG48_TO_ALBUM, TabAllImages.BTN_TO_ALBUM);
         panelTop.addButton(TabAllImages.IMG48_ADD_TAGS, TabAllImages.BTN_ADD_TAGS);
         panelTop.addSeparator();

@@ -1,9 +1,14 @@
 package imgfsgui;
 
+import imgfsgui.elements.GUIElements;
 import datasources.DSAlbum;
 import datasources.HibernateUtil;
 import jnekoimagesdb.Lang;
-import imgfsgui.GUIElements.SScrollPane;
+import imgfsgui.elements.SEVBox;
+import imgfsgui.elements.SFHBox;
+import imgfsgui.elements.SFVBox;
+import imgfsgui.elements.SScrollPane;
+import imgfsgui.elements.STextArea;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Pos;
@@ -18,7 +23,7 @@ import jnekoimagesdb.GUITools;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-public class AlbumList extends GUIElements.SEVBox {
+public class AlbumList extends SEVBox {
     public static final int
             ADD_NEW_ELEMENT_VSIZE = 32;
     
@@ -38,8 +43,8 @@ public class AlbumList extends GUIElements.SEVBox {
             SAVE_16 = GUITools.loadIcon("save-16"),
             EDIT_16 = GUITools.loadIcon("edit-16");
     
-    private final GUIElements.SEVBox
-            container = new GUIElements.SEVBox();
+    private final SEVBox
+            container = new SEVBox();
     
     private final SScrollPane
             albumList = new SScrollPane();
@@ -62,7 +67,7 @@ public class AlbumList extends GUIElements.SEVBox {
         void OnNew(long parent, String title);
     }
     
-    public static class AddNewAlbumElement extends GUIElements.SFHBox {
+    public static class AddNewAlbumElement extends SFHBox {
         private final Button
                 addBtn = new Button(Lang.NullString, new ImageView(GUITools.loadIcon("plus-32")));
 
@@ -109,7 +114,7 @@ public class AlbumList extends GUIElements.SEVBox {
         void OnCheck(DSAlbum a, boolean state);
     }
 
-    public static class AlbumsListElement extends GUIElements.SFHBox {
+    public static class AlbumsListElement extends SFHBox {
         private final DSAlbum
                 thisAlbum;
 
@@ -129,14 +134,14 @@ public class AlbumList extends GUIElements.SEVBox {
         private boolean
                 dialogMode = false;
         
-        private final GUIElements.SFVBox 
-                elementContainer = new GUIElements.SFVBox(0, 128, 9999, 128, 128);
+        private final SFVBox 
+                elementContainer = new SFVBox(0, 128, 9999, 128, 128);
         
-        private final GUIElements.SFHBox 
-                titleContainer = new GUIElements.SFHBox(4, 128, 9999, 24, 24);
+        private final SFHBox 
+                titleContainer = new SFHBox(4, 128, 9999, 24, 24);
         
-        private final GUIElements.STextArea
-                albumText = new GUIElements.STextArea(128, 9999, 90, 90, "albumText");
+        private final STextArea
+                albumText = new STextArea(128, 9999, 90, 90, "albumText");
 
         private final ImageView
                 icon_d = new ImageView(ALBUM_DEFAULT),

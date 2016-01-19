@@ -1,4 +1,4 @@
-package imgfstabs;
+package imgfsgui.tabs;
 
 import dialogs.DialogFSImageView;
 import dialogs.DialogYesNoBox;
@@ -149,9 +149,9 @@ public class TabAddImagesToDB {
                 case BTN_SELNONE:
                     fileList.clearSelection();
                     break;
-                case BTN_DEL:
-                    final int result = dialogYN.showYesNo("Точно удалить выбранные файлы с диска?");
-                    break;
+//                case BTN_DEL:
+//                    final int result = dialogYN.showYesNo("Точно удалить выбранные файлы с диска?");
+//                    break;
                 case BTN_ADD:
                     if ((fileList.getElementCount() <= 0) || (fileList.getSelectedElementCount() <= 0)) {
                         ImgFS.msgbox("Не выбрано ни одного элемента для добавления.");
@@ -178,8 +178,8 @@ public class TabAddImagesToDB {
         
         panelTop.addButton(IMG64_SELECT_ALL, BTN_SELALL);
         panelTop.addButton(IMG64_SELECT_NONE, BTN_SELNONE);
-        panelTop.addFixedSeparator();
-        panelTop.addButton(IMG64_DELETE, BTN_DEL);
+        //panelTop.addFixedSeparator();
+        //panelTop.addButton(IMG64_DELETE, BTN_DEL);
         panelTop.addSeparator();
         panelTop.addButton(IMG64_ADD_TO_DB, BTN_ADD);
     }

@@ -1,10 +1,12 @@
 package imgfs;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javafx.scene.image.Image;
 import javax.xml.bind.DatatypeConverter;
 import jnekoimagesdb.Lang;
 
@@ -50,6 +52,12 @@ public class ImgFSDatastore {
         
         final byte[] out = getFile(md5);
         Files.write(savePath, out);
+    }
+    
+    public static Image getImage(byte[] md5) throws IOException {
+        final byte[] b = getFile(md5);
+        final ByteArrayInputStream bais = new ByteArrayInputStream(b);
+        return new Image(bais);
     }
     
     public static byte[] getFile(byte[] md5) throws IOException {

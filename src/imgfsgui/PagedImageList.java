@@ -3,13 +3,14 @@ package imgfsgui;
 import datasources.DSAlbum;
 import datasources.DSImage;
 import datasources.HibernateUtil;
+import dialogs.DialogImageView;
 import jnekoimagesdb.Lang;
 import imgfs.ImgFS;
 import imgfs.ImgFSPreviewGen.PreviewElement;
+import imgfsgui.elements.SScrollPane;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,15 +38,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import jnekoimagesdb.GUITools;
-import org.hibernate.FetchMode;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
 
-public class PagedImageList extends GUIElements.SScrollPane {
+public class PagedImageList extends SScrollPane {
     public static final int 
             IMAGES_ALL = -1,
             IMAGES_NOTAGGED = -2,
@@ -78,7 +75,7 @@ public class PagedImageList extends GUIElements.SScrollPane {
 
     protected interface ImageListItemActionListener {
         public void OnSelect(boolean isSelected, DSImage item);
-        public void OnOpen(DSImage item);
+        public void OnOpen(DSImage item, ImageListItem it);
     }
     
     private final ArrayList<DSImage>
@@ -91,6 +88,9 @@ public class PagedImageList extends GUIElements.SScrollPane {
         
         private DSImage
                 img = null;
+        
+        public int 
+                myNumber = 0;
         
         private final VBox 
                 imageVBox = new VBox(0);
@@ -165,7 +165,7 @@ public class PagedImageList extends GUIElements.SScrollPane {
                         actionListener.OnSelect(getSelected(), img);
                     }
                 } else {
-                    actionListener.OnOpen(img);
+                    actionListener.OnOpen(img, this);
                 }
                 event.consume();
             });
@@ -192,6 +192,9 @@ public class PagedImageList extends GUIElements.SScrollPane {
         }
     }
     
+    private final DialogImageView 
+            div = new DialogImageView(this);
+    
     private final ImageListItemActionListener
             elementListener = new ImageListItemActionListener() {
                 @Override
@@ -203,8 +206,13 @@ public class PagedImageList extends GUIElements.SScrollPane {
                 }
 
                 @Override
-                public void OnOpen(DSImage item) {
-
+                public void OnOpen(DSImage item, ImageListItem it) {
+                    if (it.myNumber >= 0) {
+                        int off = pag.getCurrentPageIndex() * itemTotalCount;
+                        div.setAlbumID(currentAlbumID);
+                        div.setImageIndex(it.myNumber + off);
+                        div.show();
+                    }
                 }
             };
     
@@ -359,26 +367,27 @@ public class PagedImageList extends GUIElements.SScrollPane {
         return itemTotalRecordsCount;
     }
     
-    private void _getCount() {
-        Number _itemTotalRecordsCount = 0;
-        switch ((int)currentAlbumID) {
+    public long getImgCount(long _albumID) {
+        Number _itemTotalRecordsCount;
+        switch ((int)_albumID) {
             case IMAGES_ALL:
                 _itemTotalRecordsCount = (Number) hibSession.createCriteria(DSImage.class).setProjection(Projections.rowCount()).uniqueResult();
-                itemTotalRecordsCount = _itemTotalRecordsCount.intValue();
-                break;
+                return _itemTotalRecordsCount.longValue();
             case IMAGES_NOT_IN_ALBUM: 
                 _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.albums IS EMPTY").uniqueResult();
-                itemTotalRecordsCount = _itemTotalRecordsCount.intValue();
-                break;
+                return _itemTotalRecordsCount.longValue();
             default:
                 _itemTotalRecordsCount = (Number) hibSession
                         .createCriteria(DSImage.class)
                         .createCriteria("albums")
-                        .add(Restrictions.eq("albumID", currentAlbumID))
+                        .add(Restrictions.eq("albumID", _albumID))
                     .setProjection(Projections.rowCount()).uniqueResult();
-                itemTotalRecordsCount = _itemTotalRecordsCount.intValue();  
+                return _itemTotalRecordsCount.longValue();  
         }
-        System.err.println("itemTotalRecordsCount="+itemTotalRecordsCount);
+    }
+    
+    private void _getCount() {
+        itemTotalRecordsCount = (int) getImgCount(currentAlbumID);
     }
     
     public void refresh() {
@@ -387,43 +396,48 @@ public class PagedImageList extends GUIElements.SScrollPane {
         container.getChildren().clear();
     }
     
-    public synchronized void regenerateView(long albumID) {
-        if (itemTotalCount <= 0) return;
-        int off = pag.getCurrentPageIndex() * itemTotalCount;
-        if (forceReload) container.getChildren().clear();
-        
-        List<DSImage> list = null;
+    public List<DSImage> getImgList(long albumID, int offset, int count) {
+        List<DSImage> list;
         switch ((int)albumID) {
             case IMAGES_ALL:
                 list = (List<DSImage>) hibSession
                         .createCriteria(DSImage.class)
-                        .setFirstResult(off)
-                        .setMaxResults(itemTotalCount)
+                        .setFirstResult(offset)
+                        .setMaxResults(count)
                         .list();
                 break;
             case IMAGES_NOT_IN_ALBUM: 
                 list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.albums IS EMPTY")
-                        .setFirstResult(off)
-                        .setMaxResults(itemTotalCount)
+                        .setFirstResult(offset)
+                        .setMaxResults(count)
                         .list();
                 break;
             default:
                 list = hibSession
                         .createCriteria(DSImage.class)
                         .createCriteria("albums")
-                        .add(Restrictions.eq("albumID", currentAlbumID))
-                        .setFirstResult(off)
-                        .setMaxResults(itemTotalCount)
+                        .add(Restrictions.eq("albumID", albumID))
+                        .setFirstResult(offset)
+                        .setMaxResults(count)
                         .list();
-
                 break;
         }
+        return list;
+    }
+    
+    public synchronized void regenerateView(long albumID) {
+        if (itemTotalCount <= 0) return;
+        int off = pag.getCurrentPageIndex() * itemTotalCount;
+        if (forceReload) container.getChildren().clear();
+        
+        List<DSImage> list = getImgList(albumID, off, itemTotalCount);
         
         int counter = 0;
         if (list != null) {
             for (DSImage dsi : list) {
                     elementsPool.get(counter).setImage(dsi.getMD5(), dsi.getImageID());
                     elementsPool.get(counter).setSelected(selectedElementsPool.contains(elementsPool.get(counter).get()));
+                    elementsPool.get(counter).myNumber = counter;
                     if (forceReload) container.getChildren().add(elementsPool.get(counter));
                     counter++;
             }
@@ -431,7 +445,8 @@ public class PagedImageList extends GUIElements.SScrollPane {
             if (counter < itemTotalCount) {
                 for (int i=counter; i<itemTotalCount; i++) {
                     elementsPool.get(i).setNullImage();
-                    elementsPool.get(counter).setSelected(false);
+                    elementsPool.get(i).setSelected(false);
+                    elementsPool.get(i).myNumber = -1;
                     if (forceReload) container.getChildren().add(elementsPool.get(i));
                 }
             }
