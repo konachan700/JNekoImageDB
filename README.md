@@ -28,6 +28,8 @@
 
 # Скриншоты
 
-[JNekoImageDB screen a](https://raw.githubusercontent.com/konachan700/JNekoImageDB/master/style/github_readme/screen1.png)
-[JNekoImageDB screen b](https://raw.githubusercontent.com/konachan700/JNekoImageDB/master/style/github_readme/screen1.png)
-[JNekoImageDB screen c](https://raw.githubusercontent.com/konachan700/JNekoImageDB/master/style/github_readme/screen1.png)
+[JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/screen1.png)
+
+[JNekoImageDB screenshot 2](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/screen2.png)
+
+[JNekoImageDB screenshot 3](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/screen3.png)
