@@ -25,3 +25,9 @@
 Программа пока что для использования по назначению непригодна по причине тотальной недоделанности. Если не знаешь явы, анон, можешь не скачивать даже.
 
 Основная цель сего софта - учеба, хочу изучить жаву и часть фреймворков хотя бы на уровень хорошего джуна. Так что многое в проекте может быть неправильно или неоптимально с точки зрения гуру.
+
+# Скриншоты
+
+[JNekoImageDB screen a](https://raw.githubusercontent.com/konachan700/JNekoImageDB/master/style/github_readme/screen1.png)
+[JNekoImageDB screen b](https://raw.githubusercontent.com/konachan700/JNekoImageDB/master/style/github_readme/screen1.png)
+[JNekoImageDB screen c](https://raw.githubusercontent.com/konachan700/JNekoImageDB/master/style/github_readme/screen1.png)
