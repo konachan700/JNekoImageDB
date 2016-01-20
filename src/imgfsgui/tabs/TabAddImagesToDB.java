@@ -70,13 +70,13 @@ public class TabAddImagesToDB {
         previewGen      = new ImgFSPreviewGen(crypt, ImgFS.PreviewType.previews, databaseName, (Image im, Path path) -> {
             //Platform.runLater(() -> { });
         });
+        
         try {
             previewGen.init(true);
         } catch (IOException ex) {
             Logger.getLogger(TabAddImagesToDB.class.getName()).log(Level.SEVERE, null, ex);
         }
-        previewGen.addPreviewSize("p120x120s", 120, 120, true);
-        
+
         panelBottom = new ToolsPanelBottom();
         panelBottom.setAL((index) -> {
             switch (index) {
@@ -162,6 +162,10 @@ public class TabAddImagesToDB {
                         ImgFS.msgbox("Процесс добавления картинок уже активен, дождитесь его завершения.");
                         break;
                     }
+                    
+                    if (ImgFS.getPSizes().isPreviewSizesEmpty()) {
+                        break;
+                    }
 
                     fileList.getSelectedElementsList().forEach((x) -> {
                         try {
@@ -180,8 +184,10 @@ public class TabAddImagesToDB {
         panelTop.addButton(IMG64_SELECT_NONE, BTN_SELNONE);
         //panelTop.addFixedSeparator();
         //panelTop.addButton(IMG64_DELETE, BTN_DEL);
-        panelTop.addSeparator();
-        panelTop.addButton(IMG64_ADD_TO_DB, BTN_ADD);
+        if (!ImgFS.getPSizes().isPreviewSizesEmpty()) {
+            panelTop.addSeparator();
+            panelTop.addButton(IMG64_ADD_TO_DB, BTN_ADD);
+        }
     }
     
     public ToolsPanelBottom getBottomPanel() {

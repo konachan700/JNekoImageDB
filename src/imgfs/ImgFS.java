@@ -1,5 +1,6 @@
 package imgfs;
 
+import datasources.DSPreviewSize;
 import datasources.HibernateUtil;
 import dialogs.DialogMTPrevGenProgress;
 import dialogs.DialogMessageBox;
@@ -7,6 +8,7 @@ import imgfsgui.tabs.TabAddImagesToDB;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +31,9 @@ public class ImgFS {
             
             return null;
         });
+    
+    private static final ImgFSPreviewSizes
+            psizes = new ImgFSPreviewSizes();
     
     private static final ImgFSPreviewGen.PreviewGeneratorProgressListener
             progressInd = new ImgFSPreviewGen.PreviewGeneratorProgressListener() {
@@ -89,6 +94,12 @@ public class ImgFS {
         ImgFSDatastore.init(cryptoEx, databaseName); 
         HibernateUtil.hibernateInit(rootDatabaseName, "jneko", cryptoEx.getPassword());
         addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
+        
+
+    }
+    
+    public static ImgFSPreviewSizes getPSizes() {
+        return psizes;
     }
 
     public static void dispose() {

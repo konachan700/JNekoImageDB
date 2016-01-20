@@ -71,28 +71,28 @@ public class ImgFSPreviewGen {
         }
     }
     
-    public static class PreviewSize {
-        public final int 
-                height, width;
-        
-        public final boolean
-                isSquared;
-        
-        private final String 
-                name;
-        
-        public PreviewSize(String s, int w, int h, boolean isSq) {
-            name = s;
-            width = w;
-            height = h;
-            isSquared = isSq;
-        }
-        
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
+//    public static class PreviewSize {
+//        public final int 
+//                height, width;
+//        
+//        public final boolean
+//                isSquared;
+//        
+//        private final String 
+//                name;
+//        
+//        public PreviewSize(String s, int w, int h, boolean isSq) {
+//            name = s;
+//            width = w;
+//            height = h;
+//            isSquared = isSq;
+//        }
+//        
+//        @Override
+//        public String toString() {
+//            return name;
+//        }
+//    }
     
     public static class BinaryImage implements Serializable {
         private byte[] cryptedImage = null;
@@ -193,8 +193,8 @@ public class ImgFSPreviewGen {
     private final ArrayList<ImgFSPreviewWorker> 
             workersTreads = new ArrayList<>();
     
-    private final CopyOnWriteArrayList<PreviewSize>
-            prevSizes = new CopyOnWriteArrayList<>();
+//    private final CopyOnWriteArrayList<PreviewSize>
+//            prevSizes = new CopyOnWriteArrayList<>();
     
     private volatile int 
             workerBalanceCounter = 0,
@@ -214,7 +214,7 @@ public class ImgFSPreviewGen {
     
     public void init(boolean isDisplayProgress) throws IOException {       
         for (int i=0; i<processorsCount; i++) {
-            final ImgFSPreviewWorker pw = new ImgFSPreviewWorker(this, actionListenerY, imCryptoY, dbxName, myType, prevSizes);
+            final ImgFSPreviewWorker pw = new ImgFSPreviewWorker(this, actionListenerY, imCryptoY, dbxName, myType);
             pw.setProgressDisplay(isDisplayProgress);
             workersTreads.add(pw);
             new Thread(pw).start();
@@ -223,7 +223,8 @@ public class ImgFSPreviewGen {
     }
     
     public void startJob() {
-        if (prevSizes.isEmpty()) return;
+        if (ImgFS.getPSizes().isPreviewSizesEmpty()) return;
+        if (ImgFS.getPSizes().getPrimaryPreviewSize() == null) return;
         
         synchronized (this){
             this.notifyAll();
@@ -250,22 +251,22 @@ public class ImgFSPreviewGen {
         if (workerBalanceCounter >= processorsCount) workerBalanceCounter = 0;
     }
 
-    public void addPreviewSize(String name, int w, int h, boolean squared) {
-        prevSizes.add(new PreviewSize(name, w, h, squared));
-    }
+//    public void addPreviewSize(String name, int w, int h, boolean squared) {
+//        prevSizes.add(new PreviewSize(name, w, h, squared));
+//    }
     
     public ImgFSPreviewGen(ImgFSCrypto c, ImgFS.PreviewType pt, String dbName, PreviewGeneratorActionListener al) {
         imCryptoY = c;
         actionListenerY = al;
         myType = pt;
         
-        prevSizes.clear();
+//        prevSizes.clear();
         switch (myType) {
             case cache:
                 dbxName = ImgFS.PreviewType.cache.name();
                 processorsCount = Runtime.getRuntime().availableProcessors();
                 if (processorsCount > 4) processorsCount = 4;
-                prevSizes.add(new PreviewSize("p120x120", 120, 120, false));
+//                prevSizes.add(new PreviewSize("p120x120", 120, 120, false));
                 break;
             case previews:
                 processorsCount = Runtime.getRuntime().availableProcessors();

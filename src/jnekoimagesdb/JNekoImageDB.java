@@ -2,8 +2,10 @@ package jnekoimagesdb;
 
 import imgfs.ImgFS;
 import imgfsgui.PagedImageList;
+import imgfsgui.elements.SFLabel;
 import imgfsgui.tabs.TabAlbumImageList;
 import imgfsgui.tabs.TabAllImages;
+import imgfsgui.tabs.TabSettings;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +36,9 @@ import menulist.MenuLabel;
 import menulist.MenuList;
 
 public class JNekoImageDB extends Application {
+    public static final Image 
+            IMG128_ERROR = GUITools.loadIcon("error-1-128");
+    
     private final DragDelta 
             DRD = new DragDelta();
     
@@ -62,6 +67,9 @@ public class JNekoImageDB extends Application {
     
     private final TabAllImages
             tabAllImages = new TabAllImages();
+    
+    private final TabSettings
+            tabSettings = new TabSettings();
 
     private String 
             databaseName    = "default";
@@ -123,13 +131,20 @@ public class JNekoImageDB extends Application {
     }
     
     private void showSettings() {
-
+        basesp.getChildren().add(tabSettings);
+        tabSettings.refresh();
     }
 
     private void showFileDialog() {
-        basesp.getChildren().add(ImgFS.getAddImagesTab().getList());
-        toolbox.getChildren().add(ImgFS.getAddImagesTab().getTopPanel());
-        paginator_1.getChildren().add(ImgFS.getAddImagesTab().getBottomPanel());
+        if ((!ImgFS.getPSizes().isPreviewSizesEmpty()) && (ImgFS.getPSizes().getPrimaryPreviewSize() != null)) {
+            basesp.getChildren().add(ImgFS.getAddImagesTab().getList());
+            toolbox.getChildren().add(ImgFS.getAddImagesTab().getTopPanel());
+            paginator_1.getChildren().add(ImgFS.getAddImagesTab().getBottomPanel());
+        } else {
+            final SFLabel s = new SFLabel("Настройки превью не найдены. Пожалуйста, создайте их.", 128, 9999, 24, 24, "error_no_previews", "JNekoImageDB");
+            paginator_1.getChildren().add(s);
+            basesp.getChildren().add(new ImageView(IMG128_ERROR));
+        }
     }
     
     private void showAlbCats() {
@@ -224,6 +239,7 @@ public class JNekoImageDB extends Application {
         GUITools.setStyle(basesp, "JNekoImageDB", "basesp");
         basesp.setPrefSize(9999, 9999);
         basesp.setMaxSize(9999, 9999);
+        basesp.setAlignment(Pos.CENTER);
         
         ml.getMenu().setActionListener(menuAL);
         
@@ -238,7 +254,7 @@ public class JNekoImageDB extends Application {
         
         ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
         //ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);
-        //ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
+        ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
         ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
         ml.getMenu().addItem("M03", "M03-04", "For test");
 

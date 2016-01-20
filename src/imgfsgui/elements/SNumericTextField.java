@@ -8,7 +8,14 @@ import jnekoimagesdb.GUITools;
 
 public class SNumericTextField extends TextField {
     private volatile int xID = -1;
-
+    public int
+            max = 0xFFFF,
+            min = 0;
+    
+    private long
+            value = 0;
+    
+    
     public SNumericTextField(int id, int height, GUIActionListener al, String styleName) {
         super("0");
         init(id, 0, height, al, styleName);
@@ -28,32 +35,27 @@ public class SNumericTextField extends TextField {
             this.getStyleClass().remove("GUIElements_textfield_valid");
             this.getStyleClass().remove("GUIElements_textfield_error");
             try {
-                final int test = Integer.parseInt(newValue.trim(), 10);
-                if (test >= 0) {
+                final long test = Long.parseLong(newValue.trim(), 10);
+                if ((test >= min) && (test <= max)) {
                     this.getStyleClass().add("GUIElements_textfield_valid");
-                    al.OnItemEvent(EVENT_CODE_CHANGE, xID);
-                } 
+                    value = test;
+                    if (al != null) al.OnItemEvent(EVENT_CODE_CHANGE, xID);
+                } else {
+                    this.getStyleClass().add("GUIElements_textfield_error");
+                }
             } catch (NumberFormatException e) { 
                 this.getStyleClass().add("GUIElements_textfield_error");
-                this.setText(oldValue);
+                //this.setText(oldValue);
             }
         });
     }
 
-    public long getIntValue() {
-        try {
-            return Integer.parseInt(this.getText().trim(), 10);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    public int getIntValue() {
+        return (int) value;
     }
 
     public long getLongValue() {
-        try {
-            return Long.parseLong(this.getText().trim(), 10);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+        return value;
     }
 
     public int getID() {

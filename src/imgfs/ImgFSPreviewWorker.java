@@ -33,17 +33,11 @@ public class ImgFSPreviewWorker implements Runnable {
     private final 
             Object syncObject;
 
-    private final CopyOnWriteArrayList<ImgFSPreviewGen.PreviewSize>
-            prevSizes;  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ДОДЕЛАТЬ !!!!!!!!!!!!!
-
     private volatile boolean 
             isExit = false,
             isWaiting = false,
             isDisplayProgress = false;
     
-    private volatile int
-            prevSizesDefault = 0; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ДОДЕЛАТЬ !!!!!!!!!!!!!
-
     private final ImgFSPreviewGen.PreviewGeneratorActionListener
             actionListenerX;
 
@@ -66,14 +60,13 @@ public class ImgFSPreviewWorker implements Runnable {
             myType;
 
     public ImgFSPreviewWorker(Object o, ImgFSPreviewGen.PreviewGeneratorActionListener al, 
-            ImgFSCrypto ic, String quene, ImgFS.PreviewType t, CopyOnWriteArrayList<ImgFSPreviewGen.PreviewSize> ps) {
+            ImgFSCrypto ic, String quene, ImgFS.PreviewType t) {
         super();
         queneName       = quene;
         syncObject      = o;
         actionListenerX = al;
         imCrypt         = ic;
         myType          = t;
-        prevSizes       = ps;
     }
 
     public void setProgressDisplay(boolean b) {
@@ -175,16 +168,16 @@ public class ImgFSPreviewWorker implements Runnable {
                     final byte[] md5e = getFilePartMD5(pe.getFile().getAbsolutePath());
                     pe.setMD5(md5e);
                     final ImgFSPreviewGen.PreviewElement peDB = readEntry(imCrypt, md5e);
-                    final Image im = peDB.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
+                    final Image im = peDB.getImage(imCrypt, ImgFS.getPSizes().getPrimaryPreviewSize().getPrevName());
                     if (im != null) 
                         actionListenerX.OnPreviewGenerateComplete(im, peDB.getPath()); 
 
                 } catch (ImgFSPreviewGen.RecordNotFoundException ex) {
                     try {
                         final byte[] md5e = getFilePartMD5(pe.getFile().getAbsolutePath());
-                        prevSizes.stream().forEach((c) -> {
+                        ImgFS.getPSizes().getPreviewSizes().stream().forEach((c) -> {
                             try {
-                                imgConverter.setPreviewSize(c.width, c.height, c.isSquared);
+                                imgConverter.setPreviewSize((int) c.getWidth(), (int) c.getHeight(), c.isSquared());
                                 final byte preview[] = imgConverter.getPreviewFS(pe.getFile().getAbsolutePath());
                                 final byte previewCrypted[] = imCrypt.Crypt(preview);
 
@@ -195,7 +188,7 @@ public class ImgFSPreviewWorker implements Runnable {
                             }    
                         });
 
-                        final Image im = pe.getImage(imCrypt, prevSizes.get(prevSizesDefault).toString());
+                        final Image im = pe.getImage(imCrypt, ImgFS.getPSizes().getPrimaryPreviewSize().getPrevName());
                         if (im != null) {
                             actionListenerX.OnPreviewGenerateComplete(im, pe.getPath());
                             if (isDisplayProgress) Platform.runLater(() -> { ImgFS.getProgressListener().OnNewItemGenerated(threadQueue.size(), pe.getPath(), this.hashCode(), queneName); });
