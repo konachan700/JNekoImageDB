@@ -1,11 +1,11 @@
 package jnekoimagesdb;
 
-import imgfs.ImgFS;
-import imgfsgui.PagedImageList;
-import imgfsgui.elements.SFLabel;
-import imgfsgui.tabs.TabAlbumImageList;
-import imgfsgui.tabs.TabAllImages;
-import imgfsgui.tabs.TabSettings;
+import img.XImg;
+import img.gui.PagedImageList;
+import img.gui.elements.SFLabel;
+import img.gui.tabs.TabAlbumImageList;
+import img.gui.tabs.TabAllImages;
+import img.gui.tabs.TabSettings;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -136,10 +136,10 @@ public class JNekoImageDB extends Application {
     }
 
     private void showFileDialog() {
-        if ((!ImgFS.getPSizes().isPreviewSizesEmpty()) && (ImgFS.getPSizes().getPrimaryPreviewSize() != null)) {
-            basesp.getChildren().add(ImgFS.getAddImagesTab().getList());
-            toolbox.getChildren().add(ImgFS.getAddImagesTab().getTopPanel());
-            paginator_1.getChildren().add(ImgFS.getAddImagesTab().getBottomPanel());
+        if ((!XImg.getPSizes().isPreviewSizesEmpty()) && (XImg.getPSizes().getPrimaryPreviewSize() != null)) {
+            basesp.getChildren().add(XImg.getAddImagesTab().getList());
+            toolbox.getChildren().add(XImg.getAddImagesTab().getTopPanel());
+            paginator_1.getChildren().add(XImg.getAddImagesTab().getBottomPanel());
         } else {
             final SFLabel s = new SFLabel("Настройки превью не найдены. Пожалуйста, создайте их.", 128, 9999, 24, 24, "error_no_previews", "JNekoImageDB");
             paginator_1.getChildren().add(s);
@@ -163,7 +163,7 @@ public class JNekoImageDB extends Application {
         
         try {
             
-            ImgFS.init(databaseName);
+            XImg.init(databaseName);
 //            cryptoEx.init(databaseName);
 //            addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
         } catch (Exception ex) {
@@ -275,7 +275,7 @@ public class JNekoImageDB extends Application {
         primaryStage.getIcons().add(new Image(new File("./icons/icon32.png").toURI().toString()));
         
         primaryStage.setOnHiding((WindowEvent event) -> {
-            ImgFS.dispose();
+            XImg.dispose();
             Platform.exit(); 
         });
         

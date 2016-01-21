@@ -283,7 +283,13 @@
     -fx-background-color: transparent;
 }
 
-.InfinityList_root_pane, .InfinityList_root_pane .viewport, .InfinityList_bottomT, .InfinityList_bottomDummy, .InfinityList_topDummy, .InfinityList_mainContainer {
+.InfinityList_mainContainer {
+    -fx-padding:8px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+}
+
+.InfinityList_root_pane, .InfinityList_root_pane .viewport, .InfinityList_bottomT, .InfinityList_bottomDummy, .InfinityList_topDummy {
     -fx-padding:0;
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-insets: 0;
@@ -808,13 +814,65 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 }
 
 
+.TypesListItem_label_darkred {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: #311;
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-font-weight:bold; 
+	-fx-alignment: CENTER-LEFT;
+}
 
+.TypesListItem_label_darkred_small {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: #311;
+    -fx-font-size: 10px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0; 
+	-fx-alignment: CENTER-LEFT;
+}
 
+.GUIElements_svbox_sett_container_red {
+	-fx-padding: 10px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: #311;
+}
 
+.GUIElements_prevsz_container {
+    -fx-padding: 6px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: #222;
+}
 
+.GUIElements_button_prevsz_el {
+    -fx-padding: 0px;
+    -fx-background-color: #222;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-text-fill: #fff;
+}
 
+.GUIElements_button_prevsz_el:hover {
+    -fx-padding: 0px;
+    -fx-background-color: #fff;
+    -fx-text-fill: #000;
+}
 
-
+.TabSettings_label_header {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: #555;
+    -fx-font-size: 14px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-font-weight:bold; 
+	-fx-alignment: CENTER-LEFT;
+}
 
 
 

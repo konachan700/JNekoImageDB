@@ -16,19 +16,19 @@ public class DSPreviewSize implements Serializable {
     @Column(name="iid", unique = true, nullable = false)
     private long prevID;
     
-    @Column(name="xname", unique = false, nullable = false, length = 128)
+    @Column(name="xname", unique = true, nullable = false, length = 128)
     private String prevName;
     
-    @Column(name="xwidth", unique = true, nullable = false)
+    @Column(name="xwidth", unique = false, nullable = false)
     private long width;
     
-    @Column(name="xheight", unique = true, nullable = false)
+    @Column(name="xheight", unique = false, nullable = false)
     private long height;
     
-    @Column(name="xsquare", unique = true, nullable = false)
+    @Column(name="xsquare", unique = false, nullable = false)
     private boolean squared;
     
-    @Column(name="xprimary", unique = true, nullable = false)
+    @Column(name="xprimary", unique = false, nullable = false)
     private boolean primary;
 
     public DSPreviewSize() {
