@@ -262,7 +262,7 @@
     -fx-border-insets: 0;
     -fx-background-color: transparent;
     -fx-text-fill: #aaa;
-    -fx-font-size: 18px;
+    -fx-font-size: 14px;
     -fx-font-weight:bold;
 }
 
@@ -879,18 +879,94 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 
 
 
+.XGreenDialogWindow_label_header {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: transparent;
+    -fx-font-size: 14px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-font-weight:bold; 
+	-fx-alignment: CENTER-LEFT;
+}
+
+.GUIElements_window_header_button {
+    -fx-padding: 0px;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+.GUIElements_window_header_button:hover {
+    -fx-padding: 1px 0 0 1px;
+}
+
+.GUIElements_window_null_hbox {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.DialogWindow_color_red, .DialogWindow_color_green, .DialogWindow_color_blue, .DialogWindow_color_black {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-padding: 3px;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.DialogWindow_color_red {
+    -fx-background-color: #311;
+}
+
+.DialogWindow_color_green {
+    -fx-background-color: #131;
+}
+
+.DialogWindow_color_blue {
+	-fx-background-color: #113;
+}
+
+.DialogWindow_color_black {
+	-fx-background-color: #000;
+}
 
 
+.GUIElements_window_header_hbox {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding: 4px;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
 
+.GUIElements_upload_img_root {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: #000;
+    -fx-padding: 0px;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
 
-
-
-
-
-
-
-
-
+.XImageUpload_label_darkred {
+	-fx-padding: 5px 10px 5px 10px;
+    -fx-background-color: #555;
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-font-weight:bold; 
+	-fx-alignment: CENTER-LEFT;
+}
 
 
 

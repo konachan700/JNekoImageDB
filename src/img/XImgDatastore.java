@@ -2,16 +2,22 @@ package img;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javafx.scene.image.Image;
 import javax.xml.bind.DatatypeConverter;
 import jnekoimagesdb.Lang;
+import org.iq80.leveldb.DB;
 
 public class XImgDatastore {
     public static final int
+            FILE_PART_SIZE_FOR_CHECKING_MD5 = 1024 * 32,
             MINIMUM_IMAGE_SIZE = 1024;
     
     private static XImgCrypto
@@ -106,5 +112,51 @@ public class XImgDatastore {
                 
         final String path = dir + File.separator + md5s.substring(4);
         return path;
+    }
+    
+    @SuppressWarnings("ConvertToTryWithResources")
+    public static byte[] getFilePartMD5(String path) throws IOException {
+        try {
+            final FileInputStream fis = new FileInputStream(path);
+            FileChannel fc = fis.getChannel();
+            fc.position(0);
+            final ByteBuffer bb = ByteBuffer.allocate(FILE_PART_SIZE_FOR_CHECKING_MD5);
+            int counter = fc.read(bb);
+            fc.close();
+            fis.close();
+            if (counter > 0) {
+                if (counter == FILE_PART_SIZE_FOR_CHECKING_MD5) 
+                    return dsCrypto.MD5(bb.array(), dsCrypto.getSalt());
+                else {
+                    final ByteBuffer bb_cutted = ByteBuffer.allocate(counter);
+                    bb_cutted.put(bb.array(), 0, counter);
+                    return dsCrypto.MD5(bb_cutted.array(), dsCrypto.getSalt());
+                }
+            } else 
+                throw new IOException("cannot calculate MD5 for file ["+path+"]");
+        } catch (IOException ex) {
+            throw new IOException("cannot calculate MD5 for file ["+path+"], " + ex.getMessage());
+        }
+    }
+    
+    public static XImgPreviewGen.PreviewElement readCacheEntry(byte[] md5b) throws XImgPreviewGen.RecordNotFoundException, IOException, ClassNotFoundException {
+        if (XImg.getDB(XImg.PreviewType.cache.name()) == null) throw new IOException("database not opened;");
+        
+        final DB db = XImg.getDB(XImg.PreviewType.cache.name());
+        byte[] retnc;
+        synchronized (db) {
+            retnc = db.get(md5b);
+            if (retnc == null ) throw new XImgPreviewGen.RecordNotFoundException("");
+        }
+        
+        final byte[] ret = dsCrypto.Decrypt(retnc);
+        if (ret == null ) throw new IOException("Decrypt() return null value;");
+        
+        final ByteArrayInputStream bais = new ByteArrayInputStream(ret);
+        final ObjectInputStream oos = new ObjectInputStream(bais);
+        final XImgPreviewGen.PreviewElement retVal = (XImgPreviewGen.PreviewElement) oos.readObject();
+        if (retVal == null ) throw new IOException("readObject() return null value;");
+        
+        return retVal;
     }
 }

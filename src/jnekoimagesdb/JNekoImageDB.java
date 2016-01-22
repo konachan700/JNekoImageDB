@@ -2,6 +2,8 @@ package jnekoimagesdb;
 
 import img.XImg;
 import img.gui.PagedImageList;
+import img.gui.dialogs.XDialogWindow;
+import img.gui.dialogs.XImageUpload;
 import img.gui.elements.SFLabel;
 import img.gui.tabs.TabAlbumImageList;
 import img.gui.tabs.TabAllImages;
@@ -110,6 +112,10 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     if (l.getID().contentEquals("M03-04")) {
+                        
+                        XImageUpload x = new XImageUpload();
+                        x.init();
+                        x.show();
                         
                     }
                 }

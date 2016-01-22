@@ -18,4 +18,10 @@ public class GUIElements {
             ICON_DIR_NA     = GUITools.loadIcon("dir-na-128"), 
             ICON_FILE_NA    = GUITools.loadIcon("file-na-128"),
             ICON_CLOCK      = GUITools.loadIcon("clock-48"); 
+    
+    public static final Image 
+            IMG64_SELECT_NO     = GUITools.loadIcon("delete-48"), 
+            IMG32_IN_PROGRESS   = GUITools.loadIcon("inprogress-32"),  
+            IMG32_IN_UNKNOWN    = GUITools.loadIcon("unknown-32"), 
+            IMG32_COMPLETED     = GUITools.loadIcon("selected-32");
 }

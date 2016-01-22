@@ -18,7 +18,7 @@ import javafx.stage.StageStyle;
 
 public class GUITools {
     public static class DragDelta {
-        double x, y;
+        public double x, y;
     }
     
     public static final int 
