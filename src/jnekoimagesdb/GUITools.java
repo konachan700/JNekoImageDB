@@ -128,6 +128,13 @@ public class GUITools {
         return sep1;
     }
     
+    public static final VBox getHSeparator(int hsz) {
+        VBox sep1 = new VBox();
+        setMaxSize(sep1, 9999, hsz);
+        sep1.setMinSize(32, hsz);
+        return sep1;
+    }
+    
     public static VBox getSeparator(double sz) {
         VBox sep1 = new VBox();
         setFixedSize(sep1, sz, sz);

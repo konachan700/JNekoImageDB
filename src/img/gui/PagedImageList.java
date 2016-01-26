@@ -6,15 +6,30 @@ import datasources.HibernateUtil;
 import img.gui.dialogs.DialogImageView;
 import jnekoimagesdb.Lang;
 import img.XImg;
+import img.XImgDatastore;
+import img.XImgImages;
+import img.XImgPreviewGen;
 import img.XImgPreviewGen.PreviewElement;
+import img.gui.elements.GUIElements;
+import static img.gui.elements.GUIElements.ICON_NOELEMENTS;
+import static img.gui.elements.GUIElements.ITEM_ERROR;
+import static img.gui.elements.GUIElements.ITEM_NOTHING;
+import static img.gui.elements.GUIElements.ITEM_SELECTED;
 import img.gui.elements.SScrollPane;
+import java.awt.Container;
+import java.awt.MediaTracker;
+import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
@@ -43,6 +58,42 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 public class PagedImageList extends SScrollPane {
+    private class PreviewGenerator implements Runnable {
+        private final XImgImages
+                imgConv = new XImgImages();
+
+        @Override
+        public void run() {
+            
+            
+            while (true) {
+                
+                
+//                try {
+//                    final String pathStr = XImgDatastore.getPathString(ref);
+//                    final Path path = FileSystems.getDefault().getPath(pathStr);
+//                    final byte[] fileCC = Files.readAllBytes(path);
+//                    final byte[] decryptedCC = XImg.getCrypt().Decrypt(fileCC);
+//                    
+//                    final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(decryptedCC);
+//                    final MediaTracker mediaTracker = new MediaTracker(new Container()); 
+//                    mediaTracker.addImage(image2, 0); 
+//                    mediaTracker.waitForAll();
+//                    
+//                    final byte[] preview = imgConv.getPreviewFS(image2.getGraphics());
+//                    
+//                    
+//                    
+//                } catch (IOException | InterruptedException ex1) {
+//                    Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex1);
+//                    imageContainer.setImage(ITEM_ERROR);
+//                    imageContainer.setVisible(true);
+//                }
+                
+            }  
+        }
+    }
+    
     public static final int 
             IMAGES_ALL = -1,
             IMAGES_NOTAGGED = -2,
@@ -52,7 +103,8 @@ public class PagedImageList extends SScrollPane {
             container = new FlowPane();
     
     private volatile int 
-            itemSize                    = 128,
+            itemSizeX                   = 128,
+            itemSizeY                   = 128,
             itemCountOnOneLine          = 0,
             itemCountOnOneColoumn       = 0,
             itemTotalCount              = 0,
@@ -72,6 +124,9 @@ public class PagedImageList extends SScrollPane {
     
     private final ArrayList<ImageListItem>
             elementsPool = new ArrayList<>();
+    
+    private final LinkedBlockingDeque<Path>
+            prevGenDeque = new LinkedBlockingDeque<>();
 
     protected interface ImageListItemActionListener {
         public void OnSelect(boolean isSelected, DSImage item);
@@ -84,7 +139,7 @@ public class PagedImageList extends SScrollPane {
     protected class ImageListItem extends Pane {
         private final ImageView 
                 imageContainer = new ImageView(),
-                selectedIcon = new ImageView(InfiniteFileList.ITEM_SELECTED);
+                selectedIcon = new ImageView(ITEM_SELECTED);
         
         private DSImage
                 img = null;
@@ -111,33 +166,40 @@ public class PagedImageList extends SScrollPane {
         }
         
         public final void setNullImage() {
-            imageContainer.setImage(InfiniteFileList.ITEM_NOTHING);
+            imageContainer.setImage(ITEM_NOTHING);
             imageContainer.setVisible(false);
             this.getChildren().clear();
             this.getStyleClass().clear();
         }
         
         public final void setImage(byte[] ref, long id) {
-            img = new DSImage(ref, id);
+            if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+            imageContainer.setFitHeight(XImg.getPSizes().getPrimaryPreviewSize().getHeight());
+            imageContainer.setFitWidth(XImg.getPSizes().getPrimaryPreviewSize().getWidth());
             
-            final byte[] content = XImg.getDB(XImg.PreviewType.previews.name()).get(ref);
-            final byte[] decrypted = XImg.getCrypt().Decrypt(content);
-            
-            Image imgX;
+            PreviewElement peDB;
             try {
-                final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decrypted));
-                final PreviewElement pe = (PreviewElement) ois.readObject();
-                ois.close();
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                imgX = pe.getImage(XImg.getCrypt(), "p120x120s"); // !!!!!!!!!!!!!!!!!!!! DELETE IT !
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    peDB = XImgDatastore.readPreviewEntry(ref);
+                    final Image im = peDB.getImage(XImg.getCrypt(), XImg.getPSizes().getPrimaryPreviewSize().getPrevName());
+                    if (im != null) {
+                        imageContainer.setImage(im);
+                        imageContainer.setVisible(true);
+                    } else 
+                        throw new IOException();
             } catch (IOException | ClassNotFoundException ex) {
-                imgX = InfiniteFileList.ITEM_ERROR;
-                Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    final String pathStr = XImgDatastore.getPathString(ref);
+                    final Path path = FileSystems.getDefault().getPath(pathStr);
+                    prevGenDeque.add(path);
+                    imageContainer.setImage(GUIElements.ITEM_LOADING);
+                    imageContainer.setVisible(true);
+                } catch (IOException ex1) {
+                    Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex1);
+                    imageContainer.setImage(ITEM_ERROR);
+                    imageContainer.setVisible(true);
+                }
             }
- 
-            imageContainer.setImage(imgX);
-            imageContainer.setVisible(true);
+                
             if (this.getChildren().isEmpty()) addAll();
             GUITools.setStyle(this, "FileListItem", "root_pane");
         }
@@ -150,6 +212,13 @@ public class PagedImageList extends SScrollPane {
             return selectedIcon.isVisible();
         }
         
+        public void setSizes(long x, long y) {
+            GUITools.setMaxSize(imageVBox, x, y);
+            GUITools.setMaxSize(this, x, y);
+            imageContainer.setFitHeight(y);
+            imageContainer.setFitWidth(x);
+        }
+        
         @SuppressWarnings("LeakingThisInConstructor")
         public ImageListItem(ImageListItemActionListener al) {
             super();
@@ -157,7 +226,7 @@ public class PagedImageList extends SScrollPane {
             actionListener = al;
             
             GUITools.setStyle(this, "FileListItem", "root_pane");
-            GUITools.setMaxSize(this, itemSize, itemSize);
+            GUITools.setMaxSize(this, itemSizeX, itemSizeY);
             this.setOnMouseClicked((MouseEvent event) -> {
                 if (event.getClickCount() == 1) {
                     if (event.getButton() == MouseButton.SECONDARY) {
@@ -173,10 +242,10 @@ public class PagedImageList extends SScrollPane {
             imageContainer.setPreserveRatio(true);
             imageContainer.setSmooth(true);
             imageContainer.setCache(false);
-            imageContainer.setImage(InfiniteFileList.ITEM_NOTHING);
+            imageContainer.setImage(ITEM_NOTHING);
                         
             GUITools.setStyle(imageVBox, "FileListItem", "imageVBox");
-            GUITools.setMaxSize(imageVBox, itemSize, itemSize);
+            GUITools.setMaxSize(imageVBox, itemSizeX, itemSizeY);
             imageVBox.getChildren().add(imageContainer);
             imageVBox.setAlignment(Pos.CENTER);
             
@@ -252,7 +321,7 @@ public class PagedImageList extends SScrollPane {
         pag.setMinSize(128, 24);
         pag.setPrefSize(9999, 24);
         
-        final ImageView icon = new ImageView(InfiniteFileList.ICON_NOELEMENTS);
+        final ImageView icon = new ImageView(ICON_NOELEMENTS);
         final Label text = new Label(Lang.InfiniteImageList_no_elements_found);
         GUITools.setStyle(text, "FileListItem", "nullMessage");
         GUITools.setMaxSize(text, 9999, 48);
@@ -264,7 +333,11 @@ public class PagedImageList extends SScrollPane {
         
         this.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
-                itemCountOnOneLine = (newValue.intValue()-20) / (itemSize + itemSpacer);
+                if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+                itemSizeX = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+                itemSizeY = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
+                
+                itemCountOnOneLine = (newValue.intValue()-20) / (itemSizeX + itemSpacer);
                 if (itemCountOnOneLineOld != itemCountOnOneLine) {
                     forceReload = true;
                     itemCountOnOneLineOld = itemCountOnOneLine;
@@ -275,7 +348,11 @@ public class PagedImageList extends SScrollPane {
         
         this.heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
-                itemCountOnOneColoumn = (newValue.intValue()-20) / (itemSize + itemSpacer);
+                if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+                itemSizeX = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+                itemSizeY = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
+        
+                itemCountOnOneColoumn = (newValue.intValue()-20) / (itemSizeY + itemSpacer);
                 if (itemCountOnOneColoumnOld != itemCountOnOneColoumn) {
                     forceReload = true;
                     itemCountOnOneColoumnOld = itemCountOnOneColoumn;
@@ -427,6 +504,11 @@ public class PagedImageList extends SScrollPane {
     
     public synchronized void regenerateView(long albumID) {
         if (itemTotalCount <= 0) return;
+
+        if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+        itemSizeX = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+        itemSizeY = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
+        
         int off = pag.getCurrentPageIndex() * itemTotalCount;
         if (forceReload) container.getChildren().clear();
         
@@ -438,6 +520,7 @@ public class PagedImageList extends SScrollPane {
                     elementsPool.get(counter).setImage(dsi.getMD5(), dsi.getImageID());
                     elementsPool.get(counter).setSelected(selectedElementsPool.contains(elementsPool.get(counter).get()));
                     elementsPool.get(counter).myNumber = counter;
+                    elementsPool.get(counter).setSizes(itemSizeX, itemSizeY);
                     if (forceReload) container.getChildren().add(elementsPool.get(counter));
                     counter++;
             }
@@ -447,12 +530,17 @@ public class PagedImageList extends SScrollPane {
                     elementsPool.get(i).setNullImage();
                     elementsPool.get(i).setSelected(false);
                     elementsPool.get(i).myNumber = -1;
+                    elementsPool.get(counter).setSizes(itemSizeX, itemSizeY);
                     if (forceReload) container.getChildren().add(elementsPool.get(i));
                 }
             }
         }
     }
     
+    public long getAlbumID() {
+        return currentAlbumID;
+    }
+        
     public Parent getPaginator() {
         return pag;
     }

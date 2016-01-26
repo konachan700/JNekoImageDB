@@ -81,9 +81,10 @@ public class XImgDatastore {
         return cc;
     }
 
-    public static void pushFile(byte[] md5, Path file) throws Exception {
+    public static byte[] pushFile(Path file) throws Exception {
         if (isNotInit) throw new Error(Lang.ImgFSDatastore_ERROR_01);
         
+        final byte[] md5 = getFilePartMD5(file.toString());
         final String p = getPathString(md5);
         
         final byte[] nc = Files.readAllBytes(file);
@@ -94,6 +95,8 @@ public class XImgDatastore {
         
         final Path out = FileSystems.getDefault().getPath(p);
         Files.write(out, cc); 
+        
+        return md5;
     }
     
     public static String getPathString(byte[] md5) throws IOException {
@@ -139,10 +142,22 @@ public class XImgDatastore {
         }
     }
     
+    public static XImgPreviewGen.PreviewElement readPreviewEntry(byte[] md5b) throws XImgPreviewGen.RecordNotFoundException, IOException, ClassNotFoundException {
+        try {
+            return _readEntry(md5b, XImg.PreviewType.previews);
+        } catch (XImgPreviewGen.RecordNotFoundException e) {
+            return _readEntry(md5b, XImg.PreviewType.cache);
+        }
+    }
+    
     public static XImgPreviewGen.PreviewElement readCacheEntry(byte[] md5b) throws XImgPreviewGen.RecordNotFoundException, IOException, ClassNotFoundException {
-        if (XImg.getDB(XImg.PreviewType.cache.name()) == null) throw new IOException("database not opened;");
+        return _readEntry(md5b, XImg.PreviewType.cache);
+    }
+    
+    private static XImgPreviewGen.PreviewElement _readEntry(byte[] md5b, XImg.PreviewType type) throws XImgPreviewGen.RecordNotFoundException, IOException, ClassNotFoundException {
+        if (XImg.getDB(type) == null) throw new IOException("database not opened;");
         
-        final DB db = XImg.getDB(XImg.PreviewType.cache.name());
+        final DB db = XImg.getDB(type);
         byte[] retnc;
         synchronized (db) {
             retnc = db.get(md5b);

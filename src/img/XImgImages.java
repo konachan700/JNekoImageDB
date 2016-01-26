@@ -74,6 +74,66 @@ public class XImgImages {
         return retVal;
     }
     
+    @SuppressWarnings("ConvertToTryWithResources")
+    public byte[] getPreviewFS(java.awt.Image inImg) throws IOException {
+        final BufferedImage image = intResizeImage(inImg, previewWidth, previewHeight, isSquaredFSPreview);
+        if (image == null) 
+            throw new IOException("getPreviewFS: cannot create preview for image [RAW_BITMAP]!");;
+        
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", baos);
+        final byte retVal[] = baos.toByteArray();
+        
+        baos.close();
+        return retVal;
+    }
+    
+    private BufferedImage intResizeImage(java.awt.Image inImg, int sizeW, int sizeH, boolean crop) {
+        final int 
+                w_size = inImg.getWidth(null),
+                h_size = inImg.getHeight(null);
+
+        final BufferedImage image = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
+        final Graphics2D g2d = image.createGraphics();
+        g2d.setBackground(new Color(255, 255, 255)); 
+        g2d.setColor(new Color(255, 255, 255));
+        g2d.fillRect(0, 0, w_size, h_size);
+        g2d.drawImage(inImg, 0, 0, null);
+        g2d.dispose();
+
+        final BufferedImage out_img, crop_img;
+        if (crop) {
+            if (w_size > h_size) {
+                final double 
+                        in_k  = ((double) w_size) / ((double) h_size),
+                        out_k = ((double) sizeW) / ((double) sizeH);
+
+                out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_HEIGHT, ((in_k < out_k) ? ((int)(sizeH * out_k)) : (sizeH)), Scalr.OP_ANTIALIAS);
+                final int 
+                        out_x = (out_img.getWidth() - sizeW) / 2,
+                        out_y = (out_img.getHeight() - sizeH) / 2;
+
+                crop_img = Scalr.crop(out_img, out_x, out_y, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+            } else {
+                final double 
+                        in_k  = ((double) h_size) / ((double) w_size),
+                        out_k = ((double) sizeH) / ((double) sizeW);
+
+                out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, ((in_k < out_k) ? ((int)(sizeW * out_k)) : (sizeW)), Scalr.OP_ANTIALIAS);
+                final int 
+                        out_x = (out_img.getWidth() - sizeW) / 2,
+                        out_y = (out_img.getHeight() - sizeH) / 2;
+
+                crop_img = Scalr.crop(out_img, out_x, out_y, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+            }
+
+            return crop_img;
+        } else {
+            out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+            return out_img;
+        }
+    }
+    
     private BufferedImage intResizeImage(String in_path, int sizeW, int sizeH, boolean crop) {
         final File img_file = new File(in_path);
         if (!img_file.canRead()) return null;

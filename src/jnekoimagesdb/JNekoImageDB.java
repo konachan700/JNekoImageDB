@@ -106,16 +106,15 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M01-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
                     if (l.getID().contentEquals("M01-06")) showAllImages(PagedImageList.IMAGES_NOT_IN_ALBUM);
                     
-                    if (l.getID().contentEquals("M01-05")) showFileDialog();
+//                    if (l.getID().contentEquals("M01-05")) showFileDialog();
                     if (l.getID().contentEquals("M01-04")) showAlbCats();
                     
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     if (l.getID().contentEquals("M03-04")) {
                         
-                        XImageUpload x = new XImageUpload();
-                        x.init();
-                        x.show();
+                        
+//                        XImg.getUploadBox().show();
                         
                     }
                 }
@@ -141,17 +140,17 @@ public class JNekoImageDB extends Application {
         tabSettings.refresh();
     }
 
-    private void showFileDialog() {
-        if ((!XImg.getPSizes().isPreviewSizesEmpty()) && (XImg.getPSizes().getPrimaryPreviewSize() != null)) {
-            basesp.getChildren().add(XImg.getAddImagesTab().getList());
-            toolbox.getChildren().add(XImg.getAddImagesTab().getTopPanel());
-            paginator_1.getChildren().add(XImg.getAddImagesTab().getBottomPanel());
-        } else {
-            final SFLabel s = new SFLabel("Настройки превью не найдены. Пожалуйста, создайте их.", 128, 9999, 24, 24, "error_no_previews", "JNekoImageDB");
-            paginator_1.getChildren().add(s);
-            basesp.getChildren().add(new ImageView(IMG128_ERROR));
-        }
-    }
+//    private void showFileDialog() {
+//        if ((!XImg.getPSizes().isPreviewSizesEmpty()) && (XImg.getPSizes().getPrimaryPreviewSize() != null)) {
+//            basesp.getChildren().add(XImg.getAddImagesTab().getList());
+//            toolbox.getChildren().add(XImg.getAddImagesTab().getTopPanel());
+//            paginator_1.getChildren().add(XImg.getAddImagesTab().getBottomPanel());
+//        } else {
+//            final SFLabel s = new SFLabel("Настройки превью не найдены. Пожалуйста, создайте их.", 128, 9999, 24, 24, "error_no_previews", "JNekoImageDB");
+//            paginator_1.getChildren().add(s);
+//            basesp.getChildren().add(new ImageView(IMG128_ERROR));
+//        }
+//    }
     
     private void showAlbCats() {
         basesp.getChildren().add(tabAlbumImageList);
@@ -256,7 +255,7 @@ public class JNekoImageDB extends Application {
         ml.getMenu().addItem("M01", "M01-04", Lang.JNekoImageDB_menu_title_albums);
         ml.getMenu().addItem("M01", "M01-03", Lang.JNekoImageDB_menu_main_tagcloud);
         ml.getMenu().addItem("M01", "M01-07", Lang.JNekoImageDB_menu_main_fav_tags);
-        ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
+//        ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
         
         ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
         //ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);

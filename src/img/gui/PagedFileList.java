@@ -1,5 +1,9 @@
 package img.gui;
 
+import datasources.DSAlbum;
+import datasources.DSImage;
+import datasources.HibernateUtil;
+import datasources.SettingsUtil;
 import img.XImg;
 import img.XImgDatastore;
 import img.XImgFS;
@@ -23,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -38,12 +43,20 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.util.Duration;
 import jnekoimagesdb.GUITools;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.iq80.leveldb.DB;
 
 public class PagedFileList extends SEVBox {
+    private final Object
+            syncObject = new Object();
+    
     private class FileListGenerator implements Runnable {
         private final XImgImages
                 imgConv = new XImgImages();
+        
+        private final ArrayList<DSImage> 
+                addedImages = new ArrayList<>();
         
         @Override
         @SuppressWarnings("SleepWhileInLoop")
@@ -64,12 +77,15 @@ public class PagedFileList extends SEVBox {
                     (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight(), XImg.getPSizes().getPrimaryPreviewSize().isSquared());
             
             while(true) {
-                try {
                     Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), true); });
-                    final Path element = prevGenDeque.pollLast(65535, TimeUnit.DAYS);
-                    Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), false); });
+                    
+                    final Path element = prevGenDeque.pollLast();
+                    if (isExit) return;
                     
                     if (element != null) {
+                        Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), false); });
+                        progressCounter++;
+                        
                         byte[] md5e = null;
                         XImgPreviewGen.PreviewElement peDB;
                         try {
@@ -79,8 +95,7 @@ public class PagedFileList extends SEVBox {
                                 if (im != null) 
                                     setImage (im, element); 
                         } catch (IOException | ClassNotFoundException ex) {
-                            Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
-                            
+                            //Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
                             if ((md5e != null) && (imgConv.isImage(element.toAbsolutePath().toString()))) {
                                 final byte preview[];
                                 try {
@@ -99,8 +114,8 @@ public class PagedFileList extends SEVBox {
                                     final byte[] crypted = XImg.getCrypt().Crypt(baos.toByteArray());
                                     if (crypted == null) throw new IOException("Crypt() return null;");
                                     
-                                    synchronized(XImg.getDB(XImg.PreviewType.cache.name())) {
-                                        final DB db = XImg.getDB(XImg.PreviewType.cache.name());
+                                    synchronized(XImg.getDB(XImg.PreviewType.cache)) {
+                                        final DB db = XImg.getDB(XImg.PreviewType.cache);
                                         db.put(md5e, crypted);
                                     }
                                     
@@ -112,11 +127,62 @@ public class PagedFileList extends SEVBox {
                                 }
                             }
                         }
+                    } else {
+                        final Path fileToMove = insertToDBDeque.pollLast();
+                        if (fileToMove != null) {
+                            Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), false); });
+                            progressCounter++;
+                            if (imgConv.isImage(fileToMove.toAbsolutePath().toString())) {
+                                try {
+                                    final byte[] md5 = XImgDatastore.pushFile(fileToMove.toAbsolutePath());
+                                    addedImages.add(new DSImage(md5));
+                                    System.out.println("WRITE TO STORE: "+fileToMove.toAbsolutePath().toString());
+                                } catch (Exception ex) {
+                                    Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        } else {
+                            if (!addedImages.isEmpty()) {
+                                Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), false); });
+                                
+                                final DSAlbum ds;
+                                Session hibSession = HibernateUtil.getNewSession();
+                                if (curentAlbumID > 0) {
+                                    List<DSAlbum> list = hibSession
+                                            .createCriteria(DSAlbum.class)
+                                            .add(Restrictions.eq("albumID", curentAlbumID))
+                                            .list();
+
+                                    if (list.size() > 0) 
+                                        ds = list.get(0);
+                                    else 
+                                        ds = null;
+                                } else {
+                                   ds = null;
+                                }
+                                
+                                HibernateUtil.beginTransaction(hibSession);
+                                addedImages.forEach(c -> {
+                                    if (ds != null) {
+                                        final Set<DSAlbum> alb = new HashSet<>();
+                                        alb.add(ds);
+                                        c.setAlbums(alb);
+                                    }
+                                    hibSession.save(c);
+                                    progressCounter++;
+                                    System.out.println("WRITE TO DB: "+c.hashCode()); 
+                                });
+                                HibernateUtil.commitTransaction(hibSession);
+                                hibSession.close();
+                                addedImages.clear();
+                                Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), true); });
+                            } else {
+                                try {
+                                    Thread.sleep(50);
+                                } catch (InterruptedException ex) { }
+                            }
+                        }
                     }
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
-                    return;
-                }
             }
         }
         
@@ -147,6 +213,9 @@ public class PagedFileList extends SEVBox {
             IMG24_NAVIGATE_TO       = GUITools.loadIcon("navto-24"),
             IMG24_TO_ROOT           = GUITools.loadIcon("root-24");
     
+    private volatile long 
+            curentAlbumID = 0;
+    
     private volatile int 
             myWidth = 0,
             myHeight = 0,
@@ -165,7 +234,8 @@ public class PagedFileList extends SEVBox {
     private volatile boolean
             isNotInit = true, 
             isResized = false, 
-            isRoot = false;
+            isRoot = false, 
+            isExit = false;
     
     private final ToolsPanelBottom
             pathPanel = new ToolsPanelBottom();
@@ -192,7 +262,8 @@ public class PagedFileList extends SEVBox {
             imageViewer = new DialogFSImageView();
     
     private final LinkedBlockingDeque<Path>
-            prevGenDeque = new LinkedBlockingDeque<>();
+            prevGenDeque = new LinkedBlockingDeque<>(), 
+            insertToDBDeque = new LinkedBlockingDeque<>();
     
     private final EFileListItemActionListener
             itemListener = new EFileListItemActionListener() {
@@ -205,6 +276,7 @@ public class PagedFileList extends SEVBox {
                 public void OnOpen(Path itemPath) {
                     if (Files.isDirectory(itemPath)) {
                         fileSystemParser.setPath(itemPath);
+                        SettingsUtil.setPath("currentPath", itemPath);
                         fileSystemParser.getFiles();
                     } else {
                         int counter, listSize = currentFileList.size();
@@ -223,38 +295,38 @@ public class PagedFileList extends SEVBox {
                     new XImgFSActionListener() {
                         @Override
                         public void rootListGenerated(Set<Path> pList) {
-                            if (itemTotalCount <= 0) return;
-                            
                             isRoot = true;
                             filesCount = pList.size();
                             currentPage = 0;
-                            pagesCount = (filesCount / itemTotalCount) + (((filesCount % itemTotalCount) == 0) ? 0 : 1);
+                            if (itemTotalCount > 0) {
+                                pagesCount = (filesCount / itemTotalCount) + (((filesCount % itemTotalCount) == 0) ? 0 : 1);
+                                pflal.onPageCountChange(pagesCount);
+                                regenerateItemList();
+                            }
                             
                             pathPanel.getTextField(FIELD_PATH).setText("");
-                            pflal.onPageCountChange(pagesCount);
-                            
-                            regenerateItemList();
                         }
 
                         @Override
-                        public void fileListRefreshed(ArrayList<Path> pList, long execTime) {
-                            if (itemTotalCount <= 0) return;
-                            
+                        public void fileListRefreshed(Path p, ArrayList<Path> pList, long execTime) {
                             isRoot = false;
                             filesCount = pList.size();
                             currentPage = 0;
-                            pagesCount = (filesCount / itemTotalCount) + (((filesCount % itemTotalCount) == 0) ? 0 : 1);
                             currentFileList = pList;
                             
-                            pathPanel.getTextField(FIELD_PATH).setText(fileSystemParser.getCurrentPath().toAbsolutePath().toString());
-                            pflal.onPageCountChange(pagesCount); 
+                            if (itemTotalCount > 0) {
+                                pagesCount = (filesCount / itemTotalCount) + (((filesCount % itemTotalCount) == 0) ? 0 : 1);
+                                pflal.onPageCountChange(pagesCount); 
+                                regenerateItemList();
+                            }
                             
-                            regenerateItemList();
+                            pathPanel.getTextField(FIELD_PATH).setText(p.toAbsolutePath().toString());
                         }
 
                         @Override
                         public void onLevelUp(Path p) {
                             fileSystemParser.getFiles();
+                            SettingsUtil.setPath("currentPath", p);
                         }
 
                         @Override
@@ -283,7 +355,17 @@ public class PagedFileList extends SEVBox {
                     }
             );
     
+    private volatile int 
+            progressCounterA = 0,
+            progressCounter = 0;
+    
     private final Timeline resizeTimer = new Timeline(new KeyFrame(Duration.millis(10), ae -> {
+        progressCounterA++;
+        if (progressCounterA > 50) {
+            
+            
+            progressCounterA = 0;
+        }
         //if (itemTotalCount <= 0) resize();
         if (timerCounter > 0) {
             timerCounter--;
@@ -295,6 +377,9 @@ public class PagedFileList extends SEVBox {
             }
         }
     }));
+    
+    private final Set<Future<FileListGenerator>> 
+            threads = new HashSet<>();
     
     public PagedFileList(PagedFileListActionListener _pflal) {
         super(0);
@@ -353,6 +438,7 @@ public class PagedFileList extends SEVBox {
     private void setPath(String p) {
         fileSystemParser.setPath(p);
         fileSystemParser.getFiles();
+        pathPanel.getTextField(FIELD_PATH).setText(fileSystemParser.getCurrentPath().toAbsolutePath().toString());
     }
     
     private void regenerateItemList() {
@@ -369,6 +455,7 @@ public class PagedFileList extends SEVBox {
                     efl.setImage(GUIElements.ICON_DIR);
                 } else {
                     efl.setImage(GUIElements.ITEM_LOADING);
+                    efl.setSelected(selectedElements.contains(p));
                     prevGenDeque.addLast(p); 
                     if (prevGenDeque.size() > (itemTotalCount * 2)) {
                         prevGenDeque.removeFirst();
@@ -383,7 +470,7 @@ public class PagedFileList extends SEVBox {
         }
     }
     
-    public final void resize() {
+    public final synchronized void resize() {
         if (isNotInit) return;
         if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
         
@@ -396,19 +483,10 @@ public class PagedFileList extends SEVBox {
         itemCountOnRow = (myWidth + spacerSize) / (itemWidth + spacerSize);
         itemCountOnColoumn = (myHeight + spacerSize) / (itemHeight + spacerSize);
         itemTotalCount = itemCountOnRow * itemCountOnColoumn;
-        
-        
-        
-        System.out.println("==================================================");
-        System.out.println("itemCountOnRow="+itemCountOnRow);
-        System.out.println("itemCountOnColoumn="+itemCountOnColoumn);
-        System.out.println("itemTotalCount="+itemTotalCount);
-        System.out.println("itemsWidth="+(itemWidth+spacerSize)*itemCountOnRow);
-        System.out.println("itemsHeight="+(itemHeight+spacerSize)*itemCountOnColoumn);
-        System.out.println("myWidth="+myWidth);
-        System.out.println("myHeight="+myHeight);
-        
+
         if (itemTotalCount <= 0) return;
+        pagesCount = (filesCount / itemTotalCount) + (((filesCount % itemTotalCount) == 0) ? 0 : 1);
+        pflal.onPageCountChange(pagesCount); 
         
         elements.clear();
         for (int i=0; i<itemTotalCount; i++) {
@@ -422,6 +500,28 @@ public class PagedFileList extends SEVBox {
         regenerateItemList();
     }
     
+    public void addAll() {
+        insertToDBDeque.addAll(fileSystemParser.getFullList());
+    }
+    
+    public void addSelected() {
+        insertToDBDeque.addAll(selectedElements);
+    }
+    
+    public void selectNone() {
+        selectedElements.clear();
+        regenerateItemList();
+    }
+    
+    public void selectAll() {
+        selectedElements.addAll(fileSystemParser.getFullList());
+        regenerateItemList();
+    }
+    
+    public void setAlbumID(long _curentAlbumID) {
+        curentAlbumID = _curentAlbumID;
+    }
+    
     public void breakCurrentOperation() {
         if (isNotInit) return;
         fileSystemParser.breakCurrentOperation();
@@ -431,6 +531,7 @@ public class PagedFileList extends SEVBox {
         if (isNotInit) return;
         fileSystemParser.setPath(path);
         fileSystemParser.getFiles();
+//        pathPanel.getTextField(FIELD_PATH).setText(fileSystemParser.getCurrentPath().toAbsolutePath().toString());
     }
     
     public void navigateRoot() {
@@ -476,7 +577,8 @@ public class PagedFileList extends SEVBox {
         resizeTimer.play();
         
         for (int i=0; i<threadsCount; i++) {
-           previewGenService.submit(new FileListGenerator());
+           final Future f = previewGenService.submit(new FileListGenerator());
+           threads.add(f);
         }
         
         isNotInit = false;
@@ -485,6 +587,8 @@ public class PagedFileList extends SEVBox {
     public void dispose() {
         if (isNotInit) return;
         fileSystemParser.dispose();
+        isExit = true;
+        previewGenService.shutdownNow();
         isNotInit = true;
     }
 }

@@ -85,7 +85,7 @@ public class XImgFS {
                             currentFilesList.addAll(files);
                             stream.close();
                             isBusy = false;
-                            Platform.runLater(() -> { al.fileListRefreshed(currentFilesList, System.currentTimeMillis() - tmr); });
+                            Platform.runLater(() -> { al.fileListRefreshed(currentPath, currentFilesList, System.currentTimeMillis() - tmr); });
                         } catch (IOException e) {
                             Logger.getLogger(XImgFS.class.getName()).log(Level.SEVERE, null, e);
                             isBusy = false;
@@ -229,5 +229,8 @@ public class XImgFS {
         stateTimer.stop();
         isExit = true;
         isNotInit = true;
+        synchronized (syncObject) {
+            syncObject.notify();
+        }
     }
 }

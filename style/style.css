@@ -825,9 +825,51 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 	-fx-alignment: CENTER-LEFT;
 }
 
+.TypesListItem_label_darkgreen {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: #131;
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-font-weight:bold; 
+	-fx-alignment: CENTER-LEFT;
+}
+
+.TypesListItem_label_darkblue {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: #113;
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-font-weight:bold; 
+	-fx-alignment: CENTER-LEFT;
+}
+
 .TypesListItem_label_darkred_small {
 	-fx-padding: 3px 10px 3px 10px;
     -fx-background-color: #311;
+    -fx-font-size: 10px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0; 
+	-fx-alignment: CENTER-LEFT;
+}
+
+.TypesListItem_label_darkgreen_small {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: #131;
+    -fx-font-size: 10px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0; 
+	-fx-alignment: CENTER-LEFT;
+}
+
+.TypesListItem_label_darkblue_small {
+	-fx-padding: 3px 10px 3px 10px;
+    -fx-background-color: #113;
     -fx-font-size: 10px;
     -fx-text-fill: #fff;
     -fx-background-radius: 0;
@@ -840,6 +882,20 @@ Pagination .pagination-control .left-arrow, .right-arrow{
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-insets: 0;
     -fx-background-color: #311;
+}
+
+.GUIElements_svbox_sett_container_green {
+	-fx-padding: 10px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: #131;
+}
+
+.GUIElements_svbox_sett_container_blue {
+	-fx-padding: 10px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: #113;
 }
 
 .GUIElements_prevsz_container {
@@ -966,6 +1022,16 @@ Pagination .pagination-control .left-arrow, .right-arrow{
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-font-weight:bold; 
 	-fx-alignment: CENTER-LEFT;
+}
+
+.TabSettings_null_gp {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
 }
 
 

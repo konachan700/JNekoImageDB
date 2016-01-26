@@ -24,4 +24,16 @@ public class GUIElements {
             IMG32_IN_PROGRESS   = GUITools.loadIcon("inprogress-32"),  
             IMG32_IN_UNKNOWN    = GUITools.loadIcon("unknown-32"), 
             IMG32_COMPLETED     = GUITools.loadIcon("selected-32");
+
+    
+    public static final int
+            BTN_LELEL_UP    = 1,
+            BTN_NAVTO       = 2,
+            BTN_NAVTO_ROOT  = 3,
+            BTN_SELALL      = 4,
+            BTN_SELNONE     = 5,
+            BTN_DEL         = 6, 
+            BTN_ADD         = 7;
+    
+    
 }

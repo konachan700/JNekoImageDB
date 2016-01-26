@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface XImgFSActionListener {
     void rootListGenerated(Set<Path> pList);
-    void fileListRefreshed(ArrayList<Path> pList, long execTime);
+    void fileListRefreshed(Path p, ArrayList<Path> pList, long execTime);
     void onLevelUp(Path p);
     
     void onProgress(long tid, long counter);

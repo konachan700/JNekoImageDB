@@ -1,9 +1,12 @@
 package img.gui.tabs;
 
 import datasources.DSAlbum;
+import img.XImg;
 import img.gui.dialogs.DialogAlbumSelect;
 import img.gui.PagedImageList;
 import img.gui.ToolsPanelTop;
+import static img.gui.dialogs.XImageUpload.IMG64_SELECT_NONE;
+import static img.gui.elements.GUIElements.BTN_SELNONE;
 import img.gui.elements.SEVBox;
 import java.util.ArrayList;
 import javafx.scene.Parent;
@@ -12,14 +15,16 @@ import jnekoimagesdb.GUITools;
 
 public class TabAllImages extends SEVBox  {
     public static final Image 
-            IMG48_ADD_TAGS       = GUITools.loadIcon("add-tags-48"),
+            IMG48_ADD_TAGS       = GUITools.loadIcon("add-tags-48"), 
+            IMG48_ADD_NEW        = GUITools.loadIcon("todb-48"),
             IMG48_TO_ALBUM       = GUITools.loadIcon("add-to-album-48"),
             IMG48_TO_TEMP        = GUITools.loadIcon("addtotemp-48"); 
     
     public static final int
             BTN_ADD_TAGS    = 10,
             BTN_TO_ALBUM    = 11,
-            BTN_TO_TEMP     = 12;
+            BTN_TO_TEMP     = 12,
+            BTN_ADD_NEW     = 13;
         
     public static enum FilterType {
         all, nottags, notinalbums
@@ -43,7 +48,7 @@ public class TabAllImages extends SEVBox  {
         
         panelTop = new ToolsPanelTop((index) -> {
             switch (index) {
-                case TabAddImagesToDB.BTN_SELNONE:
+                case BTN_SELNONE:
                     pil.selectNone();
                     break;
 //                case TabAddImagesToDB.BTN_DEL:
@@ -67,14 +72,18 @@ public class TabAllImages extends SEVBox  {
                 case BTN_TO_TEMP:
                     
                     break;
+                case BTN_ADD_NEW:
+                    XImg.getUploadBox().setAlbumID(pil.getAlbumID());
+                    XImg.getUploadBox().showModal();
+                    break;
             }
         });
-        panelTop.addButton(TabAddImagesToDB.IMG64_SELECT_NONE, TabAddImagesToDB.BTN_SELNONE);
+        panelTop.addButton(IMG64_SELECT_NONE, BTN_SELNONE);
         panelTop.addFixedSeparator();
-//        panelTop.addButton(TabAddImagesToDB.IMG64_DELETE, TabAddImagesToDB.BTN_DEL);
-//        panelTop.addFixedSeparator();
         panelTop.addButton(TabAllImages.IMG48_TO_ALBUM, TabAllImages.BTN_TO_ALBUM);
         panelTop.addButton(TabAllImages.IMG48_ADD_TAGS, TabAllImages.BTN_ADD_TAGS);
+        panelTop.addFixedSeparator();
+        panelTop.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
         panelTop.addSeparator();
         panelTop.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
     }

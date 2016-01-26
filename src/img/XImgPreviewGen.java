@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.scene.image.Image;
@@ -19,18 +18,18 @@ public class XImgPreviewGen {
     private static final String 
             FIXED_FIELD_PATH = "__path";
     
-    public static interface PreviewGeneratorActionListener {
-        public void OnPreviewGenerateComplete(Image im, Path path);
-    }
+//    public static interface PreviewGeneratorActionListener {
+//        public void OnPreviewGenerateComplete(Image im, Path path);
+//    }
     
-    public static interface PreviewGeneratorProgressListener {
-        public void OnStartThread(int itemsCount, int tID);
-        public void OnNewItemGenerated(int itemsCount, Path p, int tID, String quene);
-        public void OnError(int tID);
-        public void OnComplete(int tID);
-        public void OnCreated(int tID);
-        public void OnInfoUpdate(int tID, String info);
-    }
+//    public static interface PreviewGeneratorProgressListener {
+//        public void OnStartThread(int itemsCount, int tID);
+//        public void OnNewItemGenerated(int itemsCount, Path p, int tID, String quene);
+//        public void OnError(int tID);
+//        public void OnComplete(int tID);
+//        public void OnCreated(int tID);
+//        public void OnInfoUpdate(int tID, String info);
+//    }
     
     public static class FileIsNotImageException extends IOException {
         public FileIsNotImageException(String s) {
@@ -136,96 +135,96 @@ public class XImgPreviewGen {
             if (stringValues.containsKey(name)) return stringValues.get(name); else return defaultVal;
         }
     }
-    
-    private final XImg.PreviewType
-            myType;
-    
-    private final ArrayList<XImgPreviewWorker> 
-            workersTreads = new ArrayList<>();
-
-    private volatile int 
-            workerBalanceCounter = 0,
-            processorsCount = 0;
-    
-    private final PreviewGeneratorActionListener
-            actionListenerY;
-    
-    private final XImgCrypto
-            imCryptoY;
-    
-    private final String
-            dbxName, storeBasePath;
-    
-    private final File
-            storeRootDirectory;
-    
-    public void init(boolean isDisplayProgress) throws IOException {       
-        for (int i=0; i<processorsCount; i++) {
-            final XImgPreviewWorker pw = new XImgPreviewWorker(this, actionListenerY, imCryptoY, dbxName, myType);
-            pw.setProgressDisplay(isDisplayProgress);
-            workersTreads.add(pw);
-            new Thread(pw).start();
-            if (isDisplayProgress) XImg.getProgressListener().OnCreated(pw.hashCode());
-        }
-    }
-    
-    public void startJob() {
-        if (XImg.getPSizes().isPreviewSizesEmpty()) return;
-        if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
-        
-        synchronized (this){
-            this.notifyAll();
-        }
-    }
-    
-    public void killAll() {
-        workersTreads.stream().forEach((p) -> {
-            p.exit();
-        });
-        
-        synchronized (this){
-            this.notifyAll();
-        }
-    }
-    
-    public boolean isAnyWorkersActive() {
-        return workersTreads.stream().anyMatch((p) -> (p.isWaitingThread()));
-    }
-    
-    public synchronized void addFileToJob(Path p) throws FileIsNotImageException, IOException {
-        workersTreads.get(workerBalanceCounter).addElementToQueue(p);
-        workerBalanceCounter++;
-        if (workerBalanceCounter >= processorsCount) workerBalanceCounter = 0;
-    }
-
-    public XImgPreviewGen(XImgCrypto c, XImg.PreviewType pt, String dbName, PreviewGeneratorActionListener al) {
-        imCryptoY = c;
-        actionListenerY = al;
-        myType = pt;
-        
-        switch (myType) {
-            case cache:
-                dbxName = XImg.PreviewType.cache.name();
-                processorsCount = Runtime.getRuntime().availableProcessors();
-                if (processorsCount > 4) processorsCount = 4;
-                break;
-            case previews:
-                processorsCount = Runtime.getRuntime().availableProcessors();
-                if (processorsCount > 16) processorsCount = 16;
-                dbxName = XImg.PreviewType.previews.name();
-                break;
-            default:
-                dbxName = "unknown";
-        }
-        
-        storeBasePath = "." + File.separator + dbName + File.separator + "store";
-        storeRootDirectory = new File(storeBasePath);
-        storeRootDirectory.mkdirs();
-        
-        XImg.initIDB(dbxName);
-    }
-
-    public static final void L(String s) {
-        System.out.println("Time: "+System.currentTimeMillis()+"; Message: "+s);
-    }
+//    
+//    private final XImg.PreviewType
+//            myType;
+//    
+//    private final ArrayList<XImgPreviewWorker> 
+//            workersTreads = new ArrayList<>();
+//
+//    private volatile int 
+//            workerBalanceCounter = 0,
+//            processorsCount = 0;
+//    
+//    private final PreviewGeneratorActionListener
+//            actionListenerY;
+//    
+//    private final XImgCrypto
+//            imCryptoY;
+//    
+//    private final String
+//            dbxName, storeBasePath;
+//    
+//    private final File
+//            storeRootDirectory;
+//    
+//    public void init(boolean isDisplayProgress) throws IOException {       
+//        for (int i=0; i<processorsCount; i++) {
+//            final XImgPreviewWorker pw = new XImgPreviewWorker(this, actionListenerY, imCryptoY, dbxName, myType);
+//            pw.setProgressDisplay(isDisplayProgress);
+//            workersTreads.add(pw);
+//            new Thread(pw).start();
+////            if (isDisplayProgress) XImg.getProgressListener().OnCreated(pw.hashCode());
+//        }
+//    }
+//    
+//    public void startJob() {
+//        if (XImg.getPSizes().isPreviewSizesEmpty()) return;
+//        if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+//        
+//        synchronized (this){
+//            this.notifyAll();
+//        }
+//    }
+//    
+//    public void killAll() {
+//        workersTreads.stream().forEach((p) -> {
+//            p.exit();
+//        });
+//        
+//        synchronized (this){
+//            this.notifyAll();
+//        }
+//    }
+//    
+//    public boolean isAnyWorkersActive() {
+//        return workersTreads.stream().anyMatch((p) -> (p.isWaitingThread()));
+//    }
+//    
+//    public synchronized void addFileToJob(Path p) throws FileIsNotImageException, IOException {
+//        workersTreads.get(workerBalanceCounter).addElementToQueue(p);
+//        workerBalanceCounter++;
+//        if (workerBalanceCounter >= processorsCount) workerBalanceCounter = 0;
+//    }
+//
+//    public XImgPreviewGen(XImgCrypto c, XImg.PreviewType pt, String dbName, PreviewGeneratorActionListener al) {
+//        imCryptoY = c;
+//        actionListenerY = al;
+//        myType = pt;
+//        
+//        switch (myType) {
+//            case cache:
+//                dbxName = XImg.PreviewType.cache.name();
+//                processorsCount = Runtime.getRuntime().availableProcessors();
+//                if (processorsCount > 4) processorsCount = 4;
+//                break;
+//            case previews:
+//                processorsCount = Runtime.getRuntime().availableProcessors();
+//                if (processorsCount > 16) processorsCount = 16;
+//                dbxName = XImg.PreviewType.previews.name();
+//                break;
+//            default:
+//                dbxName = "unknown";
+//        }
+//        
+//        storeBasePath = "." + File.separator + dbName + File.separator + "store";
+//        storeRootDirectory = new File(storeBasePath);
+//        storeRootDirectory.mkdirs();
+//        
+//        XImg.initIDB(dbxName);
+//    }
+//
+//    public static final void L(String s) {
+//        System.out.println("Time: "+System.currentTimeMillis()+"; Message: "+s);
+//    }
 }

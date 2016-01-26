@@ -1,5 +1,6 @@
 package img.gui.dialogs;
 
+import datasources.SettingsUtil;
 import img.gui.PagedFileList;
 import img.gui.PagedFileListActionListener;
 import img.gui.ToolsPanelBottom;
@@ -10,6 +11,7 @@ import img.gui.elements.SFHBox;
 import img.gui.elements.SFLabel;
 import img.gui.elements.SFVBox;
 import img.gui.elements.SScrollPane;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javafx.geometry.Pos;
@@ -37,6 +39,9 @@ public class XImageUpload extends XDialogWindow {
             BTN_ADDALL = 6,
             BTN_ADDSEL = 7;
          
+    private volatile long
+            albumID = 0;
+    
     private final SFHBox 
             windowVBox = new SFHBox(2, 100, 9999, 100, 9999, "upload_img_root");
     
@@ -107,6 +112,18 @@ public class XImageUpload extends XDialogWindow {
                     case BTN_GOROOT:
                         filesList.navigateRoot();
                         break;
+                    case BTN_SELECT_ALL:
+                        filesList.selectAll();
+                        break;
+                    case BTN_SELECT_NONE:
+                        filesList.selectNone();
+                        break;
+                    case BTN_ADDALL:
+                        filesList.addAll();
+                        break;
+                    case BTN_ADDSEL:
+                        filesList.addSelected();
+                        break;
                 }
             });
     
@@ -160,6 +177,26 @@ public class XImageUpload extends XDialogWindow {
         filesList.init();
     }
     
+    @Override
+    public void showModal() {
+        final Path p = SettingsUtil.getPath("currentPath");
+        filesList.navigateTo(p.toAbsolutePath().toString());
+        super.showModal();
+    }
     
+    @Override
+    public void show() {
+        final Path p = SettingsUtil.getPath("currentPath");
+        filesList.navigateTo(p.toAbsolutePath().toString());
+        super.show();
+    }
     
+    public void dispose() {
+        filesList.dispose();
+    }
+    
+    public void setAlbumID(long id) {
+        albumID = id;
+        filesList.setAlbumID(albumID);
+    }
 }

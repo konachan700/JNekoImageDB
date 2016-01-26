@@ -45,6 +45,8 @@ public class HibernateUtil {
                     .addAnnotatedClass(DSImage.class)
                     .addAnnotatedClass(DSTag.class)
                     .addAnnotatedClass(DSPreviewSize.class)
+                    .addAnnotatedClass(DSStringPair.class)
+                    .addAnnotatedClass(DSLongPair.class)
                     .configure();
             
             builder = new StandardServiceRegistryBuilder().applySettings(conf.getProperties()).build();

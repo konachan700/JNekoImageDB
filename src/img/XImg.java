@@ -1,12 +1,12 @@
 package img;
 
 import datasources.HibernateUtil;
-import img.gui.dialogs.DialogMTPrevGenProgress;
+import datasources.SettingsUtil;
 import img.gui.dialogs.DialogMessageBox;
-import img.gui.tabs.TabAddImagesToDB;
+import img.gui.dialogs.XImageUpload;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -21,8 +21,8 @@ public class XImg {
         cache, previews
     }
         
-    private static Map<String, DB>
-            levelDB = new HashMap<>();
+    private static EnumMap<PreviewType, DB>
+            levelDB = new EnumMap(PreviewType.class);
     
     private static final XImgCrypto
         cryptoEx = new XImgCrypto(() -> {
@@ -33,49 +33,52 @@ public class XImg {
     private static final XImgPreviewSizes
             psizes = new XImgPreviewSizes();
     
-    private static final XImgPreviewGen.PreviewGeneratorProgressListener
-            progressInd = new XImgPreviewGen.PreviewGeneratorProgressListener() {
-                @Override
-                public void OnStartThread(int itemsCount, int tID) {
-                    progressDialog.itemProgresss(tID);
-                }
-
-                @Override
-                public void OnNewItemGenerated(int itemsCount, Path p, int tID, String quene) {
-                    progressDialog.itemSetInfo(tID, p, itemsCount, quene);
-                }
-
-                @Override
-                public void OnError(int tID) {
-
-                }
-
-                @Override
-                public void OnComplete(int tID) {
-                    progressDialog.itemComplete(tID);
-                }
-
-                @Override
-                public void OnCreated(int tID) {
-                    progressDialog.itemCreate(tID);
-                }   
-
-                @Override
-                public void OnInfoUpdate(int tID, String info) {
-                    progressDialog.itemSetInfo(tID, info); 
-                }
-            };
+    private static final XImageUpload 
+            imgUpl = new XImageUpload();
     
-    private static TabAddImagesToDB         addNewImagesTab;
-    private static DialogMTPrevGenProgress  progressDialog = new DialogMTPrevGenProgress();
+//    private static final XImgPreviewGen.PreviewGeneratorProgressListener
+//            progressInd = new XImgPreviewGen.PreviewGeneratorProgressListener() {
+//                @Override
+//                public void OnStartThread(int itemsCount, int tID) {
+//                    progressDialog.itemProgresss(tID);
+//                }
+//
+//                @Override
+//                public void OnNewItemGenerated(int itemsCount, Path p, int tID, String quene) {
+//                    progressDialog.itemSetInfo(tID, p, itemsCount, quene);
+//                }
+//
+//                @Override
+//                public void OnError(int tID) {
+//
+//                }
+//
+//                @Override
+//                public void OnComplete(int tID) {
+//                    progressDialog.itemComplete(tID);
+//                }
+//
+//                @Override
+//                public void OnCreated(int tID) {
+//                    progressDialog.itemCreate(tID);
+//                }   
+//
+//                @Override
+//                public void OnInfoUpdate(int tID, String info) {
+//                    progressDialog.itemSetInfo(tID, info); 
+//                }
+//            };
+    
+//    private static TabAddImagesToDB         addNewImagesTab;
+//    private static DialogMTPrevGenProgress  progressDialog = new DialogMTPrevGenProgress();
     private static final DialogMessageBox   messageBox = new DialogMessageBox();
     private static String                   rootDatabaseName;
 
-    public static DB getDB(String name) {
+    public static DB getDB(PreviewType name) {
         return levelDB.get(name);
     }
     
-    public static void initIDB(String dbName) {
+    public static void initIDB(PreviewType dbName) {
         final File levelDBFile = new File(rootDatabaseName + File.separator + dbName);
         Options options = new Options();
         options.createIfMissing(true);   
@@ -89,10 +92,16 @@ public class XImg {
     public static void init(String databaseName) throws Exception {
         rootDatabaseName = databaseName;
         cryptoEx.init(databaseName);
+        
+        initIDB(PreviewType.cache);
+        initIDB(PreviewType.previews);
         XImgDatastore.init(cryptoEx, databaseName); 
         HibernateUtil.hibernateInit(rootDatabaseName, "jneko", cryptoEx.getPassword());
+        SettingsUtil.init();
         psizes.refreshPreviewSizes();
-        addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
+        imgUpl.init();
+        
+//        addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
     }
     
     public static XImgPreviewSizes getPSizes() {
@@ -100,17 +109,16 @@ public class XImg {
     }
 
     public static void wipeFSCache() {
-        levelDB.get(PreviewType.cache.name()).forEach((c) -> {
-            levelDB.get(PreviewType.cache.name()).delete(c.getKey());
+        levelDB.get(PreviewType.cache).forEach((c) -> {
+            levelDB.get(PreviewType.cache).delete(c.getKey());
         });
-        addNewImagesTab.reinit();
     }
     
     public static void dispose() {
-        addNewImagesTab.dispose();
+//        addNewImagesTab.dispose();
         HibernateUtil.dispose();
-
-        final Set<String> s = levelDB.keySet();
+        imgUpl.dispose();
+        final Set<PreviewType> s = levelDB.keySet();
         s.forEach((x) -> {
              try {
                 levelDB.get(x).close();
@@ -122,19 +130,23 @@ public class XImg {
         return cryptoEx;
     }
     
-    public static TabAddImagesToDB getAddImagesTab() {
-        return addNewImagesTab;
-    }
+//    public static TabAddImagesToDB getAddImagesTab() {
+//        return addNewImagesTab;
+//    }
     
-    public static XImgPreviewGen.PreviewGeneratorProgressListener getProgressListener() {
-        return progressInd;
-    }
-    
-    public static void progressShow() {
-        progressDialog.show();
-    }
+//    public static XImgPreviewGen.PreviewGeneratorProgressListener getProgressListener() {
+//        return progressInd;
+//    }
+//    
+//    public static void progressShow() {
+//        progressDialog.show();
+//    }
     
     public static void msgbox(String text) {
         messageBox.showMsgbox(text);
+    }
+    
+    public static XImageUpload getUploadBox() {
+        return imgUpl;
     }
 }

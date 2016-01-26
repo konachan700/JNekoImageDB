@@ -6,6 +6,10 @@ import jnekoimagesdb.Lang;
 import img.gui.AlbumList;
 import img.gui.PagedImageList;
 import img.gui.ToolsPanelTop;
+import static img.gui.dialogs.XImageUpload.IMG64_DELETE;
+import static img.gui.dialogs.XImageUpload.IMG64_SELECT_NONE;
+import static img.gui.elements.GUIElements.BTN_DEL;
+import static img.gui.elements.GUIElements.BTN_SELNONE;
 import img.gui.elements.SEVBox;
 import img.gui.elements.SFLabel;
 import img.gui.elements.STabTextButton;
@@ -109,7 +113,7 @@ public class TabAlbumImageList extends SEVBox {
         
         panelTopImg = new ToolsPanelTop((index) -> {
             switch (index) {
-                case TabAddImagesToDB.BTN_SELNONE:
+                case BTN_SELNONE:
                     pil.selectNone();
                     break;
                 case BTN_TO_ALBUM:
@@ -130,7 +134,7 @@ public class TabAlbumImageList extends SEVBox {
                 case BTN_TO_TEMP:
                     
                     break;
-                case TabAddImagesToDB.BTN_DEL:
+                case BTN_DEL:
                     
                     break;
             }
@@ -138,12 +142,12 @@ public class TabAlbumImageList extends SEVBox {
         
         panelTopAlb.addButton(IMG24_LEVEL_UP, BTN_LVL_UP);
         
-        panelTopImg.addButton(TabAddImagesToDB.IMG64_SELECT_NONE, TabAddImagesToDB.BTN_SELNONE);
+        panelTopImg.addButton(IMG64_SELECT_NONE, BTN_SELNONE);
         panelTopImg.addFixedSeparator();
         panelTopImg.addButton(TabAllImages.IMG48_TO_ALBUM, TabAllImages.BTN_TO_ALBUM);
         panelTopImg.addButton(TabAllImages.IMG48_ADD_TAGS, TabAllImages.BTN_ADD_TAGS);
         panelTopImg.addFixedSeparator();
-        panelTopImg.addButton(TabAddImagesToDB.IMG64_DELETE, TabAddImagesToDB.BTN_DEL);
+        panelTopImg.addButton(IMG64_DELETE, BTN_DEL);
         panelTopImg.addSeparator();
         panelTopImg.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
         
