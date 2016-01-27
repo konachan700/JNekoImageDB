@@ -3,38 +3,34 @@ package img.gui;
 import datasources.DSAlbum;
 import datasources.DSImage;
 import datasources.HibernateUtil;
+import datasources.SettingsUtil;
 import img.gui.dialogs.DialogImageView;
 import jnekoimagesdb.Lang;
 import img.XImg;
 import img.XImgDatastore;
-import img.XImgImages;
-import img.XImgPreviewGen;
 import img.XImgPreviewGen.PreviewElement;
 import img.gui.elements.GUIElements;
 import static img.gui.elements.GUIElements.ICON_NOELEMENTS;
-import static img.gui.elements.GUIElements.ITEM_ERROR;
 import static img.gui.elements.GUIElements.ITEM_NOTHING;
 import static img.gui.elements.GUIElements.ITEM_SELECTED;
 import img.gui.elements.SScrollPane;
-import java.awt.Container;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -58,39 +54,49 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 public class PagedImageList extends SScrollPane {
+    private volatile boolean 
+            isExit = false;
+    
     private class PreviewGenerator implements Runnable {
-        private final XImgImages
-                imgConv = new XImgImages();
-
         @Override
+        @SuppressWarnings("SleepWhileInLoop")
         public void run() {
-            
+            if (XImg.getPSizes().getPrimaryPreviewSize() == null) {
+                while (XImg.getPSizes().getPrimaryPreviewSize() == null) {
+                    try {
+                        Thread.sleep(400);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
+                        return;
+                    }
+                }
+            }
             
             while (true) {
-                
-                
-//                try {
-//                    final String pathStr = XImgDatastore.getPathString(ref);
-//                    final Path path = FileSystems.getDefault().getPath(pathStr);
-//                    final byte[] fileCC = Files.readAllBytes(path);
-//                    final byte[] decryptedCC = XImg.getCrypt().Decrypt(fileCC);
-//                    
-//                    final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(decryptedCC);
-//                    final MediaTracker mediaTracker = new MediaTracker(new Container()); 
-//                    mediaTracker.addImage(image2, 0); 
-//                    mediaTracker.waitForAll();
-//                    
-//                    final byte[] preview = imgConv.getPreviewFS(image2.getGraphics());
-//                    
-//                    
-//                    
-//                } catch (IOException | InterruptedException ex1) {
-//                    Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex1);
-//                    imageContainer.setImage(ITEM_ERROR);
-//                    imageContainer.setVisible(true);
-//                }
-                
+                if (isExit) return;
+                try {
+                    final DSImage currDSI = prevGenDeque.pollLast(500, TimeUnit.MILLISECONDS);
+                    if (isExit) return;
+                    
+                    if (currDSI != null) {
+                        final Image img = XImgDatastore.createPreviewEntryFromExistDBFile(currDSI.getMD5(), XImg.PreviewType.previews);
+                        setImage(img, currDSI);
+                    }
+                } catch (InterruptedException ex) {
+                    //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
+                    return;
+                } catch (IOException ex) {
+                    Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }  
+        }
+        
+        private void setImage(Image img, DSImage dsi) {
+            Platform.runLater(() -> { 
+                elementsPool.forEach(c -> {
+                    if (c.equals(dsi)) c.setImage(img);
+                });
+            });
         }
     }
     
@@ -125,8 +131,11 @@ public class PagedImageList extends SScrollPane {
     private final ArrayList<ImageListItem>
             elementsPool = new ArrayList<>();
     
-    private final LinkedBlockingDeque<Path>
+    private final LinkedBlockingDeque<DSImage>
             prevGenDeque = new LinkedBlockingDeque<>();
+    
+    private ExecutorService 
+            previewGenService = null;
 
     protected interface ImageListItemActionListener {
         public void OnSelect(boolean isSelected, DSImage item);
@@ -166,20 +175,34 @@ public class PagedImageList extends SScrollPane {
         }
         
         public final void setNullImage() {
+            img = null;
             imageContainer.setImage(ITEM_NOTHING);
             imageContainer.setVisible(false);
             this.getChildren().clear();
             this.getStyleClass().clear();
         }
         
-        public final void setImage(byte[] ref, long id) {
+        public final void setImage(Image img) {
             if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
             imageContainer.setFitHeight(XImg.getPSizes().getPrimaryPreviewSize().getHeight());
             imageContainer.setFitWidth(XImg.getPSizes().getPrimaryPreviewSize().getWidth());
             
+            imageContainer.setImage(img);
+            imageContainer.setVisible(true);
+            
+            if (this.getChildren().isEmpty()) addAll();
+            GUITools.setStyle(this, "FileListItem", "root_pane");
+        }
+        
+        public final void setImage(DSImage dsi) {
+            if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+            imageContainer.setFitHeight(XImg.getPSizes().getPrimaryPreviewSize().getHeight());
+            imageContainer.setFitWidth(XImg.getPSizes().getPrimaryPreviewSize().getWidth());
+            
+            img = dsi; 
             PreviewElement peDB;
             try {
-                    peDB = XImgDatastore.readPreviewEntry(ref);
+                    peDB = XImgDatastore.readPreviewEntry(dsi.getMD5());
                     final Image im = peDB.getImage(XImg.getCrypt(), XImg.getPSizes().getPrimaryPreviewSize().getPrevName());
                     if (im != null) {
                         imageContainer.setImage(im);
@@ -187,17 +210,9 @@ public class PagedImageList extends SScrollPane {
                     } else 
                         throw new IOException();
             } catch (IOException | ClassNotFoundException ex) {
-                try {
-                    final String pathStr = XImgDatastore.getPathString(ref);
-                    final Path path = FileSystems.getDefault().getPath(pathStr);
-                    prevGenDeque.add(path);
-                    imageContainer.setImage(GUIElements.ITEM_LOADING);
-                    imageContainer.setVisible(true);
-                } catch (IOException ex1) {
-                    Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex1);
-                    imageContainer.setImage(ITEM_ERROR);
-                    imageContainer.setVisible(true);
-                }
+                prevGenDeque.add(dsi);
+                imageContainer.setImage(GUIElements.ITEM_LOADING);
+                imageContainer.setVisible(true);
             }
                 
             if (this.getChildren().isEmpty()) addAll();
@@ -259,6 +274,27 @@ public class PagedImageList extends SScrollPane {
             imageVBox.relocate(0, 0);
             selectedIcon.relocate(10, 10);
         }
+        
+        public boolean equals(DSImage o) {
+            if ((o == null) || (img == null)) return false;
+            return Arrays.equals(((DSImage) o).getMD5(), img.getMD5());
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if ((o == null) || (img == null)) return false;
+            if (o instanceof DSImage) {
+                return Arrays.equals(((DSImage) o).getMD5(), img.getMD5());
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 41 * hash + Objects.hashCode(this.img.getMD5());
+            return hash;
+        }
     }
     
     private final DialogImageView 
@@ -309,7 +345,7 @@ public class PagedImageList extends SScrollPane {
         this.setFitToHeight(true);
         this.setFitToWidth(true);
         this.setContent(container);
-        
+         
         GUITools.setMaxSize(container, 9999, 9999);
         GUITools.setStyle(container, "PagedImageList", "root_pane");
         
@@ -470,7 +506,7 @@ public class PagedImageList extends SScrollPane {
     public void refresh() {
         isResize = true;
         forceReload = true;
-        container.getChildren().clear();
+        try { container.getChildren().clear(); } catch (java.lang.IllegalArgumentException e) {}
     }
     
     public List<DSImage> getImgList(long albumID, int offset, int count) {
@@ -517,7 +553,7 @@ public class PagedImageList extends SScrollPane {
         int counter = 0;
         if (list != null) {
             for (DSImage dsi : list) {
-                    elementsPool.get(counter).setImage(dsi.getMD5(), dsi.getImageID());
+                    elementsPool.get(counter).setImage(dsi);
                     elementsPool.get(counter).setSelected(selectedElementsPool.contains(elementsPool.get(counter).get()));
                     elementsPool.get(counter).myNumber = counter;
                     elementsPool.get(counter).setSizes(itemSizeX, itemSizeY);
@@ -546,6 +582,18 @@ public class PagedImageList extends SScrollPane {
     }
     
     public void initDB() {
+        if (hibSession != null) return;
+        
+        final int threadsCount = SettingsUtil.getInt("mainPreviewThreadsCount", 4);
         hibSession = HibernateUtil.getCurrentSession();
+        previewGenService = Executors.newFixedThreadPool(threadsCount);
+        for (int i=0; i<threadsCount; i++) {
+           previewGenService.submit(new PreviewGenerator());
+        }
+    }
+    
+    public void dispose() {
+        isExit = true;
+        previewGenService.shutdownNow();
     }
 }

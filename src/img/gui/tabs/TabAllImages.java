@@ -33,8 +33,8 @@ public class TabAllImages extends SEVBox  {
     private boolean 
             isNotInit = true;
     
-    private final PagedImageList 
-            pil = new PagedImageList();
+    private final PagedImageList
+            pil = XImg.getPagedImageList();
     
     private final ToolsPanelTop 
             panelTop;
@@ -90,6 +90,7 @@ public class TabAllImages extends SEVBox  {
     
     public void setAlbumID(long id) {
         pil.setAlbumID(id);
+        if (!this.getChildren().contains(pil)) this.getChildren().add(pil);
     }
     
     public void refresh() {
@@ -98,7 +99,6 @@ public class TabAllImages extends SEVBox  {
     
     public void regenerate() {
         if (isNotInit) {
-            pil.initDB();
             dis.dbInit();
             isNotInit = false;
         }

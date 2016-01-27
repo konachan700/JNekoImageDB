@@ -2,13 +2,14 @@ package img;
 
 import datasources.HibernateUtil;
 import datasources.SettingsUtil;
+import img.gui.PagedImageList;
 import img.gui.dialogs.DialogMessageBox;
 import img.gui.dialogs.XImageUpload;
+import img.gui.tabs.TabAlbumImageList;
+import img.gui.tabs.TabAllImages;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,44 +36,21 @@ public class XImg {
     
     private static final XImageUpload 
             imgUpl = new XImageUpload();
+
+    private static final PagedImageList 
+            pagedImageList = new PagedImageList();
     
-//    private static final XImgPreviewGen.PreviewGeneratorProgressListener
-//            progressInd = new XImgPreviewGen.PreviewGeneratorProgressListener() {
-//                @Override
-//                public void OnStartThread(int itemsCount, int tID) {
-//                    progressDialog.itemProgresss(tID);
-//                }
-//
-//                @Override
-//                public void OnNewItemGenerated(int itemsCount, Path p, int tID, String quene) {
-//                    progressDialog.itemSetInfo(tID, p, itemsCount, quene);
-//                }
-//
-//                @Override
-//                public void OnError(int tID) {
-//
-//                }
-//
-//                @Override
-//                public void OnComplete(int tID) {
-//                    progressDialog.itemComplete(tID);
-//                }
-//
-//                @Override
-//                public void OnCreated(int tID) {
-//                    progressDialog.itemCreate(tID);
-//                }   
-//
-//                @Override
-//                public void OnInfoUpdate(int tID, String info) {
-//                    progressDialog.itemSetInfo(tID, info); 
-//                }
-//            };
+    private static final TabAllImages
+            tabAllImages = new TabAllImages();
     
-//    private static TabAddImagesToDB         addNewImagesTab;
-//    private static DialogMTPrevGenProgress  progressDialog = new DialogMTPrevGenProgress();
-    private static final DialogMessageBox   messageBox = new DialogMessageBox();
-    private static String                   rootDatabaseName;
+    private static final TabAlbumImageList
+            tabAlbumImageList = new TabAlbumImageList();
+    
+    private static final DialogMessageBox   
+            messageBox = new DialogMessageBox();
+    
+    private static String                   
+            rootDatabaseName;
 
     public static DB getDB(PreviewType name) {
         return levelDB.get(name);
@@ -92,7 +70,6 @@ public class XImg {
     public static void init(String databaseName) throws Exception {
         rootDatabaseName = databaseName;
         cryptoEx.init(databaseName);
-        
         initIDB(PreviewType.cache);
         initIDB(PreviewType.previews);
         XImgDatastore.init(cryptoEx, databaseName); 
@@ -100,8 +77,7 @@ public class XImg {
         SettingsUtil.init();
         psizes.refreshPreviewSizes();
         imgUpl.init();
-        
-//        addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
+        pagedImageList.initDB();
     }
     
     public static XImgPreviewSizes getPSizes() {
@@ -115,9 +91,9 @@ public class XImg {
     }
     
     public static void dispose() {
-//        addNewImagesTab.dispose();
         HibernateUtil.dispose();
         imgUpl.dispose();
+        pagedImageList.dispose();
         final Set<PreviewType> s = levelDB.keySet();
         s.forEach((x) -> {
              try {
@@ -130,18 +106,18 @@ public class XImg {
         return cryptoEx;
     }
     
-//    public static TabAddImagesToDB getAddImagesTab() {
-//        return addNewImagesTab;
-//    }
+    public static PagedImageList getPagedImageList() {
+        return pagedImageList;
+    }
     
-//    public static XImgPreviewGen.PreviewGeneratorProgressListener getProgressListener() {
-//        return progressInd;
-//    }
-//    
-//    public static void progressShow() {
-//        progressDialog.show();
-//    }
+    public static TabAllImages getTabAllImages() {
+        return tabAllImages;
+    }
     
+    public static TabAlbumImageList getTabAlbumImageList() {
+        return tabAlbumImageList;
+    }
+
     public static void msgbox(String text) {
         messageBox.showMsgbox(text);
     }

@@ -1,6 +1,7 @@
 package img.gui.tabs;
 
 import datasources.DSAlbum;
+import img.XImg;
 import img.gui.dialogs.DialogAlbumSelect;
 import jnekoimagesdb.Lang;
 import img.gui.AlbumList;
@@ -42,14 +43,14 @@ public class TabAlbumImageList extends SEVBox {
     private final STabTextButton 
             album, images;
 
-    private final Pane
-            topToolbar, bottomPanel;
+    private Pane
+            topToolbar = null, bottomPanel = null;
     
     private final HBox 
             header = new HBox(4);
     
-    private final PagedImageList 
-            pil = new PagedImageList();
+    private final PagedImageList
+            pil = XImg.getPagedImageList();
 
     private final SFLabel
             bottomPanelForAlbums = new SFLabel("Статистика альбома", 128, 9999, 24, 24, "bottomPanelForAlbums", "TabAlbumImageList"),
@@ -81,12 +82,9 @@ public class TabAlbumImageList extends SEVBox {
             });
     
     @SuppressWarnings("LeakingThisInConstructor")
-    public TabAlbumImageList(Pane _topToolbar, Pane _bottomToolbar) {
+    public TabAlbumImageList() {
         super(0, 9999, 9999);
-                
-        bottomPanel = _bottomToolbar;
-        topToolbar = _topToolbar;
-        
+
         GUITools.setStyle(header, "TabAlbumImageList", "header");
         header.setMaxSize(9999, HEADER_VSIZE);
         header.setPrefSize(9999, HEADER_VSIZE);
@@ -165,6 +163,11 @@ public class TabAlbumImageList extends SEVBox {
         this.getChildren().addAll(header, myAL);
     }
     
+    public void setPanels(Pane _topToolbar, Pane _bottomPanel) {
+        topToolbar = _topToolbar;
+        bottomPanel = _bottomPanel;
+    }
+    
     private void _initImgGUI() {
         if (currentAlbumID <= 0) return;
         
@@ -176,7 +179,6 @@ public class TabAlbumImageList extends SEVBox {
     
     public void initDB() {
         myAL.initDB();
-        pil.initDB();
     }
     
     public void refresh() {

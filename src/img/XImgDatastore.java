@@ -1,10 +1,15 @@
 package img;
 
+import java.awt.Container;
+import java.awt.MediaTracker;
+import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
@@ -19,6 +24,9 @@ public class XImgDatastore {
     public static final int
             FILE_PART_SIZE_FOR_CHECKING_MD5 = 1024 * 32,
             MINIMUM_IMAGE_SIZE = 1024;
+    
+    private static final XImgImages
+                imgConv = new XImgImages();
     
     private static XImgCrypto
             dsCrypto;
@@ -140,6 +148,48 @@ public class XImgDatastore {
         } catch (IOException ex) {
             throw new IOException("cannot calculate MD5 for file ["+path+"], " + ex.getMessage());
         }
+    }
+    
+    public static Image createPreviewEntryFromExistDBFile(byte[] md5b, XImg.PreviewType type) throws IOException, InterruptedException {
+        if (XImg.getPSizes().getPrimaryPreviewSize() == null) {
+            throw new IOException("Preview default size is not set.");
+        }
+        
+        final String filePath = getPathString(md5b);
+        final Path path = FileSystems.getDefault().getPath(filePath);
+        final byte[] fileCC = Files.readAllBytes(path);
+        final byte[] decryptedCC = XImg.getCrypt().Decrypt(fileCC);
+        
+        final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(decryptedCC);
+        final MediaTracker mediaTracker = new MediaTracker(new Container()); 
+        mediaTracker.addImage(image2, 0); 
+        mediaTracker.waitForAll();
+        
+        final byte[] image = imgConv.getPreviewFS(image2);
+        imgConv.setPreviewSize((int) XImg.getPSizes().getPrimaryPreviewSize().getWidth(), (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight(), XImg.getPSizes().getPrimaryPreviewSize().isSquared());
+        
+        final byte previewCrypted[] = XImg.getCrypt().Crypt(image);
+        final XImgPreviewGen.PreviewElement peDB = new XImgPreviewGen.PreviewElement();
+        peDB.setMD5(md5b);
+        peDB.setCryptedImageBytes(previewCrypted, XImg.getPSizes().getPrimaryPreviewSize().getPrevName());
+
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(peDB);
+        oos.flush();
+        
+        final byte[] crypted = XImg.getCrypt().Crypt(baos.toByteArray());
+        if (crypted == null) throw new IOException("Crypt() return null;");
+        
+        final DB db = XImg.getDB(type);
+        synchronized (db) {
+            db.put(md5b, crypted);
+        }
+        
+        oos.close();
+        baos.close();
+        
+        return new Image(new ByteArrayInputStream(image));
     }
     
     public static XImgPreviewGen.PreviewElement readPreviewEntry(byte[] md5b) throws XImgPreviewGen.RecordNotFoundException, IOException, ClassNotFoundException {

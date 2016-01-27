@@ -63,13 +63,7 @@ public class JNekoImageDB extends Application {
     
     private final TextArea
             taLOG = new TextArea();
-    
-    private final TabAlbumImageList
-            tabAlbumImageList = new TabAlbumImageList(toolbox, paginator_1);
-    
-    private final TabAllImages
-            tabAllImages = new TabAllImages();
-    
+
     private final TabSettings
             tabSettings = new TabSettings();
 
@@ -105,16 +99,11 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M01-01")) showAllImages(PagedImageList.IMAGES_ALL);
                     if (l.getID().contentEquals("M01-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
                     if (l.getID().contentEquals("M01-06")) showAllImages(PagedImageList.IMAGES_NOT_IN_ALBUM);
-                    
-//                    if (l.getID().contentEquals("M01-05")) showFileDialog();
                     if (l.getID().contentEquals("M01-04")) showAlbCats();
                     
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     if (l.getID().contentEquals("M03-04")) {
-                        
-                        
-//                        XImg.getUploadBox().show();
                         
                     }
                 }
@@ -127,12 +116,12 @@ public class JNekoImageDB extends Application {
     }
     
     private void showAllImages(long aID) {
-        basesp.getChildren().add(tabAllImages);
-        toolbox.getChildren().add(tabAllImages.getPanel());
-        paginator_1.getChildren().add(tabAllImages.getPaginator());
-        tabAllImages.setAlbumID(aID);
-        tabAllImages.regenerate();
-        tabAllImages.refresh();
+        basesp.getChildren().add(XImg.getTabAllImages());
+        toolbox.getChildren().add(XImg.getTabAllImages().getPanel());
+        paginator_1.getChildren().add(XImg.getTabAllImages().getPaginator());
+        XImg.getTabAllImages().setAlbumID(aID);
+        XImg.getTabAllImages().regenerate();
+        XImg.getTabAllImages().refresh();
     }
     
     private void showSettings() {
@@ -140,21 +129,9 @@ public class JNekoImageDB extends Application {
         tabSettings.refresh();
     }
 
-//    private void showFileDialog() {
-//        if ((!XImg.getPSizes().isPreviewSizesEmpty()) && (XImg.getPSizes().getPrimaryPreviewSize() != null)) {
-//            basesp.getChildren().add(XImg.getAddImagesTab().getList());
-//            toolbox.getChildren().add(XImg.getAddImagesTab().getTopPanel());
-//            paginator_1.getChildren().add(XImg.getAddImagesTab().getBottomPanel());
-//        } else {
-//            final SFLabel s = new SFLabel("Настройки превью не найдены. Пожалуйста, создайте их.", 128, 9999, 24, 24, "error_no_previews", "JNekoImageDB");
-//            paginator_1.getChildren().add(s);
-//            basesp.getChildren().add(new ImageView(IMG128_ERROR));
-//        }
-//    }
-    
     private void showAlbCats() {
-        basesp.getChildren().add(tabAlbumImageList);
-        tabAlbumImageList.refresh();
+        basesp.getChildren().add(XImg.getTabAlbumImageList()); //XImg
+        XImg.getTabAlbumImageList().refresh();
     }
     
     private void showLog() {
@@ -167,10 +144,7 @@ public class JNekoImageDB extends Application {
         splash.show();
         
         try {
-            
             XImg.init(databaseName);
-//            cryptoEx.init(databaseName);
-//            addNewImagesTab = new TabAddImagesToDB(cryptoEx, databaseName);
         } catch (Exception ex) {
             Logger.getLogger(JNekoImageDB.class.getName()).log(Level.SEVERE, null, ex);
             Platform.exit(); 
@@ -183,7 +157,8 @@ public class JNekoImageDB extends Application {
         final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
         final ImageView imgLogoV = new ImageView(logoImage);
 
-        tabAlbumImageList.initDB();
+        XImg.getTabAlbumImageList().setPanels(toolbox, paginator_1);
+        XImg.getTabAlbumImageList().initDB();
 
         taLOG.setMaxSize(9999, 9999);
         taLOG.setPrefSize(9999, 9999);
