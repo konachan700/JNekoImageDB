@@ -233,7 +233,6 @@ public class JNekoImageDB extends Application {
 //        ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
         
         ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
-        //ml.getMenu().addItem("M03", "M03-01", Lang.JNekoImageDB_menu_settings_album_roots);
         ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
         ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
         ml.getMenu().addItem("M03", "M03-04", "For test");

@@ -13,6 +13,11 @@ public class SEVBox extends VBox {
         super(0);
         init(9999, 9999, style);
     }
+    
+    public SEVBox(int sz, String style) {
+        super(sz);
+        init(9999, 9999, style);
+    }
 
     public SEVBox(int sz) {
         super(sz);

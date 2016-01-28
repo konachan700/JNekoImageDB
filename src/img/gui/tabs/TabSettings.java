@@ -1,11 +1,12 @@
 package img.gui.tabs;
 
 import datasources.SettingsUtil;
+import img.XImg;
 import img.gui.PreviewTypesList;
 import img.gui.elements.SEVBox;
-import img.gui.elements.SFHBox;
 import img.gui.elements.SFLabel;
 import img.gui.elements.SNumericTextField;
+import img.gui.elements.SPathBox;
 import img.gui.elements.SScrollPane;
 import img.gui.elements.STabTextButton;
 import javafx.geometry.HPos;
@@ -29,6 +30,10 @@ public class TabSettings extends SEVBox   {
     private final SNumericTextField
             previewFSCacheThreadsCount = new SNumericTextField(0, 100, 32, null), 
             mainPreviewGenThreadsCount = new SNumericTextField(0, 100, 32, null);
+    
+    private final SPathBox
+            pathBrowserExchange = new SPathBox(-1, 32),
+            pathAlbumsExchange = new SPathBox(-1, 32);
     
     public TabSettings() {
         super(0);
@@ -61,8 +66,17 @@ public class TabSettings extends SEVBox   {
         gpMtOptions.add(previewFSCacheThreadsCount, 1, 1);
         gpMtOptions.add(
                 new STabTextButton("Сохранить", 0 , 100, 32, (x, y) -> {
-                
-                
+                    final int 
+                            mainTC = mainPreviewGenThreadsCount.getIntValue(),
+                            prevTC = previewFSCacheThreadsCount.getIntValue();
+                    if ((mainTC > 0) && (prevTC > 0)) {
+                        SettingsUtil.setLong("mainPreviewGenThreadsCount.value", mainTC);
+                        SettingsUtil.setLong("previewFSCacheThreadsCount.value", prevTC);
+                        XImg.msgbox("Настройки вступят в силу только после перезапуска программы!");
+                    } else {
+                        XImg.msgbox("Данные введены неправильно!");
+                    }
+                    
                 }), 1, 2);
         
         mtOptions.getChildren().addAll(
@@ -73,10 +87,29 @@ public class TabSettings extends SEVBox   {
                 gpMtOptions
         );
         
+        final SEVBox folderOptions = new SEVBox(2, "svbox_sett_container_blue");
+        folderOptions.setAlignment(Pos.CENTER_RIGHT);
+        folderOptions.getChildren().addAll(
+                new SFLabel("Настройка папок обмена", 64, 9999, 20, 20, "label_darkblue", "TypesListItem"),
+                new SFLabel("Папка обмена для браузера", 64, 9999, 24, 24, "label_darkblue_small", "TypesListItem"),
+                pathBrowserExchange,
+                new SFLabel("Папка обмена для выгрузки альбомов", 64, 9999, 24, 24, "label_darkblue_small", "TypesListItem"),
+                pathAlbumsExchange,
+                new STabTextButton("Сохранить", 0 , 100, 32, (x, y) -> {
+                    if (pathBrowserExchange.isNull() || pathAlbumsExchange.isNull()) return;
+                    SettingsUtil.setPath("pathBrowserExchange", pathBrowserExchange.getValue());
+                    SettingsUtil.setPath("pathAlbumsExchange", pathAlbumsExchange.getValue());
+                })
+        );
+        
+        
+        
         scrollableContainer.getChildren().addAll(
                 prevTypes,   
                 GUITools.getHSeparator(4),
-                mtOptions
+                mtOptions,
+                GUITools.getHSeparator(4),
+                folderOptions
         );
         
         this.getChildren().addAll(
@@ -94,8 +127,10 @@ public class TabSettings extends SEVBox   {
         mainPreviewGenThreadsCount.max = (processorsCount <= 1) ? 2 : processorsCount;
         previewFSCacheThreadsCount.min = 1;
         mainPreviewGenThreadsCount.min = 1;
-        mainPreviewGenThreadsCount.setText("" + SettingsUtil.getLong("previewFSCacheThreadsCount.value", defaultThreadCount));
+        mainPreviewGenThreadsCount.setText("" + SettingsUtil.getLong("mainPreviewGenThreadsCount.value", defaultThreadCount));
         previewFSCacheThreadsCount.setText("" + SettingsUtil.getLong("previewFSCacheThreadsCount.value", defaultThreadCount));
+        pathBrowserExchange.setValue(SettingsUtil.getPath("pathBrowserExchange"));
+        pathAlbumsExchange.setValue(SettingsUtil.getPath("pathAlbumsExchange"));
     }
     
 }

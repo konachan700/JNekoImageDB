@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,6 +56,9 @@ public class PagedImageList extends SScrollPane {
     private volatile boolean 
             isExit = false;
     
+    private volatile int
+            busyCounter = 0;
+    
     private class PreviewGenerator implements Runnable {
         @Override
         @SuppressWarnings("SleepWhileInLoop")
@@ -81,11 +83,22 @@ public class PagedImageList extends SScrollPane {
                     if (currDSI != null) {
                         final Image img = XImgDatastore.createPreviewEntryFromExistDBFile(currDSI.getMD5(), XImg.PreviewType.previews);
                         setImage(img, currDSI);
+                    } else {
+                        final DSImage upDSI = uploadDeque.pollLast();
+                        if (upDSI != null) {
+                            try {
+                                XImgDatastore.copyToExchangeFolderFromDB(SettingsUtil.getPath("pathBrowserExchange"), upDSI);
+                            } catch (IOException ex) {
+                                Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }  
                     }
                 } catch (InterruptedException ex) {
+                    busyCounter--;
                     //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
                     return;
                 } catch (IOException ex) {
+                    busyCounter--;
                     Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }  
@@ -94,7 +107,10 @@ public class PagedImageList extends SScrollPane {
         private void setImage(Image img, DSImage dsi) {
             Platform.runLater(() -> { 
                 elementsPool.forEach(c -> {
-                    if (c.equals(dsi)) c.setImage(img);
+                    if (c.equals(dsi)) {
+                        busyCounter--;
+                        c.setImage(img);
+                    }
                 });
             });
         }
@@ -132,6 +148,7 @@ public class PagedImageList extends SScrollPane {
             elementsPool = new ArrayList<>();
     
     private final LinkedBlockingDeque<DSImage>
+            uploadDeque = new LinkedBlockingDeque<>(),
             prevGenDeque = new LinkedBlockingDeque<>();
     
     private ExecutorService 
@@ -211,6 +228,7 @@ public class PagedImageList extends SScrollPane {
                         throw new IOException();
             } catch (IOException | ClassNotFoundException ex) {
                 prevGenDeque.add(dsi);
+                busyCounter++;
                 imageContainer.setImage(GUIElements.ITEM_LOADING);
                 imageContainer.setVisible(true);
             }
@@ -278,22 +296,6 @@ public class PagedImageList extends SScrollPane {
         public boolean equals(DSImage o) {
             if ((o == null) || (img == null)) return false;
             return Arrays.equals(((DSImage) o).getMD5(), img.getMD5());
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if ((o == null) || (img == null)) return false;
-            if (o instanceof DSImage) {
-                return Arrays.equals(((DSImage) o).getMD5(), img.getMD5());
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 41 * hash + Objects.hashCode(this.img.getMD5());
-            return hash;
         }
     }
     
@@ -408,6 +410,7 @@ public class PagedImageList extends SScrollPane {
         });
         
         this.setOnScroll((ScrollEvent event) -> {
+            if (busyCounter != 0) return;
             if (isResize || forceReload) return;
             
             int index = pag.getCurrentPageIndex();
@@ -419,6 +422,7 @@ public class PagedImageList extends SScrollPane {
         });
         
         pag.currentPageIndexProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            if (busyCounter != 0) return;
             if (isResize || forceReload) return;
             _calcPaginator();
         });
@@ -473,6 +477,7 @@ public class PagedImageList extends SScrollPane {
 
     public void setAlbumID(long albumID) {
         currentAlbumID = albumID;
+        selectedElementsPool.clear();
     }
     
     public long getTotalImagesCount() {
@@ -489,6 +494,9 @@ public class PagedImageList extends SScrollPane {
             case IMAGES_NOT_IN_ALBUM: 
                 _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.albums IS EMPTY").uniqueResult();
                 return _itemTotalRecordsCount.longValue();
+            case IMAGES_NOTAGGED:   
+                _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.tags IS EMPTY").uniqueResult();
+                return _itemTotalRecordsCount.longValue();
             default:
                 _itemTotalRecordsCount = (Number) hibSession
                         .createCriteria(DSImage.class)
@@ -504,9 +512,9 @@ public class PagedImageList extends SScrollPane {
     }
     
     public void refresh() {
+        try { container.getChildren().clear(); } catch (java.lang.IllegalArgumentException e) {}
         isResize = true;
         forceReload = true;
-        try { container.getChildren().clear(); } catch (java.lang.IllegalArgumentException e) {}
     }
     
     public List<DSImage> getImgList(long albumID, int offset, int count) {
@@ -521,6 +529,12 @@ public class PagedImageList extends SScrollPane {
                 break;
             case IMAGES_NOT_IN_ALBUM: 
                 list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.albums IS EMPTY")
+                        .setFirstResult(offset)
+                        .setMaxResults(count)
+                        .list();
+                break;
+            case IMAGES_NOTAGGED: 
+                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.tags IS EMPTY")
                         .setFirstResult(offset)
                         .setMaxResults(count)
                         .list();
@@ -579,6 +593,12 @@ public class PagedImageList extends SScrollPane {
         
     public Parent getPaginator() {
         return pag;
+    }
+    
+    public void uploadSelected() {
+        uploadDeque.addAll(selectedElementsPool);
+        selectedElementsPool.clear();
+        regenerateView(currentAlbumID);
     }
     
     public void initDB() {

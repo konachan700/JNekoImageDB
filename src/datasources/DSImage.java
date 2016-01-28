@@ -1,6 +1,7 @@
 package datasources;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,12 +22,15 @@ public class DSImage implements Serializable {
     
     @Column(name="xmd5", unique = true, nullable = false, length = 16)
     private byte[] MD5;
+    
+    @Column(name="ximagename", unique = false, nullable = false, length = 2048)
+    private String imageFileName = "";
 
     @ManyToMany(mappedBy = "images", fetch = FetchType.LAZY)
-    private Set<DSAlbum> albums;
+    private Set<DSAlbum> albums = new HashSet<>();
     
     @ManyToMany(mappedBy = "images", fetch = FetchType.LAZY)
-    private Set<DSTag> tags;
+    private Set<DSTag> tags = new HashSet<>();
 
     protected DSImage() {}
     
@@ -86,5 +90,13 @@ public class DSImage implements Serializable {
 
     public void setTags(Set<DSTag> tags) {
         this.tags = tags;
+    }
+
+    public String getImageFileName() {
+        return imageFileName;
+    }
+
+    public void setImageFileName(String imageFileName) {
+        this.imageFileName = imageFileName;
     }
 }

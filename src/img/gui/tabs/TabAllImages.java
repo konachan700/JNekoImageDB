@@ -70,7 +70,7 @@ public class TabAllImages extends SEVBox  {
                     
                     break;
                 case BTN_TO_TEMP:
-                    
+                    pil.uploadSelected();
                     break;
                 case BTN_ADD_NEW:
                     XImg.getUploadBox().setAlbumID(pil.getAlbumID());

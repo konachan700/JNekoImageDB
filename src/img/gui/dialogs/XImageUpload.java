@@ -3,7 +3,6 @@ package img.gui.dialogs;
 import datasources.SettingsUtil;
 import img.gui.PagedFileList;
 import img.gui.PagedFileListActionListener;
-import img.gui.ToolsPanelBottom;
 import img.gui.ToolsPanelTop;
 import img.gui.elements.EThreadStatItem;
 import img.gui.elements.SEVBox;
@@ -14,6 +13,7 @@ import img.gui.elements.SScrollPane;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.ScrollPane;
@@ -68,10 +68,10 @@ public class XImageUpload extends XDialogWindow {
                 }
 
                 @Override
-                public void onThreadPause(long tid, boolean pause) {
+                public void onThreadPause(long tid, boolean pause, long counter, Path px) {
                     final EThreadStatItem t = thStat.get(tid);
                     if (t != null) {
-                        if (pause) t.setCompleted(); else t.setInProgress(0);
+                        if (pause) t.setCompleted(); else t.setInProgress((int) counter);
                     }
                 }
 
@@ -140,15 +140,23 @@ public class XImageUpload extends XDialogWindow {
         sp.setContent(statBox);
         
         pag.setCurrentPageIndex(0);
-        pag.setPageCount(1);
+        pag.setPageCount(1); 
+        pag.setMaxPageIndicatorCount(150);
+        pag.currentPageIndexProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            if (oldValue.intValue() == newValue.intValue()) return;
+            if (!filesList.isBusy()) {
+                filesList.pageSet(newValue.intValue());
+                //System.out.println("PAG VALUE="+newValue.intValue());
+            }
+        });
         
         panelTop.addButton(IMG64_LEVELUP, BTN_LEVELUP);
         panelTop.addButton(IMG64_GOROOT, BTN_GOROOT);
         panelTop.addFixedSeparator();
         panelTop.addButton(IMG64_SELECT_ALL, BTN_SELECT_ALL);
         panelTop.addButton(IMG64_SELECT_NONE, BTN_SELECT_NONE);
-        panelTop.addFixedSeparator();
-        panelTop.addButton(IMG64_DELETE, BTN_DELETE);
+//        panelTop.addFixedSeparator();
+//        panelTop.addButton(IMG64_DELETE, BTN_DELETE);
         panelTop.addFixedSeparator();
         panelTop.addButton(IMG64_ADDSEL, BTN_ADDSEL);
         panelTop.addButton(IMG64_ADDALL, BTN_ADDALL);       

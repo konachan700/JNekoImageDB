@@ -1,6 +1,7 @@
 package datasources;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,7 +38,7 @@ public class DSAlbum implements Serializable {
         inverseJoinColumns=
             @JoinColumn(name="imageID")
         )
-    private Set<DSImage> images;
+    private Set<DSImage> images = new HashSet<>();
 
     protected DSAlbum() {}
     

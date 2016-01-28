@@ -14,9 +14,11 @@ import static img.gui.elements.GUIElements.BTN_SELNONE;
 import img.gui.elements.SEVBox;
 import img.gui.elements.SFLabel;
 import img.gui.elements.STabTextButton;
+import static img.gui.tabs.TabAllImages.BTN_ADD_NEW;
 import static img.gui.tabs.TabAllImages.BTN_ADD_TAGS;
 import static img.gui.tabs.TabAllImages.BTN_TO_ALBUM;
 import static img.gui.tabs.TabAllImages.BTN_TO_TEMP;
+import static img.gui.tabs.TabAllImages.IMG48_ADD_NEW;
 import java.util.ArrayList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -106,6 +108,10 @@ public class TabAlbumImageList extends SEVBox {
                 case BTN_LVL_UP:
                     myAL.levelUp();
                     break;
+                case BTN_ADD_NEW:
+                    XImg.getUploadBox().setAlbumID(currentAlbumID);
+                    XImg.getUploadBox().showModal();
+                    break;
             }
         });
         
@@ -130,15 +136,21 @@ public class TabAlbumImageList extends SEVBox {
                     
                     break;
                 case BTN_TO_TEMP:
-                    
+                    pil.uploadSelected();
                     break;
                 case BTN_DEL:
                     
+                    break;
+                case BTN_ADD_NEW:
+                    XImg.getUploadBox().setAlbumID(currentAlbumID);
+                    XImg.getUploadBox().showModal();
                     break;
             }
         });
         
         panelTopAlb.addButton(IMG24_LEVEL_UP, BTN_LVL_UP);
+        panelTopAlb.addFixedSeparator();
+        panelTopAlb.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
         
         panelTopImg.addButton(IMG64_SELECT_NONE, BTN_SELNONE);
         panelTopImg.addFixedSeparator();
@@ -146,6 +158,8 @@ public class TabAlbumImageList extends SEVBox {
         panelTopImg.addButton(TabAllImages.IMG48_ADD_TAGS, TabAllImages.BTN_ADD_TAGS);
         panelTopImg.addFixedSeparator();
         panelTopImg.addButton(IMG64_DELETE, BTN_DEL);
+        panelTopImg.addFixedSeparator();
+        panelTopImg.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
         panelTopImg.addSeparator();
         panelTopImg.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
         

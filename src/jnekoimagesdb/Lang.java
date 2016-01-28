@@ -45,7 +45,7 @@ public class Lang {
             JNekoImageDB_menu_main_all_images_wo_groups                         = "Все картинки не в альбомах",
             JNekoImageDB_menu_main_all_images_wo_tags                           = "Все картинки без тегов",
             JNekoImageDB_menu_main_tagcloud                                     = "Облако тегов",
-            JNekoImageDB_menu_main_fav_tags                                     = "Облако избранных тегов",
+            JNekoImageDB_menu_main_fav_tags                                     = "Поиск по тегам",
             JNekoImageDB_menu_main_add_images                                   = "Добавить картинки",
             JNekoImageDB_menu_settings_album_roots                              = "Управление альбомами",
             JNekoImageDB_menu_settings_main                                     = "Настройки", 

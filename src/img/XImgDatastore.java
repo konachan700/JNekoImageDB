@@ -1,5 +1,6 @@
 package img;
 
+import datasources.DSImage;
 import java.awt.Container;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
@@ -15,6 +16,10 @@ import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import javax.xml.bind.DatatypeConverter;
 import jnekoimagesdb.Lang;
@@ -148,6 +153,27 @@ public class XImgDatastore {
         } catch (IOException ex) {
             throw new IOException("cannot calculate MD5 for file ["+path+"], " + ex.getMessage());
         }
+    }
+    
+    public static void copyToExchangeFolderFromDB(Path folder, ArrayList<DSImage> img) throws IOException {
+        if (XImg.getPSizes().getPrimaryPreviewSize() == null) 
+            throw new IOException("Preview default size is not set.");
+        img.forEach(c -> {
+            try {
+                copyToExchangeFolderFromDB(folder, c);
+            } catch (IOException ex) {
+                Logger.getLogger(XImgDatastore.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+    
+    public static void copyToExchangeFolderFromDB(Path folder, DSImage img) throws IOException {
+        if (Files.isDirectory(folder) && Files.isWritable(folder)) {
+            final byte[] file = getFile(img.getMD5());
+            final Path currFile = FileSystems.getDefault().getPath(folder.toString(), img.getImageFileName());
+            Files.write(currFile, file); 
+        } else 
+            throw new IOException("Path not foung or not writable. ["+folder.toString()+"]");
     }
     
     public static Image createPreviewEntryFromExistDBFile(byte[] md5b, XImg.PreviewType type) throws IOException, InterruptedException {

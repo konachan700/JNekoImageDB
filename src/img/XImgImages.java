@@ -25,6 +25,9 @@ public class XImgImages {
             previewHeight = 120,
             previewWidth = 120;
     
+    private volatile Scalr.Method
+            quality = Scalr.Method.SPEED;
+    
     private boolean
             isSquaredFSPreview = false;
     
@@ -108,7 +111,7 @@ public class XImgImages {
                         in_k  = ((double) w_size) / ((double) h_size),
                         out_k = ((double) sizeW) / ((double) sizeH);
 
-                out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_HEIGHT, ((in_k < out_k) ? ((int)(sizeH * out_k)) : (sizeH)), Scalr.OP_ANTIALIAS);
+                out_img = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_HEIGHT, ((in_k < out_k) ? ((int)(sizeH * out_k)) : (sizeH)), Scalr.OP_ANTIALIAS);
                 final int 
                         out_x = (out_img.getWidth() - sizeW) / 2,
                         out_y = (out_img.getHeight() - sizeH) / 2;
@@ -119,7 +122,7 @@ public class XImgImages {
                         in_k  = ((double) h_size) / ((double) w_size),
                         out_k = ((double) sizeH) / ((double) sizeW);
 
-                out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, ((in_k < out_k) ? ((int)(sizeW * out_k)) : (sizeW)), Scalr.OP_ANTIALIAS);
+                out_img = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_WIDTH, ((in_k < out_k) ? ((int)(sizeW * out_k)) : (sizeW)), Scalr.OP_ANTIALIAS);
                 final int 
                         out_x = (out_img.getWidth() - sizeW) / 2,
                         out_y = (out_img.getHeight() - sizeH) / 2;
@@ -129,7 +132,7 @@ public class XImgImages {
 
             return crop_img;
         } else {
-            out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+            out_img = Scalr.resize(image, quality, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
             return out_img;
         }
     }
@@ -162,7 +165,7 @@ public class XImgImages {
                             in_k  = ((double) w_size) / ((double) h_size),
                             out_k = ((double) sizeW) / ((double) sizeH);
                     
-                    out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_HEIGHT, ((in_k < out_k) ? ((int)(sizeH * out_k)) : (sizeH)), Scalr.OP_ANTIALIAS);
+                    out_img = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_HEIGHT, ((in_k < out_k) ? ((int)(sizeH * out_k)) : (sizeH)), Scalr.OP_ANTIALIAS);
                     final int 
                             out_x = (out_img.getWidth() - sizeW) / 2,
                             out_y = (out_img.getHeight() - sizeH) / 2;
@@ -173,7 +176,7 @@ public class XImgImages {
                             in_k  = ((double) h_size) / ((double) w_size),
                             out_k = ((double) sizeH) / ((double) sizeW);
                     
-                    out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, ((in_k < out_k) ? ((int)(sizeW * out_k)) : (sizeW)), Scalr.OP_ANTIALIAS);
+                    out_img = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_WIDTH, ((in_k < out_k) ? ((int)(sizeW * out_k)) : (sizeW)), Scalr.OP_ANTIALIAS);
                     final int 
                             out_x = (out_img.getWidth() - sizeW) / 2,
                             out_y = (out_img.getHeight() - sizeH) / 2;
@@ -183,7 +186,7 @@ public class XImgImages {
                 
                 return crop_img;
             } else {
-                out_img = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+                out_img = Scalr.resize(image,quality, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
                 return out_img;
             }
         } catch (InterruptedException e) {
@@ -222,14 +225,14 @@ public class XImgImages {
                     out_img2;
             
             if (w_size > h_size) {
-                out_img2 = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_HEIGHT, sizeH, Scalr.OP_ANTIALIAS);
+                out_img2 = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_HEIGHT, sizeH, Scalr.OP_ANTIALIAS);
                 crop_img = Scalr.crop(out_img2, sizeW, sizeW, Scalr.OP_ANTIALIAS);
             } else {
-                out_img2 = Scalr.resize(image, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, sizeW, Scalr.OP_ANTIALIAS);
+                out_img2 = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_WIDTH, sizeW, Scalr.OP_ANTIALIAS);
                 crop_img = Scalr.crop(out_img2, sizeW, sizeH, Scalr.OP_ANTIALIAS);
             }
             
-            out_img = Scalr.resize(out_img2, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+            out_img = Scalr.resize(out_img2, quality, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
             
             imgs.put("squareImage", crop_img);
             imgs.put("nonsquareImage", out_img);
