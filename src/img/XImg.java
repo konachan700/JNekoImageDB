@@ -5,6 +5,7 @@ import datasources.SettingsUtil;
 import img.gui.PagedImageList;
 import img.gui.dialogs.DialogMessageBox;
 import img.gui.dialogs.XImageUpload;
+import img.gui.elements.STextArea;
 import img.gui.tabs.TabAlbumImageList;
 import img.gui.tabs.TabAllImages;
 import java.io.File;
@@ -13,6 +14,7 @@ import java.util.EnumMap;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.control.TextArea;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
@@ -21,6 +23,9 @@ public class XImg {
     public static enum PreviewType {
         cache, previews
     }
+    
+    private static final TextArea
+            taLOG = new TextArea();
         
     private static EnumMap<PreviewType, DB>
             levelDB = new EnumMap(PreviewType.class);
@@ -124,5 +129,9 @@ public class XImg {
     
     public static XImageUpload getUploadBox() {
         return imgUpl;
+    }
+    
+    public static TextArea getTALog() {
+        return taLOG;
     }
 }

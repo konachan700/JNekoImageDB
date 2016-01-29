@@ -77,7 +77,7 @@ public class PagedImageList extends SScrollPane {
             while (true) {
                 if (isExit) return;
                 try {
-                    final DSImage currDSI = prevGenDeque.pollLast(500, TimeUnit.MILLISECONDS);
+                    final DSImage currDSI = prevGenDeque.pollLast();
                     if (isExit) return;
                     
                     if (currDSI != null) {
@@ -91,7 +91,8 @@ public class PagedImageList extends SScrollPane {
                             } catch (IOException ex) {
                                 Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        }  
+                        } else
+                            try { Thread.sleep(300); } catch (Exception e) { return; }
                     }
                 } catch (InterruptedException ex) {
                     busyCounter--;
@@ -617,3 +618,5 @@ public class PagedImageList extends SScrollPane {
         previewGenService.shutdownNow();
     }
 }
+
+//-XX:MinHeapFreeRatio=15 -XX:MaxHeapFreeRatio=45

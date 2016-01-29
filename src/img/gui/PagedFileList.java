@@ -25,14 +25,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -47,8 +43,13 @@ import jnekoimagesdb.GUITools;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iq80.leveldb.DB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PagedFileList extends SEVBox {
+    private final Logger 
+                logger = LoggerFactory.getLogger(FileListGenerator.class);
+    
     private final Object
             syncObject = new Object();
     
@@ -56,6 +57,9 @@ public class PagedFileList extends SEVBox {
             busyCounter = 0;
     
     private class FileListGenerator implements Runnable {
+        private final Logger 
+                logger = LoggerFactory.getLogger(FileListGenerator.class);
+
         private final XImgImages
                 imgConv = new XImgImages();
         
@@ -71,7 +75,7 @@ public class PagedFileList extends SEVBox {
                     try {
                         Thread.sleep(400);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.info(ex.getMessage());
                         return;
                     }
                 }
@@ -99,7 +103,6 @@ public class PagedFileList extends SEVBox {
                                 if (im != null) 
                                     setImage (im, element); 
                         } catch (IOException | ClassNotFoundException ex) {
-                            //Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
                             if ((md5e != null) && (imgConv.isImage(element.toAbsolutePath().toString()))) {
                                 final byte preview[];
                                 try {
@@ -128,7 +131,7 @@ public class PagedFileList extends SEVBox {
                                         setImage (im, element); 
                                 } catch (IOException ex1) {
                                     busyCounter--;
-                                    Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex1);
+                                    logger.info(ex1.getMessage());
                                 }
                             } else
                                 busyCounter--;
@@ -144,9 +147,9 @@ public class PagedFileList extends SEVBox {
                                     DSImage dsi = new DSImage(md5);
                                     dsi.setImageFileName(fileToMove.toFile().getName());
                                     addedImages.add(dsi);
-                                    System.out.println("WRITE TO STORE: "+fileToMove.toAbsolutePath().toString());
+                                    logger.debug("WRITE TO STORE: "+fileToMove.toAbsolutePath().toString());
                                 } catch (Exception ex) {
-                                    Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
+                                    logger.warn("File ["+fileToMove.getFileName().toString()+"] already exist;");
                                 }
                             }
                         } else {
@@ -186,11 +189,13 @@ public class PagedFileList extends SEVBox {
                                 HibernateUtil.commitTransaction(hibSession);
                                 hibSession.close();
                                 addedImages.clear();
+                                System.gc();
+                                logger.debug("Image saving completed!");
                                 Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), true, 0, null); });
                             } else {
                                 try {
                                     Thread.sleep(50);
-                                } catch (InterruptedException ex) { }
+                                } catch (InterruptedException ex) { logger.info(ex.getMessage()); }
                             }
                         }
                     }
@@ -494,7 +499,9 @@ public class PagedFileList extends SEVBox {
         itemCountOnRow = (myWidth + spacerSize) / (itemWidth + spacerSize);
         itemCountOnColoumn = (myHeight + spacerSize) / (itemHeight + spacerSize);
         itemTotalCount = itemCountOnRow * itemCountOnColoumn;
-
+        
+        logger.info("itemCountOnRow="+itemCountOnRow+"; itemCountOnColoumn="+itemCountOnColoumn+"; itemTotalCount="+itemTotalCount+";");
+        
         if (itemTotalCount <= 0) return;
         pagesCount = (filesCount / itemTotalCount) + (((filesCount % itemTotalCount) == 0) ? 0 : 1);
         pflal.onPageCountChange(pagesCount); 
@@ -580,7 +587,10 @@ public class PagedFileList extends SEVBox {
     }
     
     public void init() {
-        if (!isNotInit) return;
+        if (!isNotInit) {
+            logger.warn("Double class init.");
+            return;
+        }
         
         fileSystemParser.init();
         threadsCount = SettingsUtil.getInt("previewFSCacheThreadsCount.value", 3);

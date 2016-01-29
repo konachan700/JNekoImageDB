@@ -99,6 +99,7 @@ public class XImgDatastore {
         
         final byte[] md5 = getFilePartMD5(file.toString());
         final String p = getPathString(md5);
+        if (Files.exists(FileSystems.getDefault().getPath(p))) throw new IOException("ImgFSDatastore: file already exist;");
         
         final byte[] nc = Files.readAllBytes(file);
         if (nc.length < MINIMUM_IMAGE_SIZE) throw new IOException("ImgFSDatastore: file too small;");

@@ -61,9 +61,6 @@ public class JNekoImageDB extends Application {
             logobox         = new HBox(),
             paginator_1     = new HBox();
     
-    private final TextArea
-            taLOG = new TextArea();
-
     private final TabSettings
             tabSettings = new TabSettings();
 
@@ -76,13 +73,13 @@ public class JNekoImageDB extends Application {
     private final StartSplashScreen 
             splash = new StartSplashScreen();
 
-    private final Timeline TMRLOG = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
-       if (taLOG.getText().length() < LOG.length()) {
-           taLOG.setText(Lang.NullString);
-           taLOG.appendText(LOG.toString());
-           taLOG.setScrollTop(Double.MIN_VALUE);
-       }
-    }));
+//    private final Timeline TMRLOG = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
+//       if (taLOG.getText().length() < LOG.length()) {
+//           taLOG.setText(Lang.NullString);
+//           taLOG.appendText(LOG.toString());
+//           taLOG.setScrollTop(Double.MIN_VALUE);
+//       }
+//    }));
     
     private final MenuGroupItemActionListener
             menuAL = new MenuGroupItemActionListener() {
@@ -130,13 +127,13 @@ public class JNekoImageDB extends Application {
     }
 
     private void showAlbCats() {
-        basesp.getChildren().add(XImg.getTabAlbumImageList()); //XImg
+        basesp.getChildren().add(XImg.getTabAlbumImageList());
         XImg.getTabAlbumImageList().refresh();
     }
     
     private void showLog() {
-        basesp.getChildren().add(taLOG);
-        taLOG.setScrollTop(65535);
+        basesp.getChildren().add(XImg.getTALog());
+        XImg.getTALog().setScrollTop(Double.MAX_VALUE); 
     }
     
     @Override
@@ -151,8 +148,8 @@ public class JNekoImageDB extends Application {
             return;
         }
 
-        TMRLOG.setCycleCount(Animation.INDEFINITE);
-        TMRLOG.play();
+//        TMRLOG.setCycleCount(Animation.INDEFINITE);
+//        TMRLOG.play();
         
         final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
         final ImageView imgLogoV = new ImageView(logoImage);
@@ -160,13 +157,18 @@ public class JNekoImageDB extends Application {
         XImg.getTabAlbumImageList().setPanels(toolbox, paginator_1);
         XImg.getTabAlbumImageList().initDB();
 
-        taLOG.setMaxSize(9999, 9999);
-        taLOG.setPrefSize(9999, 9999);
-        taLOG.setWrapText(true);
+        XImg.getTALog().setMaxSize(9999, 9999);
+        XImg.getTALog().setPrefSize(9999, 9999);
+        XImg.getTALog().setWrapText(true);
         
-        GUITools.setStyle(taLOG, "JNekoImageDB", "taLOG");
-        taLOG.textProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
-            taLOG.setScrollTop(Double.MAX_VALUE);
+        
+        
+        
+        
+        
+        GUITools.setStyle(XImg.getTALog(), "JNekoImageDB", "taLOG");
+        XImg.getTALog().textProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
+            XImg.getTALog().setScrollTop(Double.MAX_VALUE);
         });
         
         StackPane root = new StackPane();
