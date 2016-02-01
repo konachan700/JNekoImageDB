@@ -18,3 +18,10 @@ test/*
 default/*
 temp/*
 logs/*
+/manifest.mf
+/build.xml
+/nbproject
+/lib
+/.idea
+/build
+/target/
