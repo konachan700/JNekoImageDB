@@ -29,6 +29,10 @@ public class SButton extends Button {
             al.OnItemEvent(EVENT_CODE_CLICK, xID); 
         });
     }
+    
+    public void setIcon(Image icon) {
+        this.setGraphic(new ImageView(icon));
+    }
 
     public int getID() {
         return xID;

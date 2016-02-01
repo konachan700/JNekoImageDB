@@ -4,7 +4,7 @@
 .mtj.tmp/
 
 # Package Files #
-##*.jar
+*.jar
 *.war
 *.ear
 
@@ -18,6 +18,8 @@ test/*
 default/*
 temp/*
 logs/*
+nbproject/*
+build/*
 /manifest.mf
 /build.xml
 /nbproject

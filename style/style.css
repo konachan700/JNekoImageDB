@@ -1037,6 +1037,75 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 
 
 
+.ETagListItem_root_box {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-padding: 0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 3px;
+    -fx-border-radius: 3px;
+}
+
+.ETagListItem_root_box_red {
+	-fx-background-color: #522;
+}
+
+.ETagListItem_root_box_green {
+	-fx-background-color: #252;
+}
+
+.ETagListItem_root_box_blue {
+	-fx-background-color: #225;
+}
+
+.GUIElements_tagname, .GUIElements_tagname_editor {
+	-fx-padding: 3px;
+    -fx-background-color: transparent;
+    -fx-font-size: 12px;
+    -fx-text-fill: #fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-font-weight:bold; 
+	-fx-alignment: CENTER-LEFT;
+	-fx-border-width:0;
+    -fx-border-insets:0;
+}
+
+.GUIElements_tli_null_btn {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.GUIElements_tli_null_btn:hover {
+	-fx-padding: 1px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

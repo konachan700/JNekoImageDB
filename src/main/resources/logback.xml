@@ -33,9 +33,9 @@
         <appender-ref ref="FILE_HIBERNATE" />
     </logger>
     
-    <!--logger name="org.jboss" level="DEBUG" additivity="false">
+    <logger name="org.jboss" level="DEBUG" additivity="false">
         <appender-ref ref="FILE_JBOSS" />
-    </logger-->
+    </logger>
 
     <root>
         <appender-ref ref="STDOUT"/>
