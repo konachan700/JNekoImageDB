@@ -1,6 +1,7 @@
 package jnekoimagesdb.domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +34,12 @@ public class DSTag implements Serializable {
         )
     private Set<DSImage> images;
 
+    protected DSTag () {}
+    
+    public DSTag(String _tag) {
+        tagName = _tag;
+    }
+    
     public long getTagID() {
         return tagID;
     }
@@ -55,5 +62,23 @@ public class DSTag implements Serializable {
 
     public void setImages(Set<DSImage> images) {
         this.images = images;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (o instanceof DSTag) {
+            return ((DSTag)o).getTagName().equalsIgnoreCase(tagName);
+        } else if (o instanceof String) {
+            return ((String)o).equalsIgnoreCase(tagName);
+        } else 
+            return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + Objects.hashCode(this.tagName);
+        return hash;
     }
 }

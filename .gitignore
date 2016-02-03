@@ -22,8 +22,8 @@ nbproject/*
 build/*
 /manifest.mf
 /build.xml
-/nbproject
+nbproject
 /lib
 /.idea
-/build
+build
 /target/

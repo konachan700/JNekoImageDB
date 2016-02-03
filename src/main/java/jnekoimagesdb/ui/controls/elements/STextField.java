@@ -11,7 +11,7 @@ public class STextField extends TextField {
 
     public STextField(int id, int height, GUIActionListener al, String styleName) {
         super("");
-        init(id, 0, height, al, styleName);
+        init(id, -1, height, al, styleName);
     }
 
     public STextField(int id, int width, int height, GUIActionListener al) {
@@ -25,7 +25,7 @@ public class STextField extends TextField {
         if (w <= 0) GUITools.setMaxSize(this, 9999, h); GUITools.setFixedSize(this, w, h);
         this.setAlignment(Pos.CENTER_LEFT);
         this.textProperty().addListener((final ObservableValue<? extends String> observable, final String oldValue, final String newValue) -> {
-            al.OnItemEvent(EVENT_CODE_CHANGE, xID); 
+            if (al != null) al.OnItemEvent(EVENT_CODE_CHANGE, xID); 
         });
     }
 
