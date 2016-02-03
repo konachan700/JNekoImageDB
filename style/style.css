@@ -1039,7 +1039,7 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 
 .ETagListItem_root_box {
     -fx-background-insets: 0, 0, 0, 0;
-    -fx-padding: 0;
+    -fx-padding: 0 7px 0 7px;
     -fx-border-width:0;
     -fx-border-insets:0;
     -fx-background-radius: 3px;
@@ -1055,11 +1055,15 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 }
 
 .ETagListItem_root_box_blue {
-	-fx-background-color: #225;
+	-fx-background-color: #447;
 }
 
-.GUIElements_tagname, .GUIElements_tagname_editor {
-	-fx-padding: 3px;
+.ETagListItem_root_box_blue:hover {
+	-fx-background-color: #559;
+}
+
+.ETagListItem_tagname, .ETagListItem_tagname_editor {
+	-fx-padding: 3px 3px 3px 7px;
     -fx-background-color: transparent;
     -fx-font-size: 12px;
     -fx-text-fill: #fff;
@@ -1069,6 +1073,11 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 	-fx-alignment: CENTER-LEFT;
 	-fx-border-width:0;
     -fx-border-insets:0;
+	-fx-underline: false;
+}
+
+.ETagListItem_tagname:hover {
+	-fx-underline: true;
 }
 
 .GUIElements_tli_null_btn {
@@ -1082,10 +1091,32 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 }
 
 .GUIElements_tli_null_btn:hover {
-	-fx-padding: 1px;
+	-fx-padding: 1px 0 0 1px;
 }
 
+.GUIElements_textfield_new_tag {
+    -fx-padding: 2 2 2 2;
+    -fx-background-color:#fff;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #222;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width:0;
+    -fx-border-insets:0;
+}
 
+.STagAddInputField_root_pane {
+    -fx-padding: 2 2 2 2;
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 1px;
+	-fx-border-width:0;
+    -fx-border-insets:0;
+	-fx-border-color: #999;
+}
 
 
 

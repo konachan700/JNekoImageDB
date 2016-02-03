@@ -26,6 +26,7 @@ import jnekoimagesdb.ui.controls.menulist.MenuGroupItem;
 import jnekoimagesdb.ui.controls.menulist.MenuGroupItemActionListener;
 import jnekoimagesdb.ui.controls.menulist.MenuLabel;
 import jnekoimagesdb.ui.controls.menulist.MenuList;
+import jnekoimagesdb.ui.controls.tabs.TabAllTags;
 import jnekoimagesdb.ui.controls.tabs.TabSettings;
 
 public class JNekoImageDB extends Application {
@@ -93,6 +94,8 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     if (l.getID().contentEquals("M03-04")) {
                         
+                        TabAllTags x = new TabAllTags();
+                        basesp.getChildren().add(x);
                     }
                 }
             };
