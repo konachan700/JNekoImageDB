@@ -22,7 +22,7 @@ public class DSTag implements Serializable {
     @Column(name="iid", unique = true, nullable = false)
     private long tagID;
     
-    @Column(name="xname", unique = false, nullable = false, length = 128)
+    @Column(name="xname", unique = true, nullable = false, length = 128)
     private String tagName;
     
     @ManyToMany(fetch = FetchType.LAZY)

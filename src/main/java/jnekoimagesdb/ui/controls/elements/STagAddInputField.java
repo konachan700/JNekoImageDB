@@ -59,10 +59,10 @@ public class STagAddInputField extends FlowPane {
         GUITools.setStyle(this, "STagAddInputField", "root_pane");
         
         mainInput = new STextField(0, ETagListItem.ITEM_SIZE, null, "textfield_new_tag");
-        mainInput.setPromptText("Input any tag here and press Enter...");
-        mainInput.setMinWidth(100);
-        mainInput.setPrefWidth(9999);
-        mainInput.setMaxWidth(9999);
+        mainInput.setPromptText("Enter your tag...");
+        mainInput.setMinWidth(Region.USE_PREF_SIZE);
+        mainInput.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        mainInput.setMaxWidth(Double.MAX_VALUE);
         mainInput.setOnKeyPressed((KeyEvent key) -> {
             if (key.getCode() == KeyCode.ENTER) {
                 String stag = mainInput.getText().trim();
@@ -85,7 +85,7 @@ public class STagAddInputField extends FlowPane {
             }
         }); 
         mainInput.textProperty().addListener((final ObservableValue<? extends String> observable, final String oldValue, final String newValue) -> {
-            mainInput.setMinWidth(Region.USE_PREF_SIZE);
+            mainInput.setPrefWidth((newValue.length() * 8) + 150); // it's magic!
         });
         
         this.getChildren().add(mainInput);
@@ -100,6 +100,12 @@ public class STagAddInputField extends FlowPane {
             this.getChildren().add(new ETagListItem(c, true, true, actListener));
         });
         this.getChildren().add(mainInput);
+    }
+    
+    public void clear() {
+        currentTags.clear();
+        currentNotTags.clear();
+        regenerateAll();
     }
     
     public boolean isEmpty() {

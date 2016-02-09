@@ -96,6 +96,7 @@ public class JNekoImageDB extends Application {
                         
                         TabAllTags x = new TabAllTags();
                         basesp.getChildren().add(x);
+                        x.refresh();
                     }
                 }
             };
