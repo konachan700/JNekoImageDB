@@ -1118,6 +1118,14 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 	-fx-border-color: #999;
 }
 
+.TabAllTags_flow_pane {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width:0;
+    -fx-border-insets:0;
+	-fx-padding: 5px;
+}
 
 
 

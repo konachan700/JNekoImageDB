@@ -47,11 +47,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import jnekoimagesdb.domain.DSTag;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.LoggerFactory;
 
 public class PagedImageList extends SScrollPane {
+    private final org.slf4j.Logger 
+            logger = LoggerFactory.getLogger(PagedImageList.class);
+    
     private volatile boolean 
             isExit = false;
     
@@ -153,6 +158,10 @@ public class PagedImageList extends SScrollPane {
     
     private ExecutorService 
             previewGenService = null;
+    
+    private List<DSTag>
+            tagsList = null,
+            tagsNotList = null;
 
     protected interface ImageListItemActionListener {
         public void OnSelect(boolean isSelected, DSImage item);
@@ -485,12 +494,56 @@ public class PagedImageList extends SScrollPane {
         return itemTotalRecordsCount;
     }
     
+    public void clearTags() {
+        tagsList = null;
+        tagsNotList = null;
+    }
+    
+    public void setTagLists(List<DSTag> tags, List<DSTag> tagsNot) {
+        tagsList = tags;
+        tagsNotList = tagsNot;
+    }
+    
+    private long getTagsCount() {
+        Number _itemTotalRecordsCount = 0;
+        
+        final Set<DSImage> tagsNot = new HashSet<>();
+        if (tagsNotList != null) tagsNotList.parallelStream().forEach(el -> { tagsNot.addAll(el.getImages()); });
+        
+        final Set<DSImage> tags = new HashSet<>();
+        if (tagsList != null) tagsList.parallelStream().forEach(el -> { tags.addAll(el.getImages()); });
+        
+        if ((tagsList != null) && (tagsNotList != null)) {
+            _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2)")
+                    .setParameterList("tags1", tags)
+                    .setParameterList("tags2", tagsNot)
+                    .uniqueResult();
+        } else if ((tagsList == null) && (tagsNotList != null)) {
+            _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.imageID NOT IN (:tags)")
+                    .setParameterList("tags", tagsNot)
+                    .uniqueResult();
+        } else if ((tagsList != null) && (tagsNotList == null)) {
+            _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.imageID IN (:tags)")
+                    .setParameterList("tags", tags)
+                    .uniqueResult();
+        }
+        return _itemTotalRecordsCount.longValue();
+    }
+    
     public long getImgCount(long _albumID) {
         Number _itemTotalRecordsCount;
         switch ((int)_albumID) {
             case IMAGES_ALL:
-                _itemTotalRecordsCount = (Number) hibSession.createCriteria(DSImage.class).setProjection(Projections.rowCount()).uniqueResult();
-                return _itemTotalRecordsCount.longValue();
+                final boolean notNullTags = (tagsList != null) || (tagsNotList != null);
+                final boolean notEmptyTags = (notNullTags) ? ((!tagsList.isEmpty()) || (!tagsNotList.isEmpty())) : false;
+                if (notNullTags && notEmptyTags) {
+                    _itemTotalRecordsCount = getTagsCount();
+                    logger.debug(_itemTotalRecordsCount.toString());
+                    return _itemTotalRecordsCount.longValue();
+                } else {
+                    _itemTotalRecordsCount = (Number) hibSession.createCriteria(DSImage.class).setProjection(Projections.rowCount()).uniqueResult();
+                    return _itemTotalRecordsCount.longValue();
+                }
             case IMAGES_NOT_IN_ALBUM: 
                 _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.albums IS EMPTY").uniqueResult();
                 return _itemTotalRecordsCount.longValue();
@@ -517,15 +570,58 @@ public class PagedImageList extends SScrollPane {
         forceReload = true;
     }
     
+    private List<DSImage> getTagsList(int offset, int count) {
+        // Реализация мне очень не нравится, попахивает индусятиной. Но как сделать иначе, ума не приложу.        
+        List<DSImage> list; 
+        
+        final Set<DSImage> tagsNot = new HashSet<>();
+        if (tagsNotList != null) tagsNotList.parallelStream().forEach(el -> { tagsNot.addAll(el.getImages()); });
+        
+        final Set<DSImage> tags = new HashSet<>();
+        if (tagsList != null) tagsList.parallelStream().forEach(el -> { tags.addAll(el.getImages()); });
+
+        if ((tagsList != null) && (tagsNotList != null)) {
+            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2)")
+                    .setParameterList("tags1", tags)
+                    .setParameterList("tags2", tagsNot)
+                    .setFirstResult(offset)
+                    .setMaxResults(count)
+                    .list();
+            return list;
+        } else if ((tagsList == null) && (tagsNotList != null)) {
+            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID NOT IN (:tags)")
+                    .setParameterList("tags", tagsNot)
+                    .setFirstResult(offset)
+                    .setMaxResults(count)
+                    .list();
+            return list;
+        } else if ((tagsList != null) && (tagsNotList == null)) {
+            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags)")
+                    .setParameterList("tags", tags)
+                    .setFirstResult(offset)
+                    .setMaxResults(count)
+                    .list();
+            return list;
+        }
+
+        return new ArrayList<>();
+    }
+    
     public List<DSImage> getImgList(long albumID, int offset, int count) {
         List<DSImage> list;
         switch ((int)albumID) {
             case IMAGES_ALL:
-                list = (List<DSImage>) hibSession
-                        .createCriteria(DSImage.class)
-                        .setFirstResult(offset)
-                        .setMaxResults(count)
-                        .list();
+                final boolean notNullTags = (tagsList != null) || (tagsNotList != null);
+                final boolean notEmptyTags = (notNullTags) ? ((!tagsList.isEmpty()) || (!tagsNotList.isEmpty())) : false;
+                if (notNullTags && notEmptyTags) {
+                    list = getTagsList(offset, count);
+                } else {
+                    list = (List<DSImage>) hibSession
+                            .createCriteria(DSImage.class)
+                            .setFirstResult(offset)
+                            .setMaxResults(count)
+                            .list();
+                }
                 break;
             case IMAGES_NOT_IN_ALBUM: 
                 list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.albums IS EMPTY")

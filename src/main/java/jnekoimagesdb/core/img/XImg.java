@@ -2,6 +2,8 @@ package jnekoimagesdb.core.img;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Set;
 import java.util.logging.Level;
@@ -16,6 +18,7 @@ import jnekoimagesdb.ui.controls.dialogs.DialogMessageBox;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
 import jnekoimagesdb.ui.controls.tabs.TabAlbumImageList;
 import jnekoimagesdb.ui.controls.tabs.TabAllImages;
+import jnekoimagesdb.ui.controls.tabs.TabAllTags;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
@@ -23,6 +26,9 @@ public class XImg {
     public static enum PreviewType {
         cache, previews
     }
+    
+    public static final Path 
+            LOG_DIR = FileSystems.getDefault().getPath("./logs/").toAbsolutePath();
     
     private static final TextArea
             taLOG = new TextArea();
@@ -53,6 +59,9 @@ public class XImg {
     
     private static final DialogMessageBox
             messageBox = new DialogMessageBox();
+    
+    private static final TabAllTags
+            tabAllTags = new TabAllTags();
     
     private static String                   
             rootDatabaseName;
@@ -113,6 +122,10 @@ public class XImg {
     
     public static PagedImageList getPagedImageList() {
         return pagedImageList;
+    }
+    
+    public static TabAllTags getTabAllTags() {
+        return tabAllTags;
     }
     
     public static TabAllImages getTabAllImages() {

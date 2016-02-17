@@ -89,14 +89,12 @@ public class JNekoImageDB extends Application {
                     if (l.getID().contentEquals("M01-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
                     if (l.getID().contentEquals("M01-06")) showAllImages(PagedImageList.IMAGES_NOT_IN_ALBUM);
                     if (l.getID().contentEquals("M01-04")) showAlbCats();
+                    if (l.getID().contentEquals("M01-03")) showTagsCloud();
                     
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-02")) showSettings();
                     if (l.getID().contentEquals("M03-04")) {
                         
-                        TabAllTags x = new TabAllTags();
-                        basesp.getChildren().add(x);
-                        x.refresh();
                     }
                 }
             };
@@ -108,12 +106,20 @@ public class JNekoImageDB extends Application {
     }
     
     private void showAllImages(long aID) {
+        XImg.getTabAllImages().clearTags();
         basesp.getChildren().add(XImg.getTabAllImages());
         toolbox.getChildren().add(XImg.getTabAllImages().getPanel());
         paginator_1.getChildren().add(XImg.getTabAllImages().getPaginator());
         XImg.getTabAllImages().setAlbumID(aID);
         XImg.getTabAllImages().regenerate();
         XImg.getTabAllImages().refresh();
+    }
+    
+    private void showTagsCloud() {
+        basesp.getChildren().add(XImg.getTabAllTags());
+        toolbox.getChildren().add(XImg.getTabAllTags().getTopPanel());
+        paginator_1.getChildren().add(XImg.getTabAllTags().getPaginator());
+        XImg.getTabAllTags().refresh();
     }
     
     private void showSettings() {
@@ -156,7 +162,16 @@ public class JNekoImageDB extends Application {
         XImg.getTALog().setPrefSize(9999, 9999);
         XImg.getTALog().setWrapText(true);
         
-        
+        XImg.getTabAllTags().setActionListener((tags, notTags) -> {
+            clearAll();
+            XImg.getTabAllImages().setTagLists(tags, notTags);
+            basesp.getChildren().add(XImg.getTabAllImages());
+            toolbox.getChildren().add(XImg.getTabAllImages().getPanel());
+            paginator_1.getChildren().add(XImg.getTabAllImages().getPaginator());
+            XImg.getTabAllImages().setAlbumID(PagedImageList.IMAGES_ALL);
+            XImg.getTabAllImages().regenerate();
+            XImg.getTabAllImages().refresh();
+        });
         
         
         

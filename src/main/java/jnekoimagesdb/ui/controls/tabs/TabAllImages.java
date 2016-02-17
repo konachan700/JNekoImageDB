@@ -9,8 +9,10 @@ import static jnekoimagesdb.ui.controls.dialogs.XImageUpload.IMG64_SELECT_NONE;
 import static jnekoimagesdb.ui.controls.elements.GUIElements.BTN_SELNONE;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import java.util.ArrayList;
+import java.util.List;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
+import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.ui.GUITools;
 
 public class TabAllImages extends SEVBox  {
@@ -95,6 +97,14 @@ public class TabAllImages extends SEVBox  {
     
     public void refresh() {
         pil.refresh();
+    }
+    
+    public void clearTags() {
+        pil.clearTags();
+    }
+    
+    public void setTagLists(List<DSTag> tags, List<DSTag> tagsNot) {
+        pil.setTagLists(tags, tagsNot);
     }
     
     public void regenerate() {

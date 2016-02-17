@@ -11,10 +11,11 @@
 6.	Поддержка папки обмена для браузера
 
 # В ближайших планах:
-1.	Поддержка тегов
+1.	Доделать поддержку тегов
 2.	Парсинг тегов с популярных галерей
 3.	Возможность использования множества БД с выбором конкретной при запуске
 4.	Экспорт альбомов целиком
+5.	Поворот, обрезка и прочие минимальные возможности редактирования.
 
 # В дальнейшем:
 1.	Стеганография, "картинка в картинке"
@@ -29,8 +30,10 @@
 
 # Скриншоты
 
-![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/screen1.png)
+![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/1.PNG)
 
-![JNekoImageDB screenshot 2](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/screen2.png)
+![JNekoImageDB screenshot 2](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/2.PNG)
 
-![JNekoImageDB screenshot 3](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/screen3.png)
+![JNekoImageDB screenshot 3](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/3.PNG)
+
+![JNekoImageDB screenshot 3](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/4.PNG)
