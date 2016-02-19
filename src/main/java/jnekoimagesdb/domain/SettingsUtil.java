@@ -36,7 +36,7 @@ public class SettingsUtil {
     public static long getLong(String name, long defaultValue) {
         final List<DSLongPair> list = currSession
                 .createCriteria(DSLongPair.class)
-                .add(Restrictions.eq("MD5", XImg.getCrypt().MD5(name.getBytes())))
+                .add(Restrictions.eq("MD5", XImg.getCrypt().genMD5Hash(name.getBytes())))
                 .list();        
         if (list.size() > 0) {
             final DSLongPair ds = list.get(0);
@@ -49,7 +49,7 @@ public class SettingsUtil {
     public static void setLong(String name, long value) {
         final List<DSLongPair> list = currSession
                 .createCriteria(DSLongPair.class)
-                .add(Restrictions.eq("MD5", XImg.getCrypt().MD5(name.getBytes())))
+                .add(Restrictions.eq("MD5", XImg.getCrypt().genMD5Hash(name.getBytes())))
                 .list();        
         if (list.size() > 0) {
             final DSLongPair ds = list.get(0);
@@ -60,7 +60,7 @@ public class SettingsUtil {
         } else {
             final DSLongPair ds = new DSLongPair();
             HibernateUtil.beginTransaction(currSession);
-            ds.setMD5(XImg.getCrypt().MD5(name.getBytes()));
+            ds.setMD5(XImg.getCrypt().genMD5Hash(name.getBytes()));
             ds.setValue(value);
             currSession.save(ds);
             HibernateUtil.commitTransaction(currSession);
@@ -88,7 +88,7 @@ public class SettingsUtil {
     private static void _setString(String name, String value) {
         final List<DSStringPair> list = currSession
                 .createCriteria(DSStringPair.class)
-                .add(Restrictions.eq("MD5", XImg.getCrypt().MD5(name.getBytes())))
+                .add(Restrictions.eq("MD5", XImg.getCrypt().genMD5Hash(name.getBytes())))
                 .list();        
         if (list.size() > 0) {
             final DSStringPair ds = list.get(0);
@@ -99,7 +99,7 @@ public class SettingsUtil {
         } else {
             final DSStringPair ds = new DSStringPair();
             HibernateUtil.beginTransaction(currSession);
-            ds.setMD5(XImg.getCrypt().MD5(name.getBytes()));
+            ds.setMD5(XImg.getCrypt().genMD5Hash(name.getBytes()));
             ds.setValue(value);
             currSession.save(ds);
             HibernateUtil.commitTransaction(currSession);
@@ -109,7 +109,7 @@ public class SettingsUtil {
     private static String _getString(String name) {
         final List<DSStringPair> list = currSession
                 .createCriteria(DSStringPair.class)
-                .add(Restrictions.eq("MD5", XImg.getCrypt().MD5(name.getBytes())))
+                .add(Restrictions.eq("MD5", XImg.getCrypt().genMD5Hash(name.getBytes())))
                 .list();        
         if (list.size() > 0) {
             final DSStringPair ds = list.get(0);

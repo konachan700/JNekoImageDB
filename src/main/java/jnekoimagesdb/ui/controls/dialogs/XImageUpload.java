@@ -30,10 +30,10 @@ public class XImageUpload extends XDialogWindow {
             IMG64_ADDALL            = GUITools.loadIcon("addall-48"),
             IMG64_ADDSEL            = GUITools.loadIcon("add-to-db-48");
     
-    private final int 
+    private static final int 
             BTN_SELECT_ALL = 1,
             BTN_SELECT_NONE = 2,
-            BTN_DELETE = 3, 
+//            BTN_DELETE = 3, 
             BTN_LEVELUP = 4, 
             BTN_GOROOT = 5, 
             BTN_ADDALL = 6,
@@ -189,7 +189,7 @@ public class XImageUpload extends XDialogWindow {
     public void showModal() {
         final Path p = SettingsUtil.getPath("currentPath");
         filesList.navigateTo(p.toAbsolutePath().toString());
-        super.showModal();
+        super.showModal(); 
     }
     
     @Override

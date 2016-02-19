@@ -50,7 +50,7 @@ public class XImgPreviewGen {
         public Image getImage(XImgCrypto crypt) {
             if (cryptedImage == null) return null;
             
-            final byte[] decrypted = crypt.Decrypt(cryptedImage);
+            final byte[] decrypted = crypt.decrypt(cryptedImage);
             if (decrypted == null) return null;
             
             final Image img = new Image(new ByteArrayInputStream(decrypted)); 

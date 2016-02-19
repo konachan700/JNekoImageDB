@@ -1,7 +1,4 @@
 package jnekoimagesdb.core.img;
-
-import jnekoimagesdb.ui.JNekoImageDB;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,8 +27,12 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import org.slf4j.LoggerFactory;
 
 public class XImgCrypto {
+    private static final org.slf4j.Logger 
+                logger = LoggerFactory.getLogger(XImgCrypto.class);
+    
     public static final int
             RSA_KEY_LEN = 4096;
     
@@ -68,19 +69,19 @@ public class XImgCrypto {
             sr.nextBytes(salt); 
             sr.nextBytes(IV);
             
-            cid.IV128            = MD5(IV);
-            cid.salt128          = MD5(salt); 
+            cid.IV128            = genMD5Hash(IV);
+            cid.salt128          = genMD5Hash(salt); 
             if (isAES256Enable)
-                cid.masterKey256 = SHA256(masterKey);
+                cid.masterKey256 = genSHA256Hash(masterKey);
             else
-                cid.masterKey256 = MD5(masterKey);
+                cid.masterKey256 = genMD5Hash(masterKey);
         }
         
         public CryptInfoData getData() {
             return cid;
         }
         
-        private byte[] MD5(byte[] unsafe) {
+        private byte[] genMD5Hash(byte[] unsafe) {
             final MessageDigest md;
             try {
                 md = MessageDigest.getInstance("MD5");
@@ -90,7 +91,7 @@ public class XImgCrypto {
             return null;
         }
         
-        private byte[] SHA256(byte[] b) {
+        private byte[] genSHA256Hash(byte[] b) {
             final MessageDigest md;
             try {
                 md = MessageDigest.getInstance("SHA-256");
@@ -110,7 +111,7 @@ public class XImgCrypto {
         }
         
         public String getPassword() {
-            return DatatypeConverter.printHexBinary(SHA256(cid.masterKey256));
+            return DatatypeConverter.printHexBinary(genSHA256Hash(cid.masterKey256));
         }
     }
     
@@ -119,7 +120,7 @@ public class XImgCrypto {
     }
     
     private CryptInfo 
-            CI = null;
+            cryptInfo = null;
     
     private RSAPublicKey 
             pubKey = null;
@@ -193,35 +194,35 @@ public class XImgCrypto {
             ci = new CryptInfo(cid);
         }
         
-        CI = ci;
+        cryptInfo = ci;
         notInit = false;
     }
     
     public byte[] getSalt() {
-        return MD5(CI.getData().salt128);
+        return genMD5Hash(cryptInfo.getData().salt128);
     }
     
     public String getPassword() {
-        if (notInit) return null; else return CI.getPassword();
+        if (notInit) return null; else return cryptInfo.getPassword();
     }
     
-    public byte[] Crypt(byte[] value) {
+    public byte[] crypt(byte[] value) {
         if (notInit) return null;
         try {
-            return AESCrypt256(value, CI.getData().masterKey256, CI.getData().IV128);
+            return aesCrypt256(value, cryptInfo.getData().masterKey256, cryptInfo.getData().IV128);
         } catch (Exception ex) {
             Logger.getLogger(XImgCrypto.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         } 
     }
     
-    public byte[] Decrypt(byte[] value) {
+    public byte[] decrypt(byte[] value) {
         if (notInit) return null;
         try {
-            return AESDecrypt256(value, CI.getData().masterKey256, CI.getData().IV128);
+            return aesDecrypt256(value, cryptInfo.getData().masterKey256, cryptInfo.getData().IV128);
         } catch (Exception ex) {
             Logger.getLogger(XImgCrypto.class.getName()).log(Level.SEVERE, null, ex);
-            _L("Crypt error: "+ex.getMessage());
+            logger.error("Crypt error: "+ex.getMessage());
             return null;
         }
     }
@@ -233,17 +234,17 @@ public class XImgCrypto {
         final byte[] tdata = sr.generateSeed(32);
         
         try {
-            final byte[] outdata = AESCrypt256(tdata, tkey, tIV);
+            final byte[] outdata = aesCrypt256(tdata, tkey, tIV);
             return (outdata.length > 0);
         } catch (Exception ex) {
-            _L("AES256 not supported. Please, install the patch: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html");
+            logger.error("AES256 not supported. Please, install the patch: http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html");
             return false;
         }
     }
     
     private CryptInfoData readKeystore(File f) throws Exception {
         final byte[] retNC = Files.readAllBytes(FileSystems.getDefault().getPath(f.getAbsolutePath()));
-        final byte[] ret = RSADecrypt(retNC);
+        final byte[] ret = rsaDecrypt(retNC);
 
         final ByteArrayInputStream bais = new ByteArrayInputStream(ret);
         final ObjectInputStream oos = new ObjectInputStream(bais);
@@ -264,7 +265,7 @@ public class XImgCrypto {
         oos.flush();
         
         final byte[] nonCrypted = baos.toByteArray();
-        final byte[] crypted = RSACrypt(nonCrypted);
+        final byte[] crypted = rsaCrypt(nonCrypted);
 
         Files.write(FileSystems.getDefault().getPath(f.getAbsolutePath()), crypted, StandardOpenOption.CREATE);
         
@@ -272,7 +273,7 @@ public class XImgCrypto {
         baos.close();
     }
     
-    private byte[] RSADecrypt(byte[] ct) throws Exception {
+    private byte[] rsaDecrypt(byte[] ct) throws Exception {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipher.init(Cipher.DECRYPT_MODE, privKey);
@@ -290,7 +291,7 @@ public class XImgCrypto {
         return crypted;
     }
     
-    private byte[] RSACrypt(byte[] ct) throws Exception {
+    private byte[] rsaCrypt(byte[] ct) throws Exception {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         rsaCipher.init(Cipher.ENCRYPT_MODE, pubKey);
@@ -308,7 +309,7 @@ public class XImgCrypto {
         return crypted;
     }
 
-    public byte[] MD5(byte[] ... unsafe) {
+    public byte[] genMD5Hash(byte[] ... unsafe) {
         final MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
@@ -318,7 +319,7 @@ public class XImgCrypto {
         return null;
     }
         
-    public byte[] MD5(byte[] unsafe) {
+    public byte[] genMD5Hash(byte[] unsafe) {
         final MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
@@ -328,22 +329,17 @@ public class XImgCrypto {
         return null;
     }
     
-    private byte[] AESDecrypt256(byte[] value, byte[] key, byte[] iv) throws Exception { 
+    private byte[] aesDecrypt256(byte[] value, byte[] key, byte[] iv) throws Exception { 
         final SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
         final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, new IvParameterSpec(iv));
         return cipher.doFinal(value);
     }
     
-    private byte[] AESCrypt256(byte[] value, byte[] key, byte[] iv) throws Exception {
+    private byte[] aesCrypt256(byte[] value, byte[] key, byte[] iv) throws Exception {
         final SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
         final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(iv));
         return cipher.doFinal(value);
-    }
-
-    private void _L(String s) {
-        System.out.println(s);
-        JNekoImageDB.L(s);
     }
 }

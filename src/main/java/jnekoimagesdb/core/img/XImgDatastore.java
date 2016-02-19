@@ -88,7 +88,7 @@ public class XImgDatastore {
         final byte[] nc = Files.readAllBytes(out);
         if (nc.length < MINIMUM_IMAGE_SIZE) throw new IOException("ImgFSDatastore: file too small;");
         
-        final byte[] cc = dsCrypto.Decrypt(nc);
+        final byte[] cc = dsCrypto.decrypt(nc);
         if (cc.length < MINIMUM_IMAGE_SIZE) throw new IOException("ImgFSDatastore: strange crypt error;");
         
         return cc;
@@ -104,7 +104,7 @@ public class XImgDatastore {
         final byte[] nc = Files.readAllBytes(file);
         if (nc.length < MINIMUM_IMAGE_SIZE) throw new IOException("ImgFSDatastore: file too small;");
         
-        final byte[] cc = dsCrypto.Crypt(nc);
+        final byte[] cc = dsCrypto.crypt(nc);
         if (cc.length < MINIMUM_IMAGE_SIZE) throw new IOException("ImgFSDatastore: strange crypt error;");
         
         final Path out = FileSystems.getDefault().getPath(p);
@@ -143,11 +143,11 @@ public class XImgDatastore {
             fis.close();
             if (counter > 0) {
                 if (counter == FILE_PART_SIZE_FOR_CHECKING_MD5) 
-                    return dsCrypto.MD5(bb.array(), dsCrypto.getSalt());
+                    return dsCrypto.genMD5Hash(bb.array(), dsCrypto.getSalt());
                 else {
                     final ByteBuffer bb_cutted = ByteBuffer.allocate(counter);
                     bb_cutted.put(bb.array(), 0, counter);
-                    return dsCrypto.MD5(bb_cutted.array(), dsCrypto.getSalt());
+                    return dsCrypto.genMD5Hash(bb_cutted.array(), dsCrypto.getSalt());
                 }
             } else 
                 throw new IOException("cannot calculate MD5 for file ["+path+"]");
@@ -185,7 +185,7 @@ public class XImgDatastore {
         final String filePath = getPathString(md5b);
         final Path path = FileSystems.getDefault().getPath(filePath);
         final byte[] fileCC = Files.readAllBytes(path);
-        final byte[] decryptedCC = XImg.getCrypt().Decrypt(fileCC);
+        final byte[] decryptedCC = XImg.getCrypt().decrypt(fileCC);
         
         final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(decryptedCC);
         final MediaTracker mediaTracker = new MediaTracker(new Container()); 
@@ -195,7 +195,7 @@ public class XImgDatastore {
         final byte[] image = imgConv.getPreviewFS(image2);
         imgConv.setPreviewSize((int) XImg.getPSizes().getPrimaryPreviewSize().getWidth(), (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight(), XImg.getPSizes().getPrimaryPreviewSize().isSquared());
         
-        final byte previewCrypted[] = XImg.getCrypt().Crypt(image);
+        final byte previewCrypted[] = XImg.getCrypt().crypt(image);
         final XImgPreviewGen.PreviewElement peDB = new XImgPreviewGen.PreviewElement();
         peDB.setMD5(md5b);
         peDB.setCryptedImageBytes(previewCrypted, XImg.getPSizes().getPrimaryPreviewSize().getPrevName());
@@ -205,7 +205,7 @@ public class XImgDatastore {
         oos.writeObject(peDB);
         oos.flush();
         
-        final byte[] crypted = XImg.getCrypt().Crypt(baos.toByteArray());
+        final byte[] crypted = XImg.getCrypt().crypt(baos.toByteArray());
         if (crypted == null) throw new IOException("Crypt() return null;");
         
         final DB db = XImg.getDB(type);
@@ -241,7 +241,7 @@ public class XImgDatastore {
             if (retnc == null ) throw new XImgPreviewGen.RecordNotFoundException("");
         }
         
-        final byte[] ret = dsCrypto.Decrypt(retnc);
+        final byte[] ret = dsCrypto.decrypt(retnc);
         if (ret == null ) throw new IOException("Decrypt() return null value;");
         
         final ByteArrayInputStream bais = new ByteArrayInputStream(ret);

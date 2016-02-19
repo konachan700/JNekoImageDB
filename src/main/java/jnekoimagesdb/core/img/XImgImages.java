@@ -9,19 +9,20 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-
-import jnekoimagesdb.ui.JNekoImageDB;
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XImgImages {
+    private static final Logger 
+                logger = LoggerFactory.getLogger(XImgImages.class);
+    
     private volatile int 
             previewHeight = 120,
             previewWidth = 120;
@@ -191,62 +192,61 @@ public class XImgImages {
                 return out_img;
             }
         } catch (InterruptedException e) {
-            _L(e.getMessage());
+            logger.debug(e.getMessage());
             return null;
         }
     }
     
-    private Map<String, BufferedImage> intResizeImage(String in_path, int sizeW, int sizeH) {
-        final File img_file = new File(in_path);
-        if (!img_file.canRead()) return null;
-        try {
-            final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(in_path);
-            final MediaTracker mediaTracker = new MediaTracker(new Container()); 
-            mediaTracker.addImage(image2, 0); 
-            mediaTracker.waitForAll();
-
-            final int 
-                    w_size = image2.getWidth(null),
-                    h_size = image2.getHeight(null);
-            
-            final BufferedImage image = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
-            final Graphics2D g2d = image.createGraphics();
-            g2d.setBackground(new Color(255, 255, 255)); 
-            g2d.setColor(new Color(255, 255, 255));
-            g2d.fillRect(0, 0, w_size, h_size);
-            g2d.drawImage(image2, 0, 0, null);
-            g2d.dispose();
-
-            final Map<String, BufferedImage> 
-                    imgs = new HashMap<>();
-            
-            final BufferedImage 
-                    out_img, 
-                    crop_img,
-                    out_img2;
-            
-            if (w_size > h_size) {
-                out_img2 = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_HEIGHT, sizeH, Scalr.OP_ANTIALIAS);
-                crop_img = Scalr.crop(out_img2, sizeW, sizeW, Scalr.OP_ANTIALIAS);
-            } else {
-                out_img2 = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_WIDTH, sizeW, Scalr.OP_ANTIALIAS);
-                crop_img = Scalr.crop(out_img2, sizeW, sizeH, Scalr.OP_ANTIALIAS);
-            }
-            
-            out_img = Scalr.resize(out_img2, quality, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
-            
-            imgs.put("squareImage", crop_img);
-            imgs.put("nonsquareImage", out_img);
-            
-            return imgs;
-        } catch (InterruptedException e) {
-            _L(e.getMessage());
-            return null;
-        }
-    }
+//    private Map<String, BufferedImage> intResizeImage(String in_path, int sizeW, int sizeH) {
+//        final File img_file = new File(in_path);
+//        if (!img_file.canRead()) return null;
+//        try {
+//            final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(in_path);
+//            final MediaTracker mediaTracker = new MediaTracker(new Container()); 
+//            mediaTracker.addImage(image2, 0); 
+//            mediaTracker.waitForAll();
+//
+//            final int 
+//                    w_size = image2.getWidth(null),
+//                    h_size = image2.getHeight(null);
+//            
+//            final BufferedImage image = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
+//            final Graphics2D g2d = image.createGraphics();
+//            g2d.setBackground(new Color(255, 255, 255)); 
+//            g2d.setColor(new Color(255, 255, 255));
+//            g2d.fillRect(0, 0, w_size, h_size);
+//            g2d.drawImage(image2, 0, 0, null);
+//            g2d.dispose();
+//
+//            final Map<String, BufferedImage> 
+//                    imgs = new HashMap<>();
+//            
+//            final BufferedImage 
+//                    out_img, 
+//                    crop_img,
+//                    out_img2;
+//            
+//            if (w_size > h_size) {
+//                out_img2 = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_HEIGHT, sizeH, Scalr.OP_ANTIALIAS);
+//                crop_img = Scalr.crop(out_img2, sizeW, sizeW, Scalr.OP_ANTIALIAS);
+//            } else {
+//                out_img2 = Scalr.resize(image, quality, Scalr.Mode.FIT_TO_WIDTH, sizeW, Scalr.OP_ANTIALIAS);
+//                crop_img = Scalr.crop(out_img2, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+//            }
+//            
+//            out_img = Scalr.resize(out_img2, quality, Scalr.Mode.AUTOMATIC, sizeW, sizeH, Scalr.OP_ANTIALIAS);
+//            
+//            imgs.put("squareImage", crop_img);
+//            imgs.put("nonsquareImage", out_img);
+//            
+//            return imgs;
+//        } catch (InterruptedException e) {
+//            _L(e.getMessage());
+//            return null;
+//        }
+//    }
     
-    private static void _L(String s) {
-        System.out.println(s);
-        JNekoImageDB.L(s);
-    }
+//    private static void _L(String s) {
+//        logger.info(s);
+//    }
 }

@@ -34,10 +34,10 @@ public class JNekoImageDB extends Application {
             IMG128_ERROR = GUITools.loadIcon("error-1-128");
     
     private final DragDelta 
-            DRD = new DragDelta();
+            dragDelta = new DragDelta();
     
-    public static final StringBuilder
-            LOG = new StringBuilder();
+//    private static final StringBuilder
+//            logTextArea = new StringBuilder();
     
     private final VBox 
             mvbox           = new VBox(),
@@ -66,9 +66,9 @@ public class JNekoImageDB extends Application {
             splash = new StartSplashScreen();
 
 //    private final Timeline TMRLOG = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
-//       if (taLOG.getText().length() < LOG.length()) {
+//       if (taLOG.getText().length() < logTextArea.length()) {
 //           taLOG.setText(Lang.NullString);
-//           taLOG.appendText(LOG.toString());
+//           taLOG.appendText(logTextArea.toString());
 //           taLOG.setScrollTop(Double.MIN_VALUE);
 //       }
 //    }));
@@ -184,7 +184,7 @@ public class JNekoImageDB extends Application {
         StackPane root = new StackPane();
         final Scene scene;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            StackPane root3m = GUITools.getWinGUI(this, primaryStage, DRD, root, mvbox, "", GUITools.CLOSE_EXIT, false);
+            StackPane root3m = GUITools.getWinGUI(this, primaryStage, dragDelta, root, mvbox, "", GUITools.CLOSE_EXIT, false);
             scene = new Scene(root3m, 950, 650);
             scene.setFill(Color.TRANSPARENT);
              
@@ -289,9 +289,9 @@ public class JNekoImageDB extends Application {
         launch(args);
     }
     
-    public static final void L(String s) {
-        final SimpleDateFormat DF = new SimpleDateFormat(Lang.DateTimeFormat);
-        LOG.append("[").append(DF.format(new Date())).append("]\t");
-        LOG.append(s).append("\n");
-    }
+//    public static final void L(String s) {
+//        final SimpleDateFormat DF = new SimpleDateFormat(Lang.DateTimeFormat);
+//        logTextArea.append("[").append(DF.format(new Date())).append("]\t");
+//        logTextArea.append(s).append("\n");
+//    }
 }

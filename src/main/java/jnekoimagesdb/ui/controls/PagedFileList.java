@@ -107,7 +107,7 @@ public class PagedFileList extends SEVBox {
                                 final byte preview[];
                                 try {
                                     preview = imgConv.getPreviewFS(element.toAbsolutePath().toString());
-                                    final byte previewCrypted[] = XImg.getCrypt().Crypt(preview);
+                                    final byte previewCrypted[] = XImg.getCrypt().crypt(preview);
                                     peDB = new XImgPreviewGen.PreviewElement();
                                     peDB.setPath(element);
                                     peDB.setMD5(md5e);
@@ -118,7 +118,7 @@ public class PagedFileList extends SEVBox {
                                     oos.writeObject(peDB);
                                     oos.flush();
 
-                                    final byte[] crypted = XImg.getCrypt().Crypt(baos.toByteArray());
+                                    final byte[] crypted = XImg.getCrypt().crypt(baos.toByteArray());
                                     if (crypted == null) throw new IOException("Crypt() return null;");
                                     
                                     synchronized(XImg.getDB(XImg.PreviewType.cache)) {
