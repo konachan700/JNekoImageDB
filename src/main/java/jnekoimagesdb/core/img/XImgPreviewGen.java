@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.scene.image.Image;
@@ -36,15 +37,16 @@ public class XImgPreviewGen {
         public BinaryImage() { }
         
         public BinaryImage(byte[] img) {
-            cryptedImage = img;
+            cryptedImage = Arrays.copyOf(img, img.length);
         }
         
         public byte[] getBytes() {
-            return cryptedImage;
+            return Arrays.copyOf(cryptedImage, cryptedImage.length);
+//            return cryptedImage;
         }
         
         public void setBytes(byte[] b) {
-            cryptedImage = b;
+            cryptedImage = Arrays.copyOf(b, b.length);
         }
         
         public Image getImage(XImgCrypto crypt) {
@@ -65,11 +67,12 @@ public class XImgPreviewGen {
         private byte[] elementMD5 = null;
 
         public void setMD5(byte[] b) {
-            elementMD5 = b;
+            elementMD5 = Arrays.copyOf(b, b.length);
         }
         
         public byte[] getMD5() {
-            return elementMD5;
+            return Arrays.copyOf(elementMD5, elementMD5.length);
+//            return elementMD5;
         }
         
         public byte[] getCryptedImageBytes(String name) {

@@ -58,7 +58,7 @@ public class PagedFileList extends SEVBox {
     
     private class FileListGenerator implements Runnable {
         private final Logger 
-                logger = LoggerFactory.getLogger(FileListGenerator.class);
+                logger2 = LoggerFactory.getLogger(FileListGenerator.class);
 
         private final XImgImages
                 imgConv = new XImgImages();
@@ -75,7 +75,7 @@ public class PagedFileList extends SEVBox {
                     try {
                         Thread.sleep(400);
                     } catch (InterruptedException ex) {
-                        logger.info(ex.getMessage());
+                        logger2.info(ex.getMessage());
                         return;
                     }
                 }
@@ -131,7 +131,7 @@ public class PagedFileList extends SEVBox {
                                         setImage (im, element); 
                                 } catch (IOException ex1) {
                                     busyCounter--;
-                                    logger.info(ex1.getMessage());
+                                    logger2.info(ex1.getMessage());
                                 }
                             } else
                                 busyCounter--;
@@ -147,9 +147,9 @@ public class PagedFileList extends SEVBox {
                                     DSImage dsi = new DSImage(md5);
                                     dsi.setImageFileName(fileToMove.toFile().getName());
                                     addedImages.add(dsi);
-                                    logger.debug("WRITE TO STORE: "+fileToMove.toAbsolutePath().toString());
+                                    logger2.debug("WRITE TO STORE: "+fileToMove.toAbsolutePath().toString());
                                 } catch (Exception ex) {
-                                    logger.warn("File ["+fileToMove.getFileName().toString()+"] already exist;");
+                                    logger2.warn("File ["+fileToMove.getFileName().toString()+"] already exist;");
                                 }
                             }
                         } else {
@@ -190,12 +190,12 @@ public class PagedFileList extends SEVBox {
                                 hibSession.close();
                                 addedImages.clear();
                                 System.gc();
-                                logger.debug("Image saving completed!");
+                                logger2.debug("Image saving completed!");
                                 Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), true, 0, null); });
                             } else {
                                 try {
                                     Thread.sleep(50);
-                                } catch (InterruptedException ex) { logger.info(ex.getMessage()); }
+                                } catch (InterruptedException ex) { logger2.info(ex.getMessage()); }
                             }
                         }
                     }
@@ -235,6 +235,9 @@ public class PagedFileList extends SEVBox {
     private volatile long 
             curentAlbumID = 0;
     
+    private int 
+            currentPage = 0;
+    
     private volatile int 
             myWidth = 0,
             myHeight = 0,
@@ -246,7 +249,7 @@ public class PagedFileList extends SEVBox {
             itemWidth = 0,
             spacerSize = 4,
             filesCount = 0,
-            currentPage = 0,
+//            currentPage = 0,
             pagesCount = 0,
             threadsCount = 3;
     

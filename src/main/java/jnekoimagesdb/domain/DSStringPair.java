@@ -1,6 +1,7 @@
 package jnekoimagesdb.domain;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,11 +32,11 @@ public class DSStringPair implements Serializable {
     }
 
     public byte[] getMD5() {
-        return MD5;
+        return Arrays.copyOf(MD5, MD5.length);
     }
 
     public void setMD5(byte[] MD5) {
-        this.MD5 = MD5;
+        this.MD5 = Arrays.copyOf(MD5, MD5.length);
     }
 
     public String getValue() {

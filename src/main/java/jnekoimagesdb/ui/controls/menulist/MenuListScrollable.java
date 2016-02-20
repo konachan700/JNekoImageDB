@@ -31,7 +31,7 @@ public class MenuListScrollable extends ScrollPane {
         mi.setBgColor(color);
         mi.setActionListener(AL);
         if (icon != null) mi.setGroupIcon(icon);
-        mi.Commit();
+        mi.commit();
         groups.put(ID, mi);
         rootVBox.getChildren().add(mi);
     }
@@ -43,7 +43,7 @@ public class MenuListScrollable extends ScrollPane {
     public void addItem(String GID, String ID, String text) {
         if (groups.get(GID) == null) return;
         groups.get(GID).addLabel(ID, text);
-        groups.get(GID).Commit();
+        groups.get(GID).commit();
     }
     
     public void setActionListener(MenuGroupItemActionListener l) {

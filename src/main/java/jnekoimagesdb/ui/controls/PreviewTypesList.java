@@ -26,11 +26,11 @@ public class PreviewTypesList extends SEVBox {
             IMG32_NONSQUARED = GUITools.loadIcon("unselected2-16"),
             IMG32_SELECTED = GUITools.loadIcon("options-2-32");
 
-    protected interface TypesListItemActionListener {
+    protected static interface TypesListItemActionListener {
         void refreshNeed(DSPreviewSize d);
     }
     
-    protected class TypesListItem extends SFHBox {
+    protected static class TypesListItem extends SFHBox {
         public static final int 
                 BTN_DEL = 1,
                 BTN_SETPRIMARY = 2;

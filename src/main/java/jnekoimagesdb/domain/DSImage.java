@@ -1,6 +1,7 @@
 package jnekoimagesdb.domain;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -52,11 +53,12 @@ public class DSImage implements Serializable {
     }
 
     public byte[] getMD5() {
-        return MD5;
+        return Arrays.copyOf(MD5, MD5.length);
+//        return MD5;
     }
 
     public void setMD5(byte[] MD5) {
-        this.MD5 = MD5;
+        this.MD5 = Arrays.copyOf(MD5, MD5.length);
     }
 
     public Set<DSAlbum> getAlbums() {
@@ -67,12 +69,14 @@ public class DSImage implements Serializable {
         this.albums = albums;
     }
     
+    public boolean equals(Long o) {
+        return o.equals(getImageID());
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (o instanceof DSImage)
             return (((DSImage) o).getImageID() == getImageID());
-        else if (o instanceof Long)
-            return (((Long) o).equals(getImageID()));
         else 
             return false;
     }

@@ -15,7 +15,7 @@ public class MenuGroupItem extends VBox {
     /*
         Этот модуль притащен из проекта тестовой софтины для робота. Тут все надо рефакторить, ибо все криво.
     */
-    private final MenuLabel 
+    private static final MenuLabel 
             header      = new MenuLabel(),
             noitems     = new MenuLabel();
 
@@ -43,7 +43,7 @@ public class MenuGroupItem extends VBox {
     private final Map<String, ImageView> 
             itemIcons = new LinkedHashMap<>();
 
-    private final String 
+    private static final String 
             subItemStyle    = "-fx-font-weight:bold; -fx-font-size: 10px; -fx-label-padding: 3px 4px 3px 21px; ",
             noItemsStyle    = "-fx-font-style:italic; -fx-font-size: 10px; -fx-label-padding: 3px 4px 3px 21px; ",
             headerItemStyle = "-fx-font-weight:bold; -fx-font-size: 12px; -fx-label-padding: 5px 4px 5px 4px; ";
@@ -157,7 +157,7 @@ public class MenuGroupItem extends VBox {
         }
     }
 
-    public final void Commit() {
+    public final void commit() {
         _refreshItems();
     }
 
