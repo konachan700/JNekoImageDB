@@ -22,6 +22,7 @@ import javafx.stage.WindowEvent;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.ui.GUITools.DragDelta;
 import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.controls.dialogs.DialogDBInitSelect;
 import jnekoimagesdb.ui.controls.menulist.MenuGroupItem;
 import jnekoimagesdb.ui.controls.menulist.MenuGroupItemActionListener;
 import jnekoimagesdb.ui.controls.menulist.MenuLabel;
@@ -140,7 +141,16 @@ public class JNekoImageDB extends Application {
     @Override
     public void start(Stage primaryStage) {
         splash.show();
+        try { Thread.sleep(100); } catch (InterruptedException ex) { }
         
+        final DialogDBInitSelect ds = new DialogDBInitSelect();
+        ds.showModal();
+        databaseName = ds.getDBName();
+        if (databaseName.length() < 1) {
+            Platform.exit(); 
+            return;
+        }
+
         try {
             XImg.init(databaseName);
         } catch (Exception ex) {

@@ -41,6 +41,10 @@ public class XImgCrypto {
     private static volatile boolean
             isAES256Enable = true;
     
+    public static final String 
+            PUBLIC_KEY_NAME = "public.key",
+            KEYSTORE_NAME = "keystore.bin";
+    
     private static class CryptInfoData implements Serializable {
         public byte[]
                 masterKey256    = null, 
@@ -145,7 +149,7 @@ public class XImgCrypto {
     
     @SuppressWarnings("ConvertToTryWithResources")
     public void init(String dbname) throws Exception {
-        publicKeyFile  = new File("." + File.separator + dbname + File.separator + "public.key");
+        publicKeyFile  = new File("." + File.separator + dbname + File.separator + PUBLIC_KEY_NAME);
         privateKeyFile = new File("." + File.separator + dbname + File.separator + "private.key");
         
         isAES256Enable = isAES256Support();
@@ -186,7 +190,7 @@ public class XImgCrypto {
             privKey = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
         }
         
-        keystoreFile = new File("." + File.separator + dbname + File.separator + "keystore.bin");
+        keystoreFile = new File("." + File.separator + dbname + File.separator + KEYSTORE_NAME);
         final CryptInfo ci;
         if (!keystoreFile.exists() || (keystoreFile.length() <= 0)) {
             ci = new CryptInfo();

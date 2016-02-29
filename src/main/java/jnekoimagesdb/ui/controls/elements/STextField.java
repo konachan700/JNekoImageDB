@@ -18,6 +18,11 @@ public class STextField extends TextField {
         super("");
         init(id, width, height, al, "textfield");
     }
+    
+    public STextField(int height) {
+        super("");
+        init(0, -1, height, null, "textfield");
+    }
 
     private void init(int id, int w, int h, GUIActionListener al, String styleName) {
         xID = id;

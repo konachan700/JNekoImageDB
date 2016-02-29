@@ -36,8 +36,8 @@ public class HibernateUtil {
             prop.setProperty("hibernate.connection.username", uname);
             prop.setProperty("hibernate.connection.password", upass + " " + upass);
             prop.setProperty("dialect", "org.hibernate.dialect.H2Dialect");
-            prop.setProperty("hibernate.show_sql", "true");
-            prop.setProperty("hibernate.format_sql", "true");
+            //prop.setProperty("hibernate.show_sql", "true");
+            // prop.setProperty("hibernate.format_sql", "true");
             
             final Configuration conf = new Configuration()
                     .addProperties(prop)

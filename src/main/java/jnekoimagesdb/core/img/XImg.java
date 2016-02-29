@@ -39,8 +39,7 @@ public class XImg {
     private static final XImgCrypto
         cryptoEx = new XImgCrypto(() -> {
             
-            final DialogDBInitSelect ds = new DialogDBInitSelect();
-            ds.showModal();
+            
             
             return null;
         });

@@ -23,7 +23,7 @@ public class StartSplashScreen {
     public StartSplashScreen() {
         scene = new Scene(root, 640, 480);
         win.setResizable(false);
-        win.setAlwaysOnTop(true);
+        //win.setAlwaysOnTop(true);
         
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             win.initStyle(StageStyle.TRANSPARENT);
