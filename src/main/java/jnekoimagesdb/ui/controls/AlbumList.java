@@ -21,8 +21,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AlbumList extends SEVBox {
+    private static final Logger 
+                logger = LoggerFactory.getLogger(AlbumList.class);
+    
     public static final int
             ADD_NEW_ELEMENT_VSIZE = 32;
     
@@ -392,10 +397,11 @@ public class AlbumList extends SEVBox {
     }
     
     public final void levelUp() {
+        logger.debug("levelUp() PID:"+currentAlbum.getParentAlbumID());
         if (currentAlbum.getParentAlbumID() > 0) {
             List<DSAlbum> list = hibSession
                     .createCriteria(DSAlbum.class)
-                    .add(Restrictions.eq("albumID", currentAlbum.getAlbumID()))
+                    .add(Restrictions.eq("albumID", currentAlbum.getParentAlbumID()))
                     .list();
 
             if (list.size() > 0) {

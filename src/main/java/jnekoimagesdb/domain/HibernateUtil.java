@@ -81,21 +81,21 @@ public class HibernateUtil {
         return currSession;
     }
     
-    public static void sessionClose(Session currSession) {
+    public static synchronized void sessionClose(Session currSession) {
         if (currSession != null) {
             currSession.close();
         } else 
             log.log(Level.WARNING, "Cannot close session, it's already closed.");
     }
     
-    public static void beginTransaction(Session currSession) {
+    public static synchronized void beginTransaction(Session currSession) {
         if (currSession != null) {
             currSession.beginTransaction();
         } else 
             log.log(Level.WARNING, "Cannot begin transaction, session is already closed.");
     }
     
-    public static void commitTransaction(Session currSession) {
+    public static synchronized void commitTransaction(Session currSession) {
         if (currSession != null) {
             currSession.getTransaction().commit();
         } else 

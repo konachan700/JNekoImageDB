@@ -10,10 +10,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.control.TextArea;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
-
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.controls.dialogs.DialogDBInitSelect;
 import jnekoimagesdb.ui.controls.dialogs.DialogMessageBox;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
 import jnekoimagesdb.ui.controls.tabs.TabAlbumImageList;
@@ -38,6 +38,9 @@ public class XImg {
     
     private static final XImgCrypto
         cryptoEx = new XImgCrypto(() -> {
+            
+            final DialogDBInitSelect ds = new DialogDBInitSelect();
+            ds.showModal();
             
             return null;
         });

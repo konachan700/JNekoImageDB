@@ -41,7 +41,6 @@ public class XImgImages {
         isSquaredFSPreview = s;
     }
     
-    @SuppressWarnings("ConvertToTryWithResources")
     public boolean isImage(String path) {
         final String ext = FilenameUtils.getExtension(path);
         if (ext.length() < 2) return false;
@@ -65,11 +64,10 @@ public class XImgImages {
         return false;
     }
     
-    @SuppressWarnings("ConvertToTryWithResources")
     public byte[] getPreviewFS(String in_path) throws IOException {
         final BufferedImage image = intResizeImage(in_path, previewWidth, previewHeight, isSquaredFSPreview);
         if (image == null) 
-            throw new IOException("getPreviewFS: cannot create preview for image ["+in_path+"]!");;
+            throw new IOException("getPreviewFS: cannot create preview for image ["+in_path+"]!");
         
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);
@@ -79,11 +77,10 @@ public class XImgImages {
         return retVal;
     }
     
-    @SuppressWarnings("ConvertToTryWithResources")
     public byte[] getPreviewFS(java.awt.Image inImg) throws IOException {
         final BufferedImage image = intResizeImage(inImg, previewWidth, previewHeight, isSquaredFSPreview);
         if (image == null) 
-            throw new IOException("getPreviewFS: cannot create preview for image [RAW_BITMAP]!");;
+            throw new IOException("getPreviewFS: cannot create preview for image [RAW_BITMAP]!");
         
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);

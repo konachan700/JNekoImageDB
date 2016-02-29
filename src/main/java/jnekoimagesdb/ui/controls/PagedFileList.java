@@ -40,6 +40,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.util.Duration;
 import jnekoimagesdb.ui.GUITools;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iq80.leveldb.DB;
@@ -137,60 +138,77 @@ public class PagedFileList extends SEVBox {
                                 busyCounter--;
                         }
                     } else {
+                        
                         final Path fileToMove = insertToDBDeque.pollLast();
                         if (fileToMove != null) {
-                            Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), false, progressCounter, fileToMove); });
-                            progressCounter++;
-                            if (imgConv.isImage(fileToMove.toAbsolutePath().toString())) {
-                                try {
-                                    final byte[] md5 = XImgDatastore.pushFile(fileToMove.toAbsolutePath());
-                                    DSImage dsi = new DSImage(md5);
-                                    dsi.setImageFileName(fileToMove.toFile().getName());
-                                    addedImages.add(dsi);
-                                    logger2.debug("WRITE TO STORE: "+fileToMove.toAbsolutePath().toString());
-                                } catch (Exception ex) {
-                                    logger2.warn("File ["+fileToMove.getFileName().toString()+"] already exist;");
+                            try {
+                                Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), false, progressCounter, fileToMove); });
+                                progressCounter++;
+                                if (imgConv.isImage(fileToMove.toAbsolutePath().toString())) {
+                                    try {
+                                        final byte[] md5 = XImgDatastore.pushFile(fileToMove.toAbsolutePath());
+                                        DSImage dsi = new DSImage(md5);
+                                        dsi.setImageFileName(fileToMove.toFile().getName());
+                                        addedImages.add(dsi);
+                                        //logger2.debug("WRITE TO STORE: "+fileToMove.toAbsolutePath().toString());
+                                    } catch (Exception ex) {
+                                        //logger2.warn("File ["+fileToMove.getFileName().toString()+"] already exist;");
+                                    }
                                 }
+                            } catch(Error er) {
+                                logger2.error("Image ["+fileToMove.getFileName().toString()+"] push failed! Error. TID:"+this.hashCode()+"; Message: "+er.getMessage());
                             }
                         } else {
                             if (!addedImages.isEmpty()) {
                                 Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), false, 0, null); });
+                                logger2.debug("Save to DB started. TID:"+this.hashCode());
                                 
-                                final DSAlbum ds;
-                                Session hibSession = HibernateUtil.getNewSession();
-                                if (curentAlbumID > 0) {
-                                    List<DSAlbum> list = hibSession
-                                            .createCriteria(DSAlbum.class)
-                                            .add(Restrictions.eq("albumID", curentAlbumID))
-                                            .list();
+                                try {
+                                    final DSAlbum ds;
+                                    final Session hibSession = HibernateUtil.getNewSession();
+                                    if (curentAlbumID > 0) {
+                                        List<DSAlbum> list = hibSession
+                                                .createCriteria(DSAlbum.class)
+                                                .add(Restrictions.eq("albumID", curentAlbumID))
+                                                .list();
 
-                                    if (list.size() > 0) 
-                                        ds = list.get(0);
-                                    else 
-                                        ds = null;
-                                } else {
-                                   ds = null;
+                                        if (list.size() > 0) 
+                                            ds = list.get(0);
+                                        else 
+                                            ds = null;
+                                    } else {
+                                       ds = null;
+                                    }
+
+                                    HibernateUtil.beginTransaction(hibSession);
+                                    addedImages.forEach(c -> {
+                                        hibSession.save(c);
+                                        progressCounter++;
+                                    });
+
+                                    if (ds != null) {
+                                        if (ds.getImages() != null)
+                                            ds.getImages().addAll(addedImages);
+                                        else 
+                                            ds.setImages(new HashSet<>(addedImages));
+                                        hibSession.save(ds);
+                                    }
+
+                                    HibernateUtil.commitTransaction(hibSession);
+                                    hibSession.close();
+                                    addedImages.clear();
+                                    
+                                    System.gc(); // Это тут действительно нужно, так как при сохранении большого объема данных 
+                                    //  сборщик вовремя не вычищает мусор и процесс "раздувает" до максимального размера, от чего в винде иногда вылетает окошко нехватки памяти. 
+                                    //  Актуально для старых ПК и виртуалок. При объеме памяти 6гб и более можно отключить.
+                                    
+                                    logger2.debug("Images saving completed! TID:"+this.hashCode());
+                                } catch (HibernateException he) {
+                                    logger2.error("Images saving failed! Hibernate error. TID:"+this.hashCode()+"; Message: "+he.getMessage());
+                                } catch (Error er) {
+                                    logger2.error("Images saving failed! Error. TID:"+this.hashCode()+"; Message: "+er.getMessage());
                                 }
                                 
-                                HibernateUtil.beginTransaction(hibSession);
-                                addedImages.forEach(c -> {
-                                    hibSession.save(c);
-                                    progressCounter++;
-                                });
-
-                                if (ds != null) {
-                                    if (ds.getImages() != null)
-                                        ds.getImages().addAll(addedImages);
-                                    else 
-                                        ds.setImages(new HashSet<>(addedImages));
-                                    hibSession.save(ds);
-                                }
-                                
-                                HibernateUtil.commitTransaction(hibSession);
-                                hibSession.close();
-                                addedImages.clear();
-                                System.gc();
-                                logger2.debug("Image saving completed!");
                                 Platform.runLater(() -> { pflal.onThreadPause(this.hashCode(), true, 0, null); });
                             } else {
                                 try {
