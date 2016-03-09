@@ -17,7 +17,7 @@ public class HibernateUtil {
     private SessionFactory 
             currSF;
     
-    final StandardServiceRegistry
+    private StandardServiceRegistry
             builder;
     
     private static HibernateUtil
@@ -67,10 +67,10 @@ public class HibernateUtil {
     }
 
     public static void hibernateInit(String rootDBName, String uname, String upass) {
-        if (util == null) {
+        //if (util == null) {
             util = new HibernateUtil(rootDBName, uname, upass);
             currSession = util.getSessionFactory().openSession();
-        }
+        //}
     }
     
     public static Session getNewSession() {

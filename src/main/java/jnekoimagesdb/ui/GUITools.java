@@ -135,6 +135,13 @@ public class GUITools {
         return sep1;
     }
     
+    public static final VBox getHNFSeparator(int hsz) {
+        VBox sep1 = new VBox();
+        setMaxSize(sep1, 9999, hsz);
+        sep1.setMinSize(1, 1);
+        return sep1;
+    }
+    
     public static VBox getSeparator(double sz) {
         VBox sep1 = new VBox();
         setFixedSize(sep1, sz, sz);

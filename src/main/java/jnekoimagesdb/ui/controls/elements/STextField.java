@@ -23,6 +23,11 @@ public class STextField extends TextField {
         super("");
         init(0, -1, height, null, "textfield");
     }
+    
+    public STextField setHelpText(String s) {
+        this.setPromptText(s); 
+        return this;
+    }
 
     private void init(int id, int w, int h, GUIActionListener al, String styleName) {
         xID = id;
