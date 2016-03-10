@@ -2,15 +2,13 @@ package jnekoimagesdb.ui.controls.tabs;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import jnekoimagesdb.core.img.XImg;
@@ -20,19 +18,14 @@ import jnekoimagesdb.core.img.XImgPreviewSizes;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.GUITools;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_ADD;
 import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_NONSQUARED;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_SELECTED;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_SETPRIMARY;
 import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_SQUARED;
-import jnekoimagesdb.ui.controls.elements.GUIActionListener;
 import jnekoimagesdb.ui.controls.elements.SButton;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SElementPair;
 import jnekoimagesdb.ui.controls.elements.SFHBox;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
 import jnekoimagesdb.ui.controls.elements.SNumericTextField;
-import jnekoimagesdb.ui.controls.elements.SScrollPane;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
 import jnekoimagesdb.ui.controls.elements.STextField;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
@@ -77,9 +70,9 @@ public class TabStartNewDB extends SEVBox {
             wf = new SNumericTextField(0, 70, 32, null);
     
     private boolean 
-            isSqared = false;
+            isSqared = false,
+            locked = false;
    
-    
     private final ImageView
             imgButton = new ImageView(IMG32_NONSQUARED);
     
@@ -120,6 +113,7 @@ public class TabStartNewDB extends SEVBox {
         GUITools.setMaxSize(tab01, 9999, 9999);
         GUITools.setMaxSize(tab02, 9999, 9999);
         txtDBName.setHelpText("Ведите имя БД");
+        btn.setGraphic(imgButton);
         
         addNewItem.getChildren().addAll(new SFLabel("Ширина:", 64, 64, 32, 32, "label", "TypesListItem"), 
                 wf,
@@ -131,15 +125,21 @@ public class TabStartNewDB extends SEVBox {
         );
         GUITools.setMaxSize(addNewItem, 9999, 32);
                 
+        tab02.getChildren().addAll(
+                GUITools.getHSeparator(32),
+                new SFLabel("Пожалуйста, подождите...", 64, 9999, 50, 50, "label_darkgreen", "TypesListItem"),
+                GUITools.getHNFSeparator(9999)
+        );
+        
         tab01.getChildren().addAll(
-                new SFLabel("Название базы данных", 64, 9999, 20, 20, "label_darkgreen", "TypesListItem"),
+                new SFLabel("Название базы данных", 64, 9999, 20, 20, "label_darkred", "TypesListItem"),
                 new SFLabel("В названии БД допускаются только английские символы, минус и нижнее подчеркивание. После ввода имени БД нажмите кнопку \"Далее\".", 
-                        36, 9999, 44, 44, "label_darkgreen_small", "TypesListItem"),
+                        36, 9999, 44, 44, "label_darkred_small", "TypesListItem"),
                 txtDBName,
                 GUITools.getHSeparator(16),
-                new SFLabel("Настройка формата превью.", 64, 9999, 20, 20, "label_darkred", "TypesListItem"),
+                new SFLabel("Настройка формата превью.", 64, 9999, 20, 20, "label_darkgreen", "TypesListItem"),
                 new SFLabel("Размер превью может быть от 64 до 800 пикселей по ширине и от 64 до 800 пикселей по высоте.", 
-                        36, 9999, 44, 44, "label_darkred_small", "TypesListItem"),
+                        36, 9999, 44, 44, "label_darkgreen_small", "TypesListItem"),
                 addNewItem,
                 GUITools.getHNFSeparator(9999),
                 new SElementPair(
@@ -147,24 +147,9 @@ public class TabStartNewDB extends SEVBox {
                         4, 32, 32,
                         GUITools.getSeparator(),
                         new STabTextButton("  Создать БД  ", 0 , 200, 32, (x, y) -> {
-                            if (((wf.getLongValue() >= 64) && (wf.getLongValue() <= 800))
-                                        && ((hf.getLongValue() >= 64) && (hf.getLongValue() <= 800))) {
+                            if (((wf.getLongValue() >= 64) && (wf.getLongValue() <= 800)) && ((hf.getLongValue() >= 64) && (hf.getLongValue() <= 800))) {
                                 if (dbName != null) {
-                                    if (createDB()) {
-                                        final StringBuilder sb = new StringBuilder();
-                                        sb
-                                                .append("Preview_")
-                                                .append(wf.getLongValue())
-                                                .append("x")
-                                                .append(hf.getLongValue())
-                                                .append("_")
-                                                .append((isSqared) ? "SQ" : "NS");
-                                        psizes.addPreviewSize(sb.substring(0), wf.getLongValue(), hf.getLongValue(), isSqared);
-                                        psizes.get(0).setPrimary(true);
-                                        
-                                        outActListener.OnDBCreated(dbName);
-                                    } else
-                                        XImg.msgbox("Невозможно создать БД: диск переполнен или папка недоступна на запись.");
+                                    createDBX();
                                 } else 
                                     XImg.msgbox("Название БД введено некорректно!");
                             } else 
@@ -174,6 +159,48 @@ public class TabStartNewDB extends SEVBox {
         );
 
         this.getChildren().add(tab01);
+    }
+    
+    private void createDBX() {
+        locked = true;
+        this.getChildren().clear();
+        this.getChildren().add(tab02);
+        
+        final Runnable
+            dbCreationThread = () -> {
+                if (createDB()) {
+                    final StringBuilder sb = new StringBuilder();
+                    sb
+                            .append("Preview_")
+                            .append(wf.getLongValue())
+                            .append("x")
+                            .append(hf.getLongValue())
+                            .append("_")
+                            .append((isSqared) ? "SQ" : "NS");
+                    psizes.addPreviewSize(sb.substring(0), wf.getLongValue(), hf.getLongValue(), isSqared);
+                    psizes.get(0).setPrimary(true);
+                    
+                    SettingsUtil.setLong("mainPreviewGenThreadsCount.value", 4);
+                    SettingsUtil.setLong("previewFSCacheThreadsCount.value", 4);
+                    
+                    HibernateUtil.dispose();
+
+                    Platform.runLater(() -> { outActListener.OnDBCreated(dbName); });
+                } else {
+                    XImg.msgbox("Невозможно создать БД: диск переполнен или папка недоступна на запись.");
+                    Platform.runLater(() -> { 
+                        this.getChildren().clear();
+                        this.getChildren().add(tab01);
+                        locked = false;
+                    });
+                }
+
+            };
+        new Thread(dbCreationThread).start();
+    }
+    
+    public boolean isLocked() {
+        return locked;
     }
     
     private void checkField() {

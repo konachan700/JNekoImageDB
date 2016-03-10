@@ -30,6 +30,7 @@ public class DialogDBInitSelect extends DialogWindow {
     
     private final TabStartNewDB
             tabNew = new TabStartNewDB((el) -> {
+                retCode = DBSelectReturnCode.newDB;
                 this.hide();
             });
     
@@ -44,6 +45,7 @@ public class DialogDBInitSelect extends DialogWindow {
                 if (ID == 1) {
                     if (tabSelect.getDBName().trim().length() >= 1) {
                         dbNameX = tabSelect.getDBName().trim();
+                        retCode = DBSelectReturnCode.existDB;
                         this.hide();
                     } else {
                         XImg.msgbox("БД не выбрана!");
@@ -91,6 +93,8 @@ public class DialogDBInitSelect extends DialogWindow {
     }
     
     private void selectDB() {
+        if (tabNew.isLocked()) return;
+        
         retCode = DBSelectReturnCode.existDB;
         this.getMainContainer().getChildren().clear();
         albumName.setText("Открыть существующую БД");
@@ -98,6 +102,8 @@ public class DialogDBInitSelect extends DialogWindow {
     }
     
     private void newDB() {
+        if (tabNew.isLocked()) return;
+        
         retCode = DBSelectReturnCode.newDB;
         this.getMainContainer().getChildren().clear();
         albumName.setText("Создать новую БД");
@@ -105,7 +111,9 @@ public class DialogDBInitSelect extends DialogWindow {
     }
     
     public String getDBName() {
-        return dbNameX;
+        if (retCode == DBSelectReturnCode.newDB) return tabNew.getDBName();
+        if (retCode == DBSelectReturnCode.existDB) return tabSelect.getDBName();
+        return null;
     }
     
     public DBSelectReturnCode getRetCode() {

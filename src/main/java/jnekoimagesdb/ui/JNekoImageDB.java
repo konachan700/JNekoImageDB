@@ -141,12 +141,14 @@ public class JNekoImageDB extends Application {
     @Override
     public void start(Stage primaryStage) {
         splash.show();
-        try { Thread.sleep(100); } catch (InterruptedException ex) { }
+        try { Thread.sleep(50); } catch (InterruptedException ex) { }
         
         final DialogDBInitSelect ds = new DialogDBInitSelect();
         ds.showModal();
-        databaseName = ds.getDBName();
-        if (databaseName.length() < 1) {
+        if ((ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.newDB) ||
+                (ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.existDB)) {
+            databaseName = ds.getDBName();
+        } else {
             Platform.exit(); 
             return;
         }
@@ -159,9 +161,6 @@ public class JNekoImageDB extends Application {
             return;
         }
 
-//        TMRLOG.setCycleCount(Animation.INDEFINITE);
-//        TMRLOG.play();
-        
         final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
         final ImageView imgLogoV = new ImageView(logoImage);
 
@@ -182,9 +181,6 @@ public class JNekoImageDB extends Application {
             XImg.getTabAllImages().regenerate();
             XImg.getTabAllImages().refresh();
         });
-        
-        
-        
         
         GUITools.setStyle(XImg.getTALog(), "JNekoImageDB", "taLOG");
         XImg.getTALog().textProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
