@@ -76,7 +76,11 @@ public class XDialogWindow {
     public XDialogWindow() { }
     
     public void create(ToolsPanelTop pt, ToolsPanelBottom bp, Node px, int style) {
-        final Scene scene = new Scene(windowVBox, 1000, 700);
+        create(pt, bp, px, style, 1000, 700);
+    }
+    
+    public void create(ToolsPanelTop pt, ToolsPanelBottom bp, Node px, int style, int w, int h) {
+        final Scene scene = new Scene(windowVBox, w, h);
         
         switch (style) {
             case COLOR_RED:

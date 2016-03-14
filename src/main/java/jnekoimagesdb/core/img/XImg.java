@@ -13,8 +13,8 @@ import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.controls.PagedImageList;
-import jnekoimagesdb.ui.controls.dialogs.DialogDBInitSelect;
-import jnekoimagesdb.ui.controls.dialogs.DialogMessageBox;
+import jnekoimagesdb.ui.controls.dialogs.XDialogMessageBox;
+import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
 import jnekoimagesdb.ui.controls.tabs.TabAlbumImageList;
 import jnekoimagesdb.ui.controls.tabs.TabAllImages;
@@ -38,9 +38,8 @@ public class XImg {
     
     private static final XImgCrypto
         cryptoEx = new XImgCrypto(() -> {
-            
-            
-            
+            XImg.msgbox("Приватный ключ не найден!");
+            // todo: добавить диалог выбора файла приватного ключа
             return null;
         });
     
@@ -59,8 +58,11 @@ public class XImg {
     private static final TabAlbumImageList
             tabAlbumImageList = new TabAlbumImageList();
     
-    private static final DialogMessageBox
-            messageBox = new DialogMessageBox();
+    private static final XDialogMessageBox
+            messageBox = new XDialogMessageBox();
+    
+    private static final XDialogOpenDirectory
+            openDirDialog  = new XDialogOpenDirectory();
     
     private static final TabAllTags
             tabAllTags = new TabAllTags();
@@ -88,12 +90,13 @@ public class XImg {
         cryptoEx.init(databaseName);
         initIDB(PreviewType.cache);
         initIDB(PreviewType.previews);
-        XImgDatastore.init(cryptoEx, databaseName); 
+        XImgDatastore.init(cryptoEx, databaseName);
         HibernateUtil.hibernateInit(rootDatabaseName, "jneko", cryptoEx.getPassword());
         SettingsUtil.init();
         psizes.refreshPreviewSizes();
         imgUpl.init();
         pagedImageList.initDB();
+        openDirDialog.init();
     }
     
     public static XImgPreviewSizes getPSizes() {
@@ -116,6 +119,7 @@ public class XImg {
                 levelDB.get(x).close();
             } catch (IOException ex) { }
         });
+        openDirDialog.dispose();
     }
 
     public static XImgCrypto getCrypt() {
@@ -139,7 +143,7 @@ public class XImg {
     }
 
     public static void msgbox(String text) {
-        messageBox.showMsgbox(text);
+        messageBox.show(text);
     }
     
     public static XImageUpload getUploadBox() {
@@ -148,5 +152,9 @@ public class XImg {
     
     public static TextArea getTALog() {
         return taLOG;
+    }
+    
+    public static XDialogOpenDirectory openDir() {
+        return openDirDialog;
     }
 }

@@ -24,6 +24,7 @@ import jnekoimagesdb.ui.controls.elements.GUIElements;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
+import static jnekoimagesdb.ui.controls.tabs.TabAllImages.BTN_EXPORT;
 
 public class TabAlbumImageList extends SEVBox {
     public static final int
@@ -136,6 +137,10 @@ public class TabAlbumImageList extends SEVBox {
                 case BTN_TO_TEMP:
                     pil.uploadSelected();
                     break;
+                case BTN_EXPORT:
+                    XImg.openDir().showDialog();
+                    //System.out.println(XImg.openDir().getSelected());
+                    break;
                 case GUIElements.BTN_DEL: // TODO Аналогично
                     
                     break;
@@ -160,6 +165,7 @@ public class TabAlbumImageList extends SEVBox {
         panelTopImg.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
         panelTopImg.addSeparator();
         panelTopImg.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
+        panelTopImg.addButton(TabAllImages.IMG48_EXPORT, TabAllImages.BTN_EXPORT);
         
         albumName.setAlignment(Pos.CENTER);
     }

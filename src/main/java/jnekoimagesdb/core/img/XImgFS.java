@@ -73,16 +73,18 @@ public class XImgFS {
                                 if (isBreak) { isBreak = false; break; }
 
                                 if (Files.isRegularFile(el)) {
-                                    final String fn = el.getFileName().toString().trim().toLowerCase();
-                                    if ((fn.endsWith(".jpg")) || (fn.endsWith(".jpeg")) || (fn.endsWith(".png")) || (fn.endsWith(".gif"))) {
-                                        files.add(el);
+                                    if (!dirsOnly) {
+                                        final String fn = el.getFileName().toString().trim().toLowerCase();
+                                        if ((fn.endsWith(".jpg")) || (fn.endsWith(".jpeg")) || (fn.endsWith(".png")) || (fn.endsWith(".gif"))) {
+                                            files.add(el);
+                                        }
                                     }
                                 } else {
                                     if (Files.isDirectory(el)) dirs.add(el);
                                 }
                             }
                             currentFilesList.addAll(dirs);
-                            currentFilesList.addAll(files);
+                            if (!dirsOnly) currentFilesList.addAll(files);
                             stream.close();
                             isBusy = false;
                             Platform.runLater(() -> { al.fileListRefreshed(currentPath, currentFilesList, System.currentTimeMillis() - tmr); });
@@ -103,6 +105,9 @@ public class XImgFS {
     
     private final Object
             syncObject = new Object();
+    
+    private boolean 
+            dirsOnly = false;
     
     private volatile long
             workerCounter = 0;
@@ -136,6 +141,11 @@ public class XImgFS {
     
     public XImgFS(XImgFSActionListener _al) {
         al = _al;
+    }
+    
+    public void initDir() {
+        dirsOnly = true;
+        init();
     }
     
     public void init() {

@@ -20,13 +20,15 @@ public class TabAllImages extends SEVBox  {
             IMG48_ADD_TAGS       = GUITools.loadIcon("add-tags-48"), 
             IMG48_ADD_NEW        = GUITools.loadIcon("todb-48"),
             IMG48_TO_ALBUM       = GUITools.loadIcon("add-to-album-48"),
+            IMG48_EXPORT         = GUITools.loadIcon("export-48"),
             IMG48_TO_TEMP        = GUITools.loadIcon("addtotemp-48"); 
     
     public static final int
             BTN_ADD_TAGS    = 10,
             BTN_TO_ALBUM    = 11,
             BTN_TO_TEMP     = 12,
-            BTN_ADD_NEW     = 13;
+            BTN_ADD_NEW     = 13,
+            BTN_EXPORT      = 14;
         
     public static enum FilterType {
         all, nottags, notinalbums
@@ -53,9 +55,6 @@ public class TabAllImages extends SEVBox  {
                 case BTN_SELNONE:
                     pil.selectNone();
                     break;
-//                case TabAddImagesToDB.BTN_DEL:
-//                    
-//                    break;
                 case BTN_TO_ALBUM:
                     if (pil.getSelectedHashes().size() > 0) {
                         dis.refresh();
@@ -74,6 +73,9 @@ public class TabAllImages extends SEVBox  {
                 case BTN_TO_TEMP:
                     pil.uploadSelected();
                     break;
+                case BTN_EXPORT:
+                    XImg.openDir().showDialog();
+                    break;
                 case BTN_ADD_NEW:
                     XImg.getUploadBox().setAlbumID(pil.getAlbumID());
                     XImg.getUploadBox().showModal();
@@ -88,6 +90,7 @@ public class TabAllImages extends SEVBox  {
         panelTop.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
         panelTop.addSeparator();
         panelTop.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
+        panelTop.addButton(TabAllImages.IMG48_EXPORT, TabAllImages.BTN_EXPORT);
     }
     
     public void setAlbumID(long id) {

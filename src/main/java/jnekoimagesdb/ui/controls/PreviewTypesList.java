@@ -2,7 +2,6 @@ package jnekoimagesdb.ui.controls;
 
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSPreviewSize;
-import jnekoimagesdb.ui.controls.dialogs.DialogYesNoBox;
 import jnekoimagesdb.ui.controls.elements.GUIActionListener;
 import jnekoimagesdb.ui.controls.elements.SButton;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
@@ -15,6 +14,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.dialogs.XDialogYesNoBox;
 
 public class PreviewTypesList extends SEVBox {
     public static final Image 
@@ -54,9 +54,9 @@ public class PreviewTypesList extends SEVBox {
                             alOut.refreshNeed(thisElement);
                             break;
                         case BTN_DEL:
-                            final DialogYesNoBox d = new DialogYesNoBox();
-                            int res = d.showYesNo("Точно удалить секцию?\r\nТакже будут удалены все сгенерированные превью для данной секции!");
-                            if (res == DialogYesNoBox.SELECT_YES) {
+                            final XDialogYesNoBox d = new XDialogYesNoBox();
+                            d.showYesNo("Точно удалить секцию?", "Будут удалены все сгенерированные превью для данной секции!");
+                            if (d.getResult() == XDialogYesNoBox.XDialogYesNoBoxResult.dYes) {
                                 XImg.getPSizes().deletePreviewSize(thisElement);
                                 alOut.refreshNeed(thisElement);
                             }

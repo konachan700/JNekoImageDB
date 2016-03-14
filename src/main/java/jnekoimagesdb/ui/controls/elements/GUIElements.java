@@ -13,6 +13,7 @@ public class GUIElements {
             ITEM_ERROR      = GUITools.loadIcon("broken-file-128"), 
             ITEM_NOTHING    = GUITools.loadIcon("dummy-128"), 
             ITEM_LOADING    = GUITools.loadIcon("loading-128"), 
+            ITEM_UNKNOWN    = GUITools.loadIcon("unknown-file-128"),
             ICON_NOELEMENTS = GUITools.loadIcon("delete-gray-48"), 
             ICON_DIR        = GUITools.loadIcon("dir-normal-128"),
             ICON_DIR_NA     = GUITools.loadIcon("dir-na-128"), 

@@ -30,7 +30,7 @@ public class XImageUpload extends XDialogWindow {
             IMG64_ADDALL            = GUITools.loadIcon("addall-48"),
             IMG64_ADDSEL            = GUITools.loadIcon("add-to-db-48");
     
-    private static final int 
+    public static final int 
             BTN_SELECT_ALL = 1,
             BTN_SELECT_NONE = 2,
 //            BTN_DELETE = 3, 

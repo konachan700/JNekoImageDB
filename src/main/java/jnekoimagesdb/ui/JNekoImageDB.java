@@ -148,11 +148,15 @@ public class JNekoImageDB extends Application {
         if ((ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.newDB) ||
                 (ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.existDB)) {
             databaseName = ds.getDBName();
+            if (databaseName == null) {
+                Platform.exit(); 
+                return;
+            }
         } else {
             Platform.exit(); 
             return;
         }
-
+        
         try {
             XImg.init(databaseName);
         } catch (Exception ex) {
