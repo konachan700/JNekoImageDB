@@ -49,6 +49,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import jnekoimagesdb.domain.DSTag;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.LoggerFactory;
@@ -618,19 +619,20 @@ public class PagedImageList extends SScrollPane {
                 } else {
                     list = (List<DSImage>) hibSession
                             .createCriteria(DSImage.class)
+                            .addOrder(Order.desc("imageID"))
                             .setFirstResult(offset)
                             .setMaxResults(count)
                             .list();
                 }
                 break;
             case IMAGES_NOT_IN_ALBUM: 
-                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.albums IS EMPTY")
+                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.albums IS EMPTY ORDER BY r.imageID DESC")
                         .setFirstResult(offset)
                         .setMaxResults(count)
                         .list();
                 break;
             case IMAGES_NOTAGGED: 
-                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.tags IS EMPTY")
+                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.tags IS EMPTY ORDER BY r.imageID DESC")
                         .setFirstResult(offset)
                         .setMaxResults(count)
                         .list();
@@ -640,6 +642,7 @@ public class PagedImageList extends SScrollPane {
                         .createCriteria(DSImage.class)
                         .createCriteria("albums")
                         .add(Restrictions.eq("albumID", albumID))
+                        //.addOrder(Order.desc("imageID"))
                         .setFirstResult(offset)
                         .setMaxResults(count)
                         .list();

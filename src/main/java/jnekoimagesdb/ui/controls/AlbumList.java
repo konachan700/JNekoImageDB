@@ -1,5 +1,7 @@
 package jnekoimagesdb.ui.controls;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.ui.GUITools;
@@ -11,6 +13,7 @@ import jnekoimagesdb.ui.controls.elements.SScrollPane;
 import jnekoimagesdb.ui.controls.elements.STextArea;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,7 +22,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import jnekoimagesdb.core.img.XImg;
+import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
+import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +51,7 @@ public class AlbumList extends SEVBox {
             ALBUM_DEFAULT = GUITools.loadIcon("dir-normal-128"),
             SELECTED_16 = GUITools.loadIcon("selected-16"),
             UNSELECTED_16 = GUITools.loadIcon("unselected2-16"),
+            EXPORT_16 = GUITools.loadIcon("alb-export-16"),
             SAVE_16 = GUITools.loadIcon("save-16"),
             EDIT_16 = GUITools.loadIcon("edit-16");
     
@@ -156,7 +164,8 @@ public class AlbumList extends SEVBox {
 
         private final Button
                 saveBtn = new Button(Lang.NullString, edit_i),
-                selectBtn = new Button(Lang.NullString, unselected_i);
+                selectBtn = new Button(Lang.NullString, unselected_i),
+                exportButton = new Button(Lang.NullString, new ImageView(EXPORT_16));
 
         public AlbumsListElement(DSAlbum a, AlbumListElementActionListener al, boolean dm) {
             super(16, 128, 9999, 128, 128);
@@ -185,7 +194,7 @@ public class AlbumList extends SEVBox {
             saveBtn.setGraphic(edit_i);
             editMode = false;
             titleContainer.getChildren().clear();
-            titleContainer.getChildren().addAll(titleLabel, saveBtn);
+            titleContainer.getChildren().addAll(titleLabel, saveBtn, exportButton);
             albumText.setEditable(editMode);
             albumText.getStyleClass().remove("GUIElements_albumText_EditMode");
         }
@@ -235,6 +244,24 @@ public class AlbumList extends SEVBox {
                 elementAL.OnCheck(thisAlbum, checked);
             });
             
+            GUITools.setFixedSize(exportButton, 16, 16);
+            GUITools.setStyle(exportButton, "AlbumsListElement", "btn");
+            exportButton.setOnMouseClicked((MouseEvent event) -> {
+                XImg.openDir().showDialog();
+                final XDialogOpenDirectory.XDialogODBoxResult res = XImg.openDir().getResult();
+                if (res == XDialogOpenDirectory.XDialogODBoxResult.dOpen) {
+                    final Path p = XImg.openDir().getSelected();
+                    if (p != null) {
+                        try {
+                            XImg.exportAlbum().export(thisAlbum, p);
+                        } catch (IOException ex) {
+                            //java.util.logging.Logger.getLogger(AlbumList.class.getName()).log(Level.SEVERE, null, ex);
+                            XImg.msgbox("Ошибка при экспорте: конечная папка уже существует или недоступна.\r\n"+ex.getMessage());
+                        }
+                    }
+                }
+            });
+            
             GUITools.setMaxSize(titleLabel, 9999, 16);
             GUITools.setStyle(titleLabel, "AlbumsListElement", "titleLabel");
             titleLabel.setAlignment(Pos.CENTER_LEFT);
@@ -261,7 +288,7 @@ public class AlbumList extends SEVBox {
             
             this.getChildren().addAll(icon_d, elementContainer);
             titleContainer.getChildren().add(titleLabel);
-            titleContainer.getChildren().add(saveBtn);
+            titleContainer.getChildren().addAll(saveBtn, exportButton);
             if (dialogMode) titleContainer.getChildren().add(selectBtn);
             elementContainer.getChildren().addAll(titleContainer, albumText);
         }

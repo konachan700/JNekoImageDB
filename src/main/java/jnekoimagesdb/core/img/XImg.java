@@ -13,6 +13,7 @@ import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
 import jnekoimagesdb.ui.controls.dialogs.XDialogMessageBox;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
@@ -64,6 +65,9 @@ public class XImg {
     private static final XDialogOpenDirectory
             openDirDialog  = new XDialogOpenDirectory();
     
+    private static final XAlbumsExport
+            albumExportDialog = new XAlbumsExport();
+    
     private static final TabAllTags
             tabAllTags = new TabAllTags();
     
@@ -97,6 +101,7 @@ public class XImg {
         imgUpl.init();
         pagedImageList.initDB();
         openDirDialog.init();
+        albumExportDialog.init();
     }
     
     public static XImgPreviewSizes getPSizes() {
@@ -120,6 +125,7 @@ public class XImg {
             } catch (IOException ex) { }
         });
         openDirDialog.dispose();
+        albumExportDialog.dispose();
     }
 
     public static XImgCrypto getCrypt() {
@@ -156,5 +162,9 @@ public class XImg {
     
     public static XDialogOpenDirectory openDir() {
         return openDirDialog;
+    }
+    
+    public static XAlbumsExport exportAlbum() {
+        return albumExportDialog;
     }
 }

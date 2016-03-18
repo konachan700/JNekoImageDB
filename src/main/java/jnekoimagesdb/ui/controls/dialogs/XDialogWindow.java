@@ -45,6 +45,9 @@ public class XDialogWindow {
             rootConatiner    = new SEVBox("window_null_hbox");
             ;
     
+    private boolean 
+            enableClose = true;
+    
     private ToolsPanelTop
             panelTop;
             
@@ -68,7 +71,7 @@ public class XDialogWindow {
                         primaryStage.setMaximized(!primaryStage.isMaximized());
                         break;
                     case 3: 
-                        primaryStage.close();
+                        if (enableClose) primaryStage.close();
                         break;
                 }
             };
@@ -77,6 +80,10 @@ public class XDialogWindow {
     
     public void create(ToolsPanelTop pt, ToolsPanelBottom bp, Node px, int style) {
         create(pt, bp, px, style, 1000, 700);
+    }
+    
+    public void setClosingEnable(boolean b) {
+        enableClose = b;
     }
     
     public void create(ToolsPanelTop pt, ToolsPanelBottom bp, Node px, int style, int w, int h) {
