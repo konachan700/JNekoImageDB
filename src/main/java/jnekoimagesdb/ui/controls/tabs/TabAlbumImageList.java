@@ -1,14 +1,8 @@
 package jnekoimagesdb.ui.controls.tabs;
 
-import static jnekoimagesdb.ui.controls.tabs.TabAllImages.BTN_ADD_NEW;
-import static jnekoimagesdb.ui.controls.tabs.TabAllImages.BTN_ADD_TAGS;
-import static jnekoimagesdb.ui.controls.tabs.TabAllImages.BTN_TO_ALBUM;
-import static jnekoimagesdb.ui.controls.tabs.TabAllImages.BTN_TO_TEMP;
-import static jnekoimagesdb.ui.controls.tabs.TabAllImages.IMG48_ADD_NEW;
 import java.util.ArrayList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import jnekoimagesdb.core.img.XImg;
@@ -17,24 +11,19 @@ import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
 import jnekoimagesdb.ui.controls.AlbumList;
 import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
 import jnekoimagesdb.ui.controls.dialogs.DialogAlbumSelect;
-import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
-import jnekoimagesdb.ui.controls.elements.GUIElements;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
-import static jnekoimagesdb.ui.controls.tabs.TabAllImages.BTN_EXPORT;
 
 public class TabAlbumImageList extends SEVBox {
     public static final int
             HEADER_VSIZE = 27,
             HBUTTON_HSIZE = 150,
-            ALBTITLE_HSIZE = 210,
-            BTN_LVL_UP = 1;
-    
-    public static final Image 
-            IMG24_LEVEL_UP = GUITools.loadIcon("lvlup-48");
+            ALBTITLE_HSIZE = 210;
     
     private long 
             currentAlbumID = -1, 
@@ -92,11 +81,11 @@ public class TabAlbumImageList extends SEVBox {
         header.setMinSize(HBUTTON_HSIZE * 3, HEADER_VSIZE);
         header.setAlignment(Pos.CENTER);
 
-        album = new STabTextButton(Lang.AlbumImageList_Albums, 1, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
+        album = new STabTextButton(Lang.AlbumImageList_Albums, ElementsIDCodes.buttonUnknown, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
             _album();
         }, "STabTextButton_green");
         
-        images = new STabTextButton(Lang.AlbumImageList_Images, 2, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
+        images = new STabTextButton(Lang.AlbumImageList_Images, ElementsIDCodes.buttonUnknown, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
             _clear();
             _initImgGUI();
             _images();
@@ -104,10 +93,10 @@ public class TabAlbumImageList extends SEVBox {
         
         panelTopAlb = new ToolsPanelTop((index) -> {
             switch (index) {
-                case BTN_LVL_UP:
+                case buttonOneLevelUp:
                     myAL.levelUp();
                     break;
-                case BTN_ADD_NEW:
+                case buttonAddNewItems:
                     XImg.getUploadBox().setAlbumID(currentAlbumID);
                     XImg.getUploadBox().showModal();
                     break;
@@ -116,10 +105,10 @@ public class TabAlbumImageList extends SEVBox {
         
         panelTopImg = new ToolsPanelTop((index) -> {
             switch (index) {
-                case GUIElements.BTN_SELNONE: // TODO: Что это за пиздец!! switch по константам из разных мест!!! Вместо одного енума!
+                case buttonClearSelection: 
                     pil.selectNone();
                     break;
-                case BTN_TO_ALBUM:
+                case buttonAddAlbumsForSelectedItems:
                     if (pil.getSelectedHashes().size() > 0) {
                         dis.refresh();
                         dis.showModal();
@@ -131,41 +120,41 @@ public class TabAlbumImageList extends SEVBox {
                         }
                     }
                     break;
-                case BTN_ADD_TAGS:
+                case buttonAddTagsForSelectedItems:
                     
                     break;
-                case BTN_TO_TEMP:
+                case buttonExportToExchangeFolder:
                     pil.uploadSelected();
                     break;
-                case BTN_EXPORT:
+                case buttonExportToCustomFolder:
                     XImg.openDir().showDialog();
                     //System.out.println(XImg.openDir().getSelected());
                     break;
-                case GUIElements.BTN_DEL: // TODO Аналогично
+                case buttonDeleteItem:
                     
                     break;
-                case BTN_ADD_NEW:
+                case buttonAddSelected:
                     XImg.getUploadBox().setAlbumID(currentAlbumID);
                     XImg.getUploadBox().showModal();
                     break;
             }
         });
         
-        panelTopAlb.addButton(IMG24_LEVEL_UP, BTN_LVL_UP);
+        panelTopAlb.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp, "На один уровень вверх");
         panelTopAlb.addFixedSeparator();
-        panelTopAlb.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
+        panelTopAlb.addButton(GUITools.loadIcon("todb-48"), PanelButtonCodes.buttonAddNewItems, "Добавить новые картинки в альбом...");
         
-        panelTopImg.addButton(XImageUpload.IMG64_SELECT_NONE, GUIElements.BTN_SELNONE); // TODO тоже
+        panelTopImg.addButton(GUITools.loadIcon("selectnone-48"), PanelButtonCodes.buttonClearSelection, "Сбросить выделение"); // TODO тоже
         panelTopImg.addFixedSeparator();
-        panelTopImg.addButton(TabAllImages.IMG48_TO_ALBUM, TabAllImages.BTN_TO_ALBUM);
-        panelTopImg.addButton(TabAllImages.IMG48_ADD_TAGS, TabAllImages.BTN_ADD_TAGS);
+        panelTopImg.addButton(GUITools.loadIcon("add-to-album-48"), PanelButtonCodes.buttonAddAlbumsForSelectedItems, "Добавить выделенные картинки в альбом");
+        panelTopImg.addButton(GUITools.loadIcon("add-tags-48"), PanelButtonCodes.buttonAddTagsForSelectedItems, "Добавить теги выбранным картинкам");
         panelTopImg.addFixedSeparator();
-        panelTopImg.addButton(XImageUpload.IMG64_DELETE, GUIElements.BTN_DEL);
+        panelTopImg.addButton(GUITools.loadIcon("delete-48"), PanelButtonCodes.buttonDeleteItem, "Удалить выбранные картинки");
         panelTopImg.addFixedSeparator();
-        panelTopImg.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
+        panelTopImg.addButton(GUITools.loadIcon("todb-48"), PanelButtonCodes.buttonAddSelected, "Добавить новые картинки в альбом...");
         panelTopImg.addSeparator();
-        panelTopImg.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
-        panelTopImg.addButton(TabAllImages.IMG48_EXPORT, TabAllImages.BTN_EXPORT);
+        panelTopImg.addButton(GUITools.loadIcon("addtotemp-48"), PanelButtonCodes.buttonExportToExchangeFolder, "Скинуть выбранное в папку обмена");
+        panelTopImg.addButton(GUITools.loadIcon("export-48"), PanelButtonCodes.buttonExportToCustomFolder, "Экспортировать в...");
         
         albumName.setAlignment(Pos.CENTER);
     }

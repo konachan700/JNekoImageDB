@@ -9,6 +9,7 @@ import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.PreviewTypesList;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
 import jnekoimagesdb.ui.controls.elements.SNumericTextField;
@@ -28,8 +29,8 @@ public class TabSettings extends SEVBox {
             scrollableContainer = new SEVBox(0);
     
     private final SNumericTextField
-            previewFSCacheThreadsCount = new SNumericTextField(0, 100, 32, null), 
-            mainPreviewGenThreadsCount = new SNumericTextField(0, 100, 32, null);
+            previewFSCacheThreadsCount = new SNumericTextField(ElementsIDCodes.textUnknown, 100, 32, null), 
+            mainPreviewGenThreadsCount = new SNumericTextField(ElementsIDCodes.textUnknown, 100, 32, null);
     
     private final SPathBox
             pathBrowserExchange = new SPathBox(-1, 32),
@@ -65,7 +66,7 @@ public class TabSettings extends SEVBox {
         gpMtOptions.add(new SFLabel("Кол-во потоков генератора превью в диалоге выбора файлов", 64, 9999, 32, 32, "label", "TypesListItem"), 0, 1);
         gpMtOptions.add(previewFSCacheThreadsCount, 1, 1);
         gpMtOptions.add(
-                new STabTextButton("Сохранить", 0 , 100, 32, (x, y) -> {
+                new STabTextButton("Сохранить", ElementsIDCodes.buttonUnknown, 100, 32, (x, y) -> {
                     final int 
                             mainTC = mainPreviewGenThreadsCount.getIntValue(),
                             prevTC = previewFSCacheThreadsCount.getIntValue();
@@ -95,7 +96,7 @@ public class TabSettings extends SEVBox {
                 pathBrowserExchange,
                 new SFLabel("Папка обмена для выгрузки альбомов", 64, 9999, 24, 24, "label_darkblue_small", "TypesListItem"),
                 pathAlbumsExchange,
-                new STabTextButton("Сохранить", 0 , 100, 32, (x, y) -> {
+                new STabTextButton("Сохранить", ElementsIDCodes.buttonUnknown , 100, 32, (x, y) -> {
                     if (pathBrowserExchange.isNull() || pathAlbumsExchange.isNull()) return;
                     SettingsUtil.setPath("pathBrowserExchange", pathBrowserExchange.getValue());
                     SettingsUtil.setPath("pathAlbumsExchange", pathAlbumsExchange.getValue());

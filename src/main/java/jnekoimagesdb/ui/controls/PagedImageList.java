@@ -10,10 +10,6 @@ import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
 import jnekoimagesdb.ui.controls.dialogs.DialogImageView;
-import jnekoimagesdb.ui.controls.elements.GUIElements;
-import static jnekoimagesdb.ui.controls.elements.GUIElements.ICON_NOELEMENTS;
-import static jnekoimagesdb.ui.controls.elements.GUIElements.ITEM_NOTHING;
-import static jnekoimagesdb.ui.controls.elements.GUIElements.ITEM_SELECTED;
 import jnekoimagesdb.ui.controls.elements.SScrollPane;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -175,7 +171,7 @@ public class PagedImageList extends SScrollPane {
     protected class ImageListItem extends Pane {
         private final ImageView 
                 imageContainer = new ImageView(),
-                selectedIcon = new ImageView(ITEM_SELECTED);
+                selectedIcon = new ImageView(GUITools.loadIcon("selected-32"));
         
         private DSImage
                 img = null;
@@ -203,7 +199,7 @@ public class PagedImageList extends SScrollPane {
         
         public final void setNullImage() {
             img = null;
-            imageContainer.setImage(ITEM_NOTHING);
+            imageContainer.setImage(GUITools.loadIcon("dummy-128"));
             imageContainer.setVisible(false);
             this.getChildren().clear();
             this.getStyleClass().clear();
@@ -239,7 +235,7 @@ public class PagedImageList extends SScrollPane {
             } catch (IOException | ClassNotFoundException ex) {
                 prevGenDeque.add(dsi);
                 busyCounter++;
-                imageContainer.setImage(GUIElements.ITEM_LOADING);
+                imageContainer.setImage(GUITools.loadIcon("loading-128"));
                 imageContainer.setVisible(true);
             }
                 
@@ -285,7 +281,7 @@ public class PagedImageList extends SScrollPane {
             imageContainer.setPreserveRatio(true);
             imageContainer.setSmooth(true);
             imageContainer.setCache(false);
-            imageContainer.setImage(ITEM_NOTHING);
+            imageContainer.setImage(GUITools.loadIcon("dummy-128"));
                         
             GUITools.setStyle(imageVBox, "FileListItem", "imageVBox");
             GUITools.setMaxSize(imageVBox, itemSizeX, itemSizeY);
@@ -369,7 +365,7 @@ public class PagedImageList extends SScrollPane {
         pag.setMinSize(128, 24);
         pag.setPrefSize(9999, 24);
         
-        final ImageView icon = new ImageView(ICON_NOELEMENTS);
+        final ImageView icon = new ImageView(GUITools.loadIcon("delete-gray-48"));
         final Label text = new Label(Lang.InfiniteImageList_no_elements_found);
         GUITools.setStyle(text, "FileListItem", "nullMessage");
         GUITools.setMaxSize(text, 9999, 48);

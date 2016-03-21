@@ -1,8 +1,5 @@
 package jnekoimagesdb.ui.controls.elements;
 
-import static jnekoimagesdb.ui.controls.elements.GUIElements.IMG32_COMPLETED;
-import static jnekoimagesdb.ui.controls.elements.GUIElements.IMG32_IN_PROGRESS;
-import static jnekoimagesdb.ui.controls.elements.GUIElements.IMG32_IN_UNKNOWN;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -15,7 +12,7 @@ public class EThreadStatItem extends HBox {
         public volatile int ID = 0;
         
         private final ImageView
-                icon = new ImageView(IMG32_IN_UNKNOWN);
+                icon = new ImageView(GUITools.loadIcon("unknown-32"));
 
         private final Label
                 tIDLabel = new Label(), 
@@ -46,12 +43,12 @@ public class EThreadStatItem extends HBox {
         }
         
         public void setInProgress(int counter) {
-            icon.setImage(IMG32_IN_PROGRESS);
+            icon.setImage(GUITools.loadIcon("inprogress-32"));
             countLabel.setText("#"+counter);
         }
         
         public void setCompleted() {
-            icon.setImage(IMG32_COMPLETED);
+            icon.setImage(GUITools.loadIcon("selected-32"));
             countLabel.setText("OK");
         }
 }

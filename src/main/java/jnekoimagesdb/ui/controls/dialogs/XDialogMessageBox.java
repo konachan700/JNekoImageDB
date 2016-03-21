@@ -2,6 +2,7 @@ package jnekoimagesdb.ui.controls.dialogs;
 
 import javafx.geometry.Pos;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SElementPair;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
@@ -24,7 +25,7 @@ public class XDialogMessageBox extends XDialogWindow {
                         GUITools.getSeparator(), 
                         4, 32, 32,
                         GUITools.getSeparator(),
-                        new STabTextButton("OK", 0 , 120, 32, (x, y) -> {
+                        new STabTextButton("OK", ElementsIDCodes.buttonUnknown, 120, 32, (x, y) -> {
                             this.hide();
                         })
                 ).setAlign(Pos.CENTER_RIGHT)

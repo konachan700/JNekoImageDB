@@ -7,7 +7,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
 import static jnekoimagesdb.ui.controls.tabs.TabAlbumImageList.ALBTITLE_HSIZE;
@@ -21,10 +23,6 @@ public class DialogDBInitSelect extends DialogWindow {
         newDB, existDB, unknown
     }
     
-    private final Image 
-            IMG48_SELECT_YES = GUITools.loadIcon("selected-48"),
-            IMG48_SELECT_NO  = GUITools.loadIcon("delete-48");
-        
     private final TabStartSelectDB
             tabSelect = new TabStartSelectDB();
     
@@ -42,7 +40,7 @@ public class DialogDBInitSelect extends DialogWindow {
     
     private final ToolsPanelTop
             okPanel = new ToolsPanelTop(ID -> {
-                if (ID == 1) {
+                if (ID == PanelButtonCodes.buttonYes) {
                     if (tabSelect.getDBName().trim().length() >= 1) {
                         dbNameX = tabSelect.getDBName().trim();
                         retCode = DBSelectReturnCode.existDB;
@@ -74,20 +72,20 @@ public class DialogDBInitSelect extends DialogWindow {
         header.setMinSize(HBUTTON_HSIZE * 3, HEADER_VSIZE);
         header.setAlignment(Pos.CENTER);
         
-        openBtn = new STabTextButton("Открыть", 1, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
+        openBtn = new STabTextButton("Открыть", ElementsIDCodes.buttonOpen, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
             selectDB();
         }, "STabTextButton_green");
         
-        create = new STabTextButton("Создать", 2, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
+        create = new STabTextButton("Создать", ElementsIDCodes.buttonCreate, HBUTTON_HSIZE, HEADER_VSIZE, (code, id) -> {
             newDB();
         }, "STabTextButton_red");
         
         albumName.setAlignment(Pos.CENTER);
         header.getChildren().addAll(albumName, GUITools.getSeparator(), openBtn, create);
         
-        okPanel.addButton(IMG48_SELECT_NO, 0);
+        okPanel.addButton(GUITools.loadIcon("delete-48"), PanelButtonCodes.buttonNo);
         okPanel.addSeparator();
-        okPanel.addButton(IMG48_SELECT_YES, 1);
+        okPanel.addButton(GUITools.loadIcon("selected-48"), PanelButtonCodes.buttonYes);
                 
         selectDB();
     }

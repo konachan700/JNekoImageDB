@@ -1,22 +1,14 @@
 package jnekoimagesdb.ui.controls.dialogs;
 
-import static jnekoimagesdb.ui.controls.tabs.TabAlbumImageList.BTN_LVL_UP;
-import static jnekoimagesdb.ui.controls.tabs.TabAlbumImageList.IMG24_LEVEL_UP;
 import java.util.ArrayList;
-import javafx.scene.image.Image;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.AlbumList;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
 
 public class DialogAlbumSelect extends DialogWindow {
     private final DialogAlbumSelect THIS = this;
-    
-    public static final Image
-            IMG48_BTN_OK = GUITools.loadIcon("selected-48");
-    
-    public static final int
-            BTN_OK = 100;
     
     private final ToolsPanelTop
             panelTop;
@@ -39,10 +31,10 @@ public class DialogAlbumSelect extends DialogWindow {
         
         panelTop = new ToolsPanelTop((index) -> {
             switch (index) {
-                case BTN_LVL_UP:
+                case buttonOneLevelUp:
                     myAL.levelUp();
                     break;
-                case BTN_OK:
+                case buttonOK:
                     this.setRetCodeOK(true);
                     this.hide();
                     break;
@@ -57,9 +49,9 @@ public class DialogAlbumSelect extends DialogWindow {
     
     private void _panelInit(long id) {
         panelTop.clearAll();
-        if (id > 0) panelTop.addButton(IMG24_LEVEL_UP, BTN_LVL_UP); 
+        if (id > 0) panelTop.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp); 
         panelTop.addSeparator();
-        panelTop.addButton(IMG48_BTN_OK, BTN_OK);
+        panelTop.addButton(GUITools.loadIcon("selected-48"), PanelButtonCodes.buttonOK);
     }
     
     public final void refresh() {

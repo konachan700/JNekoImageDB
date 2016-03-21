@@ -4,19 +4,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import javafx.scene.image.Image;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsImageViewer;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
 
 public class DialogFSImageView extends DialogWindow {
-    public static final int 
-            BUTTON_SIZE         = 64,
-            BUTTON_PREV         = 1,
-            BUTTON_NEXT         = 2,
-            BUTTON_ZOOM_IN      = 3,
-            BUTTON_ZOOM_OUT     = 4,
-            BUTTON_ORIG         = 5, 
-            BUTTON_FITTOWIN     = 6;
-    
     private final ArrayList<Path>
             filesList = new ArrayList<>();
     
@@ -39,22 +31,22 @@ public class DialogFSImageView extends DialogWindow {
     private final ToolsPanelTop
             panel = new ToolsPanelTop((index) -> {
                 switch (index) {
-                    case BUTTON_PREV:
+                    case buttonPrevItem:
                         prev();
                         break;
-                    case BUTTON_NEXT:
+                    case buttonNextItem:
                         next();
                         break;
-                    case BUTTON_ZOOM_IN: 
+                    case buttonZoomIn: 
                         imgViewer.zoomIn();
                         break;
-                    case BUTTON_ZOOM_OUT:
+                    case buttonZoomOut:
                         imgViewer.zoomOut();
                         break;
-                    case BUTTON_ORIG:
+                    case buttonOriginalSize:
                         imgViewer.zoomOrig();
                         break;
-                    case BUTTON_FITTOWIN:
+                    case buttonFitToWindowSize:
                         imgViewer.zoomFitToWin();
                         break;
                 }
@@ -80,13 +72,13 @@ public class DialogFSImageView extends DialogWindow {
         super(1336, 768, false); // todo: сделать запоминание размера
         
         this.getToolbox().getChildren().add(panel);
-        panel.addButton(GUITools.loadIcon("arrow-left-48"), BUTTON_PREV);
-        panel.addButton(GUITools.loadIcon("arrow-right-48"), BUTTON_NEXT);
+        panel.addButton(GUITools.loadIcon("arrow-left-48"), PanelButtonCodes.buttonPrevItem);
+        panel.addButton(GUITools.loadIcon("arrow-right-48"), PanelButtonCodes.buttonNextItem);
         panel.addFixedSeparator();
-        panel.addButton(GUITools.loadIcon("zoom-in-48"), BUTTON_ZOOM_IN);
-        panel.addButton(GUITools.loadIcon("zoom-out-48"), BUTTON_ZOOM_OUT);
-        panel.addButton(GUITools.loadIcon("zoom-original-48"), BUTTON_ORIG);
-        panel.addButton(GUITools.loadIcon("zoom-fit-best-48"), BUTTON_FITTOWIN);
+        panel.addButton(GUITools.loadIcon("zoom-in-48"), PanelButtonCodes.buttonZoomIn);
+        panel.addButton(GUITools.loadIcon("zoom-out-48"), PanelButtonCodes.buttonZoomOut);
+        panel.addButton(GUITools.loadIcon("zoom-original-48"), PanelButtonCodes.buttonOriginalSize);
+        panel.addButton(GUITools.loadIcon("zoom-fit-best-48"), PanelButtonCodes.buttonFitToWindowSize);
         
         this.getMainContainer().getChildren().add(imgViewer);
     }

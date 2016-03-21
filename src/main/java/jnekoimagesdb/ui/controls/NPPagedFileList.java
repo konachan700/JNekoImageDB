@@ -4,19 +4,15 @@ import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.img.XImgFS;
 import jnekoimagesdb.core.img.XImgFSActionListener;
 import jnekoimagesdb.domain.SettingsUtil;
-import jnekoimagesdb.ui.controls.dialogs.DialogFSImageView;
 import jnekoimagesdb.ui.controls.elements.EFileListItem;
 import jnekoimagesdb.ui.controls.elements.EFileListItemActionListener;
-import jnekoimagesdb.ui.controls.elements.GUIElements;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -254,9 +250,9 @@ public class NPPagedFileList extends SEVBox {
                 efl.setPath(p);
                 efl.setName((isRoot) ? p.toString() : p.toFile().getName());
                 if (Files.isDirectory(p)) {
-                    efl.setImage(GUIElements.ICON_DIR);
+                    efl.setImage(GUITools.loadIcon("dir-normal-128"));
                 } else {
-                    efl.setImage(GUIElements.ITEM_UNKNOWN);
+                    efl.setImage(GUITools.loadIcon("unknown-file-128"));
                     if (selectedElement != null) 
                         efl.setSelected(selectedElement.equals(p));
                     else 

@@ -19,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -219,6 +220,7 @@ public class AlbumList extends SEVBox {
         private void _init() {
             GUITools.setFixedSize(saveBtn, 16, 16);
             GUITools.setStyle(saveBtn, "AlbumsListElement", "btn");
+            saveBtn.setTooltip(GUITools.createTT("Редактировать/сохранить альбом"));
             saveBtn.setOnMouseClicked((MouseEvent event) -> {
                 if (editMode) {
                     if (title.getText().trim().length() > 0) {
@@ -246,6 +248,7 @@ public class AlbumList extends SEVBox {
             
             GUITools.setFixedSize(exportButton, 16, 16);
             GUITools.setStyle(exportButton, "AlbumsListElement", "btn");
+            exportButton.setTooltip(GUITools.createTT("Экспортировать альбом..."));
             exportButton.setOnMouseClicked((MouseEvent event) -> {
                 XImg.openDir().showDialog();
                 final XDialogOpenDirectory.XDialogODBoxResult res = XImg.openDir().getResult();
@@ -261,6 +264,7 @@ public class AlbumList extends SEVBox {
                     }
                 }
             });
+            
             
             GUITools.setMaxSize(titleLabel, 9999, 16);
             GUITools.setStyle(titleLabel, "AlbumsListElement", "titleLabel");

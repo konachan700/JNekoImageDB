@@ -1,11 +1,8 @@
 package jnekoimagesdb.ui;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -27,19 +24,12 @@ import jnekoimagesdb.ui.controls.menulist.MenuGroupItem;
 import jnekoimagesdb.ui.controls.menulist.MenuGroupItemActionListener;
 import jnekoimagesdb.ui.controls.menulist.MenuLabel;
 import jnekoimagesdb.ui.controls.menulist.MenuList;
-import jnekoimagesdb.ui.controls.tabs.TabAllTags;
 import jnekoimagesdb.ui.controls.tabs.TabSettings;
 
 public class JNekoImageDB extends Application {
-    public static final Image 
-            IMG128_ERROR = GUITools.loadIcon("error-1-128");
-    
     private final DragDelta 
             dragDelta = new DragDelta();
-    
-//    private static final StringBuilder
-//            logTextArea = new StringBuilder();
-    
+
     private final VBox 
             mvbox           = new VBox(),
             toolbarvbox     = new VBox(),
@@ -66,14 +56,6 @@ public class JNekoImageDB extends Application {
     private final StartSplashScreen 
             splash = new StartSplashScreen();
 
-//    private final Timeline TMRLOG = new Timeline(new KeyFrame(Duration.millis(150), ae -> {
-//       if (taLOG.getText().length() < logTextArea.length()) {
-//           taLOG.setText(Lang.NullString);
-//           taLOG.appendText(logTextArea.toString());
-//           taLOG.setScrollTop(Double.MIN_VALUE);
-//       }
-//    }));
-    
     private final MenuGroupItemActionListener
             menuAL = new MenuGroupItemActionListener() {
                 @Override
@@ -298,10 +280,4 @@ public class JNekoImageDB extends Application {
         System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
         launch(args);
     }
-    
-//    public static final void L(String s) {
-//        final SimpleDateFormat DF = new SimpleDateFormat(Lang.DateTimeFormat);
-//        logTextArea.append("[").append(DF.format(new Date())).append("]\t");
-//        logTextArea.append(s).append("\n");
-//    }
 }

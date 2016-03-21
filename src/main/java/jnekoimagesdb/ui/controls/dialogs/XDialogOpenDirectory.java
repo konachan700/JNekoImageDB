@@ -9,11 +9,9 @@ import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.NPPagedFileList;
 import jnekoimagesdb.ui.controls.PagedFileListActionListener;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
-import static jnekoimagesdb.ui.controls.dialogs.XImageUpload.BTN_GOROOT;
-import static jnekoimagesdb.ui.controls.dialogs.XImageUpload.BTN_LEVELUP;
-import static jnekoimagesdb.ui.controls.dialogs.XImageUpload.IMG64_GOROOT;
-import static jnekoimagesdb.ui.controls.dialogs.XImageUpload.IMG64_LEVELUP;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SElementPair;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
@@ -62,10 +60,10 @@ public class XDialogOpenDirectory extends XDialogWindow {
     private final ToolsPanelTop
             panelTop = new ToolsPanelTop(c -> {
                 switch (c) {
-                    case BTN_LEVELUP:
+                    case buttonOneLevelUp:
                         filesList.levelUp();
                         break;
-                    case BTN_GOROOT:
+                    case buttonGoToRootDirectory:
                         filesList.navigateRoot();
                         break;
                 }
@@ -76,8 +74,8 @@ public class XDialogOpenDirectory extends XDialogWindow {
     
     public XDialogOpenDirectory() {
         super();
-        panelTop.addButton(IMG64_LEVELUP, BTN_LEVELUP);
-        panelTop.addButton(IMG64_GOROOT, BTN_GOROOT); 
+        panelTop.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp);
+        panelTop.addButton(GUITools.loadIcon("goroot-48"), PanelButtonCodes.buttonGoToRootDirectory); 
         
         pag.setCurrentPageIndex(0);
         pag.setPageCount(1); 
@@ -92,13 +90,13 @@ public class XDialogOpenDirectory extends XDialogWindow {
                 pag,
                 GUITools.getHSeparator(32),
                 new SElementPair(
-                        new STabTextButton("Отмена", 0 , 120, 32, (x, y) -> {
+                        new STabTextButton("Отмена", ElementsIDCodes.buttonUnknown, 120, 32, (x, y) -> {
                             dResult = XDialogODBoxResult.dUnknown;
                             this.hide();
                         }), 
                         4, 32, 32,
                         GUITools.getSeparator(),
-                        new STabTextButton("Открыть", 0 , 120, 32, (x, y) -> {
+                        new STabTextButton("Открыть", ElementsIDCodes.buttonUnknown, 120, 32, (x, y) -> {
                             if (filesList.getPath() != null) {
                                 dResult = XDialogODBoxResult.dOpen;
                                 this.hide();

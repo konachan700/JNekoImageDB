@@ -14,6 +14,7 @@ import jnekoimagesdb.core.img.XImgDatastore;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.domain.DSImage;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SElementPair;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
@@ -35,7 +36,8 @@ public class XAlbumsExport extends XDialogWindow {
                     if (img != null) {
                         threadBisy = true;
                         Platform.runLater(() -> {
-                            outText.setText("Exporting file: ["+img.getImageFileName()+"]...\r\nФайлов осталось: "+imgToExport.size());
+                            outText.setText("Сохранение файла: ["+img.getImageFileName()+"]...\r\nФайлов осталось: "+imgToExport.size());
+                            closeButton.setDisable(false);
                         });
 
                         try {
@@ -45,7 +47,10 @@ public class XAlbumsExport extends XDialogWindow {
                         }
                     } else {
                         if (threadBisy) {
-                            Platform.runLater(() -> { outText.setText("Готово."); });
+                            Platform.runLater(() -> { 
+                                outText.setText("Готово."); 
+                                closeButton.setDisable(true);
+                            });
                         }
                         threadBisy = false;
                     }
@@ -61,7 +66,7 @@ public class XAlbumsExport extends XDialogWindow {
             outTitle = new SFLabel("", 64, 9999, 20, 20, "label_darkgreen", "TypesListItem");
     
     private final STabTextButton
-            closeButton = new STabTextButton("  Закрыть  ", 0 , 120, 32, (x, y) -> {
+            closeButton = new STabTextButton("  Закрыть  ", ElementsIDCodes.buttonUnknown, 120, 32, (x, y) -> {
                         this.hide();
                     });
     

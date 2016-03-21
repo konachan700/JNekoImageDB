@@ -15,6 +15,7 @@ import jnekoimagesdb.ui.Lang;
 import jnekoimagesdb.ui.ResizeHelper;
 import jnekoimagesdb.ui.controls.ToolsPanelBottom;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.GUIActionListener;
 import jnekoimagesdb.ui.controls.elements.SButton;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
@@ -30,12 +31,7 @@ public class XDialogWindow {
     
     private final ImageView 
             imgLogoV = new ImageView(GUITools.loadIcon("logo6"));
-    
-    private final Image
-            ICON_CLOSE = GUITools.loadIcon("head-close-16"),
-            ICON_MAX = GUITools.loadIcon("head-maximize-16"),
-            ICON_MIN = GUITools.loadIcon("head-minimize-16");
-    
+
     private final GUITools.DragDelta 
             DRD = new GUITools.DragDelta();
     
@@ -64,13 +60,13 @@ public class XDialogWindow {
     private final GUIActionListener
             actListener = (a, b) -> {
                 switch (b) {
-                    case 1:
+                    case buttonMinimizeWindow:
                         primaryStage.setIconified(true);
                         break;
-                    case 2:
+                    case buttonMaximizeWindow:
                         primaryStage.setMaximized(!primaryStage.isMaximized());
                         break;
-                    case 3: 
+                    case buttonCloseWindow: 
                         if (enableClose) primaryStage.close();
                         break;
                 }
@@ -119,11 +115,11 @@ public class XDialogWindow {
                     new ImageView(GUITools.loadIcon("win-icon-32")),
                     new SFLabel(Lang.GUITools_WinGUI_Title, 128, 9999, 32, 32, "label_header", "XGreenDialogWindow"),
                     GUITools.getSeparator(),
-                    new SButton(ICON_MIN, 1, 16, actListener, "window_header_button"),
+                    new SButton(GUITools.loadIcon("head-minimize-16"), ElementsIDCodes.buttonMinimizeWindow, 16, actListener, "window_header_button"),
                     GUITools.getSeparator(8),
-                    new SButton(ICON_MAX, 2, 16, actListener, "window_header_button"),
+                    new SButton(GUITools.loadIcon("head-maximize-16"), ElementsIDCodes.buttonMaximizeWindow, 16, actListener, "window_header_button"),
                     GUITools.getSeparator(8),
-                    new SButton(ICON_CLOSE, 3, 16, actListener, "window_header_button"),
+                    new SButton(GUITools.loadIcon("head-close-16"), ElementsIDCodes.buttonCloseWindow, 16, actListener, "window_header_button"),
                     GUITools.getSeparator(8)
             );
             

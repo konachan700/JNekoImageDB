@@ -13,7 +13,6 @@ import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.controls.dialogs.DialogFSImageView;
 import jnekoimagesdb.ui.controls.elements.EFileListItem;
 import jnekoimagesdb.ui.controls.elements.EFileListItemActionListener;
-import jnekoimagesdb.ui.controls.elements.GUIElements;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -488,9 +487,9 @@ public class PagedFileList extends SEVBox {
                 efl.setPath(p);
                 efl.setName((isRoot) ? p.toString() : p.toFile().getName());
                 if (Files.isDirectory(p)) {
-                    efl.setImage(GUIElements.ICON_DIR);
+                    efl.setImage(GUITools.loadIcon("dir-normal-128"));
                 } else {
-                    efl.setImage(GUIElements.ITEM_LOADING);
+                    efl.setImage(GUITools.loadIcon("loading-128"));
                     efl.setSelected(selectedElements.contains(p));
                     prevGenDeque.addLast(p); 
                     busyCounter++;

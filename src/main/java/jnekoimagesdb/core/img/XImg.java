@@ -3,6 +3,7 @@ package jnekoimagesdb.core.img;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Set;
@@ -24,6 +25,9 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
 public class XImg {
+    private static String                   
+            rootDatabaseName;
+        
     public static enum PreviewType {
         cache, previews
     }
@@ -37,8 +41,22 @@ public class XImg {
     private static EnumMap<PreviewType, DB>
             levelDB = new EnumMap(PreviewType.class);
     
+    @SuppressWarnings("StaticNonFinalUsedInInitialization")
     private static final XImgCrypto
         cryptoEx = new XImgCrypto(() -> {
+            // для windows-систем. Ищет ключ на флешках, если находит - автоматом его пробует, не задавая лишних вопросов.
+            // Для линуксов реализовать сложнее ввиду разных точек монтирования, потому там будет просто вылетать диалог выбора файла.
+            final File[] fa = File.listRoots();
+            Path p;
+            for (File f : fa) {
+                p = FileSystems.getDefault().getPath(f.getAbsolutePath(), "imgDB/"+rootDatabaseName+".pkey");
+                if (Files.exists(p) && Files.isRegularFile(p) && Files.isReadable(p)) {
+                    try {
+                        return Files.readAllBytes(p);
+                    } catch (IOException e) {}
+                }
+            }
+            
             XImg.msgbox("Приватный ключ не найден!");
             // todo: добавить диалог выбора файла приватного ключа
             return null;
@@ -70,9 +88,6 @@ public class XImg {
     
     private static final TabAllTags
             tabAllTags = new TabAllTags();
-    
-    private static String                   
-            rootDatabaseName;
 
     public static DB getDB(PreviewType name) {
         return levelDB.get(name);

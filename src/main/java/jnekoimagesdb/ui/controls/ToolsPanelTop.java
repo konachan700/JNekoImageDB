@@ -14,14 +14,14 @@ public class ToolsPanelTop extends HBox {
             SEPARATOR_SIZE = 16;
     
     public static interface TopPanelButtonActionListener {
-        public void OnClick(int buttonID);
+        public void OnClick(PanelButtonCodes buttonID);
     }
     
     private static class TopPanelButton extends Button {
-        private volatile int xID = -1;
+        private PanelButtonCodes xID = PanelButtonCodes.buttonUnknown;
         
         @SuppressWarnings("LeakingThisInConstructor")
-        public TopPanelButton(Image icon, int id, TopPanelButtonActionListener al) {
+        public TopPanelButton(Image icon, PanelButtonCodes id, TopPanelButtonActionListener al) {
             super("", new ImageView(icon));
             xID = id;
             GUITools.setStyle(this, "TopPanel", "button");
@@ -32,7 +32,7 @@ public class ToolsPanelTop extends HBox {
             });
         }
         
-        public int getID() {
+        public PanelButtonCodes getID() {
             return xID;
         }
     }
@@ -64,8 +64,14 @@ public class ToolsPanelTop extends HBox {
         this.getChildren().add(sep1);
     }
     
-    public void addButton(Image icon, int id) {
+    public void addButton(Image icon, PanelButtonCodes id) {
         final TopPanelButton tpb = new TopPanelButton(icon, id, actListener);
+        this.getChildren().add(tpb);
+    }
+    
+    public void addButton(Image icon, PanelButtonCodes id, String tooltip) {
+        final TopPanelButton tpb = new TopPanelButton(icon, id, actListener);
+        tpb.setTooltip(GUITools.createTT(tooltip));
         this.getChildren().add(tpb);
     }
     

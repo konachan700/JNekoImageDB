@@ -58,7 +58,7 @@ public class STagAddInputField extends FlowPane {
         this.setFocusTraversable(true);
         GUITools.setStyle(this, "STagAddInputField", "root_pane");
         
-        mainInput = new STextField(0, ETagListItem.ITEM_SIZE, null, "textfield_new_tag");
+        mainInput = new STextField(ElementsIDCodes.textUnknown, ETagListItem.ITEM_SIZE, null, "textfield_new_tag");
         mainInput.setPromptText("Enter your tag...");
         mainInput.setMinWidth(Region.USE_PREF_SIZE);
         mainInput.setPrefWidth(Region.USE_COMPUTED_SIZE);

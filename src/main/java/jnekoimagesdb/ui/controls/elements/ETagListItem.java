@@ -3,26 +3,14 @@ package jnekoimagesdb.ui.controls.elements;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.ui.GUITools;
 
-public class ETagListItem extends HBox {
-    public static final Image
-            ICON24_EDIT     = GUITools.loadIcon("pencil-16"),
-            ICON24_PLUS     = GUITools.loadIcon("plus-16"),
-            ICON24_MINUS    = GUITools.loadIcon("minus-16"),
-            ICON24_SAVE     = GUITools.loadIcon("tick-16"),
-            ICON24_DELETE   = GUITools.loadIcon("times-16");
-    
+public class ETagListItem extends HBox {   
     public static final int
-            ITEM_SIZE = 24,
-            BTN_EDIT = 1,
-            BTN_PLUS = 2,
-            BTN_MINUS = 3,
-            BTN_DELETE = 4;
+            ITEM_SIZE = 24;
 
     private DSTag
             tag;
@@ -45,7 +33,7 @@ public class ETagListItem extends HBox {
     private final GUIActionListener
             aListener = (a, b) -> {
                 switch (b) {
-                    case BTN_EDIT:
+                    case buttonEdit:
                         isEditActive = !isEditActive;
                         setStyle();
                         if (!isEditActive) {
@@ -56,23 +44,23 @@ public class ETagListItem extends HBox {
                             tagEditBox.setText(tag.getTagName());
                         }
                         break;
-                    case BTN_DELETE:
+                    case buttonDelete:
                         actListener.onDelete(tag);
                         break;
-                    case BTN_PLUS:
+                    case buttonPlus:
                         actListener.onAddToListBtnClick(tag, false);
                         break;
-                    case BTN_MINUS:
+                    case buttonMinus:
                         actListener.onAddToListBtnClick(tag, true);
                         break;
                 }
             };
     
     private final SButton
-            editBtn = new SButton(ICON24_EDIT, BTN_EDIT, 16, aListener, "tli_null_btn"),
-            plusBtn = new SButton(ICON24_PLUS, BTN_PLUS, 16, aListener, "tli_null_btn"),
-            minusBtn = new SButton(ICON24_MINUS, BTN_MINUS, 16, aListener, "tli_null_btn"),
-            delBtn = new SButton(ICON24_DELETE, BTN_DELETE, 16, aListener, "tli_null_btn");
+            editBtn = new SButton(GUITools.loadIcon("pencil-16"), ElementsIDCodes.buttonEdit, 16, aListener, "tli_null_btn"),
+            plusBtn = new SButton(GUITools.loadIcon("plus-16"), ElementsIDCodes.buttonPlus, 16, aListener, "tli_null_btn"),
+            minusBtn = new SButton(GUITools.loadIcon("minus-16"), ElementsIDCodes.buttonMinus, 16, aListener, "tli_null_btn"),
+            delBtn = new SButton(GUITools.loadIcon("times-16"), ElementsIDCodes.buttonDelete, 16, aListener, "tli_null_btn");
 
     public ETagListItem(DSTag _tag, boolean _isTagAddedToSearchList, boolean _isMinus, ETagListItemActionListener al) {
         super(0);
@@ -115,10 +103,10 @@ public class ETagListItem extends HBox {
             this.getStyleClass().add("ETagListItem_root_box_blue");
             this.getChildren().clear();
             if (isEditActive) {
-                editBtn.setIcon(ICON24_SAVE);
+                editBtn.setIcon(GUITools.loadIcon("tick-16"));
                 this.getChildren().addAll(delBtn, editBtn, tagEditBox);
             } else {
-                editBtn.setIcon(ICON24_EDIT);
+                editBtn.setIcon(GUITools.loadIcon("pencil-16"));
                 this.getChildren().addAll(minusBtn, plusBtn, editBtn, tagName);
             }
         } else {

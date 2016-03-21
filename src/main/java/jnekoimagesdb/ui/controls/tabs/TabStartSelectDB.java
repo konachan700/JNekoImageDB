@@ -12,28 +12,18 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import jnekoimagesdb.core.img.XImgCrypto;
 import jnekoimagesdb.ui.GUITools;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_SELECTED;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_SETPRIMARY;
-import jnekoimagesdb.ui.controls.elements.GUIActionListener;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SButton;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
-import jnekoimagesdb.ui.controls.elements.SElementPair;
 import jnekoimagesdb.ui.controls.elements.SFHBox;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
-import jnekoimagesdb.ui.controls.elements.SNumericTextField;
 import jnekoimagesdb.ui.controls.elements.SScrollPane;
-import jnekoimagesdb.ui.controls.elements.STextField;
 
 public class TabStartSelectDB extends SEVBox {
     public static final int
             ELEMENT_Y_SIZE = 32,
             ELEMENT_LABEL_SIZE = 140,
             ELEMENT_TF_HEIGHT = 24;
-    
-    public static final Image 
-            IMG32_SELECTED = GUITools.loadIcon("selected-32"),
-            IMG32_NOT_SELECTED = GUITools.loadIcon("unselected-32"),
-            IMG32_NORMAL = GUITools.loadIcon("options-1-32"); 
     
     public static interface DBElListener {
         public void OnItemSelect(DBElement el, Path p, String name);
@@ -53,20 +43,20 @@ public class TabStartSelectDB extends SEVBox {
             
             elementPath = db;
             btnSel = new SButton(
-                    IMG32_NOT_SELECTED, 0, 32, 
+                    GUITools.loadIcon("unselected-32"), ElementsIDCodes.buttonUnknown, 32, 
                     (c, d) -> { 
                         ale.OnItemSelect(this, elementPath, elementPath.toFile().getName()); 
                     }, 
                     "button_prevsz_el");
             this.getChildren().addAll(
-                    new ImageView(IMG32_NORMAL),
+                    new ImageView(GUITools.loadIcon("options-1-32")),
                     new SFLabel(db.toFile().getName(), 128, 9999, 32, 32, "label_left", "TypesListItem"),
                     btnSel
             );
         }
         
         public void setSelected(boolean s) {
-            btnSel.setGraphic((!s) ? new ImageView(IMG32_NOT_SELECTED) : new ImageView(IMG32_SELECTED));
+            btnSel.setGraphic((!s) ? new ImageView(GUITools.loadIcon("unselected-32")) : new ImageView(GUITools.loadIcon("selected-32")));
         }
     }
     

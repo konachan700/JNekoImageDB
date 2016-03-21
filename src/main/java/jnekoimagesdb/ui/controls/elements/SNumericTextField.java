@@ -1,13 +1,12 @@
 package jnekoimagesdb.ui.controls.elements;
 
-import static jnekoimagesdb.ui.controls.elements.GUIElements.EVENT_CODE_CHANGE;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import jnekoimagesdb.ui.GUITools;
 
 public class SNumericTextField extends TextField {
-    private volatile int xID = -1;
+    private ElementsIDCodes xID = ElementsIDCodes.textUnknown;
     public int
             max = 0xFFFF,
             min = 0;
@@ -16,17 +15,17 @@ public class SNumericTextField extends TextField {
             value = 0;
     
     
-    public SNumericTextField(int id, int height, GUIActionListener al, String styleName) {
+    public SNumericTextField(ElementsIDCodes id, int height, GUIActionListener al, String styleName) {
         super("0");
         init(id, 0, height, al, styleName);
     }
 
-    public SNumericTextField(int id, int width, int height, GUIActionListener al) {
+    public SNumericTextField(ElementsIDCodes id, int width, int height, GUIActionListener al) {
         super("0");
         init(id, width, height, al, "textfield");
     }
 
-    private void init(int id, int w, int h, GUIActionListener al, String styleName) {
+    private void init(ElementsIDCodes id, int w, int h, GUIActionListener al, String styleName) {
         xID = id;
         GUITools.setStyle(this, "GUIElements", styleName);
         if (w <= 0) GUITools.setMaxSize(this, 9999, h); GUITools.setFixedSize(this, w, h);
@@ -39,7 +38,7 @@ public class SNumericTextField extends TextField {
                 if ((test >= min) && (test <= max)) {
                     this.getStyleClass().add("GUIElements_textfield_valid");
                     value = test;
-                    if (al != null) al.OnItemEvent(EVENT_CODE_CHANGE, xID);
+                    if (al != null) al.OnItemEvent(ElementsEventCodes.eventContentChange, xID);
                 } else {
                     this.getStyleClass().add("GUIElements_textfield_error");
                 }
@@ -58,7 +57,7 @@ public class SNumericTextField extends TextField {
         return value;
     }
 
-    public int getID() {
+    public ElementsIDCodes getID() {
         return xID;
     }
 }

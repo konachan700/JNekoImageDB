@@ -5,31 +5,15 @@ import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.ui.controls.dialogs.DialogAlbumSelect;
 import jnekoimagesdb.ui.controls.PagedImageList;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
-import static jnekoimagesdb.ui.controls.dialogs.XImageUpload.IMG64_SELECT_NONE;
-import static jnekoimagesdb.ui.controls.elements.GUIElements.BTN_SELNONE;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.Parent;
-import javafx.scene.image.Image;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 
 public class TabAllImages extends SEVBox  {
-    public static final Image 
-            IMG48_ADD_TAGS       = GUITools.loadIcon("add-tags-48"), 
-            IMG48_ADD_NEW        = GUITools.loadIcon("todb-48"),
-            IMG48_TO_ALBUM       = GUITools.loadIcon("add-to-album-48"),
-            IMG48_EXPORT         = GUITools.loadIcon("export-48"),
-            IMG48_TO_TEMP        = GUITools.loadIcon("addtotemp-48"); 
-    
-    public static final int
-            BTN_ADD_TAGS    = 10,
-            BTN_TO_ALBUM    = 11,
-            BTN_TO_TEMP     = 12,
-            BTN_ADD_NEW     = 13,
-            BTN_EXPORT      = 14;
-        
     public static enum FilterType {
         all, nottags, notinalbums
     }
@@ -52,10 +36,10 @@ public class TabAllImages extends SEVBox  {
         
         panelTop = new ToolsPanelTop((index) -> {
             switch (index) {
-                case BTN_SELNONE:
+                case buttonClearSelection:
                     pil.selectNone();
                     break;
-                case BTN_TO_ALBUM:
+                case buttonAddAlbumsForSelectedItems:
                     if (pil.getSelectedHashes().size() > 0) {
                         dis.refresh();
                         dis.showModal();
@@ -67,30 +51,30 @@ public class TabAllImages extends SEVBox  {
                         }
                     }
                     break;
-                case BTN_ADD_TAGS:
+                case buttonAddTagsForSelectedItems:
                     
                     break;
-                case BTN_TO_TEMP:
+                case buttonExportToExchangeFolder:
                     pil.uploadSelected();
                     break;
-                case BTN_EXPORT:
+                case buttonExportToCustomFolder:
                     XImg.openDir().showDialog();
                     break;
-                case BTN_ADD_NEW:
+                case buttonAddNewItems:
                     XImg.getUploadBox().setAlbumID(pil.getAlbumID());
                     XImg.getUploadBox().showModal();
                     break;
             }
         });
-        panelTop.addButton(IMG64_SELECT_NONE, BTN_SELNONE);
+        panelTop.addButton(GUITools.loadIcon("selectnone-48"), PanelButtonCodes.buttonClearSelection);
         panelTop.addFixedSeparator();
-        panelTop.addButton(TabAllImages.IMG48_TO_ALBUM, TabAllImages.BTN_TO_ALBUM);
-        panelTop.addButton(TabAllImages.IMG48_ADD_TAGS, TabAllImages.BTN_ADD_TAGS);
+        panelTop.addButton(GUITools.loadIcon("add-to-album-48"), PanelButtonCodes.buttonAddAlbumsForSelectedItems);
+        panelTop.addButton(GUITools.loadIcon("add-tags-48"), PanelButtonCodes.buttonAddTagsForSelectedItems);
         panelTop.addFixedSeparator();
-        panelTop.addButton(IMG48_ADD_NEW, BTN_ADD_NEW);
+        panelTop.addButton(GUITools.loadIcon("todb-48"), PanelButtonCodes.buttonAddNewItems);
         panelTop.addSeparator();
-        panelTop.addButton(TabAllImages.IMG48_TO_TEMP, TabAllImages.BTN_TO_TEMP);
-        panelTop.addButton(TabAllImages.IMG48_EXPORT, TabAllImages.BTN_EXPORT);
+        panelTop.addButton(GUITools.loadIcon("addtotemp-48"),PanelButtonCodes.buttonExportToExchangeFolder);
+        panelTop.addButton(GUITools.loadIcon("export-48"), PanelButtonCodes.buttonExportToCustomFolder);
     }
     
     public void setAlbumID(long id) {

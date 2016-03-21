@@ -18,10 +18,11 @@ import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.ui.GUITools;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_ADD;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
 import jnekoimagesdb.ui.controls.elements.ETagListItem;
 import jnekoimagesdb.ui.controls.elements.ETagListItemActionListener;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SButton;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SFHBox;
@@ -37,17 +38,7 @@ public class TabAllTags extends SEVBox {
     private final Logger 
             logger = LoggerFactory.getLogger(TabAllTags.class);
     
-    public static final Image 
-            IMG48_TO_JSON        = GUITools.loadIcon("to-json-48"), 
-            IMG48_FROM_JSON      = GUITools.loadIcon("from-json-48"),
-            IMG48_FROM_TEXT      = GUITools.loadIcon("from-text-48"),
-            IMG48_TO_TEMP        = GUITools.loadIcon("addtotemp-48"); 
-    
     public static final int
-            BTN_TO_JSON     = 10,
-            BTN_FROM_JSON   = 11,
-            BTN_FROM_TEXT   = 12,
-            BTN_ADD_NEW     = 13,
             TAGS_PER_PAGE   = 500;
     
     private final FlowPane
@@ -94,7 +85,7 @@ public class TabAllTags extends SEVBox {
     
     private final ToolsPanelTop panelTop = new ToolsPanelTop((index) -> {
             switch (index) {
-                case BTN_TO_JSON:
+                case buttonExportToJSON:
                     if (!Files.exists(XImg.LOG_DIR))
                         try {
                             Files.createDirectory(XImg.LOG_DIR); 
@@ -118,10 +109,10 @@ public class TabAllTags extends SEVBox {
                         XImg.msgbox("Папка логов недоступна на запись, сохранение невозможно.");
                     }
                     break;
-                case BTN_FROM_JSON: 
+                case buttonImportFromJSON: 
                     
                     break;
-                case BTN_FROM_TEXT:
+                case buttonImportFromText:
                     
                     break;
             }
@@ -149,7 +140,7 @@ public class TabAllTags extends SEVBox {
         addTags.setMinHeight(Region.USE_PREF_SIZE);
         addTags.setPrefHeight(Region.USE_COMPUTED_SIZE);
         addTags.setMaxHeight(Double.MAX_VALUE);
-        addTags.getChildren().addAll(addNewTagField, new SButton(IMG32_ADD, 0, 32, (c, d) -> {
+        addTags.getChildren().addAll(addNewTagField, new SButton(GUITools.loadIcon("plus-32"), ElementsIDCodes.buttonUnknown, 32, (c, d) -> {
             final ArrayList<DSTag> tagsA = addNewTagField.getTags();
             final Transaction t = HibernateUtil.getCurrentSession().beginTransaction();
             tagsA.forEach(tag -> {
@@ -163,9 +154,9 @@ public class TabAllTags extends SEVBox {
             addNewTagField.clear();
         }, "button_pts_add"));
         
-        panelTop.addButton(IMG48_FROM_JSON, BTN_FROM_JSON);
-        panelTop.addButton(IMG48_FROM_TEXT, BTN_FROM_TEXT);
-        panelTop.addButton(IMG48_TO_JSON, BTN_TO_JSON);
+        panelTop.addButton(GUITools.loadIcon("from-json-48"), PanelButtonCodes.buttonImportFromJSON);
+        panelTop.addButton(GUITools.loadIcon("from-text-48"), PanelButtonCodes.buttonImportFromText);
+        panelTop.addButton(GUITools.loadIcon("to-json-48"), PanelButtonCodes.buttonExportToJSON);
              
         final SScrollPane
                 tagSP = new SScrollPane();

@@ -2,6 +2,7 @@ package jnekoimagesdb.ui.controls.dialogs;
 
 import javafx.geometry.Pos;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SElementPair;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
@@ -30,13 +31,13 @@ public class XDialogYesNoBox extends XDialogWindow {
                 outText,
                 GUITools.getHSeparator(32),
                 new SElementPair(
-                        new STabTextButton("  Нет  ", 0 , 120, 32, (x, y) -> {
+                        new STabTextButton("  Нет  ", ElementsIDCodes.buttonUnknown, 120, 32, (x, y) -> {
                             dResult = XDialogYesNoBoxResult.dNo;
                             this.hide();
                         }), 
                         4, 32, 32,
                         GUITools.getSeparator(),
-                        new STabTextButton("  Да  ", 0 , 120, 32, (x, y) -> {
+                        new STabTextButton("  Да  ", ElementsIDCodes.buttonUnknown, 120, 32, (x, y) -> {
                             dResult = XDialogYesNoBoxResult.dYes;
                             this.hide();
                         })

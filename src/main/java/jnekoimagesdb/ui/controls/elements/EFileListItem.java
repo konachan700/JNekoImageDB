@@ -19,7 +19,7 @@ import jnekoimagesdb.ui.GUITools;
 public class EFileListItem extends Pane {
     private final ImageView 
         imageContainer = new ImageView(),
-        selectedIcon = new ImageView(GUIElements.ITEM_SELECTED);
+        selectedIcon = new ImageView(GUITools.loadIcon("selected-32"));
 
     private final VBox 
         imageVBox = new VBox(0);
@@ -54,7 +54,7 @@ public class EFileListItem extends Pane {
     }
 
     public final void setNullImage() {
-        imageContainer.setImage(GUIElements.ITEM_NOTHING);
+        imageContainer.setImage(GUITools.loadIcon("dummy-128"));
         imageContainer.setVisible(false);
         this.getChildren().clear();
         this.getStyleClass().clear();
@@ -120,7 +120,7 @@ public class EFileListItem extends Pane {
         imageContainer.setCache(false);
 //            imageContainer.setFitHeight(itemSizeV);
 //            imageContainer.setFitWidth(itemSizeH);
-        imageContainer.setImage(GUIElements.ITEM_NOTHING);
+        imageContainer.setImage(GUITools.loadIcon("dummy-128"));
 
         GUITools.setStyle(imageVBox, "FileListItem", "imageVBox");
 //            GUITools.setMaxSize(imageVBox, itemSizeH, itemSizeV);

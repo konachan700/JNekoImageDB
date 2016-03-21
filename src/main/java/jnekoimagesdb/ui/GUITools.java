@@ -1,11 +1,14 @@
 package jnekoimagesdb.ui;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -28,6 +31,9 @@ public class GUITools {
     public final static String
             CSS_FILE = new File("./style/style.css").toURI().toString();
     
+    private static final Map<String,Image>
+            iconsCache = new HashMap<>();
+    
     public static final void setStyle(Parent element, String className, String style) {
         element.getStylesheets().clear();
         element.getStylesheets().add(CSS_FILE);
@@ -36,7 +42,13 @@ public class GUITools {
     }
     
     public static final Image loadIcon(String name) {
-        return new Image(new File("./style/icons/"+name+".png").toURI().toString());
+        if (iconsCache.containsKey(name)) {
+            return iconsCache.get(name);
+        } else {
+            final Image img = new Image(new File("./style/icons/"+name+".png").toURI().toString());
+            iconsCache.put(name, img);
+            return img;
+        }
     }
     
     public static final Image loadImage(String name) {
@@ -146,5 +158,11 @@ public class GUITools {
         VBox sep1 = new VBox();
         setFixedSize(sep1, sz, sz);
         return sep1;
+    }
+    
+    public static Tooltip createTT(String t) {
+        final Tooltip tt = new Tooltip();
+        tt.setText(t);
+        return tt;
     }
 }

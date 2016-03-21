@@ -9,7 +9,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.img.XImg.PreviewType;
@@ -18,8 +17,7 @@ import jnekoimagesdb.core.img.XImgPreviewSizes;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.GUITools;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_NONSQUARED;
-import static jnekoimagesdb.ui.controls.PreviewTypesList.IMG32_SQUARED;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SButton;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SElementPair;
@@ -33,12 +31,8 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
 public class TabStartNewDB extends SEVBox {
-    public static final Image 
-            IMG32_SELECTED = GUITools.loadIcon("selected-32"),
-            IMG32_NOT_SELECTED = GUITools.loadIcon("delete-32");
-    
     private static final ImageView
-            errIcon = new ImageView(IMG32_NOT_SELECTED);
+            errIcon = new ImageView(GUITools.loadIcon("delete-32"));
     
     public static interface TabStartNewDBState {
         public void OnDBCreated(String dbName);
@@ -66,24 +60,24 @@ public class TabStartNewDB extends SEVBox {
             addNewItem = new SFHBox(4, 120, 9999, 32+12, 32+12, "AddNewAlbumElement");
     
     private final SNumericTextField
-            hf = new SNumericTextField(0, 70, 32, null), 
-            wf = new SNumericTextField(0, 70, 32, null);
+            hf = new SNumericTextField(ElementsIDCodes.textUnknown, 70, 32, null), 
+            wf = new SNumericTextField(ElementsIDCodes.textUnknown, 70, 32, null);
     
     private boolean 
             isSqared = false,
             locked = false;
    
     private final ImageView
-            imgButton = new ImageView(IMG32_NONSQUARED);
+            imgButton = new ImageView(GUITools.loadIcon("unselected2-16"));
     
     private final SButton
-            btn = new SButton(IMG32_NONSQUARED, 0, 32, (c, d) -> {
+            btn = new SButton(GUITools.loadIcon("unselected2-16"), ElementsIDCodes.textUnknown, 32, (c, d) -> {
                     isSqared = !isSqared;
-                    imgButton.setImage((isSqared) ? IMG32_SQUARED : IMG32_NONSQUARED); 
+                    imgButton.setImage((isSqared) ? GUITools.loadIcon("selected-16") : GUITools.loadIcon("unselected2-16")); 
                 }, "button_pts");
     
     private final STextField
-            txtDBName = new STextField(0, -1, 32, (x , y) -> {
+            txtDBName = new STextField(ElementsIDCodes.textUnknown, -1, 32, (x , y) -> {
                 checkField();
             });
 
@@ -146,7 +140,7 @@ public class TabStartNewDB extends SEVBox {
                         errIcon, 
                         4, 32, 32,
                         GUITools.getSeparator(),
-                        new STabTextButton("  Создать БД  ", 0 , 200, 32, (x, y) -> {
+                        new STabTextButton("  Создать БД  ", ElementsIDCodes.buttonUnknown , 200, 32, (x, y) -> {
                             if (((wf.getLongValue() >= 64) && (wf.getLongValue() <= 800)) && ((hf.getLongValue() >= 64) && (hf.getLongValue() <= 800))) {
                                 if (dbName != null) {
                                     createDBX();
@@ -205,10 +199,10 @@ public class TabStartNewDB extends SEVBox {
     
     private void checkField() {
         if (txtDBName.getText().matches("^[a-zA-Z0-9_-]{1,32}$")) {
-            errIcon.setImage(IMG32_SELECTED); 
+            errIcon.setImage(GUITools.loadIcon("selected-32")); 
             dbName = txtDBName.getText();
         } else {
-            errIcon.setImage(IMG32_NOT_SELECTED); 
+            errIcon.setImage(GUITools.loadIcon("delete-32")); 
             dbName = null;
         }
     }

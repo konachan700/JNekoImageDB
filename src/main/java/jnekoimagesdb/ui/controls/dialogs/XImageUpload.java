@@ -12,6 +12,7 @@ import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.PagedFileList;
 import jnekoimagesdb.ui.controls.PagedFileListActionListener;
+import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
 import jnekoimagesdb.ui.controls.elements.EThreadStatItem;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
@@ -21,24 +22,6 @@ import jnekoimagesdb.ui.controls.elements.SFVBox;
 import jnekoimagesdb.ui.controls.elements.SScrollPane;
 
 public class XImageUpload extends XDialogWindow {
-    public static final Image 
-            IMG64_SELECT_ALL        = GUITools.loadIcon("selectall-48"), 
-            IMG64_SELECT_NONE       = GUITools.loadIcon("selectnone-48"),
-            IMG64_DELETE            = GUITools.loadIcon("delete-48"), 
-            IMG64_LEVELUP           = GUITools.loadIcon("lvlup-48"),
-            IMG64_GOROOT            = GUITools.loadIcon("goroot-48"),
-            IMG64_ADDALL            = GUITools.loadIcon("addall-48"),
-            IMG64_ADDSEL            = GUITools.loadIcon("add-to-db-48");
-    
-    public static final int 
-            BTN_SELECT_ALL = 1,
-            BTN_SELECT_NONE = 2,
-//            BTN_DELETE = 3, 
-            BTN_LEVELUP = 4, 
-            BTN_GOROOT = 5, 
-            BTN_ADDALL = 6,
-            BTN_ADDSEL = 7;
-         
     private volatile long
             albumID = 0;
     
@@ -106,22 +89,22 @@ public class XImageUpload extends XDialogWindow {
     private final ToolsPanelTop
             panelTop = new ToolsPanelTop(c -> {
                 switch (c) {
-                    case BTN_LEVELUP:
+                    case buttonOneLevelUp:
                         filesList.levelUp();
                         break;
-                    case BTN_GOROOT:
+                    case buttonGoToRootDirectory:
                         filesList.navigateRoot();
                         break;
-                    case BTN_SELECT_ALL:
+                    case buttonSelectAll:
                         filesList.selectAll();
                         break;
-                    case BTN_SELECT_NONE:
+                    case buttonClearSelection:
                         filesList.selectNone();
                         break;
-                    case BTN_ADDALL:
+                    case buttonAddAll:
                         filesList.addAll();
                         break;
-                    case BTN_ADDSEL:
+                    case buttonAddSelected:
                         filesList.addSelected();
                         break;
                 }
@@ -150,16 +133,14 @@ public class XImageUpload extends XDialogWindow {
             }
         });
         
-        panelTop.addButton(IMG64_LEVELUP, BTN_LEVELUP);
-        panelTop.addButton(IMG64_GOROOT, BTN_GOROOT);
+        panelTop.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp);
+        panelTop.addButton(GUITools.loadIcon("goroot-48"), PanelButtonCodes.buttonGoToRootDirectory);
         panelTop.addFixedSeparator();
-        panelTop.addButton(IMG64_SELECT_ALL, BTN_SELECT_ALL);
-        panelTop.addButton(IMG64_SELECT_NONE, BTN_SELECT_NONE);
-//        panelTop.addFixedSeparator();
-//        panelTop.addButton(IMG64_DELETE, BTN_DELETE);
+        panelTop.addButton(GUITools.loadIcon("selectall-48"), PanelButtonCodes.buttonSelectAll);
+        panelTop.addButton(GUITools.loadIcon("selectnone-48"), PanelButtonCodes.buttonClearSelection);
         panelTop.addFixedSeparator();
-        panelTop.addButton(IMG64_ADDSEL, BTN_ADDSEL);
-        panelTop.addButton(IMG64_ADDALL, BTN_ADDALL);       
+        panelTop.addButton(GUITools.loadIcon("add-to-db-48"), PanelButtonCodes.buttonAddSelected);
+        panelTop.addButton(GUITools.loadIcon("addall-48"), PanelButtonCodes.buttonAddAll);       
         
         GUITools.setMaxSize(statCont, 200, 9999);
         statCont.getChildren().addAll(

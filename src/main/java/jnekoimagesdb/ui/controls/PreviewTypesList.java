@@ -11,30 +11,17 @@ import jnekoimagesdb.ui.controls.elements.SNumericTextField;
 import jnekoimagesdb.ui.controls.elements.SScrollPane;
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.dialogs.XDialogYesNoBox;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 
 public class PreviewTypesList extends SEVBox {
-    public static final Image 
-            IMG32_SETPRIMARY = GUITools.loadIcon("selected-32"),
-            IMG32_DELETE = GUITools.loadIcon("delete-32"),
-            IMG32_NORMAL = GUITools.loadIcon("options-1-32"),
-            IMG32_ADD = GUITools.loadIcon("plus-32"),
-            IMG32_SQUARED = GUITools.loadIcon("selected-16"),
-            IMG32_NONSQUARED = GUITools.loadIcon("unselected2-16"),
-            IMG32_SELECTED = GUITools.loadIcon("options-2-32");
-
     protected static interface TypesListItemActionListener {
         void refreshNeed(DSPreviewSize d);
     }
     
-    protected static class TypesListItem extends SFHBox {
-        public static final int 
-                BTN_DEL = 1,
-                BTN_SETPRIMARY = 2;
-        
+    protected static class TypesListItem extends SFHBox {        
         private DSPreviewSize 
                 thisElement = null;
         
@@ -42,9 +29,9 @@ public class PreviewTypesList extends SEVBox {
                 alOut = null;
         
         private final GUIActionListener 
-                al = (int evCode, int ID) -> {
+                al = (evCode, ID) -> {
                     switch(ID) {
-                        case BTN_SETPRIMARY:
+                        case buttonSetAsPrimary:
                             if (XImg.getPSizes().getPrimaryPreviewSize() != null)
                                 if (thisElement.equals(XImg.getPSizes().getPrimaryPreviewSize())) {
                                     break;
@@ -53,7 +40,7 @@ public class PreviewTypesList extends SEVBox {
                             XImg.wipeFSCache();
                             alOut.refreshNeed(thisElement);
                             break;
-                        case BTN_DEL:
+                        case buttonDelete:
                             final XDialogYesNoBox d = new XDialogYesNoBox();
                             d.showYesNo("Точно удалить секцию?", "Будут удалены все сгенерированные превью для данной секции!");
                             if (d.getResult() == XDialogYesNoBox.XDialogYesNoBoxResult.dYes) {
@@ -70,10 +57,10 @@ public class PreviewTypesList extends SEVBox {
             thisElement = pds;
             alOut = alx;
             this.setAlignment(Pos.CENTER);
-            this.getChildren().add((pds.isPrimary()) ? new ImageView(IMG32_SELECTED) : new ImageView(IMG32_NORMAL));
+            this.getChildren().add((pds.isPrimary()) ? new ImageView(GUITools.loadIcon("options-2-32")) : new ImageView(GUITools.loadIcon("options-1-32")));
             this.getChildren().add(new SFLabel(pds.getPrevName(), 128, 9999, 32, 32, "label_left", "TypesListItem"));
-            this.getChildren().add(new SButton(IMG32_DELETE, BTN_DEL, 32, al, "button_prevsz_el"));
-            this.getChildren().add(new SButton(IMG32_SETPRIMARY, BTN_SETPRIMARY, 32, al, "button_prevsz_el"));
+            this.getChildren().add(new SButton(GUITools.loadIcon("delete-32"), ElementsIDCodes.buttonDelete, 32, al, "button_prevsz_el"));
+            this.getChildren().add(new SButton(GUITools.loadIcon("selected-32"), ElementsIDCodes.buttonSetAsPrimary, 32, al, "button_prevsz_el"));
         }
     }
     
@@ -92,20 +79,20 @@ public class PreviewTypesList extends SEVBox {
             itemContainer = new SEVBox(1);
     
     private final SNumericTextField
-            hf = new SNumericTextField(0, 70, 32, null), 
-            wf = new SNumericTextField(0, 70, 32, null);
+            hf = new SNumericTextField(ElementsIDCodes.textUnknown, 70, 32, null), 
+            wf = new SNumericTextField(ElementsIDCodes.textUnknown, 70, 32, null);
     
     private boolean 
             isSqared = false;
    
     
     private final ImageView
-            imgButton = new ImageView(IMG32_NONSQUARED);
+            imgButton = new ImageView(GUITools.loadIcon("unselected2-16"));
     
     private final SButton
-            btn = new SButton(IMG32_NONSQUARED, 0, 32, (c, d) -> {
+            btn = new SButton(GUITools.loadIcon("unselected2-16"), ElementsIDCodes.buttonUnknown, 32, (c, d) -> {
                     isSqared = !isSqared;
-                    imgButton.setImage((isSqared) ? IMG32_SQUARED : IMG32_NONSQUARED); 
+                    imgButton.setImage((isSqared) ? GUITools.loadIcon("selected-16") : GUITools.loadIcon("unselected2-16")); 
                 }, "button_pts");
     
     public PreviewTypesList() {
@@ -129,7 +116,7 @@ public class PreviewTypesList extends SEVBox {
                 new SFLabel("Обрезка:", 64, 64, 32, 32, "label", "TypesListItem"),
                 btn,
                 GUITools.getSeparator(),
-                new SButton(IMG32_ADD, 0, 32, (c, d) -> {
+                new SButton(GUITools.loadIcon("plus-32"), ElementsIDCodes.buttonUnknown, 32, (c, d) -> {
                     if (((wf.getLongValue() >= 64) && (wf.getLongValue() <= 800))
                             && ((hf.getLongValue() >= 64) && (hf.getLongValue() <= 800))) {
                         final StringBuilder sb = new StringBuilder();
@@ -145,7 +132,7 @@ public class PreviewTypesList extends SEVBox {
                         wf.setText("0");
                         hf.setText("0");
                         isSqared = false;
-                        imgButton.setImage(IMG32_NONSQUARED);
+                        imgButton.setImage(GUITools.loadIcon("unselected2-16"));
                         refresh();
                     }
                 }, "button_pts_add")
