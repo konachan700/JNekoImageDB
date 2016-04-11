@@ -13,21 +13,16 @@ import jnekoimagesdb.ui.controls.elements.SScrollPane;
 import jnekoimagesdb.ui.controls.elements.STextArea;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import jnekoimagesdb.core.img.XImg;
-import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,20 +37,15 @@ public class AlbumList extends SEVBox {
     private DSAlbum
             currentAlbum;
     
+    private DSAlbum
+            cuttedAlbum = null;
+    
     private long  
             albumCountInThis = 0;
     
     private Session 
             hibSession = null;
-    
-    public static final Image 
-            ALBUM_DEFAULT = GUITools.loadIcon("dir-normal-128"),
-            SELECTED_16 = GUITools.loadIcon("selected-16"),
-            UNSELECTED_16 = GUITools.loadIcon("unselected2-16"),
-            EXPORT_16 = GUITools.loadIcon("alb-export-16"),
-            SAVE_16 = GUITools.loadIcon("save-16"),
-            EDIT_16 = GUITools.loadIcon("edit-16");
-    
+
     private final SEVBox
             container = new SEVBox();
     
@@ -125,6 +115,7 @@ public class AlbumList extends SEVBox {
         void OnItemClick(DSAlbum a, AlbumsListElement e);
         void OnSave(DSAlbum a, AlbumsListElement e, String newTitle, String newText); 
         void OnCheck(DSAlbum a, boolean state);
+        void OnCut(DSAlbum a);
     }
 
     public static class AlbumsListElement extends SFHBox {
@@ -142,7 +133,8 @@ public class AlbumList extends SEVBox {
 
         private boolean 
                 editMode = false, 
-                checked = false;
+                checked = false, 
+                cutted = false;
         
         private boolean
                 dialogMode = false;
@@ -157,16 +149,19 @@ public class AlbumList extends SEVBox {
                 albumText = new STextArea(128, 9999, 90, 90, "albumText");
 
         private final ImageView
-                icon_d = new ImageView(ALBUM_DEFAULT),
-                selected_i = new ImageView(SELECTED_16),
-                unselected_i = new ImageView(UNSELECTED_16),
-                save_i = new ImageView(SAVE_16),
-                edit_i = new ImageView(EDIT_16);
+                icon_d = new ImageView(GUITools.loadIcon("dir-normal-128")),
+                selected_i = new ImageView(GUITools.loadIcon("selected-16")),
+                unselected_i = new ImageView(GUITools.loadIcon("unselected2-16")),
+                save_i = new ImageView(GUITools.loadIcon("save-16")),
+                cut_i = new ImageView(GUITools.loadIcon("edit-cut-16")),
+                cutted_i = new ImageView(GUITools.loadIcon("edit-cutted-16")),
+                edit_i = new ImageView(GUITools.loadIcon("edit-16"));
 
         private final Button
                 saveBtn = new Button(Lang.NullString, edit_i),
                 selectBtn = new Button(Lang.NullString, unselected_i),
-                exportButton = new Button(Lang.NullString, new ImageView(EXPORT_16));
+                cutButton = new Button(Lang.NullString, cut_i),
+                exportButton = new Button(Lang.NullString, new ImageView(GUITools.loadIcon("alb-export-16")));
 
         public AlbumsListElement(DSAlbum a, AlbumListElementActionListener al, boolean dm) {
             super(16, 128, 9999, 128, 128);
@@ -195,9 +190,14 @@ public class AlbumList extends SEVBox {
             saveBtn.setGraphic(edit_i);
             editMode = false;
             titleContainer.getChildren().clear();
-            titleContainer.getChildren().addAll(titleLabel, saveBtn, exportButton);
+            titleContainer.getChildren().addAll(titleLabel, saveBtn, cutButton, exportButton);
             albumText.setEditable(editMode);
             albumText.getStyleClass().remove("GUIElements_albumText_EditMode");
+        }
+        
+        public void cutIt() {
+            cutted = true;
+            cutButton.setGraphic(cutted_i);
         }
 
         private void _editModeOn() {
@@ -276,6 +276,15 @@ public class AlbumList extends SEVBox {
                 }
             });
             
+            GUITools.setFixedSize(cutButton, 16, 16);
+            GUITools.setStyle(cutButton, "AlbumsListElement", "btn");
+            cutButton.setTooltip(GUITools.createTT("Вырезать/переместить альбом"));
+            cutButton.setOnMouseClicked((MouseEvent event) -> {
+                    cutted = true;
+                    cutButton.setGraphic(cutted_i);
+                    elementAL.OnCut(thisAlbum);
+            });
+            
             albumText.setOnMouseClicked((MouseEvent event) -> {
                 if (event.getClickCount() == 2) {
                     elementAL.OnItemClick(thisAlbum, this);
@@ -292,7 +301,7 @@ public class AlbumList extends SEVBox {
             
             this.getChildren().addAll(icon_d, elementContainer);
             titleContainer.getChildren().add(titleLabel);
-            titleContainer.getChildren().addAll(saveBtn, exportButton);
+            titleContainer.getChildren().addAll(saveBtn, cutButton, exportButton);
             if (dialogMode) titleContainer.getChildren().add(selectBtn);
             elementContainer.getChildren().addAll(titleContainer, albumText);
         }
@@ -344,6 +353,12 @@ public class AlbumList extends SEVBox {
                 public void OnCheck(DSAlbum id, boolean s) { 
                     if (s) selectedItems.add(id); else selectedItems.remove(id);
                 }
+
+                @Override
+                public void OnCut(DSAlbum a) {
+                    cuttedAlbum = a;
+                    refresh();
+                }
             };
     
     public void initDB() {
@@ -379,11 +394,11 @@ public class AlbumList extends SEVBox {
     }
     
     public long getAlbumID() {
-        return currentAlbum.getAlbumID();
+        return (currentAlbum == null) ? 0 : currentAlbum.getAlbumID();
     }
     
     public long getParentAlbumID() {
-        return currentAlbum.getParentAlbumID();
+        return  (currentAlbum == null) ? 0 : currentAlbum.getParentAlbumID();
     }
     
     public DSAlbum getAlbum() {
@@ -408,6 +423,11 @@ public class AlbumList extends SEVBox {
             final AlbumsListElement ale = new AlbumsListElement(ds, elementsListener, globalDialogMode);
             if (globalDialogMode)
                 ale.setSelected(selectedItems.contains(ds));
+            
+            if (cuttedAlbum != null)
+                if (cuttedAlbum.equals(ale.getAlbum()))
+                    ale.cutIt();
+            
             container.getChildren().add(ale);
             albumCountInThis++;
         }
@@ -419,6 +439,10 @@ public class AlbumList extends SEVBox {
         return selectedItems;
     }
     
+    public DSAlbum getCutted() {
+        return cuttedAlbum;
+    }
+    
     public final void clearSelected() {
         selectedItems.clear();
     }
@@ -428,7 +452,9 @@ public class AlbumList extends SEVBox {
     }
     
     public final void levelUp() {
+        if (currentAlbum == null) return;
         logger.debug("levelUp() PID:"+currentAlbum.getParentAlbumID());
+        
         if (currentAlbum.getParentAlbumID() > 0) {
             List<DSAlbum> list = hibSession
                     .createCriteria(DSAlbum.class)

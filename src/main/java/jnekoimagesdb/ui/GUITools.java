@@ -34,14 +34,14 @@ public class GUITools {
     private static final Map<String,Image>
             iconsCache = new HashMap<>();
     
-    public static final void setStyle(Parent element, String className, String style) {
+    public static void setStyle(Parent element, String className, String style) {
         element.getStylesheets().clear();
         element.getStylesheets().add(CSS_FILE);
         element.getStyleClass().clear();
         element.getStyleClass().add(className + "_" + style);
     }
     
-    public static final Image loadIcon(String name) {
+    public static Image loadIcon(String name) {
         if (iconsCache.containsKey(name)) {
             return iconsCache.get(name);
         } else {
@@ -51,15 +51,15 @@ public class GUITools {
         }
     }
     
-    public static final Image loadImage(String name) {
+    public static Image loadImage(String name) {
         return new Image(new File("./style/"+name+".jpg").toURI().toString());
     }
     
-    public static final ImageView loadIconIW(String name) {
+    public static ImageView loadIconIW(String name) {
         return new ImageView(loadIcon(name));
     }
     
-    public static final StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag, boolean isBox) {
+    public static StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag, boolean isBox) {
         final Label imageName = new Label(Lang.GUITools_WinGUI_Title);
         setStyle(imageName, "GUITools", "imageName");
         imageName.setMaxSize(9999, 16);
@@ -123,31 +123,31 @@ public class GUITools {
         return root2m;
     }
     
-    public static final void setFixedSize(Region n, double w, double h) {
+    public static void setFixedSize(Region n, double w, double h) {
         n.setMaxSize(w, h);
         n.setPrefSize(w, h);
         n.setMinSize(w, h);
     }
     
-    public static final void setMaxSize(Region n, double w, double h) {
+    public static void setMaxSize(Region n, double w, double h) {
         n.setMaxSize(w, h);
         n.setPrefSize(w, h);
     }
     
-    public static final VBox getSeparator() {
+    public static VBox getSeparator() {
         VBox sep1 = new VBox();
         setMaxSize(sep1, 9999, 16);
         return sep1;
     }
     
-    public static final VBox getHSeparator(int hsz) {
+    public static VBox getHSeparator(int hsz) {
         VBox sep1 = new VBox();
         setMaxSize(sep1, 9999, hsz);
         sep1.setMinSize(32, hsz);
         return sep1;
     }
     
-    public static final VBox getHNFSeparator(int hsz) {
+    public static VBox getHNFSeparator(int hsz) {
         VBox sep1 = new VBox();
         setMaxSize(sep1, 9999, hsz);
         sep1.setMinSize(1, 1);

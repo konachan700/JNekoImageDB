@@ -94,12 +94,13 @@ public class TabSettings extends SEVBox {
                 new SFLabel("Настройка папок обмена", 64, 9999, 20, 20, "label_darkblue", "TypesListItem"),
                 new SFLabel("Папка обмена для браузера", 64, 9999, 24, 24, "label_darkblue_small", "TypesListItem"),
                 pathBrowserExchange,
-                new SFLabel("Папка обмена для выгрузки альбомов", 64, 9999, 24, 24, "label_darkblue_small", "TypesListItem"),
-                pathAlbumsExchange,
+//                new SFLabel("Папка обмена для выгрузки альбомов", 64, 9999, 24, 24, "label_darkblue_small", "TypesListItem"),
+//                pathAlbumsExchange,
                 new STabTextButton("Сохранить", ElementsIDCodes.buttonUnknown , 100, 32, (x, y) -> {
-                    if (pathBrowserExchange.isNull() || pathAlbumsExchange.isNull()) return;
+//                    if (pathBrowserExchange.isNull() || pathAlbumsExchange.isNull()) return;
+                    if (pathBrowserExchange.isNull()) return;
                     SettingsUtil.setPath("pathBrowserExchange", pathBrowserExchange.getValue());
-                    SettingsUtil.setPath("pathAlbumsExchange", pathAlbumsExchange.getValue());
+//                    SettingsUtil.setPath("pathAlbumsExchange", pathAlbumsExchange.getValue());
                 })
         );
         

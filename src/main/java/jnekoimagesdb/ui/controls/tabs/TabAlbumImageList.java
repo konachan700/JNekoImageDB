@@ -7,6 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
+import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
 import jnekoimagesdb.ui.controls.AlbumList;
@@ -18,6 +19,7 @@ import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SFLabel;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
+import org.hibernate.criterion.Restrictions;
 
 public class TabAlbumImageList extends SEVBox {
     public static final int
@@ -100,6 +102,50 @@ public class TabAlbumImageList extends SEVBox {
                     XImg.getUploadBox().setAlbumID(currentAlbumID);
                     XImg.getUploadBox().showModal();
                     break;
+                case buttonPaste:
+                    if (myAL.getCutted() == null) return;
+                    final long 
+                            cuttedAlbumXID = myAL.getCutted().getAlbumID(),
+                            cuttedAlbumXIDParent = myAL.getCutted().getParentAlbumID(),
+                            currentAlbumXID = myAL.getAlbumID();
+                    
+                    long tempAlbumID = currentAlbumXID;
+                    if (currentAlbumXID == cuttedAlbumXIDParent) {
+                        XImg.msgbox("Действие не выполнено: папка назначения и исходная папка одинаковы.");
+                        break;
+                    }
+                    
+                    while (true) {
+                        if (tempAlbumID == cuttedAlbumXID) {
+                            XImg.msgbox("Невозможно перенести альбом сам в себя!");
+                            return;
+                        }
+                        
+                        if (tempAlbumID == 0) {
+                            final DSAlbum dsa = myAL.getCutted();
+                             
+                            HibernateUtil.beginTransaction(HibernateUtil.getCurrentSession());
+                            dsa.setParentAlbumID(myAL.getAlbumID());
+                            HibernateUtil.getCurrentSession().save(dsa);
+                            HibernateUtil.commitTransaction(HibernateUtil.getCurrentSession());
+                            
+                            myAL.refresh();
+                            break;
+                        }
+                        
+                        DSAlbum dsa = (DSAlbum) HibernateUtil
+                                .getCurrentSession()
+                                .createCriteria(DSAlbum.class)
+                                .add(Restrictions.eq("albumID", tempAlbumID))
+                                .uniqueResult();
+                        if (dsa != null) {
+                            tempAlbumID = dsa.getParentAlbumID();
+                        } else {
+                            XImg.msgbox("Общая ошибка запроса данных.");
+                            break;
+                        }
+                    }
+                    break;
             }
         });
         
@@ -142,6 +188,8 @@ public class TabAlbumImageList extends SEVBox {
         
         panelTopAlb.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp, "На один уровень вверх");
         panelTopAlb.addFixedSeparator();
+        panelTopAlb.addButton(GUITools.loadIcon("edit-paste-48"), PanelButtonCodes.buttonPaste, "Вставить");
+        panelTopAlb.addSeparator();
         panelTopAlb.addButton(GUITools.loadIcon("todb-48"), PanelButtonCodes.buttonAddNewItems, "Добавить новые картинки в альбом...");
         
         panelTopImg.addButton(GUITools.loadIcon("selectnone-48"), PanelButtonCodes.buttonClearSelection, "Сбросить выделение"); // TODO тоже

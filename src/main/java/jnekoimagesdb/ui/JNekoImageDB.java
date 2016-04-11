@@ -69,10 +69,10 @@ public class JNekoImageDB extends Application {
                     clearAll();
 
                     if (l.getID().contentEquals("M01-01")) showAllImages(PagedImageList.IMAGES_ALL);
-                    if (l.getID().contentEquals("M01-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
+                    if (l.getID().contentEquals("M02-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
                     if (l.getID().contentEquals("M01-06")) showAllImages(PagedImageList.IMAGES_NOT_IN_ALBUM);
                     if (l.getID().contentEquals("M01-04")) showAlbCats();
-                    if (l.getID().contentEquals("M01-03")) showTagsCloud();
+                    if (l.getID().contentEquals("M02-03")) showTagsCloud();
                     
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-02")) showSettings();
@@ -227,19 +227,24 @@ public class JNekoImageDB extends Application {
         
         ml.getMenu().setActionListener(menuAL);
         
-        ml.getMenu().addGroup("M01", Lang.JNekoImageDB_menu_title_main, null, "113311");
-        ml.getMenu().addItem("M01", "M01-01", Lang.JNekoImageDB_menu_main_all_images);
-        ml.getMenu().addItem("M01", "M01-02", Lang.JNekoImageDB_menu_main_all_images_wo_tags);
-        ml.getMenu().addItem("M01", "M01-06", Lang.JNekoImageDB_menu_main_all_images_wo_groups);
+        ml.getMenu().addGroup("M01", "Картинки", null, "113311");
         ml.getMenu().addItem("M01", "M01-04", Lang.JNekoImageDB_menu_title_albums);
-        ml.getMenu().addItem("M01", "M01-03", Lang.JNekoImageDB_menu_main_tagcloud);
-        ml.getMenu().addItem("M01", "M01-07", Lang.JNekoImageDB_menu_main_fav_tags);
+        ml.getMenu().addItem("M01", "M01-01", "Последние загруженные");
+        ml.getMenu().addItem("M01", "M01-06", "Не входящие ни в один альбом");
+        
+
 //        ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
+        
+//        ml.getMenu().addGroup("M02", "Теги", null, "331111");
+//        ml.getMenu().addItem("M02", "M02-03", Lang.JNekoImageDB_menu_main_tagcloud);
+//        ml.getMenu().addItem("M02", "M02-07", Lang.JNekoImageDB_menu_main_fav_tags);
+//        ml.getMenu().addItem("M02", "M02-06", "Парсер тегов");
+//        ml.getMenu().addItem("M02", "M02-02", "Картинки без тегов");
         
         ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
         ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
         ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
-        ml.getMenu().addItem("M03", "M03-04", "For test");
+//        ml.getMenu().addItem("M03", "M03-04", "For test");
 
         ml.setPrefSize(240, 9999);
         ml.setMaxSize(240, 9999);

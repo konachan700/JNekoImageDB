@@ -25,5 +25,6 @@ public enum PanelButtonCodes {
     buttonOK,
     buttonExportToJSON,
     buttonImportFromJSON,
-    buttonImportFromText
+    buttonImportFromText,
+    buttonPaste
 }

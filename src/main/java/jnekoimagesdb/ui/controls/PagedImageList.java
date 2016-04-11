@@ -528,6 +528,7 @@ public class PagedImageList extends SScrollPane {
     }
     
     public long getImgCount(long _albumID) {
+        logger.info("## getImgCount start time: "+System.currentTimeMillis());
         Number _itemTotalRecordsCount;
         switch ((int)_albumID) {
             case IMAGES_ALL:
@@ -539,6 +540,8 @@ public class PagedImageList extends SScrollPane {
                     return _itemTotalRecordsCount.longValue();
                 } else {
                     _itemTotalRecordsCount = (Number) hibSession.createCriteria(DSImage.class).setProjection(Projections.rowCount()).uniqueResult();
+                    logger.info("## getImgCount   end time: "+System.currentTimeMillis());
+                    logger.info("## itemTotalRecordsCount: "+_itemTotalRecordsCount.longValue());
                     return _itemTotalRecordsCount.longValue();
                 }
             case IMAGES_NOT_IN_ALBUM: 
@@ -605,6 +608,7 @@ public class PagedImageList extends SScrollPane {
     }
     
     public List<DSImage> getImgList(long albumID, int offset, int count) {
+        logger.info("## getImgList start time: "+System.currentTimeMillis());
         List<DSImage> list;
         switch ((int)albumID) {
             case IMAGES_ALL:
@@ -613,11 +617,19 @@ public class PagedImageList extends SScrollPane {
                 if (notNullTags && notEmptyTags) {
                     list = getTagsList(offset, count);
                 } else {
+                    // Выглядит криво, но скорость выборки на два порядка растет. На 200к картинок 20-40мс на выборку это очень хорошо.
+                    final Long 
+                            startOffset = (long)(itemTotalRecordsCount - (offset + count) - 1),
+                            endOffset   = (long)(itemTotalRecordsCount - offset);
                     list = (List<DSImage>) hibSession
                             .createCriteria(DSImage.class)
-                            .addOrder(Order.desc("imageID"))
-                            .setFirstResult(offset)
-                            .setMaxResults(count)
+                            .add(Restrictions.and(
+                                    Restrictions.gt("imageID", startOffset),
+                                    Restrictions.lt("imageID", endOffset)
+                            ))
+                            //.addOrder(Order.desc("imageID"))  
+                            //.setFirstResult(itemTotalRecordsCount - (offset + count))
+                            //.setMaxResults(count)
                             .list();
                 }
                 break;
@@ -644,6 +656,7 @@ public class PagedImageList extends SScrollPane {
                         .list();
                 break;
         }
+        logger.info("## getImgList   end time: "+System.currentTimeMillis());
         return list;
     }
     
