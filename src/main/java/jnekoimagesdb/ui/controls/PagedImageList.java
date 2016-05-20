@@ -43,6 +43,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -539,17 +540,12 @@ public class PagedImageList extends SScrollPane {
                     logger.debug(_itemTotalRecordsCount.toString());
                     return _itemTotalRecordsCount.longValue();
                 } else {
-                    _itemTotalRecordsCount = (Number) hibSession.createCriteria(DSImage.class).setProjection(Projections.rowCount()).uniqueResult();
-                    logger.info("## getImgCount   end time: "+System.currentTimeMillis());
-                    logger.info("## itemTotalRecordsCount: "+_itemTotalRecordsCount.longValue());
-                    return _itemTotalRecordsCount.longValue();
+                    return DSImageIDListCache.getAll().getCount();
                 }
             case IMAGES_NOT_IN_ALBUM: 
-                _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.albums IS EMPTY").uniqueResult();
-                return _itemTotalRecordsCount.longValue();
+                return DSImageIDListCache.getWOAlbums().getCount();
             case IMAGES_NOTAGGED:   
-                _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.tags IS EMPTY").uniqueResult();
-                return _itemTotalRecordsCount.longValue();
+                return DSImageIDListCache.getNotagged().getCount();
             default:
                 _itemTotalRecordsCount = (Number) hibSession
                         .createCriteria(DSImage.class)
@@ -607,7 +603,38 @@ public class PagedImageList extends SScrollPane {
         return new ArrayList<>();
     }
     
-    public List<DSImage> getImgList(long albumID, int offset, int count) {
+    public List<DSImage> getImgListA(long albumID, int offset, int count) {
+        final DSImageIDListCache dsc;
+        switch ((int) albumID) {
+            case IMAGES_ALL:
+                dsc = DSImageIDListCache.getAll();
+                break;
+            case IMAGES_NOT_IN_ALBUM:
+                dsc = DSImageIDListCache.getWOAlbums();
+                break;
+            case IMAGES_NOTAGGED:
+                dsc = DSImageIDListCache.getNotagged();
+                break;
+            default:
+                dsc = DSImageIDListCache.getInAlbum();
+                dsc.reload(albumID);
+                break;
+        }
+        
+        final Set<Long> ids = new HashSet<>();
+        for (int i=0; i<count; i++) {
+            ids.add(dsc.getIDReverse(i + offset));
+        }
+        
+        final List<DSImage> list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
+                .setParameterList("ids", ids)
+                .list();
+        return list;
+    }
+    
+    
+    
+    public List<DSImage> getImgList__OLD(long albumID, int offset, int count) {
         logger.info("## getImgList start time: "+System.currentTimeMillis());
         List<DSImage> list;
         switch ((int)albumID) {
@@ -617,26 +644,24 @@ public class PagedImageList extends SScrollPane {
                 if (notNullTags && notEmptyTags) {
                     list = getTagsList(offset, count);
                 } else {
-                    // Выглядит криво, но скорость выборки на два порядка растет. На 200к картинок 20-40мс на выборку это очень хорошо.
-                    final Long 
-                            startOffset = (long)(itemTotalRecordsCount - (offset + count) - 1),
-                            endOffset   = (long)(itemTotalRecordsCount - offset);
-                    list = (List<DSImage>) hibSession
-                            .createCriteria(DSImage.class)
-                            .add(Restrictions.and(
-                                    Restrictions.gt("imageID", startOffset),
-                                    Restrictions.lt("imageID", endOffset)
-                            ))
-                            //.addOrder(Order.desc("imageID"))  
-                            //.setFirstResult(itemTotalRecordsCount - (offset + count))
-                            //.setMaxResults(count)
+                    final Set<Long> ids = new HashSet<>();
+                    for (int i=0; i<count; i++) {
+                        ids.add(DSImageIDListCache.getAll().getIDReverse(i + offset));
+                    }
+                    
+                    list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
+                            .setParameterList("ids", ids)
                             .list();
                 }
                 break;
             case IMAGES_NOT_IN_ALBUM: 
-                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.albums IS EMPTY ORDER BY r.imageID DESC")
-                        .setFirstResult(offset)
-                        .setMaxResults(count)
+                final Set<Long> ids = new HashSet<>();
+                for (int i=0; i<count; i++) {
+                    ids.add(DSImageIDListCache.getWOAlbums().getIDReverse(i + offset));
+                }
+
+                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
+                        .setParameterList("ids", ids)
                         .list();
                 break;
             case IMAGES_NOTAGGED: 
@@ -670,7 +695,7 @@ public class PagedImageList extends SScrollPane {
         int off = pag.getCurrentPageIndex() * itemTotalCount;
         if (forceReload) container.getChildren().clear();
         
-        List<DSImage> list = getImgList(albumID, off, itemTotalCount);
+        List<DSImage> list = getImgListA(albumID, off, itemTotalCount);
         
         int counter = 0;
         if (list != null) {
@@ -718,6 +743,8 @@ public class PagedImageList extends SScrollPane {
         for (int i=0; i<threadsCount; i++) {
            previewGenService.submit(new PreviewGenerator());
         }
+        
+        DSImageIDListCache.reloadAllStatic();
     }
     
     public void dispose() {

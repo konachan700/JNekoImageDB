@@ -99,7 +99,7 @@ public class DialogImageView extends DialogWindow {
     }
     
     private void _setImg() {
-        List<DSImage> dsi = pil.getImgList(currAlbumID, fileIndex, 1);
+        List<DSImage> dsi = pil.getImgListA(currAlbumID, fileIndex, 1);
         if ((dsi != null) && (!dsi.isEmpty())) {
             final Image img;
             try {

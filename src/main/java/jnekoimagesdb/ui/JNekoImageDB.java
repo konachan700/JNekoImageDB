@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jnekoimagesdb.core.img.XImg;
+import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.ui.GUITools.DragDelta;
 import jnekoimagesdb.ui.controls.PagedImageList;
 import jnekoimagesdb.ui.controls.dialogs.DialogDBInitSelect;
@@ -276,6 +277,8 @@ public class JNekoImageDB extends Application {
         primaryStage.show();
 
         if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(primaryStage);
+        
+        
     }
 
     /**
