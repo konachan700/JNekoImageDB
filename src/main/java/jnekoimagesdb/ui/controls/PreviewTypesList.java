@@ -13,8 +13,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.dialogs.XDialogImgCacheRebuild;
 import jnekoimagesdb.ui.controls.dialogs.XDialogYesNoBox;
 import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
+import jnekoimagesdb.ui.controls.elements.STabTextButton;
 
 public class PreviewTypesList extends SEVBox {
     protected static interface TypesListItemActionListener {
@@ -145,7 +147,12 @@ public class PreviewTypesList extends SEVBox {
                         + "что может занять очень продолжительное время. Размер превью может быть от 64 до 800 пикселей по ширине и от 64 до 800 пикселей по высоте.", 
                         64, 9999, 44, 44, "label_darkred_small", "TypesListItem"),
                 addNewItem, 
-                itemsScroll);
+                itemsScroll,
+                GUITools.getHSeparator(4),
+                new STabTextButton("Перестроить кэш...", ElementsIDCodes.buttonUnknown, 150, 32, (x, y) -> {
+                    XDialogImgCacheRebuild.get().startRebuild();
+                })
+                );
     }
     
     public final void refresh() {

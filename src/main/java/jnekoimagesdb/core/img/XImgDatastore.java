@@ -1,8 +1,10 @@
 package jnekoimagesdb.core.img;
 
 import java.awt.Container;
+import java.awt.Graphics2D;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -18,20 +20,48 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javax.imageio.ImageIO;
 import javax.xml.bind.DatatypeConverter;
 
 import jnekoimagesdb.domain.DSImage;
+import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
+import jnekoimagesdb.ui.controls.PagedImageList;
 import org.iq80.leveldb.DB;
+import org.slf4j.LoggerFactory;
 
 public class XImgDatastore {
+    private final static org.slf4j.Logger 
+            logger = LoggerFactory.getLogger(XImgDatastore.class);
+    
+    private static final Image
+            tooBigImage = GUITools.loadIcon("too-big"),
+            brokenImage = GUITools.loadIcon("broken-img")
+            ;
+    
     public static final int
             FILE_PART_SIZE_FOR_CHECKING_MD5 = 1024 * 32,
-            MINIMUM_IMAGE_SIZE = 1024;
+            MINIMUM_IMAGE_SIZE = 1024,
+            FILE_SIZE_LIMIT_RAW = (1024 *1024 * 128)
+            ;
+    
+    private static volatile int 
+            imgID = 0;
     
     private static final XImgImages
                 imgConv = new XImgImages();
+    
+    private static Container
+            container = new Container();
+    
+    private static MediaTracker 
+            mediaTracker = new MediaTracker(container);
+    
+    private static final Object
+            syncObj1 = new Object();
     
     private static XImgCrypto
             dsCrypto;
@@ -177,23 +207,36 @@ public class XImgDatastore {
             throw new IOException("Path not foung or not writable. ["+folder.toString()+"]");
     }
     
+    @SuppressWarnings("SleepWhileInLoop")
     public static Image createPreviewEntryFromExistDBFile(byte[] md5b, XImg.PreviewType type) throws IOException, InterruptedException {
         if (XImg.getPSizes().getPrimaryPreviewSize() == null) {
             throw new IOException("Preview default size is not set.");
         }
-        
+                
         final String filePath = getPathString(md5b);
         final Path path = FileSystems.getDefault().getPath(filePath);
+        
         final byte[] fileCC = Files.readAllBytes(path);
         final byte[] decryptedCC = XImg.getCrypt().decrypt(fileCC);
-        
-        final java.awt.Image image2 = Toolkit.getDefaultToolkit().createImage(decryptedCC);
-        final MediaTracker mediaTracker = new MediaTracker(new Container()); 
-        mediaTracker.addImage(image2, 0); 
-        mediaTracker.waitForAll();
+
+        final XImgSimpleImageInfo xi = new XImgSimpleImageInfo(decryptedCC);
+        final int rawSize = (xi.getHeight() * xi.getWidth() * 4);
+        BufferedImage image2;
+        if (rawSize > FILE_SIZE_LIMIT_RAW) {
+            logger.error("File raw size too big. Compressed:"+decryptedCC.length+" / RAW:"+rawSize+"; limit RAW:"+FILE_SIZE_LIMIT_RAW);
+            image2 = SwingFXUtils.fromFXImage(tooBigImage, null);
+        } else {
+            try {
+                image2 = ImageIO.read(new ByteArrayInputStream(decryptedCC));
+            } catch (Exception e) {
+                image2 = SwingFXUtils.fromFXImage(brokenImage, null);
+            }
+        }
         
         final byte[] image = imgConv.getPreviewFS(image2);
         imgConv.setPreviewSize((int) XImg.getPSizes().getPrimaryPreviewSize().getWidth(), (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight(), XImg.getPSizes().getPrimaryPreviewSize().isSquared());
+        
+        mediaTracker.removeImage(image2);
         
         final byte previewCrypted[] = XImg.getCrypt().crypt(image);
         final XImgPreviewGen.PreviewElement peDB = new XImgPreviewGen.PreviewElement();
@@ -206,7 +249,7 @@ public class XImgDatastore {
         oos.flush();
         
         final byte[] crypted = XImg.getCrypt().crypt(baos.toByteArray());
-        if (crypted == null) throw new IOException("Crypt() return null;");
+        if (crypted == null) return null; //throw new IOException("Crypt() return null;");
         
         final DB db = XImg.getDB(type);
         synchronized (db) {

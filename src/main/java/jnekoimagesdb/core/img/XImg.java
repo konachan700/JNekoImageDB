@@ -17,6 +17,7 @@ import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.controls.PagedImageList;
 import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
+import jnekoimagesdb.ui.controls.dialogs.XDialogImgCacheRebuild;
 import jnekoimagesdb.ui.controls.dialogs.XDialogMessageBox;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
@@ -133,6 +134,7 @@ public class XImg {
     }
     
     public static void dispose() {
+        XDialogImgCacheRebuild.get().dispose();
         HibernateUtil.dispose();
         imgUpl.dispose();
         pagedImageList.dispose();

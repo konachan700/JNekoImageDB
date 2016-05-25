@@ -63,14 +63,15 @@ public class PagedImageList extends SScrollPane {
     
     private class PreviewGenerator implements Runnable {
         @Override
-        @SuppressWarnings("SleepWhileInLoop")
+        @SuppressWarnings({"SleepWhileInLoop", "UseSpecificCatch"})
         public void run() {
             if (XImg.getPSizes().getPrimaryPreviewSize() == null) {
                 while (XImg.getPSizes().getPrimaryPreviewSize() == null) {
                     try {
                         Thread.sleep(400);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.error(ex.getMessage());
+                        //Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
                         return;
                     }
                 }
@@ -84,25 +85,28 @@ public class PagedImageList extends SScrollPane {
                     
                     if (currDSI != null) {
                         final Image img = XImgDatastore.createPreviewEntryFromExistDBFile(currDSI.getMD5(), XImg.PreviewType.previews);
-                        setImage(img, currDSI);
+                        if (img != null) setImage(img, currDSI); else busyCounter--;
                     } else {
                         final DSImage upDSI = uploadDeque.pollLast();
                         if (upDSI != null) {
                             try {
                                 XImgDatastore.copyToExchangeFolderFromDB(SettingsUtil.getPath("pathBrowserExchange"), upDSI);
-                            } catch (IOException ex) {
-                                Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (Exception ex) {
+                                logger.error(ex.getMessage());
+                                //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         } else
-                            try { Thread.sleep(300); } catch (Exception e) { return; }
+                            try { Thread.sleep(100); } catch (Exception e) { return; }
                     }
                 } catch (InterruptedException ex) {
                     busyCounter--;
+                    logger.error(ex.getMessage());
                     //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
                     return;
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     busyCounter--;
-                    Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error(ex.getMessage());
+                    //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }  
         }
@@ -566,42 +570,42 @@ public class PagedImageList extends SScrollPane {
         forceReload = true;
     }
     
-    private List<DSImage> getTagsList(int offset, int count) {
-        // Реализация мне очень не нравится, попахивает индусятиной. Но как сделать иначе, ума не приложу.        
-        List<DSImage> list; 
-        
-        final Set<DSImage> tagsNot = new HashSet<>();
-        if (tagsNotList != null) tagsNotList.parallelStream().forEach(el -> { tagsNot.addAll(el.getImages()); });
-        
-        final Set<DSImage> tags = new HashSet<>();
-        if (tagsList != null) tagsList.parallelStream().forEach(el -> { tags.addAll(el.getImages()); });
-
-        if ((tagsList != null) && (tagsNotList != null)) {
-            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2)")
-                    .setParameterList("tags1", tags)
-                    .setParameterList("tags2", tagsNot)
-                    .setFirstResult(offset)
-                    .setMaxResults(count)
-                    .list();
-            return list;
-        } else if ((tagsList == null) && (tagsNotList != null)) {
-            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID NOT IN (:tags)")
-                    .setParameterList("tags", tagsNot)
-                    .setFirstResult(offset)
-                    .setMaxResults(count)
-                    .list();
-            return list;
-        } else if ((tagsList != null) && (tagsNotList == null)) {
-            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags)")
-                    .setParameterList("tags", tags)
-                    .setFirstResult(offset)
-                    .setMaxResults(count)
-                    .list();
-            return list;
-        }
-
-        return new ArrayList<>();
-    }
+//    private List<DSImage> getTagsList(int offset, int count) {
+//        // Реализация мне очень не нравится, попахивает индусятиной. Но как сделать иначе, ума не приложу.        
+//        List<DSImage> list; 
+//        
+//        final Set<DSImage> tagsNot = new HashSet<>();
+//        if (tagsNotList != null) tagsNotList.parallelStream().forEach(el -> { tagsNot.addAll(el.getImages()); });
+//        
+//        final Set<DSImage> tags = new HashSet<>();
+//        if (tagsList != null) tagsList.parallelStream().forEach(el -> { tags.addAll(el.getImages()); });
+//
+//        if ((tagsList != null) && (tagsNotList != null)) {
+//            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2)")
+//                    .setParameterList("tags1", tags)
+//                    .setParameterList("tags2", tagsNot)
+//                    .setFirstResult(offset)
+//                    .setMaxResults(count)
+//                    .list();
+//            return list;
+//        } else if ((tagsList == null) && (tagsNotList != null)) {
+//            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID NOT IN (:tags)")
+//                    .setParameterList("tags", tagsNot)
+//                    .setFirstResult(offset)
+//                    .setMaxResults(count)
+//                    .list();
+//            return list;
+//        } else if ((tagsList != null) && (tagsNotList == null)) {
+//            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags)")
+//                    .setParameterList("tags", tags)
+//                    .setFirstResult(offset)
+//                    .setMaxResults(count)
+//                    .list();
+//            return list;
+//        }
+//
+//        return new ArrayList<>();
+//    }
     
     public List<DSImage> getImgListA(long albumID, int offset, int count) {
         final DSImageIDListCache dsc;
@@ -634,56 +638,56 @@ public class PagedImageList extends SScrollPane {
     
     
     
-    public List<DSImage> getImgList__OLD(long albumID, int offset, int count) {
-        logger.info("## getImgList start time: "+System.currentTimeMillis());
-        List<DSImage> list;
-        switch ((int)albumID) {
-            case IMAGES_ALL:
-                final boolean notNullTags = (tagsList != null) || (tagsNotList != null);
-                final boolean notEmptyTags = (notNullTags) ? ((!tagsList.isEmpty()) || (!tagsNotList.isEmpty())) : false;
-                if (notNullTags && notEmptyTags) {
-                    list = getTagsList(offset, count);
-                } else {
-                    final Set<Long> ids = new HashSet<>();
-                    for (int i=0; i<count; i++) {
-                        ids.add(DSImageIDListCache.getAll().getIDReverse(i + offset));
-                    }
-                    
-                    list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
-                            .setParameterList("ids", ids)
-                            .list();
-                }
-                break;
-            case IMAGES_NOT_IN_ALBUM: 
-                final Set<Long> ids = new HashSet<>();
-                for (int i=0; i<count; i++) {
-                    ids.add(DSImageIDListCache.getWOAlbums().getIDReverse(i + offset));
-                }
-
-                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
-                        .setParameterList("ids", ids)
-                        .list();
-                break;
-            case IMAGES_NOTAGGED: 
-                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.tags IS EMPTY ORDER BY r.imageID DESC")
-                        .setFirstResult(offset)
-                        .setMaxResults(count)
-                        .list();
-                break;
-            default:
-                list = hibSession
-                        .createCriteria(DSImage.class)
-                        .createCriteria("albums")
-                        .add(Restrictions.eq("albumID", albumID))
-                        //.addOrder(Order.desc("imageID"))
-                        .setFirstResult(offset)
-                        .setMaxResults(count)
-                        .list();
-                break;
-        }
-        logger.info("## getImgList   end time: "+System.currentTimeMillis());
-        return list;
-    }
+//    public List<DSImage> getImgList__OLD(long albumID, int offset, int count) {
+//        logger.info("## getImgList start time: "+System.currentTimeMillis());
+//        List<DSImage> list;
+//        switch ((int)albumID) {
+//            case IMAGES_ALL:
+//                final boolean notNullTags = (tagsList != null) || (tagsNotList != null);
+//                final boolean notEmptyTags = (notNullTags) ? ((!tagsList.isEmpty()) || (!tagsNotList.isEmpty())) : false;
+//                if (notNullTags && notEmptyTags) {
+//                    list = getTagsList(offset, count);
+//                } else {
+//                    final Set<Long> ids = new HashSet<>();
+//                    for (int i=0; i<count; i++) {
+//                        ids.add(DSImageIDListCache.getAll().getIDReverse(i + offset));
+//                    }
+//                    
+//                    list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
+//                            .setParameterList("ids", ids)
+//                            .list();
+//                }
+//                break;
+//            case IMAGES_NOT_IN_ALBUM: 
+//                final Set<Long> ids = new HashSet<>();
+//                for (int i=0; i<count; i++) {
+//                    ids.add(DSImageIDListCache.getWOAlbums().getIDReverse(i + offset));
+//                }
+//
+//                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
+//                        .setParameterList("ids", ids)
+//                        .list();
+//                break;
+//            case IMAGES_NOTAGGED: 
+//                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.tags IS EMPTY ORDER BY r.imageID DESC")
+//                        .setFirstResult(offset)
+//                        .setMaxResults(count)
+//                        .list();
+//                break;
+//            default:
+//                list = hibSession
+//                        .createCriteria(DSImage.class)
+//                        .createCriteria("albums")
+//                        .add(Restrictions.eq("albumID", albumID))
+//                        //.addOrder(Order.desc("imageID"))
+//                        .setFirstResult(offset)
+//                        .setMaxResults(count)
+//                        .list();
+//                break;
+//        }
+//        logger.info("## getImgList   end time: "+System.currentTimeMillis());
+//        return list;
+//    }
     
     public synchronized void regenerateView(long albumID) {
         if (itemTotalCount <= 0) return;
