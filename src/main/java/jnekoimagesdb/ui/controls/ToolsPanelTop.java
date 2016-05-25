@@ -1,7 +1,12 @@
 package jnekoimagesdb.ui.controls;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -15,6 +20,41 @@ public class ToolsPanelTop extends HBox {
     
     public static interface TopPanelButtonActionListener {
         public void OnClick(PanelButtonCodes buttonID);
+    }
+    
+    public static class SPanelPopupMenuButton extends Button {
+        private static final Image
+                menuIcon = GUITools.loadIcon("menu-32");
+
+        private final ContextMenu 
+                contextMenu = new ContextMenu();
+
+        @SuppressWarnings("LeakingThisInConstructor")
+        public SPanelPopupMenuButton() {
+            super("", new ImageView(menuIcon));
+            GUITools.setStyle(this, "TopPanel", "button");
+            GUITools.setFixedSize(this, BUTTON_SIZE, BUTTON_SIZE);
+            this.setAlignment(Pos.CENTER);
+            this.setAlignment(Pos.CENTER);
+            this.setOnMouseClicked((c) -> {
+                contextMenu.show(this, c.getScreenX()-c.getX(), c.getScreenY()-c.getY()+this.getHeight());
+            });
+        }
+
+        public void addMenuItem(String title, EventHandler<ActionEvent> al) {
+            final MenuItem mi = new MenuItem();
+            mi.setText(title);
+            mi.setOnAction(al);
+            contextMenu.getItems().add(mi);
+        }
+
+        public void addSeparator() {
+            contextMenu.getItems().add(new SeparatorMenuItem());
+        }
+
+        public void setIcon(Image icon) {
+            this.setGraphic(new ImageView(icon));
+        }
     }
     
     private static class TopPanelButton extends Button {
@@ -73,6 +113,10 @@ public class ToolsPanelTop extends HBox {
         final TopPanelButton tpb = new TopPanelButton(icon, id, actListener);
         tpb.setTooltip(GUITools.createTT(tooltip));
         this.getChildren().add(tpb);
+    }
+    
+    public void addMenuButton(SPanelPopupMenuButton btn) {
+        this.getChildren().add(btn);
     }
     
     public void clearAll() {

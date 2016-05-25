@@ -27,10 +27,17 @@ public class TabAlbumImageList extends SEVBox {
             HBUTTON_HSIZE = 150,
             ALBTITLE_HSIZE = 210;
     
+    private final ToolsPanelTop.SPanelPopupMenuButton 
+            menuBtnAlbum = new ToolsPanelTop.SPanelPopupMenuButton(),
+            menuBtnImage = new ToolsPanelTop.SPanelPopupMenuButton()
+            ;
+    
     private long 
             currentAlbumID = -1, 
             imagesCount = 0, 
             albumsCount = 0;
+    
+    private boolean isAlbum = true;
 
     private final STabTextButton 
             album, images;
@@ -63,15 +70,70 @@ public class TabAlbumImageList extends SEVBox {
 
                 @Override
                 public void OnListCompleted(long count, DSAlbum a) {
+                    System.err.println("DMD: count="+count);
+                    
                     currentAlbumID = (a == null) ? 0 : a.getAlbumID();
                     albumsCount = count;
                     pil.setAlbumID(currentAlbumID);
                     imagesCount = pil.getTotalImagesCount();
                     bottomPanelForAlbums.setText(String.format(Lang.TabAlbumImageList_info_format, albumsCount, imagesCount));
-                    _clear();
-                    _initAlbGUI();
+                    if ((count == 0) && (isAlbum)) {
+                        _clear();
+                        _initImgGUI();
+                        _images();
+                        isAlbum = false;
+                    } else {
+                        _clear();
+                        _initAlbGUI();
+                    }
                 }   
             });
+    
+    private void paste() {
+        if (myAL.getCutted() == null) return;
+        final long 
+                cuttedAlbumXID = myAL.getCutted().getAlbumID(),
+                cuttedAlbumXIDParent = myAL.getCutted().getParentAlbumID(),
+                currentAlbumXID = myAL.getAlbumID();
+
+        long tempAlbumID = currentAlbumXID;
+        if (currentAlbumXID == cuttedAlbumXIDParent) {
+            XImg.msgbox("Действие не выполнено: папка назначения и исходная папка одинаковы.");
+            return;
+        }
+
+        while (true) {
+            if (tempAlbumID == cuttedAlbumXID) {
+                XImg.msgbox("Невозможно перенести альбом сам в себя!");
+                return;
+            }
+
+            if (tempAlbumID == 0) {
+                final DSAlbum dsa = myAL.getCutted();
+
+                HibernateUtil.beginTransaction(HibernateUtil.getCurrentSession());
+                dsa.setParentAlbumID(myAL.getAlbumID());
+                HibernateUtil.getCurrentSession().save(dsa);
+                HibernateUtil.commitTransaction(HibernateUtil.getCurrentSession());
+
+                myAL.refresh();
+                break;
+            }
+
+            DSAlbum dsa = (DSAlbum) HibernateUtil
+                    .getCurrentSession()
+                    .createCriteria(DSAlbum.class)
+                    .add(Restrictions.eq("albumID", tempAlbumID))
+                    .uniqueResult();
+            if (dsa != null) {
+                tempAlbumID = dsa.getParentAlbumID();
+            } else {
+                XImg.msgbox("Общая ошибка запроса данных.");
+                break;
+            }
+        }
+    }
+    
     
     @SuppressWarnings("LeakingThisInConstructor")
     public TabAlbumImageList() {
@@ -97,113 +159,75 @@ public class TabAlbumImageList extends SEVBox {
             switch (index) {
                 case buttonOneLevelUp:
                     myAL.levelUp();
-                    break;
-                case buttonAddNewItems:
-                    XImg.getUploadBox().setAlbumID(currentAlbumID);
-                    XImg.getUploadBox().showModal();
-                    break;
-                case buttonPaste:
-                    if (myAL.getCutted() == null) return;
-                    final long 
-                            cuttedAlbumXID = myAL.getCutted().getAlbumID(),
-                            cuttedAlbumXIDParent = myAL.getCutted().getParentAlbumID(),
-                            currentAlbumXID = myAL.getAlbumID();
-                    
-                    long tempAlbumID = currentAlbumXID;
-                    if (currentAlbumXID == cuttedAlbumXIDParent) {
-                        XImg.msgbox("Действие не выполнено: папка назначения и исходная папка одинаковы.");
-                        break;
-                    }
-                    
-                    while (true) {
-                        if (tempAlbumID == cuttedAlbumXID) {
-                            XImg.msgbox("Невозможно перенести альбом сам в себя!");
-                            return;
-                        }
-                        
-                        if (tempAlbumID == 0) {
-                            final DSAlbum dsa = myAL.getCutted();
-                             
-                            HibernateUtil.beginTransaction(HibernateUtil.getCurrentSession());
-                            dsa.setParentAlbumID(myAL.getAlbumID());
-                            HibernateUtil.getCurrentSession().save(dsa);
-                            HibernateUtil.commitTransaction(HibernateUtil.getCurrentSession());
-                            
-                            myAL.refresh();
-                            break;
-                        }
-                        
-                        DSAlbum dsa = (DSAlbum) HibernateUtil
-                                .getCurrentSession()
-                                .createCriteria(DSAlbum.class)
-                                .add(Restrictions.eq("albumID", tempAlbumID))
-                                .uniqueResult();
-                        if (dsa != null) {
-                            tempAlbumID = dsa.getParentAlbumID();
-                        } else {
-                            XImg.msgbox("Общая ошибка запроса данных.");
-                            break;
-                        }
-                    }
+                    isAlbum = true;
                     break;
             }
         });
         
         panelTopImg = new ToolsPanelTop((index) -> {
             switch (index) {
-                case buttonClearSelection: 
-                    pil.selectNone();
-                    break;
-                case buttonAddAlbumsForSelectedItems:
-                    if (pil.getSelectedHashes().size() > 0) {
-                        dis.refresh();
-                        dis.showModal();
-                        if (dis.isRetCodeOK()) {
-                            final ArrayList<DSAlbum> sl = dis.getSelected();
-                            pil.addToAlbums(sl);
-                            pil.selectNone();
-                            dis.clearSelected();
-                        }
-                    }
-                    break;
-                case buttonAddTagsForSelectedItems:
-                    
+                case buttonOneLevelUp:
+                    _album();
+                    myAL.levelUp();
+                    isAlbum = true;
                     break;
                 case buttonExportToExchangeFolder:
                     pil.uploadSelected();
-                    break;
-                case buttonExportToCustomFolder:
-                    XImg.openDir().showDialog();
-                    //System.out.println(XImg.openDir().getSelected());
-                    break;
-                case buttonDeleteItem:
-                    
-                    break;
-                case buttonAddSelected:
-                    XImg.getUploadBox().setAlbumID(currentAlbumID);
-                    XImg.getUploadBox().showModal();
                     break;
             }
         });
         
         panelTopAlb.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp, "На один уровень вверх");
-        panelTopAlb.addFixedSeparator();
-        panelTopAlb.addButton(GUITools.loadIcon("edit-paste-48"), PanelButtonCodes.buttonPaste, "Вставить");
         panelTopAlb.addSeparator();
-        panelTopAlb.addButton(GUITools.loadIcon("todb-48"), PanelButtonCodes.buttonAddNewItems, "Добавить новые картинки в альбом...");
+        panelTopAlb.addMenuButton(menuBtnAlbum);
+        menuBtnAlbum.addMenuItem("Вставить", (c) -> {
+            paste();
+        });
+        menuBtnAlbum.addMenuItem("Удалить выделенное", (c) -> {
+            
+        });
+        menuBtnAlbum.addSeparator();
+        menuBtnAlbum.addMenuItem("Добавить новые картинки в альбом...", (c) -> {
+            XImg.getUploadBox().setAlbumID(currentAlbumID);
+            XImg.getUploadBox().showModal();
+        });
         
-        panelTopImg.addButton(GUITools.loadIcon("selectnone-48"), PanelButtonCodes.buttonClearSelection, "Сбросить выделение"); // TODO тоже
-        panelTopImg.addFixedSeparator();
-        panelTopImg.addButton(GUITools.loadIcon("add-to-album-48"), PanelButtonCodes.buttonAddAlbumsForSelectedItems, "Добавить выделенные картинки в альбом");
-        panelTopImg.addButton(GUITools.loadIcon("add-tags-48"), PanelButtonCodes.buttonAddTagsForSelectedItems, "Добавить теги выбранным картинкам");
-        panelTopImg.addFixedSeparator();
-        panelTopImg.addButton(GUITools.loadIcon("delete-48"), PanelButtonCodes.buttonDeleteItem, "Удалить выбранные картинки");
-        panelTopImg.addFixedSeparator();
-        panelTopImg.addButton(GUITools.loadIcon("todb-48"), PanelButtonCodes.buttonAddSelected, "Добавить новые картинки в альбом...");
-        panelTopImg.addSeparator();
+        panelTopImg.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp, "На один уровень вверх");
         panelTopImg.addButton(GUITools.loadIcon("addtotemp-48"), PanelButtonCodes.buttonExportToExchangeFolder, "Скинуть выбранное в папку обмена");
-        panelTopImg.addButton(GUITools.loadIcon("export-48"), PanelButtonCodes.buttonExportToCustomFolder, "Экспортировать в...");
-        
+        panelTopImg.addSeparator();
+        panelTopImg.addMenuButton(menuBtnImage);
+        menuBtnImage.addMenuItem("Сбросить выделение", (c) -> {
+            pil.selectNone();
+        });
+        menuBtnImage.addSeparator();
+        menuBtnImage.addMenuItem("Добавить выделенное в альбом...", (c) -> {
+            if (pil.getSelectedHashes().size() > 0) {
+                dis.refresh();
+                dis.showModal();
+                if (dis.isRetCodeOK()) {
+                    final ArrayList<DSAlbum> sl = dis.getSelected();
+                    pil.addToAlbums(sl);
+                    pil.selectNone();
+                    dis.clearSelected();
+                }
+            }
+        });
+        menuBtnImage.addMenuItem("Добавить теги выбранному...", (c) -> {
+            
+        });
+        menuBtnImage.addMenuItem("Добавить новые картинки в альбом...", (c) -> {
+            XImg.getUploadBox().setAlbumID(currentAlbumID);
+            XImg.getUploadBox().showModal();
+        });
+        menuBtnImage.addSeparator();
+        menuBtnImage.addMenuItem("Удалить выбранные картинки", (c) -> {
+            
+        });
+        menuBtnImage.addSeparator();
+        menuBtnImage.addMenuItem("Сохранить выделенное на диск...", (c) -> {
+            XImg.openDir().showDialog();
+        });
+
         albumName.setAlignment(Pos.CENTER);
     }
     

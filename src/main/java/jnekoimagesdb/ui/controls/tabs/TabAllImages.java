@@ -30,51 +30,53 @@ public class TabAllImages extends SEVBox  {
     private final DialogAlbumSelect
             dis = new DialogAlbumSelect();
     
+    private final ToolsPanelTop.SPanelPopupMenuButton 
+            menuBtn = new ToolsPanelTop.SPanelPopupMenuButton();
+    
     public TabAllImages() {
         super(0, 9999, 9999);
         this.getChildren().add(pil);
         
         panelTop = new ToolsPanelTop((index) -> {
             switch (index) {
-                case buttonClearSelection:
-                    pil.selectNone();
-                    break;
-                case buttonAddAlbumsForSelectedItems:
-                    if (pil.getSelectedHashes().size() > 0) {
-                        dis.refresh();
-                        dis.showModal();
-                        if (dis.isRetCodeOK()) {
-                            final ArrayList<DSAlbum> sl = dis.getSelected();
-                            pil.addToAlbums(sl);
-                            pil.selectNone();
-                            dis.clearSelected();
-                        }
-                    }
-                    break;
-                case buttonAddTagsForSelectedItems:
-                    
-                    break;
                 case buttonExportToExchangeFolder:
                     pil.uploadSelected();
                     break;
-                case buttonExportToCustomFolder:
-                    XImg.openDir().showDialog();
-                    break;
-                case buttonAddNewItems:
-                    XImg.getUploadBox().setAlbumID(pil.getAlbumID());
-                    XImg.getUploadBox().showModal();
-                    break;
             }
         });
-        panelTop.addButton(GUITools.loadIcon("selectnone-48"), PanelButtonCodes.buttonClearSelection);
-        panelTop.addFixedSeparator();
-        panelTop.addButton(GUITools.loadIcon("add-to-album-48"), PanelButtonCodes.buttonAddAlbumsForSelectedItems);
-        panelTop.addButton(GUITools.loadIcon("add-tags-48"), PanelButtonCodes.buttonAddTagsForSelectedItems);
-        panelTop.addFixedSeparator();
-        panelTop.addButton(GUITools.loadIcon("todb-48"), PanelButtonCodes.buttonAddNewItems);
+
         panelTop.addSeparator();
-        panelTop.addButton(GUITools.loadIcon("addtotemp-48"),PanelButtonCodes.buttonExportToExchangeFolder);
-        panelTop.addButton(GUITools.loadIcon("export-48"), PanelButtonCodes.buttonExportToCustomFolder);
+        panelTop.addButton(GUITools.loadIcon("addtotemp-48"),PanelButtonCodes.buttonExportToExchangeFolder);  
+
+        menuBtn.addMenuItem("Сбросить выделение", (c) -> {
+            pil.selectNone();
+        });
+        menuBtn.addSeparator();
+        menuBtn.addMenuItem("Добавить выделенное в альбомы...", (c) -> {
+            if (pil.getSelectedHashes().size() > 0) {
+                dis.refresh();
+                dis.showModal();
+                if (dis.isRetCodeOK()) {
+                    final ArrayList<DSAlbum> sl = dis.getSelected();
+                    pil.addToAlbums(sl);
+                    pil.selectNone();
+                    dis.clearSelected();
+                }
+            }
+        });
+        menuBtn.addMenuItem("Добавить теги для выделенного...", (c) -> {
+            
+        });
+        menuBtn.addSeparator();
+        menuBtn.addMenuItem("Импорт изображений с диска...", (c) -> {
+            XImg.getUploadBox().setAlbumID(pil.getAlbumID());
+            XImg.getUploadBox().showModal();
+        });
+        menuBtn.addMenuItem("Сохранить выделенное на диск...", (c) -> {
+            XImg.openDir().showDialog();
+        });
+        
+        panelTop.addMenuButton(menuBtn);
     }
     
     public void setAlbumID(long id) {

@@ -630,7 +630,7 @@ public class PagedImageList extends SScrollPane {
             ids.add(dsc.getIDReverse(i + offset));
         }
         
-        final List<DSImage> list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
+        final List<DSImage> list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID DESC")
                 .setParameterList("ids", ids)
                 .list();
         return list;
