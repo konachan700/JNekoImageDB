@@ -100,17 +100,18 @@ public class ETagListItem extends HBox {
     private void setStyle() {
         this.getStyleClass().removeAll("ETagListItem_root_box_red", "ETagListItem_root_box_green", "ETagListItem_root_box_blue");
         if (!isTagAddedToSearchList) {
-            this.getStyleClass().add("ETagListItem_root_box_blue");
+            this.getStyleClass().add("ETagListItem_root_box_red");
             this.getChildren().clear();
             if (isEditActive) {
                 editBtn.setIcon(GUITools.loadIcon("tick-16"));
-                this.getChildren().addAll(delBtn, editBtn, tagEditBox);
+                this.getChildren().addAll(editBtn, tagEditBox);
             } else {
                 editBtn.setIcon(GUITools.loadIcon("pencil-16"));
-                this.getChildren().addAll(minusBtn, plusBtn, editBtn, tagName);
+                this.getChildren().addAll(delBtn, editBtn, tagName);
+                //this.getChildren().addAll(minusBtn, plusBtn, editBtn, tagName);
             }
         } else {
-            this.getStyleClass().add(isMinus ? "ETagListItem_root_box_red" : "ETagListItem_root_box_green");
+            this.getStyleClass().add(isMinus ? "ETagListItem_root_box_blue" : "ETagListItem_root_box_green");
             this.getChildren().clear();
             this.getChildren().addAll(delBtn, tagName);
         }

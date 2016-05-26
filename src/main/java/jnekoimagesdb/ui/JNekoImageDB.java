@@ -17,6 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jnekoimagesdb.core.img.XImg;
+import jnekoimagesdb.core.net.NetHTTPGet;
+import jnekoimagesdb.core.net.NetHTTPResponse;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.ui.GUITools.DragDelta;
 import jnekoimagesdb.ui.controls.PagedImageList;
@@ -26,6 +28,8 @@ import jnekoimagesdb.ui.controls.menulist.MenuGroupItemActionListener;
 import jnekoimagesdb.ui.controls.menulist.MenuLabel;
 import jnekoimagesdb.ui.controls.menulist.MenuList;
 import jnekoimagesdb.ui.controls.tabs.TabSettings;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 
 public class JNekoImageDB extends Application {
     private final DragDelta 
@@ -70,13 +74,14 @@ public class JNekoImageDB extends Application {
                     clearAll();
 
                     if (l.getID().contentEquals("M01-01")) showAllImages(PagedImageList.IMAGES_ALL);
-                    if (l.getID().contentEquals("M02-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
+                    if (l.getID().contentEquals("M01-02")) showAllImages(PagedImageList.IMAGES_NOTAGGED);
                     if (l.getID().contentEquals("M01-06")) showAllImages(PagedImageList.IMAGES_NOT_IN_ALBUM);
                     if (l.getID().contentEquals("M01-04")) showAlbCats();
-                    if (l.getID().contentEquals("M02-03")) showTagsCloud();
+                    
                     
                     if (l.getID().contentEquals("M03-03")) showLog();
                     if (l.getID().contentEquals("M03-02")) showSettings();
+                    if (l.getID().contentEquals("M03-01")) showTagsCloud();
                     if (l.getID().contentEquals("M03-04")) {
                         
                     }
@@ -124,7 +129,8 @@ public class JNekoImageDB extends Application {
     @Override
     public void start(Stage primaryStage) {
         splash.show();
-        try { Thread.sleep(50); } catch (InterruptedException ex) { }
+        
+        try { Thread.sleep(100); } catch (InterruptedException ex) { }
         
         final DialogDBInitSelect ds = new DialogDBInitSelect();
         ds.showModal();
@@ -230,9 +236,10 @@ public class JNekoImageDB extends Application {
         
         ml.getMenu().addGroup("M01", "Картинки", null, "113311");
         ml.getMenu().addItem("M01", "M01-04", Lang.JNekoImageDB_menu_title_albums);
+        
         ml.getMenu().addItem("M01", "M01-01", "Последние загруженные");
         ml.getMenu().addItem("M01", "M01-06", "Не входящие ни в один альбом");
-        
+        ml.getMenu().addItem("M01", "M01-02", "Не имеющие тегов");
 
 //        ml.getMenu().addItem("M01", "M01-05", Lang.JNekoImageDB_menu_main_add_images);
         
@@ -243,7 +250,8 @@ public class JNekoImageDB extends Application {
 //        ml.getMenu().addItem("M02", "M02-02", "Картинки без тегов");
         
         ml.getMenu().addGroup("M03", Lang.JNekoImageDB_menu_title_settings, null, "111133");
-        ml.getMenu().addItem("M03", "M03-02", Lang.JNekoImageDB_menu_settings_main);
+        ml.getMenu().addItem("M03", "M03-02", "Основные");
+        ml.getMenu().addItem("M03", "M03-01", "Редактор тегов");
         ml.getMenu().addItem("M03", "M03-03", Lang.JNekoImageDB_menu_settings_logs);
 //        ml.getMenu().addItem("M03", "M03-04", "For test");
 

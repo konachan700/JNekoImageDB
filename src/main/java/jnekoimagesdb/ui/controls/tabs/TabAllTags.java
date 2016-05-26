@@ -3,6 +3,7 @@ package jnekoimagesdb.ui.controls.tabs;
 import com.google.gson.Gson;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +21,7 @@ import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.PanelButtonCodes;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
+import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory.XDialogODBoxResult;
 import jnekoimagesdb.ui.controls.elements.ETagListItem;
 import jnekoimagesdb.ui.controls.elements.ETagListItemActionListener;
 import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
@@ -56,6 +58,9 @@ public class TabAllTags extends SEVBox {
     private TabAllTagsActionListener
             extActListener = null;
     
+    private final ToolsPanelTop.SPanelPopupMenuButton 
+            menuBtn = new ToolsPanelTop.SPanelPopupMenuButton();
+    
     private final ETagListItemActionListener
             elActListener = new ETagListItemActionListener() {
                 @Override
@@ -83,40 +88,75 @@ public class TabAllTags extends SEVBox {
                 }
             };
     
-    private final ToolsPanelTop panelTop = new ToolsPanelTop((index) -> {
-            switch (index) {
-                case buttonExportToJSON:
-                    if (!Files.exists(XImg.LOG_DIR))
-                        try {
-                            Files.createDirectory(XImg.LOG_DIR); 
-                        } catch (Exception e) {
-                            XImg.msgbox("Не могу создать папку логов, сохранение невозможно.");
-                            return;
-                        }
-                    
-                    final List<DSTag> list = HibernateUtil.getCurrentSession()
-                            .createCriteria(DSTag.class)
-                            .setFirstResult(0)
-                            .list();
-                    final Gson gson = new Gson();
-                    final String data = gson.toJson(list);
-                    try {
-                        final Date dt = new Date();
-                        final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
-                        Files.write(FileSystems.getDefault().getPath(XImg.LOG_DIR.toString(), "backup_"+df.format(dt)+".json"), data.getBytes());
-                        XImg.msgbox("Резервная копия создана успешно!");
-                    } catch (Exception e) {
-                        XImg.msgbox("Папка логов недоступна на запись, сохранение невозможно.");
-                    }
-                    break;
-                case buttonImportFromJSON: 
-                    
-                    break;
-                case buttonImportFromText:
-                    
-                    break;
+    private final ToolsPanelTop panelTop = new ToolsPanelTop((index) -> { });
+    
+    private void toText() {
+        XImg.openDir().showDialog();
+        if (XImg.openDir().getResult() == XDialogODBoxResult.dUnknown) {
+            return;
+        }
+        
+        final Path path = XImg.openDir().getSelected().toAbsolutePath();
+        
+        if (!Files.exists(path))
+            try {
+                Files.createDirectory(path); 
+            } catch (Exception e) {
+                XImg.msgbox("Не могу создать папку логов, сохранение невозможно.");
+                return;
             }
-        });
+        
+        final StringBuilder sb = new StringBuilder();
+        final List<DSTag> list = HibernateUtil.getCurrentSession()
+                .createCriteria(DSTag.class)
+                .setFirstResult(0)
+                .list();
+        
+        list.forEach((el -> {
+            sb.append(el.getTagName()).append("\r\n");
+        }));
+
+        try {
+            final Date dt = new Date();
+            final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
+            Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_list_"+df.format(dt)+".txt"), sb.toString().getBytes());
+            XImg.msgbox("Резервная копия создана успешно!");
+        } catch (Exception e) {
+            XImg.msgbox("Папка логов недоступна на запись, сохранение невозможно.");
+        }
+    }
+    
+    private void toJSON() {
+        XImg.openDir().showDialog();
+        if (XImg.openDir().getResult() == XDialogODBoxResult.dUnknown) {
+            return;
+        }
+        
+        final Path path = XImg.openDir().getSelected().toAbsolutePath();
+        
+        if (!Files.exists(path))
+            try {
+                Files.createDirectory(path); 
+            } catch (Exception e) {
+                XImg.msgbox("Не могу создать папку логов, сохранение невозможно.");
+                return;
+            }
+
+        final List<DSTag> list = HibernateUtil.getCurrentSession()
+                .createCriteria(DSTag.class)
+                .setFirstResult(0)
+                .list();
+        final Gson gson = new Gson();
+        final String data = gson.toJson(list);
+        try {
+            final Date dt = new Date();
+            final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
+            Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_backup_"+df.format(dt)+".json"), data.getBytes());
+            XImg.msgbox("Резервная копия создана успешно!");
+        } catch (Exception e) {
+            XImg.msgbox("Папка логов недоступна на запись, сохранение невозможно.");
+        }
+    }
     
     @SuppressWarnings("LeakingThisInConstructor")
     public TabAllTags() {
@@ -154,10 +194,21 @@ public class TabAllTags extends SEVBox {
             addNewTagField.clear();
         }, "button_pts_add"));
         
-        panelTop.addButton(GUITools.loadIcon("from-json-48"), PanelButtonCodes.buttonImportFromJSON);
-        panelTop.addButton(GUITools.loadIcon("from-text-48"), PanelButtonCodes.buttonImportFromText);
-        panelTop.addButton(GUITools.loadIcon("to-json-48"), PanelButtonCodes.buttonExportToJSON);
-             
+        
+        menuBtn.addMenuItem("Сохранить список как текст...", (c) -> {
+            toText();
+        });
+        menuBtn.addMenuItem("Сделать полную резервную копию (JSON)...", (c) -> {
+            toJSON();
+        });
+        menuBtn.addSeparator();
+        menuBtn.addMenuItem("Очистить список...", (c) -> {
+            
+        });
+        
+        panelTop.addSeparator();
+        panelTop.addMenuButton(menuBtn);
+
         final SScrollPane
                 tagSP = new SScrollPane();
         tagSP.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -169,7 +220,7 @@ public class TabAllTags extends SEVBox {
         tagsContainer.setVgap(4);
         tagsContainer.setHgap(4);
 
-        this.getChildren().addAll(addTags, tagSP);
+        this.getChildren().addAll(tagSP, addTags);
     }
     
     public void setActionListener(TabAllTagsActionListener li) {
@@ -204,7 +255,7 @@ public class TabAllTags extends SEVBox {
         
         tagsContainer.getChildren().clear();
         list.forEach(c -> {
-            tagsContainer.getChildren().add(new ETagListItem(c, true, false, elActListener));
+            tagsContainer.getChildren().add(new ETagListItem(c, false, false, elActListener));
         });
     }
 }

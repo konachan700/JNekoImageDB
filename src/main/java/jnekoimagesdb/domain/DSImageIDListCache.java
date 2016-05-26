@@ -7,8 +7,12 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.LoggerFactory;
 
 public class DSImageIDListCache {
+    private final org.slf4j.Logger 
+        logger = LoggerFactory.getLogger(DSImageIDListCache.class);
+        
     public static enum ImgType {
         All, Notagged, NotInAnyAlbum, InAlbum, TagList, TagsAndAlbums
     }
@@ -70,16 +74,16 @@ public class DSImageIDListCache {
     private List<Long> getTaggedIDWOAlbums() {
         final List<Long> tmpList;
         if ((searchTag != null) && (excludeTag != null)) {
-            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2)")
+            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2) ORDER BY r.imageID DESC")
                 .setParameterList("tags1", searchTag)
                 .setParameterList("tags2", excludeTag)
                 .list();
         } else if ((searchTag != null) && (excludeTag == null)) {
-            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1)")
+            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1) ORDER BY r.imageID DESC")
                 .setParameterList("tags1", searchTag)
                 .list();
         } else if ((searchTag == null) && (excludeTag != null)) {
-            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID NOT IN (:tags2)")
+            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID NOT IN (:tags2) ORDER BY r.imageID DESC")
                 .setParameterList("tags2", excludeTag)
                 .list();
         } else {
@@ -102,18 +106,18 @@ public class DSImageIDListCache {
         
         final List<Long> tmpList;
         if ((searchTag != null) && (excludeTag != null)) {
-            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2) AND r.imageID IN (:alb1)")
+            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2) AND r.imageID IN (:alb1) ORDER BY r.imageID DESC")
                 .setParameterList("tags1", searchTag)
                 .setParameterList("tags2", excludeTag)
                 .setParameterList("alb1", alb)
                 .list();
         } else if ((searchTag != null) && (excludeTag == null)) {
-            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID IN (:alb1)")
+            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID IN (:alb1) ORDER BY r.imageID DESC")
                 .setParameterList("tags1", searchTag)
                 .setParameterList("alb1", alb)
                 .list();
         } else if ((searchTag == null) && (excludeTag != null)) {
-            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID NOT IN (:tags2) AND r.imageID IN (:alb1)")
+            tmpList = hibSession.createQuery("SELECT r.imageID FROM DSImage r WHERE r.imageID NOT IN (:tags2) AND r.imageID IN (:alb1) ORDER BY r.imageID DESC")
                 .setParameterList("tags2", excludeTag)
                 .setParameterList("alb1", alb)    
                 .list();
@@ -128,13 +132,15 @@ public class DSImageIDListCache {
         switch (it) {
             case Notagged:
                 tmpList = hibSession
-                        .createQuery("SELECT r.imageID FROM DSImage r WHERE r.tags IS EMPTY ORDER BY r.imageID DESC")
+                        .createQuery("SELECT r.imageID FROM DSImage r WHERE r.tags IS EMPTY ORDER BY r.imageID ASC")
                         .list();
+                logger.info("Notagged: "+tmpList.size());
                 break;
             case NotInAnyAlbum:
                 tmpList = hibSession
-                        .createQuery("SELECT r.imageID FROM DSImage r WHERE r.albums IS EMPTY ORDER BY r.imageID DESC")
+                        .createQuery("SELECT r.imageID FROM DSImage r WHERE r.albums IS EMPTY ORDER BY r.imageID ASC")
                         .list();
+                logger.info("NotInAnyAlbum: "+tmpList.size());
                 break;
             case InAlbum:
                 tmpList = hibSession
@@ -153,6 +159,7 @@ public class DSImageIDListCache {
                 break;
             default:
                 tmpList = getAllID();
+                logger.info("ALL: "+tmpList.size());
                 break;
         }
 
