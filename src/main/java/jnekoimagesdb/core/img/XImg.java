@@ -10,8 +10,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.control.TextArea;
-import jnekoimagesdb.domain.DSImage;
-import jnekoimagesdb.domain.DSImageIDListCache;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
@@ -23,8 +21,7 @@ import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
 import jnekoimagesdb.ui.controls.tabs.TabAlbumImageList;
 import jnekoimagesdb.ui.controls.tabs.TabAllImages;
-import jnekoimagesdb.ui.controls.tabs.TabAllTags;
-import org.hibernate.criterion.Projections;
+import jnekoimagesdb.ui.md.tags.TagsEditor;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
@@ -90,8 +87,8 @@ public class XImg {
     private static final XAlbumsExport
             albumExportDialog = new XAlbumsExport();
     
-    private static final TabAllTags
-            tabAllTags = new TabAllTags();
+    private static final TagsEditor
+            tabAllTags = new TagsEditor();
     
     public static DB getDB(PreviewType name) {
         return levelDB.get(name);
@@ -156,7 +153,7 @@ public class XImg {
         return pagedImageList;
     }
     
-    public static TabAllTags getTabAllTags() {
+    public static TagsEditor getTabAllTags() {
         return tabAllTags;
     }
     

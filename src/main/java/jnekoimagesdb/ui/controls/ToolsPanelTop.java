@@ -1,5 +1,6 @@
 package jnekoimagesdb.ui.controls;
 
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -12,6 +13,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
+import jnekoimagesdb.ui.controls.elements.STextField;
 
 public class ToolsPanelTop extends HBox {
     public static final int 
@@ -20,6 +23,38 @@ public class ToolsPanelTop extends HBox {
     
     public static interface TopPanelButtonActionListener {
         public void OnClick(PanelButtonCodes buttonID);
+    }
+    
+    public static interface TopPanelSearchActionListener {
+        public void OnSearch(String search);
+    }
+    
+    public static class SPanelSearchBlock extends HBox {
+        private static final Image
+                searchIcon = GUITools.loadIcon("search-48");
+        
+        private final TopPanelSearchActionListener actListener;
+        
+        @SuppressWarnings("LeakingThisInConstructor")
+        public SPanelSearchBlock(TopPanelSearchActionListener al) {
+            actListener = al;
+            
+            this.setAlignment(Pos.CENTER_LEFT);
+            GUITools.setStyle(this, "GUIElements", "search_root");
+            GUITools.setMaxSize(this, 9999, BUTTON_SIZE);
+                        
+            final STextField txt = new STextField(BUTTON_SIZE, "search_txt").setHelpText("Введите тег для поиска...");
+            txt.setAlignment(Pos.CENTER_LEFT);
+            GUITools.setMaxSize(txt, 9999, BUTTON_SIZE);
+            txt.textProperty().addListener((final ObservableValue<? extends String> observable, final String oldValue, final String newValue) -> {
+                actListener.OnSearch(newValue); 
+            });
+            
+            final TopPanelButton tpb = new TopPanelButton(searchIcon, PanelButtonCodes.buttonUnknown, c -> {
+                actListener.OnSearch(txt.getText().trim());
+            });
+            this.getChildren().addAll(txt, GUITools.getSeparator(4), tpb);
+        }
     }
     
     public static class SPanelPopupMenuButton extends Button {
@@ -117,6 +152,10 @@ public class ToolsPanelTop extends HBox {
     
     public void addMenuButton(SPanelPopupMenuButton btn) {
         this.getChildren().add(btn);
+    }
+    
+    public void addSearch(SPanelSearchBlock sb) {
+        this.getChildren().add(sb);
     }
     
     public void clearAll() {

@@ -1164,6 +1164,28 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 	-fx-text-fill: #CFC;
 }
 
+.GUIElements_search_root {
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width:0;
+    -fx-border-insets:0;
+	-fx-padding: 0px;
+}
+
+.GUIElements_search_txt {
+    -fx-padding: 4px 4px 4px 11px;
+    -fx-background-color: #333;
+    -fx-font-weight:bold; 
+    -fx-font-size: 16px;
+    -fx-text-fill: #eee;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width:1px;
+    -fx-border-insets:0;
+	-fx-border-color: #333;
+}
 
 
 

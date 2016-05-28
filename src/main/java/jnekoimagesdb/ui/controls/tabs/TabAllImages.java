@@ -1,19 +1,27 @@
 package jnekoimagesdb.ui.controls.tabs;
 
+import java.io.File;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.ui.controls.dialogs.DialogAlbumSelect;
 import jnekoimagesdb.ui.controls.PagedImageList;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
-import jnekoimagesdb.ui.controls.elements.SEVBox;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.Parent;
+import javafx.scene.layout.VBox;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.PanelButtonCodes;
+import jnekoimagesdb.ui.md.toppanel.TopPanel;
+import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
+import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
+import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 
-public class TabAllImages extends SEVBox  {
+public class TabAllImages extends VBox  {
+    public final static String
+            CSS_FILE = new File("./style/style-gmd-tab-all-images.css").toURI().toString();
+    
     public static enum FilterType {
         all, nottags, notinalbums
     }
@@ -24,29 +32,32 @@ public class TabAllImages extends SEVBox  {
     private final PagedImageList
             pil = XImg.getPagedImageList();
     
-    private final ToolsPanelTop 
+    private final TopPanel
             panelTop;
     
     private final DialogAlbumSelect
             dis = new DialogAlbumSelect();
     
-    private final ToolsPanelTop.SPanelPopupMenuButton 
-            menuBtn = new ToolsPanelTop.SPanelPopupMenuButton();
+    private final TopPanelMenuButton 
+            menuBtn = new TopPanelMenuButton();
+    
+    private final TopPanelInfobox 
+            infoBox = new TopPanelInfobox("panel_icon_all_images");
     
     public TabAllImages() {
-        super(0, 9999, 9999);
+        super();
+        
+        this.getStylesheets().add(CSS_FILE);
+        this.getStyleClass().addAll("tai_null_pane", "tai_max_width", "tai_max_height");
         this.getChildren().add(pil);
         
-        panelTop = new ToolsPanelTop((index) -> {
-            switch (index) {
-                case buttonExportToExchangeFolder:
+        panelTop = new TopPanel(); 
+        panelTop.addNode(infoBox);
+        panelTop.addNode(
+                new TopPanelButton("panel_icon_upload_to_temp", c -> {
                     pil.uploadSelected();
-                    break;
-            }
-        });
-
-        panelTop.addSeparator();
-        panelTop.addButton(GUITools.loadIcon("addtotemp-48"),PanelButtonCodes.buttonExportToExchangeFolder);  
+                })
+        );
 
         menuBtn.addMenuItem("Сбросить выделение", (c) -> {
             pil.selectNone();
@@ -76,7 +87,7 @@ public class TabAllImages extends SEVBox  {
             XImg.openDir().showDialog();
         });
         
-        panelTop.addMenuButton(menuBtn);
+        panelTop.addNode(menuBtn);
     }
     
     public void setAlbumID(long id) {
@@ -86,6 +97,8 @@ public class TabAllImages extends SEVBox  {
     
     public void refresh() {
         pil.refresh();
+        infoBox.setTitle(pil.getGroupTitle());
+        infoBox.setText("Всего картинок: "+pil.getCurrentCount());
     }
     
     public void clearTags() {
@@ -101,7 +114,6 @@ public class TabAllImages extends SEVBox  {
             dis.dbInit();
             isNotInit = false;
         }
-        //pil.regenerateView(0);
     }
     
     public Parent getPaginator() {

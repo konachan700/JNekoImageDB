@@ -1,0 +1,177 @@
+@font-face {
+    src: url('./Roboto-Medium.ttf');
+}
+
+Label {
+	-fx-font-family: "Roboto Medium";
+}
+
+.tags_element_button_width{
+	-fx-pref-width: 16px;
+	-fx-max-width: 16px;
+	-fx-min-width: 16px;
+}
+
+.tags_element_button_height {
+	-fx-pref-height: 16px;
+	-fx-max-height: 16px;
+	-fx-min-height: 16px;
+}
+
+.tags_element_height {
+	-fx-pref-height: 24px;
+	-fx-max-height: 24px;
+	-fx-min-height: 24px;
+}
+
+.tags_list_max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.tags_list_max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.tags_null_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.tags_list_container_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 8px;
+}
+
+.tags_list_space {
+	-fx-hgap: 6px;
+	-fx-vgap: 6px;
+	-fx-column-halignment: left;
+	-fx-row-valignment: top;
+}
+
+.tags_element_button_icon_color {
+	-fx-fill: #000;
+}
+
+.tags_element_button_icon_color:hover {
+	-fx-fill: #00aa00;
+}
+
+.tags_element_root_pane {
+	-fx-background-color: #eee;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 2px;
+	-fx-border-width: 1px;
+    -fx-border-insets: 0;
+	-fx-padding: 5px;
+	-fx-border-color: #ddd;
+}
+
+.tags_element_text {
+	-fx-font-size: 12px;
+    -fx-text-fill: #000;
+}
+
+.tags_element_button_icon_delete {
+	-fx-icon-size: 16px;
+	-fx-icon-code: "Material Icons:E14C";
+}
+
+.tags_element_button_icon_edit {
+	-fx-icon-size: 16px;
+	-fx-icon-code: "Material Icons:E150";
+}
+
+.tags_element_button_icon_save {
+	-fx-icon-size: 16px;
+	-fx-icon-code: "Material Icons:E5CA";
+}
+
+.tags_list_sp, .tags_list_sp:focused, .tags_list_sp .corner,  .tags_list_sp .viewport {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.tags_list_sp .scroll-bar:horizontal .track,
+.tags_list_sp .scroll-bar:vertical .track {
+    -fx-background-color:#ccc;
+    -fx-border-color:#ccc;
+    -fx-background-radius: 0em;
+    -fx-border-radius:0em;
+}
+
+.tags_list_sp .scroll-bar:horizontal .increment-button ,
+.tags_list_sp .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.tags_list_sp .scroll-bar:vertical .increment-button ,
+.tags_list_sp .scroll-bar:vertical .decrement-button {
+    -fx-background-color:transparent;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.tags_list_sp  .scroll-bar .increment-arrow,
+.tags_list_sp  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.tags_list_sp .scroll-bar:horizontal .thumb,
+.tags_list_sp .scroll-bar:vertical .thumb {
+    -fx-background-color: transparent;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

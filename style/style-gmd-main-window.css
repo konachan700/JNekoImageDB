@@ -1,0 +1,170 @@
+@font-face {
+    src: url('./Roboto-Medium.ttf');
+}
+
+Label {
+	-fx-font-family: "Roboto Medium";
+}
+
+.main_window_max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.main_window_max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.main_window_null_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.main_window_separator_1 {
+	-fx-spacing: 10px;
+}
+
+.main_window_shadow_menu_box {
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 12, 0, 0, 0);
+}
+
+.main_window_menu_block {
+	-fx-padding: 0 0 0 0px;
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0px;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+}
+
+.main_window_menu_block_width {
+	-fx-pref-width: 255px;
+	-fx-max-width: 255px;
+	-fx-min-width: 255px;
+}
+
+.main_window_toolbox_height {
+	-fx-pref-height: 64px;
+	-fx-max-height: 64px;
+	-fx-min-height: 64px;
+}
+
+.main_window_paginator_height {
+	-fx-pref-height: 32px;
+	-fx-max-height: 32px;
+	-fx-min-height: 32px;
+}
+
+.main_window_root_container {
+	-fx-background-color: #FFF;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.main_window_toolbox_container {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0 60px 0 0px;
+}
+
+.main_window_paginator_container {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0 8px 0 8px;
+}
+
+Pagination {
+	-fx-page-information-visible: false;
+	-fx-tooltip-visible: false;
+	-fx-max-page-indicator-count: 100;
+}
+ 
+Pagination .toggle-button, Pagination .button {
+	-fx-padding: 4px 2px 4px 2px;
+    -fx-font-size: 10px;
+    -fx-text-fill: #000;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0; 
+	-fx-border-width:0px;
+    -fx-border-insets:0;
+}
+
+Pagination .toggle-button {
+	-fx-background-color:#ddd;
+}
+
+Pagination .button, Pagination .toggle-button:selected {
+	-fx-background-color:#3d3;
+}
+
+Pagination .label {
+	visibility: hidden;
+}
+
+Pagination .toggle-button:hover, Pagination .button:hover {
+    -fx-background-color: #55ff55;
+    -fx-text-fill: #000;
+}
+
+Pagination .pagination-control, Pagination, Pagination .page, Pagination .control-box {
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-background-color: transparent;
+    -fx-padding:0px;
+    -fx-border-width:0px;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;    
+}
+
+Pagination .control-box {
+	-fx-padding:-11 0 -7 0px;
+}
+ 
+Pagination .pagination-control .left-arrow, .right-arrow{
+    -fx-background-color: #FFF;
+}
+
+.tags_list_bottom_panel {
+	-fx-background-color: #44C;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0 0 0 12px;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 11, 0, 0, 0);
+	-fx-font-size: 12px;
+    -fx-text-fill: #FFF;
+}
+
+
+
+
+
+
+
+
+
+

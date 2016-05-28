@@ -18,6 +18,11 @@ public class STextField extends TextField {
         init(id, width, height, al, "textfield");
     }
     
+    public STextField(int height, String styleName) {
+        super("");
+        init(ElementsIDCodes.textUnknown, -1, height, null, styleName);
+    }
+    
     public STextField(int height) {
         super("");
         init(ElementsIDCodes.textUnknown, -1, height, null, "textfield");

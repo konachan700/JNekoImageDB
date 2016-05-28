@@ -9,13 +9,16 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="tags")
+@Table(name="tags", indexes = { 
+    @Index(name="tagNameIndex", columnList="xname") 
+})
 public class DSTag implements Serializable {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)

@@ -1,0 +1,94 @@
+.pil_max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.pil_max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.pil_root_pane {
+	-fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+    -fx-border-width:0;
+    -fx-border-insets:0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.pil_selected_item_icon {
+	-fx-icon-size: 32px;
+	-fx-icon-code: "Material Icons:E86C";
+	-fx-fill: #00DD00;
+}
+
+.pil_item_root_pane {
+    -fx-padding:0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-insets: 0;
+    -fx-background-color: #FFF;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 4, 0, 0, 0);
+}
+
+.pil_item_root_pane:hover {
+	-fx-effect: dropshadow(three-pass-box, rgba(0,200,0,0.6), 4, 0, 0, 0);
+}
+
+.pil_item_null_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.pil_root_sp_pane, .pil_root_sp_pane:focused, .pil_root_sp_pane .corner,  .pil_root_sp_pane .viewport {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.pil_root_sp_pane .scroll-bar:horizontal .track,
+.pil_root_sp_pane .scroll-bar:vertical .track {
+    -fx-background-color:#FFF;
+    -fx-border-color:#FFF;
+    -fx-background-radius: 0em;
+    -fx-border-radius:0em;
+}
+
+.pil_root_sp_pane .scroll-bar:horizontal .increment-button ,
+.pil_root_sp_pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#FFF;
+    -fx-background-radius: 0em;
+    -fx-padding:0 0 10 0;
+}
+
+.pil_root_sp_pane .scroll-bar:vertical .increment-button ,
+.pil_root_sp_pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#FFF;
+    -fx-background-radius: 0em;
+    -fx-padding:0 10 0 0;
+}
+
+.pil_root_sp_pane  .scroll-bar .increment-arrow,
+.pil_root_sp_pane  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.pil_root_sp_pane .scroll-bar:horizontal .thumb,
+.pil_root_sp_pane .scroll-bar:vertical .thumb {
+    -fx-background-color:#FFF;
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}

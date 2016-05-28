@@ -1,0 +1,139 @@
+.panel_max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.panel_max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.panel_info_title_height {
+	-fx-pref-height: 39px;
+	-fx-max-height: 39px;
+	-fx-min-height: 39px;
+    -fx-font-weight:bold; 
+    -fx-font-size: 20px;
+    -fx-text-fill: #FFF;
+}
+
+.panel_info_text_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+    -fx-font-weight:bold; 
+    -fx-font-size: 12px;
+    -fx-text-fill: #FFF;
+}
+
+.panel_button_width {
+	-fx-pref-width: 64px;
+	-fx-max-width: 64px;
+	-fx-min-width: 64px;
+}
+
+.panel_fixed_separator_width {
+	-fx-pref-width: 4px;
+	-fx-max-width: 4px;
+	-fx-min-width: 4px;
+}
+
+.panel_null_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.panel_search_text_box {
+    -fx-padding: 4px 4px 4px 11px;
+    -fx-background-color: #FFF;
+    -fx-font-weight:bold; 
+    -fx-font-size: 16px;
+    -fx-text-fill: #222;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width:0px;
+    -fx-border-insets:0;
+	-fx-border-color: #FFF;
+}
+
+.panel_search_icon {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E8B6";
+	-fx-fill: #FFF;
+}
+
+.panel_icon_color {
+	-fx-fill: #FFFFFF;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);
+}
+
+.panel_icon_color:hover {
+	-fx-fill: #FFFF00;
+	-fx-effect: dropshadow(three-pass-box, rgba(120,230,0,0.6), 5, 0, 0, 0);
+}
+
+.panel_menu_icon {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E1DB";
+}
+
+.panel_icon_upload_to_temp {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E255";
+}
+
+.panel_icon_all_images {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E2C8";
+	-fx-fill: #FFFFFF;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);
+}
+
+.panel_root_pane {
+	-fx-background-color: #44C;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0 0 0 12px;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 11, 0, 0, 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

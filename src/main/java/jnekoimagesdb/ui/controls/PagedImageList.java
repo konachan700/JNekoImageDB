@@ -1,5 +1,6 @@
 package jnekoimagesdb.ui.controls;
 
+import java.io.File;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.img.XImgDatastore;
 import jnekoimagesdb.core.img.XImgPreviewGen;
@@ -31,6 +32,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -43,6 +45,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import jiconfont.javafx.IconNode;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
 import org.hibernate.Session;
@@ -51,7 +54,10 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.LoggerFactory;
 
-public class PagedImageList extends SScrollPane {
+public class PagedImageList extends ScrollPane {
+    public final static String
+            CSS_FILE = new File("./style/style-gmd-pil.css").toURI().toString();
+        
     private final org.slf4j.Logger 
             logger = LoggerFactory.getLogger(PagedImageList.class);
     
@@ -142,12 +148,12 @@ public class PagedImageList extends SScrollPane {
             itemTotalRecordsCount       = 0,
             itemSpacer                  = 4;
     
+    private String 
+            groupTitle = "";
+    
     private volatile long
             currentAlbumID = IMAGES_ALL;
 
-    private final HBox
-            dummyInfoBox = new HBox(8);
-    
     private final Pagination
             pag = new Pagination();
     
@@ -175,8 +181,10 @@ public class PagedImageList extends SScrollPane {
     
     protected class ImageListItem extends Pane {
         private final ImageView 
-                imageContainer = new ImageView(),
-                selectedIcon = new ImageView(GUITools.loadIcon("selected-32"));
+                imageContainer = new ImageView();
+        
+        private final IconNode
+                selectedIcon; 
         
         private DSImage
                 img = null;
@@ -219,7 +227,7 @@ public class PagedImageList extends SScrollPane {
             imageContainer.setVisible(true);
             
             if (this.getChildren().isEmpty()) addAll();
-            GUITools.setStyle(this, "FileListItem", "root_pane");
+            this.getStyleClass().addAll("pil_item_root_pane");
         }
         
         public final void setImage(DSImage dsi) {
@@ -245,7 +253,7 @@ public class PagedImageList extends SScrollPane {
             }
                 
             if (this.getChildren().isEmpty()) addAll();
-            GUITools.setStyle(this, "FileListItem", "root_pane");
+            this.getStyleClass().addAll("pil_item_root_pane");
         }
         
         public final void setSelected(boolean s) {
@@ -263,14 +271,18 @@ public class PagedImageList extends SScrollPane {
             imageContainer.setFitWidth(x);
         }
         
-        @SuppressWarnings("LeakingThisInConstructor")
         public ImageListItem(ImageListItemActionListener al) {
             super();
-            
             actionListener = al;
             
-            GUITools.setStyle(this, "FileListItem", "root_pane");
-            GUITools.setMaxSize(this, itemSizeX, itemSizeY);
+            selectedIcon = new IconNode();
+            selectedIcon.getStyleClass().add("pil_selected_item_icon");
+            
+            this.getStylesheets().add(CSS_FILE);
+            this.getStyleClass().addAll("pil_item_root_pane");
+            this.setMaxSize(itemSizeX, itemSizeY);
+            this.setPrefSize(itemSizeX, itemSizeY);
+            
             this.setOnMouseClicked((MouseEvent event) -> {
                 if (event.getClickCount() == 1) {
                     if (event.getButton() == MouseButton.SECONDARY) {
@@ -282,16 +294,15 @@ public class PagedImageList extends SScrollPane {
                 }
                 event.consume();
             });
-
+        
             imageContainer.setPreserveRatio(true);
             imageContainer.setSmooth(true);
             imageContainer.setCache(false);
             imageContainer.setImage(GUITools.loadIcon("dummy-128"));
-                        
-            GUITools.setStyle(imageVBox, "FileListItem", "imageVBox");
-            GUITools.setMaxSize(imageVBox, itemSizeX, itemSizeY);
+            
+            imageVBox.setAlignment(Pos.CENTER);    
+            imageVBox.getStyleClass().addAll("pil_item_null_pane");
             imageVBox.getChildren().add(imageContainer);
-            imageVBox.setAlignment(Pos.CENTER);
             
             selectedIcon.setVisible(false);
             
@@ -358,10 +369,10 @@ public class PagedImageList extends SScrollPane {
         this.setFitToHeight(true);
         this.setFitToWidth(true);
         this.setContent(container);
-         
-        GUITools.setMaxSize(container, 9999, 9999);
-        GUITools.setStyle(container, "PagedImageList", "root_pane");
-        
+        this.getStylesheets().add(CSS_FILE); 
+        this.getStyleClass().addAll("pil_root_sp_pane");
+
+        container.getStyleClass().addAll("pil_root_pane", "pil_max_width", "pil_max_height");
         container.setAlignment(Pos.CENTER);
         container.setHgap(itemSpacer);
         container.setVgap(itemSpacer);
@@ -369,17 +380,7 @@ public class PagedImageList extends SScrollPane {
         pag.setMaxSize(9999, 24);
         pag.setMinSize(128, 24);
         pag.setPrefSize(9999, 24);
-        
-        final ImageView icon = new ImageView(GUITools.loadIcon("delete-gray-48"));
-        final Label text = new Label(Lang.InfiniteImageList_no_elements_found);
-        GUITools.setStyle(text, "FileListItem", "nullMessage");
-        GUITools.setMaxSize(text, 9999, 48);
-        text.setAlignment(Pos.CENTER_LEFT);
-        
-        GUITools.setStyle(dummyInfoBox, "FileListItem", "dummyInfoBox");
-        GUITools.setMaxSize(dummyInfoBox, 9999, 48);
-        dummyInfoBox.getChildren().addAll(icon, text);
-        
+
         this.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
                 if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
@@ -564,48 +565,34 @@ public class PagedImageList extends SScrollPane {
         itemTotalRecordsCount = (int) getImgCount(currentAlbumID);
     }
     
+    public int getCurrentCount() {
+        return itemTotalRecordsCount;
+    }
+    
     public void refresh() {
+        switch ((int) currentAlbumID) {
+            case IMAGES_ALL:
+                groupTitle = "Все картинки";
+                break;
+            case IMAGES_NOT_IN_ALBUM:
+                groupTitle = "Не входящие в альбомы";
+                break;
+            case IMAGES_NOTAGGED:
+                groupTitle = "Картинки без тегов";
+                break;
+            default:
+                groupTitle = "Альбом #" + currentAlbumID;
+                break;
+        } 
+        
         try { container.getChildren().clear(); } catch (java.lang.IllegalArgumentException e) {}
         isResize = true;
         forceReload = true;
     }
     
-//    private List<DSImage> getTagsList(int offset, int count) {
-//        // Реализация мне очень не нравится, попахивает индусятиной. Но как сделать иначе, ума не приложу.        
-//        List<DSImage> list; 
-//        
-//        final Set<DSImage> tagsNot = new HashSet<>();
-//        if (tagsNotList != null) tagsNotList.parallelStream().forEach(el -> { tagsNot.addAll(el.getImages()); });
-//        
-//        final Set<DSImage> tags = new HashSet<>();
-//        if (tagsList != null) tagsList.parallelStream().forEach(el -> { tags.addAll(el.getImages()); });
-//
-//        if ((tagsList != null) && (tagsNotList != null)) {
-//            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2)")
-//                    .setParameterList("tags1", tags)
-//                    .setParameterList("tags2", tagsNot)
-//                    .setFirstResult(offset)
-//                    .setMaxResults(count)
-//                    .list();
-//            return list;
-//        } else if ((tagsList == null) && (tagsNotList != null)) {
-//            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID NOT IN (:tags)")
-//                    .setParameterList("tags", tagsNot)
-//                    .setFirstResult(offset)
-//                    .setMaxResults(count)
-//                    .list();
-//            return list;
-//        } else if ((tagsList != null) && (tagsNotList == null)) {
-//            list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:tags)")
-//                    .setParameterList("tags", tags)
-//                    .setFirstResult(offset)
-//                    .setMaxResults(count)
-//                    .list();
-//            return list;
-//        }
-//
-//        return new ArrayList<>();
-//    }
+    public String getGroupTitle() {
+        return groupTitle;
+    }
     
     public List<DSImage> getImgListA(long albumID, int offset, int count) {
         final DSImageIDListCache dsc;
@@ -635,60 +622,7 @@ public class PagedImageList extends SScrollPane {
                 .list();
         return list;
     }
-    
-    
-    
-//    public List<DSImage> getImgList__OLD(long albumID, int offset, int count) {
-//        logger.info("## getImgList start time: "+System.currentTimeMillis());
-//        List<DSImage> list;
-//        switch ((int)albumID) {
-//            case IMAGES_ALL:
-//                final boolean notNullTags = (tagsList != null) || (tagsNotList != null);
-//                final boolean notEmptyTags = (notNullTags) ? ((!tagsList.isEmpty()) || (!tagsNotList.isEmpty())) : false;
-//                if (notNullTags && notEmptyTags) {
-//                    list = getTagsList(offset, count);
-//                } else {
-//                    final Set<Long> ids = new HashSet<>();
-//                    for (int i=0; i<count; i++) {
-//                        ids.add(DSImageIDListCache.getAll().getIDReverse(i + offset));
-//                    }
-//                    
-//                    list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
-//                            .setParameterList("ids", ids)
-//                            .list();
-//                }
-//                break;
-//            case IMAGES_NOT_IN_ALBUM: 
-//                final Set<Long> ids = new HashSet<>();
-//                for (int i=0; i<count; i++) {
-//                    ids.add(DSImageIDListCache.getWOAlbums().getIDReverse(i + offset));
-//                }
-//
-//                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID ASC")
-//                        .setParameterList("ids", ids)
-//                        .list();
-//                break;
-//            case IMAGES_NOTAGGED: 
-//                list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.tags IS EMPTY ORDER BY r.imageID DESC")
-//                        .setFirstResult(offset)
-//                        .setMaxResults(count)
-//                        .list();
-//                break;
-//            default:
-//                list = hibSession
-//                        .createCriteria(DSImage.class)
-//                        .createCriteria("albums")
-//                        .add(Restrictions.eq("albumID", albumID))
-//                        //.addOrder(Order.desc("imageID"))
-//                        .setFirstResult(offset)
-//                        .setMaxResults(count)
-//                        .list();
-//                break;
-//        }
-//        logger.info("## getImgList   end time: "+System.currentTimeMillis());
-//        return list;
-//    }
-    
+
     public synchronized void regenerateView(long albumID) {
         if (itemTotalCount <= 0) return;
 
