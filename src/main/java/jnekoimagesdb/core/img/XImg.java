@@ -20,7 +20,8 @@ import jnekoimagesdb.ui.controls.dialogs.XDialogMessageBox;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
 import jnekoimagesdb.ui.controls.tabs.TabAlbumImageList;
-import jnekoimagesdb.ui.controls.tabs.TabAllImages;
+import jnekoimagesdb.ui.md.images.ImagesList;
+import jnekoimagesdb.ui.md.albums.Albums;
 import jnekoimagesdb.ui.md.tags.TagsEditor;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
@@ -72,11 +73,11 @@ public class XImg {
     private static final PagedImageList
             pagedImageList = new PagedImageList();
     
-    private static final TabAllImages
-            tabAllImages = new TabAllImages();
+    private static final ImagesList
+            tabAllImages = new ImagesList();
     
-    private static final TabAlbumImageList
-            tabAlbumImageList = new TabAlbumImageList();
+    private static final Albums
+            tabAlbumImageList = new Albums();
     
     private static final XDialogMessageBox
             messageBox = new XDialogMessageBox();
@@ -157,11 +158,11 @@ public class XImg {
         return tabAllTags;
     }
     
-    public static TabAllImages getTabAllImages() {
+    public static ImagesList getTabAllImages() {
         return tabAllImages;
     }
     
-    public static TabAlbumImageList getTabAlbumImageList() {
+    public static Albums getTabAlbumImageList() {
         return tabAlbumImageList;
     }
 

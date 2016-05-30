@@ -1,3 +1,7 @@
+@font-face {
+    src: url('./LinBiolinum_RBah.ttf');
+}
+
 .panel_max_width {
 	-fx-pref-width: 9999px;
 	-fx-max-width: 9999px;
@@ -11,6 +15,7 @@
 }
 
 .panel_info_title_height {
+	-fx-font-family: "Linux Biolinum Bold";
 	-fx-pref-height: 39px;
 	-fx-max-height: 39px;
 	-fx-min-height: 39px;
@@ -20,6 +25,7 @@
 }
 
 .panel_info_text_height {
+	-fx-font-family: "Linux Biolinum Bold";
 	-fx-pref-height: 9999px;
 	-fx-max-height: 9999px;
 	-fx-min-height: 1px;
@@ -55,6 +61,7 @@
     -fx-background-color: #FFF;
     -fx-font-weight:bold; 
     -fx-font-size: 16px;
+	-fx-font-family: "Linux Biolinum Bold";
     -fx-text-fill: #222;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
@@ -88,6 +95,11 @@
 .panel_icon_upload_to_temp {
 	-fx-icon-size: 48px;
 	-fx-icon-code: "Material Icons:E255";
+}
+
+.panel_icon_tags_one_level_up {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E15E";
 }
 
 .panel_icon_all_images {

@@ -1,3 +1,8 @@
+@font-face {
+    src: url('./LinBiolinum_RBah.ttf');
+}
+
+
 .menu_max_width {
 	-fx-pref-width: 9999px;
 	-fx-max-width: 9999px;
@@ -30,8 +35,9 @@
 }
 
 .menu_null_container {
+	-fx-spacing: 6px;
     -fx-padding: 0;
-    -fx-background-color: #FFF;
+    -fx-background-color: transparent;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0;
@@ -43,6 +49,7 @@
 .menu_group_header {
     -fx-padding: 4px 4px 4px 0px;
     -fx-background-color: transparent;
+	-fx-font-family: "Linux Biolinum Bold";
     -fx-font-weight:bold; 
     -fx-font-size: 14px;
     -fx-text-fill: #FFF;
@@ -78,6 +85,7 @@
     -fx-background-color: #FFF;
     -fx-font-size: 12px;
     -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0;

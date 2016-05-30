@@ -1,11 +1,3 @@
-@font-face {
-    src: url('./Roboto-Medium.ttf');
-}
-
-Label {
-	-fx-font-family: "Roboto Medium";
-}
-
 .main_window_max_width {
 	-fx-pref-width: 9999px;
 	-fx-max-width: 9999px;
@@ -29,21 +21,33 @@ Label {
 }
 
 .main_window_separator_1 {
-	-fx-spacing: 10px;
+	-fx-spacing: 0px;
 }
 
 .main_window_shadow_menu_box {
-	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 12, 0, 0, 0);
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 12, 0, 0, 0);
 }
 
 .main_window_menu_block {
-	-fx-padding: 0 0 0 0px;
-	-fx-background-color: transparent;
+	-fx-padding: 0px 0 0 0px;
+	-fx-background-color: #eee;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0px;
+	-fx-border-radius: 0 0 0 0px;
+	-fx-border-width: 0px 0 0 6px;
+    -fx-border-insets: 0px 0 0 6px;
+	-fx-border-color: #eee;
+}
+
+.main_window_appbox_pane {
+	-fx-background-color: #fff;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0;
-	-fx-border-width: 0px 0 0 0px;
-    -fx-border-insets: 0;
+	-fx-border-width: 6px 0 0px 0px;
+    -fx-border-insets: 6px 0 0px 0px;
+	-fx-border-color: #fff;
+	-fx-padding: 0;
 }
 
 .main_window_menu_block_width {
@@ -53,9 +57,9 @@ Label {
 }
 
 .main_window_toolbox_height {
-	-fx-pref-height: 64px;
-	-fx-max-height: 64px;
-	-fx-min-height: 64px;
+	-fx-pref-height: 76px;
+	-fx-max-height: 76px;
+	-fx-min-height: 76px;
 }
 
 .main_window_paginator_height {
@@ -75,17 +79,18 @@ Label {
 }
 
 .main_window_toolbox_container {
-	-fx-background-color: transparent;
+	-fx-background-color: #fff;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0;
-	-fx-border-width: 0px 0 0 0px;
-    -fx-border-insets: 0;
+	-fx-border-width: 0px 0 6px 0px;
+    -fx-border-insets: 0px 0 6px 0px;;
+	-fx-border-color: #fff;
 	-fx-padding: 0 60px 0 0px;
 }
 
 .main_window_paginator_container {
-	-fx-background-color: transparent;
+	-fx-background-color: #eee;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0;
@@ -147,16 +152,15 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 }
 
 .tags_list_bottom_panel {
-	-fx-background-color: #44C;
+	-fx-background-color: transparent;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0;
 	-fx-border-width: 0px 0 0 0px;
     -fx-border-insets: 0;
 	-fx-padding: 0 0 0 12px;
-	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 11, 0, 0, 0);
 	-fx-font-size: 12px;
-    -fx-text-fill: #FFF;
+    -fx-text-fill: #333;
 }
 
 

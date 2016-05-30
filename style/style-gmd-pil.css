@@ -24,6 +24,7 @@
 	-fx-icon-size: 32px;
 	-fx-icon-code: "Material Icons:E86C";
 	-fx-fill: #00DD00;
+	-fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.99), 11, 0, 0, 0);
 }
 
 .pil_item_root_pane {

@@ -18,11 +18,16 @@ public class TopPanelMenuButton extends TopPanelButton{
         });
     }
     
-    public void addMenuItem(String title, EventHandler<ActionEvent> al) {
+    public MenuItem addMenuItem(String title, EventHandler<ActionEvent> al) {
         final MenuItem mi = new MenuItem();
         mi.setText(title);
         mi.setOnAction(al);
         contextMenu.getItems().add(mi);
+        return mi;
+    }
+    
+    public void remove(MenuItem mi) {
+        contextMenu.getItems().remove(mi);
     }
 
     public void addSeparator() {

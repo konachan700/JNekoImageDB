@@ -1,4 +1,4 @@
-package jnekoimagesdb.ui.controls.tabs;
+package jnekoimagesdb.ui.md.images;
 
 import java.io.File;
 import jnekoimagesdb.core.img.XImg;
@@ -18,13 +18,16 @@ import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
 import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 
-public class TabAllImages extends VBox  {
+public class ImagesList extends VBox  {
     public final static String
             CSS_FILE = new File("./style/style-gmd-tab-all-images.css").toURI().toString();
     
     public static enum FilterType {
         all, nottags, notinalbums
     }
+    
+    private ImagesListActionListener
+            backActionListener;
     
     private boolean 
             isNotInit = true;
@@ -41,18 +44,31 @@ public class TabAllImages extends VBox  {
     private final TopPanelMenuButton 
             menuBtn = new TopPanelMenuButton();
     
+    private final TopPanelButton
+            backToAlbums;
+    
     private final TopPanelInfobox 
             infoBox = new TopPanelInfobox("panel_icon_all_images");
     
-    public TabAllImages() {
+    public void setActionListener(ImagesListActionListener al) {
+        backActionListener = al;
+    }
+    
+    public ImagesList() {
         super();
         
         this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("tai_null_pane", "tai_max_width", "tai_max_height");
         this.getChildren().add(pil);
         
+        backToAlbums = new TopPanelButton("panel_icon_tags_one_level_up", c -> {
+                    if (backActionListener != null) backActionListener.OnBackToAlbumsClick(pil.getAlbumID()); 
+                });
+        backToAlbums.setVisible(false);
+        
         panelTop = new TopPanel(); 
         panelTop.addNode(infoBox);
+        panelTop.addNode(backToAlbums);
         panelTop.addNode(
                 new TopPanelButton("panel_icon_upload_to_temp", c -> {
                     pil.uploadSelected();
@@ -96,6 +112,7 @@ public class TabAllImages extends VBox  {
     }
     
     public void refresh() {
+        backToAlbums.setVisible(pil.getAlbumID() > 0);
         pil.refresh();
         infoBox.setTitle(pil.getGroupTitle());
         infoBox.setText("Всего картинок: "+pil.getCurrentCount());

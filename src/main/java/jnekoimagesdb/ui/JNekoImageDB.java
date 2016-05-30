@@ -73,6 +73,8 @@ public class JNekoImageDB extends Application {
 
     private void showAlbCats() {
         basesp.getChildren().add(XImg.getTabAlbumImageList());
+        toolbox.getChildren().add(XImg.getTabAlbumImageList().getPanel());
+        paginator_1.getChildren().add(XImg.getTabAlbumImageList().getPaginator());
         XImg.getTabAlbumImageList().refresh();
     }
     
@@ -114,29 +116,27 @@ public class JNekoImageDB extends Application {
         final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
         final ImageView imgLogoV = new ImageView(logoImage);
 
-        XImg.getTabAlbumImageList().setPanels(toolbox, paginator_1);
-        XImg.getTabAlbumImageList().initDB();
+//        XImg.getTabAlbumImageList().setPanels(toolbox, paginator_1);
+//        XImg.getTabAlbumImageList().initDB();
 
+        XImg.getTabAlbumImageList().setActionListener(c -> {
+            clearAll();
+            showAllImages(c.getAlbumID());
+        });
+        
+        XImg.getTabAllImages().setActionListener(c -> {
+            clearAll();
+            showAlbCats();
+        });
+        
         XImg.getTALog().setMaxSize(9999, 9999);
         XImg.getTALog().setPrefSize(9999, 9999);
         XImg.getTALog().setWrapText(true);
-        
-//        XImg.getTabAllTags().setActionListener((tags, notTags) -> {
-//            clearAll();
-//            XImg.getTabAllImages().setTagLists(tags, notTags);
-//            basesp.getChildren().add(XImg.getTabAllImages());
-//            toolbox.getChildren().add(XImg.getTabAllImages().getPanel());
-//            paginator_1.getChildren().add(XImg.getTabAllImages().getPaginator());
-//            XImg.getTabAllImages().setAlbumID(PagedImageList.IMAGES_ALL);
-//            XImg.getTabAllImages().regenerate();
-//            XImg.getTabAllImages().refresh();
-//        });
-        
+
         GUITools.setStyle(XImg.getTALog(), "JNekoImageDB", "taLOG");
         XImg.getTALog().textProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
             XImg.getTALog().setScrollTop(Double.MAX_VALUE);
         });
-        
         
         final Menu mn = new Menu(
                 new MenuGroup(
@@ -158,7 +158,6 @@ public class JNekoImageDB extends Application {
                             showAllImages(PagedImageList.IMAGES_NOTAGGED);
                         })
                 ),
-                new MenuGroup(),
                 new MenuGroup(
                         "Настройки", "menu_group_container_green", "header_icon_settings",
                         new MenuItem("Основные", (c) -> {
@@ -185,7 +184,7 @@ public class JNekoImageDB extends Application {
         menuBox.getChildren().addAll(mn);
         
         final VBox appBox = new VBox();
-        appBox.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_null_pane", "main_window_separator_1");
+        appBox.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_appbox_pane", "main_window_separator_1");
         basesp.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_root_container");
         toolbox.getStyleClass().addAll("main_window_max_width", "main_window_toolbox_height", "main_window_toolbox_container");
         paginator_1.getStyleClass().addAll("main_window_max_width", "main_window_paginator_height", "main_window_paginator_container");

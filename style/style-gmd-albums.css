@@ -1,0 +1,244 @@
+@font-face {
+    src: url('./LinBiolinum_RBah.ttf');
+}
+
+.panel_max_height, .albums_max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.albums_max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.panel_button_width {
+	-fx-pref-width: 96px;
+	-fx-max-width: 96px;
+	-fx-min-width: 96px;
+}
+
+.albums_element_height {
+	-fx-pref-height: 96px;
+	-fx-max-height: 96px;
+	-fx-min-height: 96px;
+}
+
+.albums_no_items_height {
+	-fx-pref-height: 256px;
+	-fx-max-height: 256px;
+	-fx-min-height: 256px;
+}
+
+.albums_list_no_items {
+    -fx-font-size: 16px;
+    -fx-text-fill: #888;
+	-fx-font-family: "Linux Biolinum Bold";
+}
+
+.albums_title_conainer_height {
+	-fx-pref-height: 24px;
+	-fx-max-height: 24px;
+	-fx-min-height: 24px;
+}
+
+.albums_element_root_pane_selected {
+	-fx-background-color: #eee;
+}
+
+.albums_element_root_pane_non_selected {
+	-fx-background-color: #fff;
+}
+
+.albums_element_root_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 1px 0;
+    -fx-border-insets: 0px 0 0 0;
+	-fx-padding: 0;
+	-fx-border-color: #ddd;
+}
+
+.albums_x_root_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 6px;
+}
+
+.albums_h_space {
+	-fx-spacing: 0px;
+}
+
+.albums_element_root_pane:hover {
+	-fx-background-color: #eee;
+}
+
+.panel_null_pane, .albums_null_pane, .tags_null_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.panel_icon_color {
+	-fx-fill: #777;
+}
+
+.panel_icon_color:hover {
+	-fx-fill: #797;
+}
+
+.albums_element_to_img_icon {
+	-fx-icon-size: 80px;
+	-fx-icon-code: "Material Icons:E154";
+}
+
+.albums_element_icon {
+	-fx-icon-size: 80px;
+	-fx-icon-code: "Material Icons:E2C8";
+    -fx-fill: #777;
+}
+
+.tags_element_button_icon_color {
+	-fx-fill: #300;
+}
+
+.tags_element_button_icon_color:hover {
+	-fx-fill: #aa0000;
+}
+
+.tags_element_button_width{
+	-fx-pref-width: 24px;
+	-fx-max-width: 24px;
+	-fx-min-width: 24px;
+}
+
+.tags_element_button_height {
+	-fx-pref-height: 24px;
+	-fx-max-height: 24px;
+	-fx-min-height: 24px;
+}
+
+.albums_element_button_icon_delete {
+	-fx-icon-size: 24px;
+	-fx-icon-code: "Material Icons:E14C";
+}
+
+.albums_element_button_icon_edit {
+	-fx-icon-size: 24px;
+	-fx-icon-code: "Material Icons:E150";
+}
+
+.albums_element_button_icon_save {
+	-fx-icon-size: 24px;
+	-fx-icon-code: "Material Icons:E5CA";
+}
+
+.album_element_title_font {
+	-fx-font-size: 16px;
+    -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
+}
+
+.album_element_text_font {
+	-fx-font-size: 12px;
+    -fx-text-fill: #333;
+	-fx-font-family: "Linux Biolinum Bold";
+}
+
+.albums_element_textarera, 
+.albums_element_textarera:focused, 
+.albums_element_textarera .corner,
+.albums_element_textarera .viewport {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-font-size: 12px;
+    -fx-text-fill: #333;
+	-fx-font-family: "Linux Biolinum Bold";
+}
+
+
+.albums_element_textarera .scroll-bar:horizontal .track,
+.albums_element_textarera .scroll-bar:vertical .track {
+    -fx-background-color:#fff;
+    -fx-border-color:#fff;
+    -fx-background-radius: 0em;
+    -fx-border-radius:0em;
+}
+
+.albums_element_textarera .scroll-bar:horizontal .increment-button ,
+.albums_element_textarera .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 0 10 0;
+}
+
+.albums_element_textarera .scroll-bar:vertical .increment-button ,
+.albums_element_textarera .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 10 0 0;
+}
+
+.albums_element_textarera  .scroll-bar .increment-arrow,
+.albums_element_textarera  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.albums_element_textarera .scroll-bar:horizontal .thumb,
+.albums_element_textarera .scroll-bar:vertical .thumb {
+    -fx-background-color:#ccc;
+    -fx-background-insets: 0;/* 2 2 2 2, 0, 0;*/
+    -fx-background-radius: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

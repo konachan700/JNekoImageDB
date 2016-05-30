@@ -1,9 +1,5 @@
 @font-face {
-    src: url('./Roboto-Medium.ttf');
-}
-
-Label {
-	-fx-font-family: "Roboto Medium";
+    src: url('./LinBiolinum_RBah.ttf');
 }
 
 .tags_element_button_width{
@@ -85,6 +81,7 @@ Label {
 .tags_element_text {
 	-fx-font-size: 12px;
     -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
 }
 
 .tags_element_button_icon_delete {

@@ -72,7 +72,7 @@ public class TagsEditor extends ScrollPane {
         super();
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        this.setFitToHeight(true);
+        this.setFitToHeight(false);
         this.setFitToWidth(true);
         this.setContent(tagsContainer);
         this.getStylesheets().add(CSS_FILE);
