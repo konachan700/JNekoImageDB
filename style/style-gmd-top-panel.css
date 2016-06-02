@@ -120,6 +120,15 @@
 	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 11, 0, 0, 0);
 }
 
+.panel_icon_add_new_1 {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E3BA";
+}
+
+.panel_icon_save_1 {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E877";
+}
 
 
 

@@ -13,6 +13,7 @@ public class TagsEditorElement extends HBox {
             btnDel, btnEditStart, btnEditSave;
     private final Label tagText = new Label();
     private final TextField tagEditor = new TextField();
+    private boolean editLock = false;
     
     public TagsEditorElement(DSTag tag, TagsEditorElementActionListener tal) {
         super();
@@ -33,11 +34,13 @@ public class TagsEditorElement extends HBox {
         });
         
         btnEditStart = new TagElementButton("tags_element_button_icon_edit", "Редактировать элемент", el -> {
+            if (editLock) return;
             tagEditor.setText(tag.getTagName());
             guiEdit();
         });
         
         btnEditSave = new TagElementButton("tags_element_button_icon_save", "Сохранить изменения", el -> {
+            if (editLock) return;
             tagElementAL.OnEdit(currTag, tagEditor.getText().trim());
             guiNotEdit();
         });
@@ -46,13 +49,30 @@ public class TagsEditorElement extends HBox {
         guiNotEdit();
     }
     
+    public TagsEditorElement disableEdit() {
+        this.getChildren().clear();
+        this.getChildren().addAll(btnDel, tagText);
+        editLock = true;
+        return this;
+    }
+    
     private void guiNotEdit() {
+        if (editLock) return;
         this.getChildren().clear();
         this.getChildren().addAll(btnDel, btnEditStart, tagText);
     }
     
     private void guiEdit() {
+        if (editLock) return;
         this.getChildren().clear();
         this.getChildren().addAll(btnEditSave, tagEditor);
+    }
+    
+    public boolean isTagEqual(DSTag t) {
+        return currTag.equals(t);
+    }
+    
+    public DSTag getTag() {
+        return currTag;
     }
 }

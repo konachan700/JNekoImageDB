@@ -15,6 +15,7 @@ import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
@@ -228,13 +229,13 @@ public class Albums extends ScrollPane {
 
         long tempAlbumID = currentAlbumXID;
         if (currentAlbumXID == cuttedAlbumXIDParent) {
-            XImg.msgbox("Действие не выполнено: папка назначения и исходная папка одинаковы.");
+            MessageBox.show("Действие не выполнено: папка назначения и исходная папка одинаковы.");
             return;
         }
 
         while (true) {
             if (tempAlbumID == cuttedAlbumXID) {
-                XImg.msgbox("Невозможно перенести альбом сам в себя!");
+                MessageBox.show("Невозможно перенести альбом сам в себя!");
                 return;
             }
 
@@ -258,7 +259,7 @@ public class Albums extends ScrollPane {
             if (dsa != null) {
                 tempAlbumID = dsa.getParentAlbumID();
             } else {
-                XImg.msgbox("Общая ошибка запроса данных.");
+                MessageBox.show("Общая ошибка запроса данных.");
                 break;
             }
         }

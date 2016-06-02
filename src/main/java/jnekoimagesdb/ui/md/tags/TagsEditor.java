@@ -6,8 +6,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -17,9 +20,12 @@ import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelSearch;
+import jnekoimagesdb.ui.md.toppanel.TopPanelSimpleAddBox;
+import jnekoimagesdb.ui.md.toppanel.TopPanelSimpleAddBoxActionListener;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -30,7 +36,7 @@ public class TagsEditor extends ScrollPane {
             CSS_FILE = new File("./style/style-gmd-tags.css").toURI().toString();
     
     public static final int
-            TAGS_PER_PAGE = 500;
+            TAGS_PER_PAGE = 100;
     
     private final FlowPane
             tagsContainer = new FlowPane();
@@ -47,14 +53,66 @@ public class TagsEditor extends ScrollPane {
     private final Label
             bottomPanelForAlbums = new Label("Статистика альбома");
     
+    private boolean 
+            editMode = false;
+    
+    private final ArrayList<TagsEditorElement>
+            addList = new ArrayList<>();
+            
+    private final TopPanelSearch
+            topPanelSearch;
+    
+    private final TopPanelSimpleAddBox
+            addPanelBox;
+    
+    private final TopPanelSimpleAddBoxActionListener 
+            tagAddNewAL = new TopPanelSimpleAddBoxActionListener() {
+                @Override
+                public void onSave() {
+                    final Transaction t = HibernateUtil.getCurrentSession().beginTransaction();
+                    final Set<TagsEditorElement> tmpList = new HashSet<>();
+                    tmpList.addAll(addList);
+                    tmpList.forEach(c -> {
+                        if (notExist(c.getTag()))
+                            HibernateUtil.getCurrentSession().merge(c.getTag());
+                    });
+                    t.commit();
+                    
+                    addList.clear();
+                    tagsContainer.getChildren().clear();
+                    normalPanel();
+                    editMode = false;
+                    refresh();
+                }
+
+                @Override
+                public void onAddNew(String newElement) {
+                    if (newElement.trim().length() < 1) return;
+                    final DSTag tag = new DSTag(newElement);
+                    final TagsEditorElement tee = new TagsEditorElement(tag, tagElementAL).disableEdit();
+                    addList.add(tee);
+                    tagsContainer.getChildren().add(tee);
+                }
+            };
+    
     private final TagsEditorElementActionListener 
             tagElementAL = new TagsEditorElementActionListener() {
                 @Override
                 public void OnDelete(DSTag tag) {
-                    final Transaction t = HibernateUtil.getCurrentSession().beginTransaction();
-                    HibernateUtil.getCurrentSession().delete(tag);
-                    t.commit();
-                    refresh();
+                    if (editMode) {
+                        for (int i=0; i<addList.size(); i++) {
+                            if (addList.get(i).isTagEqual(tag)) {
+                                tagsContainer.getChildren().remove(addList.get(i));
+                                addList.remove(addList.get(i));
+                                return;
+                            }
+                        }
+                    } else {
+                        final Transaction t = HibernateUtil.getCurrentSession().beginTransaction();
+                        HibernateUtil.getCurrentSession().delete(tag);
+                        t.commit();
+                        refresh();
+                    }
                 }
 
                 @Override
@@ -70,7 +128,7 @@ public class TagsEditor extends ScrollPane {
     
     public TagsEditor() {
         super();
-        this.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.setFitToHeight(false);
         this.setFitToWidth(true);
@@ -79,19 +137,24 @@ public class TagsEditor extends ScrollPane {
         this.getStyleClass().addAll("tags_list_max_width", "tags_list_max_height", "tags_list_sp");
         
         tagsContainer.setAlignment(Pos.TOP_LEFT);
-        tagsContainer.getStyleClass().addAll("tags_list_max_width", "tags_list_max_height", "tags_list_container_pane", "tags_list_space");
+        tagsContainer.getStyleClass().addAll("tags_list_max_width", "tags_list_container_pane", "tags_list_space");
         
         bottomPanelForAlbums.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "tags_list_bottom_panel");
         
         panelTop = new TopPanel(); 
-        panelTop.addNode(new TopPanelSearch("", c -> {
+        topPanelSearch = new TopPanelSearch("", c -> {
             searchTxt = c;
             refresh();
-        }));
-        
-        menuBtn.addMenuItem("Добавить теги...", (c) -> {
+        });
+        addPanelBox = new TopPanelSimpleAddBox("Введите тег и нажмите Enter", tagAddNewAL);
+
+        menuBtn.addMenuItem("Ручное добавление тегов...", (c) -> {
+            editMode = true;
             tagsContainer.getChildren().clear();
-//            tagsContainer.getChildren().add(addTags);
+            addPanel();
+        });
+        menuBtn.addMenuItem("Добавить из текстового файла...", (c) -> {
+            
         });
         menuBtn.addSeparator();
         menuBtn.addMenuItem("Сохранить список как текст...", (c) -> {
@@ -105,10 +168,24 @@ public class TagsEditor extends ScrollPane {
             
         });
         
+        normalPanel();
+    }
+    
+    private void addPanel() {
+        panelTop.getChildren().clear();
+        panelTop.addNode(addPanelBox);
+    }
+    
+    private void normalPanel() {
+        panelTop.getChildren().clear();
+        panelTop.addNode(topPanelSearch);
         panelTop.addNode(menuBtn);
-        
-        
-        
+    }
+    
+    private boolean notExist(DSTag t) {
+        return HibernateUtil.getCurrentSession().createCriteria(DSTag.class)
+                .add(Restrictions.eq("tagName", t.getTagName()))
+                .uniqueResult() == null;
     }
     
     public final void refresh() {
@@ -159,7 +236,7 @@ public class TagsEditor extends ScrollPane {
             try {
                 Files.createDirectory(path); 
             } catch (Exception e) {
-                XImg.msgbox("Не могу создать папку логов, сохранение невозможно.");
+                MessageBox.show("Не могу создать папку логов, сохранение невозможно.");
                 return;
             }
         
@@ -177,9 +254,9 @@ public class TagsEditor extends ScrollPane {
             final Date dt = new Date();
             final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
             Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_list_"+df.format(dt)+".txt"), sb.toString().getBytes());
-            XImg.msgbox("Резервная копия создана успешно!");
+            MessageBox.show("Резервная копия создана успешно!");
         } catch (Exception e) {
-            XImg.msgbox("Папка логов недоступна на запись, сохранение невозможно.");
+            MessageBox.show("Папка логов недоступна на запись, сохранение невозможно.");
         }
     }
     
@@ -195,7 +272,7 @@ public class TagsEditor extends ScrollPane {
             try {
                 Files.createDirectory(path); 
             } catch (Exception e) {
-                XImg.msgbox("Не могу создать папку логов, сохранение невозможно.");
+                MessageBox.show("Не могу создать папку логов, сохранение невозможно.");
                 return;
             }
 
@@ -209,9 +286,9 @@ public class TagsEditor extends ScrollPane {
             final Date dt = new Date();
             final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
             Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_backup_"+df.format(dt)+".json"), data.getBytes());
-            XImg.msgbox("Резервная копия создана успешно!");
+            MessageBox.show("Резервная копия создана успешно!");
         } catch (Exception e) {
-            XImg.msgbox("Папка логов недоступна на запись, сохранение невозможно.");
+            MessageBox.show("Папка логов недоступна на запись, сохранение невозможно.");
         }
     }
 }

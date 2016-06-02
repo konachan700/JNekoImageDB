@@ -15,6 +15,7 @@ import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.SEVBox;
 import jnekoimagesdb.ui.controls.elements.SElementPair;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
 
 
 public class XDialogOpenDirectory extends XDialogWindow {
@@ -101,7 +102,7 @@ public class XDialogOpenDirectory extends XDialogWindow {
                                 dResult = XDialogODBoxResult.dOpen;
                                 this.hide();
                             } else 
-                                XImg.msgbox("Ничего не выбрано!"); 
+                                MessageBox.show("Ничего не выбрано!"); 
                         })
                 ).setAlign(Pos.CENTER_RIGHT)
         );

@@ -1,16 +1,20 @@
+@font-face {
+    src: url('./LinBiolinum_RBah.ttf');
+}
+
 .main_window_max_width {
 	-fx-pref-width: 9999px;
 	-fx-max-width: 9999px;
 	-fx-min-width: 1px;
 }
 
-.main_window_max_height {
+.main_window_max_height, .panel_max_height {
 	-fx-pref-height: 9999px;
 	-fx-max-height: 9999px;
 	-fx-min-height: 1px;
 }
 
-.main_window_null_pane {
+.main_window_null_pane, .panel_null_pane {
 	-fx-background-color: transparent;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
@@ -18,6 +22,56 @@
 	-fx-border-width: 0px 0 0 0px;
     -fx-border-insets: 0;
 	-fx-padding: 0;
+}
+
+.main_window_messagebox {
+	-fx-spacing: 20px;
+	-fx-background-color: #fff;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 15px;
+}
+
+.main_window_messagebox_text {
+	-fx-background-color: #fff;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 12px;
+	-fx-font-size: 14px;
+    -fx-text-fill: #333;
+	-fx-font-family: "Linux Biolinum Bold";
+    -fx-font-weight:bold; 
+}
+
+.main_window_messagebox_button {
+	-fx-background-color: #ddd;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 1px;
+	-fx-border-color: #aaa;
+    -fx-border-insets: 0;
+	-fx-padding: 6px 19px 6px 19px;
+	-fx-font-size: 18px;
+    -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
+    -fx-font-weight:bold; 
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 12, 0, 0, 0);
+}
+
+.main_window_messagebox_button:hover {
+	-fx-effect: dropshadow(three-pass-box, rgba(200,255,0,0.8), 12, 0, 0, 0);
+	-fx-background-color: #FFF;
+}
+
+.main_window_yesnobox_btn_space {
+	-fx-spacing: 15px;
 }
 
 .main_window_separator_1 {
@@ -162,6 +216,196 @@ Pagination .pagination-control .left-arrow, .right-arrow{
 	-fx-font-size: 12px;
     -fx-text-fill: #333;
 }
+
+.dialog_db_element_icon {
+	-fx-icon-size: 40px;
+	-fx-icon-code: "Material Icons:E1C2";
+    -fx-fill: #777;
+}
+
+.dialog_db_select_icon {
+	-fx-icon-size: 40px;
+	-fx-icon-code: "Material Icons:E154";
+}
+
+.dialog_db_font {
+	-fx-font-size: 16px;
+    -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
+}
+
+.panel_icon_color {
+	-fx-fill: #000;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);
+}
+
+.panel_icon_color:hover {
+	-fx-fill: #FFFF00;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.9), 9, 0, 0, 0);
+}
+
+.panel_button_width {
+	-fx-pref-width: 64px;
+	-fx-max-width: 64px;
+	-fx-min-width: 64px;
+}
+
+.dialog_db_element_height {
+	-fx-pref-height: 48px;
+	-fx-max-height: 48px;
+	-fx-min-height: 48px;
+}
+
+.dialog_db_element_root_pane_selected {
+	-fx-background-color: #eee;
+}
+
+.dialog_db_element_root_pane_non_selected {
+	-fx-background-color: #fff;
+}
+
+.dialog_db_element_root_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 1px 0;
+    -fx-border-insets: 0px 0 0 0;
+	-fx-padding: 0;
+	-fx-border-color: #ddd;
+}
+
+.main_window_sp1, 
+.main_window_sp1:focused, 
+.main_window_sp1 .corner,
+.main_window_sp1 .viewport {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-font-size: 12px;
+    -fx-text-fill: #333;
+	-fx-font-family: "Linux Biolinum Bold";
+}
+
+
+.main_window_sp1 .scroll-bar:horizontal .track,
+.main_window_sp1 .scroll-bar:vertical .track {
+    -fx-background-color:#fff;
+    -fx-border-color:#fff;
+    -fx-background-radius: 0em;
+    -fx-border-radius:0em;
+}
+
+.main_window_sp1 .scroll-bar:horizontal .increment-button ,
+.main_window_sp1 .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 0 10 0;
+}
+
+.main_window_sp1 .scroll-bar:vertical .increment-button ,
+.main_window_sp1 .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 10 0 0;
+}
+
+.main_window_sp1 .scroll-bar .increment-arrow,
+.main_window_sp1 .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.main_window_sp1 .scroll-bar:horizontal .thumb,
+.main_window_sp1 .scroll-bar:vertical .thumb {
+    -fx-background-color:#ccc;
+    -fx-background-insets: 0;/* 2 2 2 2, 0, 0;*/
+    -fx-background-radius: 0;
+}
+
+.main_window_labeled_box_text {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 4px;
+	-fx-font-size: 12px;
+    -fx-text-fill: #333;
+	-fx-font-family: "Linux Biolinum Bold";
+    -fx-font-weight:bold; 
+	-fx-pref-height: 24px;
+	-fx-max-height: 24px;
+	-fx-min-height: 24px;
+	-fx-pref-width: 255px;
+	-fx-max-width: 255px;
+	-fx-min-width: 255px;
+}
+
+.main_window_labeled_box_pane {
+	-fx-pref-height: 24px;
+	-fx-max-height: 24px;
+	-fx-min-height: 24px;
+	-fx-spacing: 10px;
+}
+
+.main_window_badly_input {
+	-fx-background-color: #FBB;
+}
+
+.main_window_good_input {
+	-fx-background-color: #BFB;
+}
+
+.main_window_text_ntf {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 4px;
+	-fx-font-size: 14px;
+    -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
+    -fx-font-weight:bold;
+}
+
+.main_window_new_db_root_pane {
+	-fx-background-color: #fff;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 12px;
+	-fx-spacing: 4px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

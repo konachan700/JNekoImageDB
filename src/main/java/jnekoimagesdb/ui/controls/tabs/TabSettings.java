@@ -16,6 +16,7 @@ import jnekoimagesdb.ui.controls.elements.SNumericTextField;
 import jnekoimagesdb.ui.controls.elements.SPathBox;
 import jnekoimagesdb.ui.controls.elements.SScrollPane;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
 
 public class TabSettings extends SEVBox {
     
@@ -73,9 +74,9 @@ public class TabSettings extends SEVBox {
                     if ((mainTC > 0) && (prevTC > 0)) {
                         SettingsUtil.setLong("mainPreviewGenThreadsCount.value", mainTC);
                         SettingsUtil.setLong("previewFSCacheThreadsCount.value", prevTC);
-                        XImg.msgbox("Настройки вступят в силу только после перезапуска программы!");
+                        MessageBox.show("Настройки вступят в силу только после перезапуска программы!");
                     } else {
-                        XImg.msgbox("Данные введены неправильно!");
+                        MessageBox.show("Данные введены неправильно!");
                     }
                     
                 }), 1, 2);

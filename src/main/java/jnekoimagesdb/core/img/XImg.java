@@ -16,12 +16,11 @@ import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.controls.PagedImageList;
 import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
 import jnekoimagesdb.ui.controls.dialogs.XDialogImgCacheRebuild;
-import jnekoimagesdb.ui.controls.dialogs.XDialogMessageBox;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
-import jnekoimagesdb.ui.controls.tabs.TabAlbumImageList;
 import jnekoimagesdb.ui.md.images.ImagesList;
 import jnekoimagesdb.ui.md.albums.Albums;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.tags.TagsEditor;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
@@ -59,7 +58,7 @@ public class XImg {
                 }
             }
             
-            XImg.msgbox("Приватный ключ не найден!");
+            MessageBox.show("Приватный ключ не найден!");
             // todo: добавить диалог выбора файла приватного ключа
             return null;
         });
@@ -78,9 +77,6 @@ public class XImg {
     
     private static final Albums
             tabAlbumImageList = new Albums();
-    
-    private static final XDialogMessageBox
-            messageBox = new XDialogMessageBox();
     
     private static final XDialogOpenDirectory
             openDirDialog  = new XDialogOpenDirectory();
@@ -164,10 +160,6 @@ public class XImg {
     
     public static Albums getTabAlbumImageList() {
         return tabAlbumImageList;
-    }
-
-    public static void msgbox(String text) {
-        messageBox.show(text);
     }
     
     public static XImageUpload getUploadBox() {

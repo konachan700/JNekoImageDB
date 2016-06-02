@@ -34,6 +34,11 @@ public class MenuItem extends Label {
         });
     }
     
+    public MenuItem defaultSelected() {
+        setSelected(true);
+        return this;
+    }
+    
     public final void setSelected(boolean s) {
         selected = s;
         if (s) 

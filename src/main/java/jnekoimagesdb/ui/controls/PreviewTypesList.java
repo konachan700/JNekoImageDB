@@ -14,9 +14,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.dialogs.XDialogImgCacheRebuild;
-import jnekoimagesdb.ui.controls.dialogs.XDialogYesNoBox;
 import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
 import jnekoimagesdb.ui.controls.elements.STabTextButton;
+import jnekoimagesdb.ui.md.dialogs.YesNoBox;
+import jnekoimagesdb.ui.md.dialogs.YesNoBoxResult;
 
 public class PreviewTypesList extends SEVBox {
     protected static interface TypesListItemActionListener {
@@ -43,9 +44,9 @@ public class PreviewTypesList extends SEVBox {
                             alOut.refreshNeed(thisElement);
                             break;
                         case buttonDelete:
-                            final XDialogYesNoBox d = new XDialogYesNoBox();
-                            d.showYesNo("Точно удалить секцию?", "Будут удалены все сгенерированные превью для данной секции!");
-                            if (d.getResult() == XDialogYesNoBox.XDialogYesNoBoxResult.dYes) {
+                            //final XDialogYesNoBox d = new XDialogYesNoBox();
+                            //d.showYesNo("Точно удалить секцию?", "Будут удалены все сгенерированные превью для данной секции!");
+                            if (YesNoBox.show("Точно удалить секцию? Будут удалены все сгенерированные превью для данной секции!", "Удалить", "Отмена") == YesNoBoxResult.YES) {
                                 XImg.getPSizes().deletePreviewSize(thisElement);
                                 alOut.refreshNeed(thisElement);
                             }

@@ -8,7 +8,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -17,8 +16,8 @@ import jiconfont.icons.GoogleMaterialDesignIcons;
 import jiconfont.javafx.IconFontFX;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.ui.controls.PagedImageList;
-import jnekoimagesdb.ui.controls.dialogs.DialogDBInitSelect;
 import jnekoimagesdb.ui.controls.tabs.TabSettings;
+import jnekoimagesdb.ui.md.dialogs.StartDialog;
 import jnekoimagesdb.ui.md.menu.Menu;
 import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;
@@ -90,20 +89,29 @@ public class JNekoImageDB extends Application {
         try { Thread.sleep(100); } catch (InterruptedException ex) { }
         IconFontFX.register(GoogleMaterialDesignIcons.getIconFont());
         
-        
-        final DialogDBInitSelect ds = new DialogDBInitSelect();
-        ds.showModal();
-        if ((ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.newDB) ||
-                (ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.existDB)) {
-            databaseName = ds.getDBName();
-            if (databaseName == null) {
-                Platform.exit(); 
-                return;
-            }
-        } else {
+        StartDialog.showDialog();
+        if (StartDialog.getDBName().isEmpty()) {
             Platform.exit(); 
+            splash.hide();
             return;
+        } else {
+            databaseName = StartDialog.getDBName();
         }
+        
+        
+//        final DialogDBInitSelect ds = new DialogDBInitSelect();
+//        ds.showModal();
+//        if ((ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.newDB) ||
+//                (ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.existDB)) {
+//            databaseName = ds.getDBName();
+//            if (databaseName == null) {
+//                Platform.exit(); 
+//                return;
+//            }
+//        } else {
+//            Platform.exit(); 
+//            return;
+//        }
         
         try {
             XImg.init(databaseName);
@@ -113,8 +121,8 @@ public class JNekoImageDB extends Application {
             return;
         }
 
-        final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
-        final ImageView imgLogoV = new ImageView(logoImage);
+//        final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
+//        final ImageView imgLogoV = new ImageView(logoImage);
 
 //        XImg.getTabAlbumImageList().setPanels(toolbox, paginator_1);
 //        XImg.getTabAlbumImageList().initDB();
