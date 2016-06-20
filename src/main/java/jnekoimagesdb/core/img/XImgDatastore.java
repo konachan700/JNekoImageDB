@@ -29,7 +29,7 @@ import javax.xml.bind.DatatypeConverter;
 import jnekoimagesdb.domain.DSImage;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
-import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.md.images.PagedImageList;
 import org.iq80.leveldb.DB;
 import org.slf4j.LoggerFactory;
 

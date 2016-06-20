@@ -4,11 +4,11 @@ import java.io.File;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.ui.controls.dialogs.DialogAlbumSelect;
-import jnekoimagesdb.ui.controls.PagedImageList;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
+import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
@@ -23,15 +23,15 @@ public class ImagesList extends VBox  {
         all, nottags, notinalbums
     }
     
+    private static ImagesList
+            sImgList = null;
+    
     private ImagesListActionListener
             backActionListener;
     
     private boolean 
             isNotInit = true;
-    
-    private final PagedImageList
-            pil = XImg.getPagedImageList();
-    
+
     private final TopPanel
             panelTop;
     
@@ -51,15 +51,15 @@ public class ImagesList extends VBox  {
         backActionListener = al;
     }
     
-    public ImagesList() {
+    private ImagesList() {
         super();
         
         this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("tai_null_pane", "tai_max_width", "tai_max_height");
-        this.getChildren().add(pil);
+        this.getChildren().add(PagedImageList.get());
         
-        backToAlbums = new TopPanelButton("panel_icon_tags_one_level_up", c -> {
-                    if (backActionListener != null) backActionListener.OnBackToAlbumsClick(pil.getAlbumID()); 
+        backToAlbums = new TopPanelButton("panel_icon_tags_one_level_up", "На один уровень вверх", c -> {
+                    if (backActionListener != null) backActionListener.OnBackToAlbumsClick(PagedImageList.get().getAlbumID()); 
                 });
         backToAlbums.setVisible(false);
         
@@ -67,33 +67,33 @@ public class ImagesList extends VBox  {
         panelTop.addNode(infoBox);
         panelTop.addNode(backToAlbums);
         panelTop.addNode(
-                new TopPanelButton("panel_icon_upload_to_temp", c -> {
-                    pil.uploadSelected();
+                new TopPanelButton("panel_icon_upload_to_temp", "Сохранить в папку обмена", c -> {
+                    PagedImageList.get().uploadSelected();
                 })
         );
 
         menuBtn.addMenuItem("Сбросить выделение", (c) -> {
-            pil.selectNone();
+            PagedImageList.get().selectNone();
         });
         menuBtn.addSeparator();
         menuBtn.addMenuItem("Добавить выделенное в альбомы...", (c) -> {
-            if (pil.getSelectedHashes().size() > 0) {
-                dis.refresh();
-                dis.showModal();
-                if (dis.isRetCodeOK()) {
-                    final ArrayList<DSAlbum> sl = dis.getSelected();
-                    pil.addToAlbums(sl);
-                    pil.selectNone();
-                    dis.clearSelected();
-                }
-            }
+//            if (PagedImageList.get().getSelectedHashes().size() > 0) {
+//                dis.refresh();
+//                dis.showModal();
+//                if (dis.isRetCodeOK()) {
+//                    final ArrayList<DSAlbum> sl = dis.getSelected();
+//                    PagedImageList.get().addToAlbums(sl);
+//                    PagedImageList.get().selectNone();
+//                    dis.clearSelected();
+//                }
+//            }
         });
         menuBtn.addMenuItem("Добавить теги для выделенного...", (c) -> {
             
         });
         menuBtn.addSeparator();
         menuBtn.addMenuItem("Импорт изображений с диска...", (c) -> {
-            XImg.getUploadBox().setAlbumID(pil.getAlbumID());
+            XImg.getUploadBox().setAlbumID(PagedImageList.get().getAlbumID());
             XImg.getUploadBox().showModal();
         });
         menuBtn.addMenuItem("Сохранить выделенное на диск...", (c) -> {
@@ -103,38 +103,48 @@ public class ImagesList extends VBox  {
         panelTop.addNode(menuBtn);
     }
     
-    public void setAlbumID(long id) {
-        pil.setAlbumID(id);
-        if (!this.getChildren().contains(pil)) this.getChildren().add(pil);
+    public void setImageType(DSImageIDListCache.ImgType imgt) {
+        PagedImageList.get().setImageType(imgt, 0);
+        if (!this.getChildren().contains(PagedImageList.get())) this.getChildren().add(PagedImageList.get());
+    }
+    
+    public void setImageType(DSImageIDListCache.ImgType imgt, long albumID) {
+        PagedImageList.get().setImageType(imgt, albumID);
+        if (!this.getChildren().contains(PagedImageList.get())) this.getChildren().add(PagedImageList.get());
     }
     
     public void refresh() {
-        backToAlbums.setVisible(pil.getAlbumID() > 0);
-        pil.refresh();
-        infoBox.setTitle(pil.getGroupTitle());
-        infoBox.setText("Всего картинок: "+pil.getCurrentCount());
+        backToAlbums.setVisible(PagedImageList.get().getAlbumID() > 0);
+        PagedImageList.get().refresh();
+        infoBox.setTitle(PagedImageList.get().getGroupTitle());
+        infoBox.setText("Всего картинок: "+PagedImageList.get().getTotalImagesCount());
     }
     
     public void clearTags() {
-        pil.clearTags();
+        PagedImageList.get().clearTags();
     }
     
     public void setTagLists(List<DSTag> tags, List<DSTag> tagsNot) {
-        pil.setTagLists(tags, tagsNot);
+        PagedImageList.get().setTagLists(tags, tagsNot);
     }
     
     public void regenerate() {
         if (isNotInit) {
-            dis.dbInit();
+//            dis.dbInit();
             isNotInit = false;
         }
     }
     
     public Parent getPaginator() {
-        return pil.getPaginator();
+        return PagedImageList.get().getPaginator();
     }
     
     public Parent getPanel() {
         return panelTop;
+    }
+    
+    public static ImagesList get() {
+        if (sImgList == null) sImgList = new ImagesList();
+        return sImgList;
     }
 }

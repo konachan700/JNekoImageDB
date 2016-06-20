@@ -132,10 +132,35 @@
 
 
 
+.panel_icon_next {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E5C8";
+}
 
+.panel_icon_prev {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E5C4";
+}
 
+.panel_icon_zoom_in {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E8FF";
+}
 
+.panel_icon_zoom_out {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E900";
+}
 
+.panel_icon_zoom_fit {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E8C4";
+}
+
+.panel_icon_zoom_orig {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E433";
+}
 
 
 

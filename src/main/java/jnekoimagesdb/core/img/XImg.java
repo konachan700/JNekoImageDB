@@ -13,7 +13,7 @@ import javafx.scene.control.TextArea;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
-import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.md.images.PagedImageList;
 import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
 import jnekoimagesdb.ui.controls.dialogs.XDialogImgCacheRebuild;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
@@ -69,11 +69,11 @@ public class XImg {
     private static final XImageUpload
             imgUpl = new XImageUpload();
 
-    private static final PagedImageList
-            pagedImageList = new PagedImageList();
+//    private static final PagedImageList
+//            pagedImageList = new PagedImageList();
     
-    private static final ImagesList
-            tabAllImages = new ImagesList();
+//    private static final ImagesList
+//            tabAllImages = new ImagesList();
     
     private static final Albums
             tabAlbumImageList = new Albums();
@@ -112,7 +112,8 @@ public class XImg {
         SettingsUtil.init();
         psizes.refreshPreviewSizes();
         imgUpl.init();
-        pagedImageList.initDB();
+//        pagedImageList.initDB();
+        PagedImageList.get().initDB();
         openDirDialog.init();
         albumExportDialog.init();
     }
@@ -131,7 +132,8 @@ public class XImg {
         XDialogImgCacheRebuild.get().dispose();
         HibernateUtil.dispose();
         imgUpl.dispose();
-        pagedImageList.dispose();
+//        pagedImageList.dispose();
+        PagedImageList.get().dispose();
         final Set<PreviewType> s = levelDB.keySet();
         s.forEach((x) -> {
              try {
@@ -146,17 +148,17 @@ public class XImg {
         return cryptoEx;
     }
     
-    public static PagedImageList getPagedImageList() {
-        return pagedImageList;
-    }
+//    public static PagedImageList getPagedImageList() {
+//        return pagedImageList;
+//    }
     
     public static TagsEditor getTabAllTags() {
         return tabAllTags;
     }
     
-    public static ImagesList getTabAllImages() {
-        return tabAllImages;
-    }
+//    public static ImagesList getTabAllImages() {
+//        return tabAllImages;
+//    }
     
     public static Albums getTabAlbumImageList() {
         return tabAlbumImageList;

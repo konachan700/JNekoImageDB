@@ -15,9 +15,10 @@ import javafx.stage.WindowEvent;
 import jiconfont.icons.GoogleMaterialDesignIcons;
 import jiconfont.javafx.IconFontFX;
 import jnekoimagesdb.core.img.XImg;
-import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.ui.controls.tabs.TabSettings;
 import jnekoimagesdb.ui.md.dialogs.StartDialog;
+import jnekoimagesdb.ui.md.images.ImagesList;
 import jnekoimagesdb.ui.md.menu.Menu;
 import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;
@@ -48,14 +49,17 @@ public class JNekoImageDB extends Application {
         paginator_1.getChildren().clear();
     }
     
-    private void showAllImages(long aID) {
-        XImg.getTabAllImages().clearTags();
-        basesp.getChildren().add(XImg.getTabAllImages());
-        toolbox.getChildren().add(XImg.getTabAllImages().getPanel());
-        paginator_1.getChildren().add(XImg.getTabAllImages().getPaginator());
-        XImg.getTabAllImages().setAlbumID(aID);
-        XImg.getTabAllImages().regenerate();
-        XImg.getTabAllImages().refresh();
+    private void showAllImages(DSImageIDListCache.ImgType iID, long aID) {
+        ImagesList.get().clearTags();
+        basesp.getChildren().add(ImagesList.get());
+        toolbox.getChildren().add(ImagesList.get().getPanel());
+        paginator_1.getChildren().add(ImagesList.get().getPaginator());
+        if (aID > 0) 
+            ImagesList.get().setImageType(iID, aID); 
+        else 
+            ImagesList.get().setImageType(iID);
+        ImagesList.get().regenerate();
+        ImagesList.get().refresh();
     }
     
     private void showTagsCloud() {
@@ -129,10 +133,10 @@ public class JNekoImageDB extends Application {
 
         XImg.getTabAlbumImageList().setActionListener(c -> {
             clearAll();
-            showAllImages(c.getAlbumID());
+            showAllImages(DSImageIDListCache.ImgType.InAlbum, c.getAlbumID());
         });
         
-        XImg.getTabAllImages().setActionListener(c -> {
+        ImagesList.get().setActionListener(c -> {
             clearAll();
             showAlbCats();
         });
@@ -155,15 +159,15 @@ public class JNekoImageDB extends Application {
                         }),
                         new MenuItem("Последние загруженные", (c) -> {
                             clearAll();
-                            showAllImages(PagedImageList.IMAGES_ALL);
+                            showAllImages(DSImageIDListCache.ImgType.All, 0);
                         }),
                         new MenuItem("Не входящие ни в один альбом", (c) -> {
                             clearAll();
-                            showAllImages(PagedImageList.IMAGES_NOT_IN_ALBUM);
+                            showAllImages(DSImageIDListCache.ImgType.NotInAnyAlbum, 0);
                         }),
                         new MenuItem("Не имеющие тегов", (c) -> {
                             clearAll();
-                            showAllImages(PagedImageList.IMAGES_NOTAGGED);
+                            showAllImages(DSImageIDListCache.ImgType.Notagged, 0);
                         })
                 ),
                 new MenuGroup(

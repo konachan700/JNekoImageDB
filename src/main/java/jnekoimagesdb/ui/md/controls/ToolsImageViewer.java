@@ -1,5 +1,6 @@
-package jnekoimagesdb.ui.controls;
+package jnekoimagesdb.ui.md.controls;
 
+import java.io.File;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Cursor;
 import javafx.scene.control.ScrollPane;
@@ -9,13 +10,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import jnekoimagesdb.ui.GUITools;
 
-public class ToolsImageViewer extends ScrollPane {
-    public static interface ToolsImageViewerActionListener {
-        public void PrevKey();
-        public void NextKey();
-    }
+public abstract class ToolsImageViewer extends ScrollPane {
+    public final static String
+            CSS_FILE = new File("./style/style-gmd-imageview-window.css").toURI().toString();
     
     private volatile double 
             scale = 0.95d,
@@ -28,10 +26,7 @@ public class ToolsImageViewer extends ScrollPane {
     
     private final ImageView
             imgContainer = new ImageView();
-    
-    private final ToolsImageViewerActionListener
-            actListener;
-    
+
     private Image
             currImg = null;
     
@@ -59,20 +54,20 @@ public class ToolsImageViewer extends ScrollPane {
         zoomFitToWin();
     }
 
-    @SuppressWarnings("LeakingThisInConstructor")
-    public ToolsImageViewer(ToolsImageViewerActionListener al) {
+    @SuppressWarnings({"LeakingThisInConstructor", "OverridableMethodCallInConstructor"})
+    public ToolsImageViewer() {
         super();
-        actListener = al;
-        
-        GUITools.setStyle(this, "ToolsImageViewer", "root_pane");
-        this.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        this.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
+        this.getStylesheets().add(CSS_FILE);
+        this.getStyleClass().addAll("iv_root_pane", "max_width", "max_height");
+        this.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         this.setFitToHeight(true);
         this.setFitToWidth(true);
-        GUITools.setMaxSize(this, 9999, 9999);
+
         
         final BorderPane bp = new BorderPane();
-        GUITools.setMaxSize(bp, 9999, 9999);
+        this.getStyleClass().addAll("null_pane", "max_width", "max_height");
         bp.setCenter(imgContainer); 
         
         this.setContent(bp);
@@ -89,9 +84,9 @@ public class ToolsImageViewer extends ScrollPane {
         
         this.setFocusTraversable(true);
         this.setOnKeyPressed((KeyEvent key) -> {
-            if (key.getCode() == KeyCode.LEFT)  actListener.PrevKey();
-            if (key.getCode() == KeyCode.RIGHT) actListener.NextKey();
-            if (key.getCode() == KeyCode.SPACE) actListener.NextKey();
+            if (key.getCode() == KeyCode.LEFT)  PrevKey();
+            if (key.getCode() == KeyCode.RIGHT) NextKey();
+            if (key.getCode() == KeyCode.SPACE) NextKey();
             if (key.getCode() == KeyCode.PLUS) zoomIn();
             if (key.getCode() == KeyCode.MINUS) zoomOut();
         });
@@ -141,4 +136,7 @@ public class ToolsImageViewer extends ScrollPane {
         }
         imgContainer.setImage(im);
     }
+    
+    public abstract void PrevKey();
+    public abstract void NextKey();
 }

@@ -35,6 +35,7 @@ public class FullDialog extends SimpleDialog {
     }
     
     public final void setPanel(Node panel) {
+        toolbox.getChildren().clear();
         toolbox.getChildren().add(panel);
     }
     

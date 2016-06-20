@@ -1,19 +1,13 @@
 package jnekoimagesdb.ui.controls.dialogs;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.image.Image;
 import javafx.util.Duration;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.img.XImgDatastore;

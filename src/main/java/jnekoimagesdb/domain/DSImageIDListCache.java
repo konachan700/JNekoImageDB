@@ -1,13 +1,26 @@
 package jnekoimagesdb.domain;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javafx.scene.image.Image;
+import jnekoimagesdb.core.img.XImgDatastore;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.LoggerFactory;
+
+// Краткий комент, зачем это надо вообще.
+//
+// Суть такова: id в БД могут иметь окна от удаления элементов, то есть SELECT * FROM table WHERE id>x AND id<y; работать корректно не будет.
+// Делать быструю навигацию по базе в 100к+ картинок без такого кеша затруднительно, ибо limit XXXXXX,YY работает крайне медленно во встраиваемых решениях.
+// По-другому быструю страничную навигацию без повторов и окон не сделать. Да, оно жрет память, но что поделаешь - тут или быстро и много памяти, или медленно, но мало памяти.
+//
+// Набор статических методов, дублирующих функционал "getStatic()", нужен исключительно для удобочитаемости кода.
 
 public class DSImageIDListCache {
     private final org.slf4j.Logger 
@@ -17,14 +30,9 @@ public class DSImageIDListCache {
         All, Notagged, NotInAnyAlbum, InAlbum, TagList, TagsAndAlbums
     }
     
-    private static DSImageIDListCache 
-            imgAll      = null,
-            imgNotagged = null,
-            imgWOAlbums = null,
-            imgInAlbum  = null,
-            imgTagged   = null,
-            imgTAndA    = null;
-    
+    private static final Map<ImgType, DSImageIDListCache>
+            caches = new HashMap<>();
+
     private Set<DSTag> 
             searchTag = null,
             excludeTag = null;
@@ -34,6 +42,7 @@ public class DSImageIDListCache {
     
     private int[] arrayImg = null;
     private long albumID = 0;
+    private int currentIndex = 0;
 
     public DSImageIDListCache(ImgType itx) {
         if (HibernateUtil.getCurrentSession() == null) throw new RuntimeException("DSImageIDListCache: HibernateUtil not inited now.");
@@ -95,7 +104,7 @@ public class DSImageIDListCache {
     private List<Long> getTaggedIDWithAlbums() {
         if (albumID <= 0) return getTaggedIDWOAlbums();
 
-        // Это не костыль, а задел на будущее, если вдруг кому будет нужен поиск по нескольким альбомам.
+        // Это не костыль, а задел на будущее, если вдруг кому будет нужен поиск по нескольким альбомам. Мне такой функционал пока кажется излишним.
         final ArrayList<DSAlbum> alb = new ArrayList<>();
         final DSAlbum dsa = (DSAlbum) hibSession
                         .createCriteria(DSAlbum.class)
@@ -170,16 +179,61 @@ public class DSImageIDListCache {
         }
     }
     
+    public final DSImage getDSImage(int num) {
+        if (arrayImg == null) throw new RuntimeException("DSImageIDListCache: Cache array is empty. Do reload() first.");
+        if ((num >= arrayImg.length) || (num < 0)) return null;
+        currentIndex = num;
+        long imageID = arrayImg[num];
+        final DSImage dsi = (DSImage) hibSession
+                        .createCriteria(DSImage.class)
+                        .add(Restrictions.eq("imageID", imageID))
+                        .uniqueResult();
+        return dsi;
+    }
+    
+    public final DSImage getNextDSImage() {
+        currentIndex++;
+        return getDSImage(currentIndex);
+    }
+    
+    public final DSImage getPrevDSImage() {
+        currentIndex--;
+        return getDSImage(currentIndex);
+    }
+    
+    public final Image getImage(int num) {
+        final DSImage dsi = getDSImage(num);
+        if (dsi == null) return null;
+            try {
+                final Image img = XImgDatastore.getImage(dsi.getMD5());
+                return img;
+            } catch (IOException ex) {
+                return null;
+            }
+    }
+    
+    public final Image getNextImage() {
+        currentIndex++;
+        return getImage(currentIndex);
+    }
+
+    public final Image getPrevImage() {
+        currentIndex--;
+        return getImage(currentIndex);
+    }
+    
     public long getID(int num) {
         if (arrayImg == null) throw new RuntimeException("DSImageIDListCache: Cache array is empty. Do reload() first.");
         if ((num >= arrayImg.length) || (num < 0)) return -1;
-        return arrayImg[num];
+        currentIndex = num;
+        return arrayImg[currentIndex];
     }
     
     public long getIDReverse(int num) {
         if (arrayImg == null) throw new RuntimeException("DSImageIDListCache: Cache array is empty. Do reload() first.");
         if ((num >= arrayImg.length) || (num < 0)) return -1;
-        return arrayImg[arrayImg.length - num - 1];
+        currentIndex = arrayImg.length - num - 1;
+        return arrayImg[currentIndex];
     }
     
     public int getCount() {
@@ -187,36 +241,35 @@ public class DSImageIDListCache {
         return arrayImg.length;
     }
     
+    public static DSImageIDListCache getStatic(ImgType it) {
+        if (!caches.containsKey(it)) caches.put(it, new DSImageIDListCache(it));
+        return caches.get(it);
+    }
+    
     public static DSImageIDListCache getAll() {
-        if (imgAll == null) imgAll = new DSImageIDListCache(ImgType.All);
-        return imgAll;
+        return getStatic(ImgType.All);
     }
     
     public static DSImageIDListCache getNotagged() {
-        if (imgNotagged == null) imgNotagged = new DSImageIDListCache(ImgType.Notagged);
-        return imgNotagged;
+        return getStatic(ImgType.Notagged);
     }
     
     public static DSImageIDListCache getWOAlbums() {
-        if (imgWOAlbums == null) imgWOAlbums = new DSImageIDListCache(ImgType.NotInAnyAlbum);
-        return imgWOAlbums;
+        return getStatic(ImgType.NotInAnyAlbum);
     }
     
     public static DSImageIDListCache getInAlbum() {
-        if (imgInAlbum == null) imgInAlbum = new DSImageIDListCache(ImgType.InAlbum);
-        return imgInAlbum;
+        return getStatic(ImgType.InAlbum);
     }
     
     public static DSImageIDListCache getTagged() {
-        if (imgTagged == null) imgTagged = new DSImageIDListCache(ImgType.TagList);
-        return imgTagged;
+        return getStatic(ImgType.TagList);
     }
     
     public static DSImageIDListCache getTaggedAnDAlbums() {
-        if (imgTAndA == null) imgTAndA = new DSImageIDListCache(ImgType.TagsAndAlbums);
-        return imgTAndA;
+        return getStatic(ImgType.TagsAndAlbums);
     }
-    
+
     public static void reloadAllStatic() {
         getAll().reload();
         getNotagged().reload();

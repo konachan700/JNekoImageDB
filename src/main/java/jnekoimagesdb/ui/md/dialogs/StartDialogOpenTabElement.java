@@ -26,7 +26,7 @@ public class StartDialogOpenTabElement extends HBox {
         
         this.setAlignment(Pos.CENTER);
         
-        final TopPanelButton navigateToImg = new TopPanelButton("dialog_db_select_icon", c -> {
+        final TopPanelButton navigateToImg = new TopPanelButton("dialog_db_select_icon", "Открыть БД", c -> {
             if (c.getClickCount() == 1) elementAL.OnSelect(dbName);
         });
         

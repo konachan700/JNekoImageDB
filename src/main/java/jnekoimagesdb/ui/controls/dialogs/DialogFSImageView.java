@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javafx.scene.image.Image;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.controls.PanelButtonCodes;
-import jnekoimagesdb.ui.controls.ToolsImageViewer;
+import jnekoimagesdb.ui.md.controls.ToolsImageViewer;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
 
 public class DialogFSImageView extends DialogWindow {
@@ -16,17 +16,16 @@ public class DialogFSImageView extends DialogWindow {
             fileIndex = 0;
     
     private final ToolsImageViewer
-            imgViewer = new ToolsImageViewer(new ToolsImageViewer.ToolsImageViewerActionListener() {
-                @Override
-                public void PrevKey() {
-                    prev();
-                }
+            imgViewer = new ToolsImageViewer() {
 
-                @Override
-                public void NextKey() {
-                    next();
-                }
-            });
+        @Override
+        public void PrevKey() {
+        }
+
+        @Override
+        public void NextKey() {
+        }
+    };
 
     private final ToolsPanelTop
             panel = new ToolsPanelTop((index) -> {

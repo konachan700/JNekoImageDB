@@ -28,7 +28,7 @@ public class TopPanelSearch extends HBox {
             actListener.OnSearch(newValue); 
         });
 
-        final TopPanelButton tpb = new TopPanelButton("panel_search_icon", c -> {
+        final TopPanelButton tpb = new TopPanelButton("panel_search_icon", "Поиск", c -> {
             actListener.OnSearch(txt.getText().trim());
         });
         this.getChildren().addAll(txt, tpb);

@@ -32,4 +32,8 @@ public class TopPanel extends HBox {
     public void addNode(Node element) {
         this.getChildren().add(element);
     }
+    
+    public void addNodes(Node ... element) {
+        this.getChildren().addAll(element);
+    }
 }

@@ -46,7 +46,7 @@ public class AlbumsElement extends HBox {
         
         this.setAlignment(Pos.CENTER);
         
-        final TopPanelButton navigateToImg = new TopPanelButton("albums_element_to_img_icon", c -> {
+        final TopPanelButton navigateToImg = new TopPanelButton("albums_element_to_img_icon", "Перейти к просмотру альбома", c -> {
             if (c.getClickCount() == 1) elementAL.OnToImagesButtonClick(dsAlbum, c);
         });
         this.setOnMouseClicked(c -> {

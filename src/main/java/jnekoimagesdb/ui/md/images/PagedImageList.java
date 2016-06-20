@@ -1,5 +1,7 @@
-package jnekoimagesdb.ui.controls;
+package jnekoimagesdb.ui.md.images;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.img.XImgDatastore;
@@ -9,9 +11,6 @@ import jnekoimagesdb.domain.DSImage;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.GUITools;
-import jnekoimagesdb.ui.Lang;
-import jnekoimagesdb.ui.controls.dialogs.DialogImageView;
-import jnekoimagesdb.ui.controls.elements.SScrollPane;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +20,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -30,7 +27,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -41,22 +37,22 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import jiconfont.javafx.IconNode;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
+import jnekoimagesdb.ui.md.dialogs.ImageViewDialog;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.LoggerFactory;
 
 public class PagedImageList extends ScrollPane {
     public final static String
             CSS_FILE = new File("./style/style-gmd-pil.css").toURI().toString();
+    
+    public static PagedImageList
+            sPIL = null;
         
     private final org.slf4j.Logger 
             logger = LoggerFactory.getLogger(PagedImageList.class);
@@ -66,6 +62,12 @@ public class PagedImageList extends ScrollPane {
     
     private volatile int
             busyCounter = 0;
+    
+    private DSImageIDListCache.ImgType
+            imageType = DSImageIDListCache.ImgType.All;
+    
+    private DSImageIDListCache
+            currCache = DSImageIDListCache.getAll();
     
     private class PreviewGenerator implements Runnable {
         @Override
@@ -129,11 +131,6 @@ public class PagedImageList extends ScrollPane {
         }
     }
     
-    public static final int 
-            IMAGES_ALL = -1,
-            IMAGES_NOTAGGED = -2,
-            IMAGES_NOT_IN_ALBUM = -3;
-    
     private final FlowPane
             container = new FlowPane();
     
@@ -145,14 +142,13 @@ public class PagedImageList extends ScrollPane {
             itemTotalCount              = 0,
             itemCountOnOneLineOld       = -1,
             itemCountOnOneColoumnOld    = 0,
-            itemTotalRecordsCount       = 0,
             itemSpacer                  = 4;
     
     private String 
             groupTitle = "";
     
     private volatile long
-            currentAlbumID = IMAGES_ALL;
+            currentAlbumID = 0;
 
     private final Pagination
             pag = new Pagination();
@@ -320,10 +316,7 @@ public class PagedImageList extends ScrollPane {
             return Arrays.equals(((DSImage) o).getMD5(), img.getMD5());
         }
     }
-    
-    private final DialogImageView 
-            div = new DialogImageView(this);
-    
+
     private final ImageListItemActionListener
             elementListener = new ImageListItemActionListener() {
                 @Override
@@ -338,9 +331,13 @@ public class PagedImageList extends ScrollPane {
                 public void OnOpen(DSImage item, ImageListItem it) {
                     if (it.myNumber >= 0) {
                         int off = pag.getCurrentPageIndex() * itemTotalCount;
-                        div.setAlbumID(currentAlbumID);
-                        div.setImageIndex(it.myNumber + off);
-                        div.show();
+                        
+                        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                        int width = (int)(screenSize.getWidth() * 0.8);
+                        int height = (int)(screenSize.getHeight() * 0.8);
+        
+                        final ImageViewDialog imgd = new ImageViewDialog(width, height);
+                        imgd.show(currCache.getCount() - 1 - (it.myNumber + off), imageType); 
                     }
                 }
             };
@@ -354,7 +351,6 @@ public class PagedImageList extends ScrollPane {
     
     private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(88), ae -> {
         if (isResize) {
-            _getCount();
             _calcPaginator();
             isResize = false;
             forceReload = false;
@@ -362,7 +358,7 @@ public class PagedImageList extends ScrollPane {
     }));
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public PagedImageList() {
+    private PagedImageList() {
         super();
         this.setVbarPolicy(ScrollBarPolicy.NEVER);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -477,24 +473,17 @@ public class PagedImageList extends ScrollPane {
             }
         }
 
-        if ((itemTotalCount > 0) && (itemTotalRecordsCount > 0)) {
-            
+        if ((itemTotalCount > 0) && (currCache.getCount() > 0)) {
             pag.setVisible(true);
-            final int pageCount = (itemTotalRecordsCount / itemTotalCount) + (((itemTotalRecordsCount % itemTotalCount) > 0) ? 1 : 0);
+            final int pageCount = (currCache.getCount() / itemTotalCount) + (((currCache.getCount() % itemTotalCount) > 0) ? 1 : 0);
             pag.setPageCount(pageCount);
-            regenerateView(currentAlbumID);
+            regenerateView();
         } else 
             pag.setVisible(false);
     }
 
-    public void setAlbumID(long albumID) {
-        currentAlbumID = albumID;
-        selectedElementsPool.clear();
-    }
-    
     public long getTotalImagesCount() {
-        _getCount();
-        return itemTotalRecordsCount;
+        return currCache.getCount();
     }
     
     public void clearTags() {
@@ -507,81 +496,22 @@ public class PagedImageList extends ScrollPane {
         tagsNotList = tagsNot;
     }
     
-    private long getTagsCount() {
-        Number _itemTotalRecordsCount = 0;
-        
-        final Set<DSImage> tagsNot = new HashSet<>();
-        if (tagsNotList != null) tagsNotList.parallelStream().forEach(el -> { tagsNot.addAll(el.getImages()); });
-        
-        final Set<DSImage> tags = new HashSet<>();
-        if (tagsList != null) tagsList.parallelStream().forEach(el -> { tags.addAll(el.getImages()); });
-        
-        if ((tagsList != null) && (tagsNotList != null)) {
-            _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.imageID IN (:tags1) AND r.imageID NOT IN (:tags2)")
-                    .setParameterList("tags1", tags)
-                    .setParameterList("tags2", tagsNot)
-                    .uniqueResult();
-        } else if ((tagsList == null) && (tagsNotList != null)) {
-            _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.imageID NOT IN (:tags)")
-                    .setParameterList("tags", tagsNot)
-                    .uniqueResult();
-        } else if ((tagsList != null) && (tagsNotList == null)) {
-            _itemTotalRecordsCount = (Number) hibSession.createQuery("SELECT COUNT(*) FROM DSImage r WHERE r.imageID IN (:tags)")
-                    .setParameterList("tags", tags)
-                    .uniqueResult();
-        }
-        return _itemTotalRecordsCount.longValue();
-    }
-    
-    public long getImgCount(long _albumID) {
-        logger.info("## getImgCount start time: "+System.currentTimeMillis());
-        Number _itemTotalRecordsCount;
-        switch ((int)_albumID) {
-            case IMAGES_ALL:
-                final boolean notNullTags = (tagsList != null) || (tagsNotList != null);
-                final boolean notEmptyTags = (notNullTags) ? ((!tagsList.isEmpty()) || (!tagsNotList.isEmpty())) : false;
-                if (notNullTags && notEmptyTags) {
-                    _itemTotalRecordsCount = getTagsCount();
-                    logger.debug(_itemTotalRecordsCount.toString());
-                    return _itemTotalRecordsCount.longValue();
-                } else {
-                    return DSImageIDListCache.getAll().getCount();
-                }
-            case IMAGES_NOT_IN_ALBUM: 
-                return DSImageIDListCache.getWOAlbums().getCount();
-            case IMAGES_NOTAGGED:   
-                return DSImageIDListCache.getNotagged().getCount();
-            default:
-                _itemTotalRecordsCount = (Number) hibSession
-                        .createCriteria(DSImage.class)
-                        .createCriteria("albums")
-                        .add(Restrictions.eq("albumID", _albumID))
-                    .setProjection(Projections.rowCount()).uniqueResult();
-                return _itemTotalRecordsCount.longValue();  
-        }
-    }
-    
-    private void _getCount() {
-        itemTotalRecordsCount = (int) getImgCount(currentAlbumID);
-    }
-    
-    public int getCurrentCount() {
-        return itemTotalRecordsCount;
-    }
-    
     public void refresh() {
-        switch ((int) currentAlbumID) {
-            case IMAGES_ALL:
+        switch (imageType) {
+            case All:
                 groupTitle = "Все картинки";
                 break;
-            case IMAGES_NOT_IN_ALBUM:
+            case NotInAnyAlbum:
                 groupTitle = "Не входящие в альбомы";
                 break;
-            case IMAGES_NOTAGGED:
+            case Notagged:
                 groupTitle = "Картинки без тегов";
                 break;
-            default:
+            case InAlbum:
                 groupTitle = "Альбом #" + currentAlbumID;
+                break;
+            default:
+                groupTitle = "Картинки";
                 break;
         } 
         
@@ -594,36 +524,20 @@ public class PagedImageList extends ScrollPane {
         return groupTitle;
     }
     
-    public List<DSImage> getImgListA(long albumID, int offset, int count) {
-        final DSImageIDListCache dsc;
-        switch ((int) albumID) {
-            case IMAGES_ALL:
-                dsc = DSImageIDListCache.getAll();
-                break;
-            case IMAGES_NOT_IN_ALBUM:
-                dsc = DSImageIDListCache.getWOAlbums();
-                break;
-            case IMAGES_NOTAGGED:
-                dsc = DSImageIDListCache.getNotagged();
-                break;
-            default:
-                dsc = DSImageIDListCache.getInAlbum();
-                dsc.reload(albumID);
-                break;
-        }
-        
+    public List<DSImage> getImgListA(DSImageIDListCache.ImgType imgt, long albumID, int offset, int count) {
         final Set<Long> ids = new HashSet<>();
         for (int i=0; i<count; i++) {
-            ids.add(dsc.getIDReverse(i + offset));
+            ids.add(currCache.getIDReverse(i + offset));
         }
         
-        final List<DSImage> list = hibSession.createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID DESC")
+        final List<DSImage> list = hibSession
+                .createQuery("SELECT r FROM DSImage r WHERE r.imageID IN (:ids) ORDER BY r.imageID DESC")
                 .setParameterList("ids", ids)
                 .list();
         return list;
     }
-
-    public synchronized void regenerateView(long albumID) {
+    
+    public void regenerateView() {
         if (itemTotalCount <= 0) return;
 
         if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
@@ -633,7 +547,7 @@ public class PagedImageList extends ScrollPane {
         int off = pag.getCurrentPageIndex() * itemTotalCount;
         if (forceReload) container.getChildren().clear();
         
-        List<DSImage> list = getImgListA(albumID, off, itemTotalCount);
+        List<DSImage> list = getImgListA(imageType, currentAlbumID, off, itemTotalCount);
         
         int counter = 0;
         if (list != null) {
@@ -669,9 +583,9 @@ public class PagedImageList extends ScrollPane {
     public void uploadSelected() {
         uploadDeque.addAll(selectedElementsPool);
         selectedElementsPool.clear();
-        regenerateView(currentAlbumID);
+        regenerateView();
     }
-    
+
     public void initDB() {
         if (hibSession != null) return;
         
@@ -685,9 +599,26 @@ public class PagedImageList extends ScrollPane {
         DSImageIDListCache.reloadAllStatic();
     }
     
+    public void setImageType(DSImageIDListCache.ImgType imgt, long albumID) {
+        imageType = imgt;
+        currentAlbumID = albumID;
+        currCache = DSImageIDListCache.getStatic(imageType);
+        if (albumID > 0) currCache.reload(currentAlbumID);
+    }
+    
+    public void setImageType(DSImageIDListCache.ImgType imgt) {
+        imageType = imgt;
+        currCache = DSImageIDListCache.getStatic(imageType);
+    }
+    
     public void dispose() {
         isExit = true;
         previewGenService.shutdownNow();
+    }
+    
+    public static PagedImageList get() {
+        if (sPIL == null) sPIL = new PagedImageList();
+        return sPIL;
     }
 }
 

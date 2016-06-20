@@ -12,7 +12,7 @@ public class TopPanelMenuButton extends TopPanelButton{
     
     @SuppressWarnings("LeakingThisInConstructor")
     public TopPanelMenuButton() {
-        super("panel_menu_icon", null);
+        super("panel_menu_icon", "Меню", null);
         this.setOnMouseClicked((c) -> {
             contextMenu.show(this, c.getScreenX()-c.getX(), c.getScreenY()-c.getY()+this.getHeight());
         });

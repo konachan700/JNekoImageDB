@@ -25,48 +25,48 @@ public class DialogAlbumSelect extends DialogWindow {
 //                }   
 //            });
         
-    public DialogAlbumSelect() {
-        super(800, 600, true); // todo: сделать запоминание размера
-        
-//        panelTop = new ToolsPanelTop((index) -> {
-//            switch (index) {
-//                case buttonOneLevelUp:
-//                    myAL.levelUp();
-//                    break;
-//                case buttonOK:
-//                    this.setRetCodeOK(true);
-//                    this.hide();
-//                    break;
-//            }
-//        });
+//    public DialogAlbumSelect() {
+//        super(800, 600, true); // todo: сделать запоминание размера
 //        
-//        myAL.setDialogMode(true);
-//        
-//        THIS.getToolbox().getChildren().add(panelTop);
-//        THIS.getMainContainer().getChildren().add(myAL);
-    }
+////        panelTop = new ToolsPanelTop((index) -> {
+////            switch (index) {
+////                case buttonOneLevelUp:
+////                    myAL.levelUp();
+////                    break;
+////                case buttonOK:
+////                    this.setRetCodeOK(true);
+////                    this.hide();
+////                    break;
+////            }
+////        });
+////        
+////        myAL.setDialogMode(true);
+////        
+////        THIS.getToolbox().getChildren().add(panelTop);
+////        THIS.getMainContainer().getChildren().add(myAL);
+//    }
     
-    private void _panelInit(long id) {
-//        panelTop.clearAll();
-//        if (id > 0) panelTop.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp); 
-//        panelTop.addSeparator();
-//        panelTop.addButton(GUITools.loadIcon("selected-48"), PanelButtonCodes.buttonOK);
-    }
-    
-    public final void refresh() {
-//        myAL.refresh();
-    }
-    
-    public final void dbInit() {
-//        myAL.initDB();
-    }
-    
-    public final ArrayList<DSAlbum> getSelected() {
-//        return myAL.getSelected();
-        return null;
-    }
-    
-    public final void clearSelected() {
-//        myAL.clearSelected();
-    }
+//    private void _panelInit(long id) {
+////        panelTop.clearAll();
+////        if (id > 0) panelTop.addButton(GUITools.loadIcon("lvlup-48"), PanelButtonCodes.buttonOneLevelUp); 
+////        panelTop.addSeparator();
+////        panelTop.addButton(GUITools.loadIcon("selected-48"), PanelButtonCodes.buttonOK);
+//    }
+//    
+//    public final void refresh() {
+////        myAL.refresh();
+//    }
+//    
+//    public final void dbInit() {
+////        myAL.initDB();
+//    }
+//    
+//    public final ArrayList<DSAlbum> getSelected() {
+////        return myAL.getSelected();
+//        return null;
+//    }
+//    
+//    public final void clearSelected() {
+////        myAL.clearSelected();
+//    }
 }

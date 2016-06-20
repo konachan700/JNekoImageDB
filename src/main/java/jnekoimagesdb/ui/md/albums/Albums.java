@@ -13,8 +13,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
+import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.HibernateUtil;
-import jnekoimagesdb.ui.controls.PagedImageList;
+import jnekoimagesdb.ui.md.images.PagedImageList;
 import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
@@ -29,8 +30,8 @@ public class Albums extends ScrollPane {
     private final VBox 
             rootContainer = new VBox();
     
-    private final PagedImageList
-            pil = XImg.getPagedImageList();
+//    private final PagedImageList
+//            pil = XImg.getPagedImageList();
     
     private AlbumsActionListener 
             tabAL = null;
@@ -78,7 +79,7 @@ public class Albums extends ScrollPane {
         public void OnDoubleClick(AlbumsElement element, DSAlbum album, MouseEvent value) {
             currentAlbum = album;
             topAlbum = false;
-            pil.setAlbumID(album.getAlbumID());
+            PagedImageList.get().setImageType(DSImageIDListCache.ImgType.InAlbum, album.getAlbumID());
             refresh();
         }
 
@@ -142,7 +143,7 @@ public class Albums extends ScrollPane {
             XImg.getUploadBox().showModal();
         });
         
-        tpbLevelUp = new TopPanelButton("panel_icon_tags_one_level_up", c -> {
+        tpbLevelUp = new TopPanelButton("panel_icon_tags_one_level_up", "На один уровень вверх", c -> {
                     levelUp();
                 });
         

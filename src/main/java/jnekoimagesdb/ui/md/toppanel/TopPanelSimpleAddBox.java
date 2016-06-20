@@ -32,11 +32,11 @@ public class TopPanelSimpleAddBox extends HBox {
                 txt.setText("");
             }
         });
-        final TopPanelButton tpb1 = new TopPanelButton("panel_icon_add_new_1", c -> {
+        final TopPanelButton tpb1 = new TopPanelButton("panel_icon_add_new_1", "Добавить", c -> {
             actListener.onAddNew(txt.getText().trim());
             txt.setText("");
         });
-        final TopPanelButton tpb2 = new TopPanelButton("panel_icon_save_1", c -> {
+        final TopPanelButton tpb2 = new TopPanelButton("panel_icon_save_1", "Сохранить", c -> {
             actListener.onSave();
         });
         this.getChildren().addAll(txt, tpb1, tpb2);

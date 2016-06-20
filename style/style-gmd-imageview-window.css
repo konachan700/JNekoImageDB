@@ -1,0 +1,69 @@
+.max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+
+.null_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+
+
+.iv_root_pane, .iv_root_pane:focused, .iv_root_pane .corner,  .iv_root_pane .viewport {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.iv_root_pane .scroll-bar:horizontal .track,
+.iv_root_pane .scroll-bar:vertical .track {
+    -fx-background-color:#fff;
+    -fx-border-color:#fff;
+    -fx-background-radius: 0em;
+    -fx-border-radius:0em;
+}
+
+.iv_root_pane .scroll-bar:horizontal .increment-button ,
+.iv_root_pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 0 10 0;
+}
+
+.iv_root_pane .scroll-bar:vertical .increment-button ,
+.iv_root_pane .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 10 0 0;
+}
+
+.iv_root_pane  .scroll-bar .increment-arrow,
+.iv_root_pane  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";	
+    -fx-padding:0;
+}
+
+.iv_root_pane .scroll-bar:horizontal .thumb,
+.iv_root_pane .scroll-bar:vertical .thumb {
+    -fx-background-color:#ccc;
+    -fx-background-insets: 0;/* 2 2 2 2, 0, 0;*/
+    -fx-background-radius: 0;
+}
