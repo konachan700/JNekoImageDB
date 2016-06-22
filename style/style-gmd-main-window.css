@@ -14,6 +14,12 @@
 	-fx-min-height: 1px;
 }
 
+.main_window_hseparator_height {
+	-fx-pref-height: 24px;
+	-fx-max-height: 24px;
+	-fx-min-height: 24px;
+}
+
 .main_window_null_pane, .panel_null_pane {
 	-fx-background-color: transparent;
     -fx-background-radius: 0px;
@@ -63,6 +69,17 @@
 	-fx-font-family: "Linux Biolinum Bold";
     -fx-font-weight:bold; 
 	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 12, 0, 0, 0);
+}
+
+.main_window_vseparator {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 1px 0 0 0;
+	-fx-border-color: #aaa;
+    -fx-border-insets: 8px 0 0 0;
+	-fx-padding: 0px;
 }
 
 .main_window_messagebox_button:hover {

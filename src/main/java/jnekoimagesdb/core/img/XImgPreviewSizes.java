@@ -58,6 +58,17 @@ public class XImgPreviewSizes {
         refreshPreviewSizes();
     }
     
+    public void addPreviewSize(long _width, long _height, boolean _squared) {
+        final StringBuilder sb = new StringBuilder();
+        sb
+                .append("Preview_")
+                .append(_width)
+                .append("x")
+                .append(_height)
+                .append((_squared) ? "_SQ" : "_NS");    
+        addPreviewSize(sb.substring(0), _width, _height, _squared);
+    }
+    
     public void addPreviewSize(String _prevName, long _width, long _height, boolean _squared) {
         final DSPreviewSize ps = new DSPreviewSize(_prevName, _width, _height, _squared);
         final Session s = HibernateUtil.getCurrentSession();

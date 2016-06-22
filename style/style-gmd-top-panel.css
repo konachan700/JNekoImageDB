@@ -162,6 +162,9 @@
 	-fx-icon-code: "Material Icons:E433";
 }
 
+.context_menu_item_bold {
+	-fx-font-weight:bold; 
+}
 
 
 

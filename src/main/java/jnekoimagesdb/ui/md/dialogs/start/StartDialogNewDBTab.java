@@ -1,4 +1,4 @@
-package jnekoimagesdb.ui.md.dialogs;
+package jnekoimagesdb.ui.md.dialogs.start;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +19,8 @@ import jnekoimagesdb.domain.SettingsUtil;
 import jnekoimagesdb.ui.md.controls.LabeledBox;
 import jnekoimagesdb.ui.md.controls.NumericTextField;
 import jnekoimagesdb.ui.md.controls.RegexpTextField;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
+import jnekoimagesdb.ui.md.dialogs.WaitBox;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
@@ -129,14 +131,14 @@ public class StartDialogNewDBTab extends VBox {
         final Runnable
             dbCreationThread = () -> {
                 if (createDB()) {
-                    final StringBuilder sb = new StringBuilder();
-                    sb
-                            .append("Preview_")
-                            .append(prevX.getLong())
-                            .append("x")
-                            .append(prevY.getLong())
-                            .append("_SQ");
-                    psizes.addPreviewSize(sb.substring(0), prevX.getLong(), prevY.getLong(), true);
+//                    final StringBuilder sb = new StringBuilder();
+//                    sb
+//                            .append("Preview_")
+//                            .append(prevX.getLong())
+//                            .append("x")
+//                            .append(prevY.getLong())
+//                            .append("_SQ");
+                    psizes.addPreviewSize(prevX.getLong(), prevY.getLong(), true);
                     psizes.get(0).setPrimary(true);
                     
                     SettingsUtil.setLong("mainPreviewGenThreadsCount.value", threads.getLong());

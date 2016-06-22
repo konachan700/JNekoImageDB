@@ -3,13 +3,14 @@ package jnekoimagesdb.ui.md.images;
 import java.io.File;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
-import jnekoimagesdb.ui.controls.dialogs.DialogAlbumSelect;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
+import jnekoimagesdb.ui.md.albums.AlbumsSelectDialog;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
@@ -34,9 +35,6 @@ public class ImagesList extends VBox  {
 
     private final TopPanel
             panelTop;
-    
-    private final DialogAlbumSelect
-            dis = new DialogAlbumSelect();
     
     private final TopPanelMenuButton 
             menuBtn = new TopPanelMenuButton();
@@ -72,21 +70,35 @@ public class ImagesList extends VBox  {
                 })
         );
 
+        menuBtn.addMenuItemBold("Последние добавленные картинки", (c) -> {
+            this.setImageType(DSImageIDListCache.ImgType.All);
+            refresh();
+        });
+        menuBtn.addMenuItemBold("Все картинки без тегов", (c) -> {
+            this.setImageType(DSImageIDListCache.ImgType.Notagged);
+            refresh();
+        });
+        
+        menuBtn.addMenuItemBold("Все картинки не в альбомах", (c) -> {
+            this.setImageType(DSImageIDListCache.ImgType.NotInAnyAlbum);
+            refresh();
+        });
+        
+        menuBtn.addSeparator();
         menuBtn.addMenuItem("Сбросить выделение", (c) -> {
             PagedImageList.get().selectNone();
         });
         menuBtn.addSeparator();
         menuBtn.addMenuItem("Добавить выделенное в альбомы...", (c) -> {
-//            if (PagedImageList.get().getSelectedHashes().size() > 0) {
-//                dis.refresh();
-//                dis.showModal();
-//                if (dis.isRetCodeOK()) {
-//                    final ArrayList<DSAlbum> sl = dis.getSelected();
-//                    PagedImageList.get().addToAlbums(sl);
-//                    PagedImageList.get().selectNone();
-//                    dis.clearSelected();
-//                }
-//            }
+            if (PagedImageList.get().getSelectedHashes().size() > 0) {
+                AlbumsSelectDialog.getDialog().showAndWait();
+                final Set<DSAlbum> sl = AlbumsSelectDialog.getDialog().getSelectedAlbums();
+                if (sl.isEmpty()) return;
+                PagedImageList.get().addToAlbums(sl);
+                PagedImageList.get().selectNone();
+                AlbumsSelectDialog.getDialog().getSelectedAlbums().clear();
+            } else
+                MessageBox.show("Ни одной картинки не выделено!");
         });
         menuBtn.addMenuItem("Добавить теги для выделенного...", (c) -> {
             
@@ -103,17 +115,17 @@ public class ImagesList extends VBox  {
         panelTop.addNode(menuBtn);
     }
     
-    public void setImageType(DSImageIDListCache.ImgType imgt) {
+    public final void setImageType(DSImageIDListCache.ImgType imgt) {
         PagedImageList.get().setImageType(imgt, 0);
         if (!this.getChildren().contains(PagedImageList.get())) this.getChildren().add(PagedImageList.get());
     }
     
-    public void setImageType(DSImageIDListCache.ImgType imgt, long albumID) {
+    public final void setImageType(DSImageIDListCache.ImgType imgt, long albumID) {
         PagedImageList.get().setImageType(imgt, albumID);
         if (!this.getChildren().contains(PagedImageList.get())) this.getChildren().add(PagedImageList.get());
     }
     
-    public void refresh() {
+    public final void refresh() {
         backToAlbums.setVisible(PagedImageList.get().getAlbumID() > 0);
         PagedImageList.get().refresh();
         infoBox.setTitle(PagedImageList.get().getGroupTitle());

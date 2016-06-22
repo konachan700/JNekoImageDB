@@ -14,6 +14,7 @@ import jnekoimagesdb.ui.GUITools;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -439,7 +440,7 @@ public class PagedImageList extends ScrollPane {
         TMR.play();
     }
     
-    public void addToAlbums(ArrayList<DSAlbum> albums) {
+    public void addToAlbums(Collection<DSAlbum> albums) {
         if (albums.isEmpty() || selectedElementsPool.isEmpty()) return;
         HibernateUtil.beginTransaction(hibSession);
         albums.stream().map((dsa) -> {

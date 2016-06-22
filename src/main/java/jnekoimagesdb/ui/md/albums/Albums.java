@@ -26,13 +26,13 @@ import org.hibernate.criterion.Restrictions;
 public class Albums extends ScrollPane {
     public final static String
             CSS_FILE = new File("./style/style-gmd-albums.css").toURI().toString();
+    
+    private static Albums
+            albumsSelect = null;
 
     private final VBox 
             rootContainer = new VBox();
-    
-//    private final PagedImageList
-//            pil = XImg.getPagedImageList();
-    
+
     private AlbumsActionListener 
             tabAL = null;
     
@@ -52,6 +52,9 @@ public class Albums extends ScrollPane {
     private DSAlbum
             currentAlbum = null, 
             selectedAlbum = null;
+    
+    private boolean 
+            selectMode = false;
     
     private final TopPanel
             panelTop;
@@ -111,6 +114,11 @@ public class Albums extends ScrollPane {
         tabAL = al;
     }
     
+    public final Albums setSelectMode() {
+        selectMode = true;
+        return this;
+    }
+    
     public Albums() {
         super();
         
@@ -155,6 +163,10 @@ public class Albums extends ScrollPane {
         //tpbLevelUp.setVisible(false);
     }
     
+    public final TopPanelButton getLevelUpButton() {
+        return tpbLevelUp;
+    }
+    
     public Parent getPanel() {
         return panelTop;
     }
@@ -186,7 +198,11 @@ public class Albums extends ScrollPane {
         
         if (list.size() > 0) {
             for (DSAlbum ds : list) {
-                AlbumsElement ae = new AlbumsElement(ds, elementAL);
+                AlbumsElement ae;
+                if (selectMode)
+                    ae = new AlbumsElement(ds, elementAL).setSelectMode();
+                else
+                    ae = new AlbumsElement(ds, elementAL);
                 rootContainer.getChildren().add(ae);
                 currentElementList.add(ae);
             }
@@ -197,7 +213,11 @@ public class Albums extends ScrollPane {
         bottomPanelForAlbums.setText("Альбомов: "+list.size());
     }
     
-    private void levelUp() {
+    public final boolean isTopAlbum() {
+        return topAlbum;
+    }
+    
+    public final void levelUp() {
         if (currentAlbum == null) return;
         if (currentAlbum.getParentAlbumID() > 0) {
             List<DSAlbum> list = HibernateUtil.getCurrentSession()
@@ -264,5 +284,10 @@ public class Albums extends ScrollPane {
                 break;
             }
         }
+    }
+    
+    public static Albums getSelected() {
+        if (albumsSelect == null) albumsSelect = new Albums().setSelectMode();
+        return albumsSelect;
     }
 }

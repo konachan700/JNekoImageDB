@@ -37,6 +37,11 @@ public class SimpleDialog extends Stage {
         windowContainer.getChildren().clear();
         windowContainer.getChildren().add(content);
     }
+    
+    public void setContent(Node ... content) {
+        windowContainer.getChildren().clear();
+        windowContainer.getChildren().addAll(content);
+    }
 
     public void clearContent() {
         windowContainer.getChildren().clear();

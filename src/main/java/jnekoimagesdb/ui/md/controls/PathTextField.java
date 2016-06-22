@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
 public class PathTextField extends TextField {
     private boolean valid = false;
     private Path value = null;
+    private InputBoxesActionListener iAL = null;
     
     public PathTextField(String okStyle, String errorStyle) {
         super();
@@ -21,6 +22,7 @@ public class PathTextField extends TextField {
                 this.getStyleClass().add(okStyle);
                 valid = true;
                 value = p;
+                if (iAL != null) iAL.OnNewAndValidData(this);
             } else {
                 this.getStyleClass().add(errorStyle);
                 value = null;
@@ -39,5 +41,9 @@ public class PathTextField extends TextField {
     
     public String getPathString() {
         return value.toFile().getAbsolutePath();
+    }
+    
+    public void setActionListener(InputBoxesActionListener al) {
+        iAL = al;
     }
 }

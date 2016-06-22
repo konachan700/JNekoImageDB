@@ -1,8 +1,5 @@
 package jnekoimagesdb.ui.md.controls;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
 

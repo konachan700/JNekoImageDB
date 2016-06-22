@@ -10,6 +10,9 @@ public class NumericTextField extends TextField {
             max = Long.MAX_VALUE,
             min = Long.MIN_VALUE;
     
+    private InputBoxesActionListener iAL = null;
+    
+    @SuppressWarnings("LeakingThisInConstructor")
     public NumericTextField(String okStyle, String errorStyle) {
         super();
         this.textProperty().addListener((final ObservableValue<? extends String> observable, final String oldValue, final String newValue) -> {
@@ -17,9 +20,10 @@ public class NumericTextField extends TextField {
             this.getStyleClass().remove(errorStyle);
             try {
                 value = Long.parseLong(newValue.trim(), 10);
-                if ((value > min) && (value < max)) {
+                if ((value >= min) && (value <= max)) {
                     this.getStyleClass().add(okStyle);
                     valid = true;
+                    if (iAL != null) iAL.OnNewAndValidData(this);
                 } else {
                     this.getStyleClass().add(errorStyle);
                     value = 0;
@@ -30,6 +34,10 @@ public class NumericTextField extends TextField {
                 this.getStyleClass().add(errorStyle);
             }
         });
+    }
+    
+    public void setActionListener(InputBoxesActionListener al) {
+        iAL = al;
     }
     
     public boolean isValid() {

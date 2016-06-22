@@ -1,6 +1,7 @@
-package jnekoimagesdb.ui.md.dialogs;
+package jnekoimagesdb.ui.md.dialogs.start;
 
 import javafx.application.Platform;
+import jnekoimagesdb.ui.md.dialogs.FullDialog;
 import jnekoimagesdb.ui.md.menu.Menu;
 import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;

@@ -1,4 +1,4 @@
-package jnekoimagesdb.ui.md.dialogs;
+package jnekoimagesdb.ui.md.dialogs.start;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

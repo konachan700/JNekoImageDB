@@ -1,5 +1,6 @@
-package jnekoimagesdb.ui;
+package jnekoimagesdb.ui.md;
 
+import jnekoimagesdb.ui.md.dialogs.start.StartSplashScreen;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,12 +17,15 @@ import jiconfont.icons.GoogleMaterialDesignIcons;
 import jiconfont.javafx.IconFontFX;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSImageIDListCache;
-import jnekoimagesdb.ui.controls.tabs.TabSettings;
-import jnekoimagesdb.ui.md.dialogs.StartDialog;
+import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.Lang;
+import jnekoimagesdb.ui.md.dialogs.start.StartDialog;
 import jnekoimagesdb.ui.md.images.ImagesList;
 import jnekoimagesdb.ui.md.menu.Menu;
 import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;
+import jnekoimagesdb.ui.md.settings.PreviewTypes;
+import jnekoimagesdb.ui.md.settings.Settings;
 
 public class JNekoImageDB extends Application {
     public final static String
@@ -33,9 +37,6 @@ public class JNekoImageDB extends Application {
     private final HBox 
             toolbox         = new HBox(),
             paginator_1     = new HBox();
-    
-    private final TabSettings
-            tabSettings = new TabSettings();
 
     private String 
             databaseName    = "default";
@@ -62,17 +63,17 @@ public class JNekoImageDB extends Application {
         ImagesList.get().refresh();
     }
     
-    private void showTagsCloud() {
-        basesp.getChildren().add(XImg.getTabAllTags());
-        toolbox.getChildren().add(XImg.getTabAllTags().getTopPanel());
-        paginator_1.getChildren().add(XImg.getTabAllTags().getPaginator());
-        XImg.getTabAllTags().refresh();
-    }
+//    private void showTagsCloud() {
+//        basesp.getChildren().add(XImg.getTabAllTags());
+//        toolbox.getChildren().add(XImg.getTabAllTags().getTopPanel());
+//        paginator_1.getChildren().add(XImg.getTabAllTags().getPaginator());
+//        XImg.getTabAllTags().refresh();
+//    }
     
-    private void showSettings() {
-        basesp.getChildren().add(tabSettings);
-        tabSettings.refresh();
-    }
+//    private void showSettings() {
+//        basesp.getChildren().add(Settings.getSettingBox());
+//        toolbox.getChildren().add(Settings.getSettingBox().getPanel());
+//    }
 
     private void showAlbCats() {
         basesp.getChildren().add(XImg.getTabAlbumImageList());
@@ -101,22 +102,7 @@ public class JNekoImageDB extends Application {
         } else {
             databaseName = StartDialog.getDBName();
         }
-        
-        
-//        final DialogDBInitSelect ds = new DialogDBInitSelect();
-//        ds.showModal();
-//        if ((ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.newDB) ||
-//                (ds.getRetCode() == DialogDBInitSelect.DBSelectReturnCode.existDB)) {
-//            databaseName = ds.getDBName();
-//            if (databaseName == null) {
-//                Platform.exit(); 
-//                return;
-//            }
-//        } else {
-//            Platform.exit(); 
-//            return;
-//        }
-        
+
         try {
             XImg.init(databaseName);
         } catch (Exception ex) {
@@ -124,12 +110,6 @@ public class JNekoImageDB extends Application {
             Platform.exit(); 
             return;
         }
-
-//        final Image logoImage = new Image(new File("./icons/logo6.png").toURI().toString());
-//        final ImageView imgLogoV = new ImageView(logoImage);
-
-//        XImg.getTabAlbumImageList().setPanels(toolbox, paginator_1);
-//        XImg.getTabAlbumImageList().initDB();
 
         XImg.getTabAlbumImageList().setActionListener(c -> {
             clearAll();
@@ -157,28 +137,37 @@ public class JNekoImageDB extends Application {
                             clearAll();
                             showAlbCats();
                         }),
-                        new MenuItem("Последние загруженные", (c) -> {
+                        new MenuItem("Картинки", (c) -> {
                             clearAll();
                             showAllImages(DSImageIDListCache.ImgType.All, 0);
-                        }),
-                        new MenuItem("Не входящие ни в один альбом", (c) -> {
-                            clearAll();
-                            showAllImages(DSImageIDListCache.ImgType.NotInAnyAlbum, 0);
-                        }),
-                        new MenuItem("Не имеющие тегов", (c) -> {
-                            clearAll();
-                            showAllImages(DSImageIDListCache.ImgType.Notagged, 0);
-                        })
+                        })//,
+//                        new MenuItem("Не входящие ни в один альбом", (c) -> {
+//                            clearAll();
+//                            showAllImages(DSImageIDListCache.ImgType.NotInAnyAlbum, 0);
+//                        }),
+//                        new MenuItem("Не имеющие тегов", (c) -> {
+//                            clearAll();
+//                            showAllImages(DSImageIDListCache.ImgType.Notagged, 0);
+//                        })
                 ),
                 new MenuGroup(
-                        "Настройки", "menu_group_container_green", "header_icon_settings",
-                        new MenuItem("Основные", (c) -> {
+                        "Сервис", "menu_group_container_green", "header_icon_settings",
+                        new MenuItem("Основные настройки", (c) -> {
                             clearAll();
-                            showSettings();
+                            basesp.getChildren().add(Settings.getSettingBox());
+                            toolbox.getChildren().add(Settings.getSettingBox().getPanel());
                         }),
                         new MenuItem("Редактор тегов", (c) -> {
                             clearAll();
-                            showTagsCloud();
+                            basesp.getChildren().add(XImg.getTabAllTags());
+                            toolbox.getChildren().add(XImg.getTabAllTags().getTopPanel());
+                            paginator_1.getChildren().add(XImg.getTabAllTags().getPaginator());
+                            XImg.getTabAllTags().refresh();
+                        }),
+                        new MenuItem("Управление превью", (c) -> {
+                            clearAll();
+                            basesp.getChildren().add(PreviewTypes.get());
+                            toolbox.getChildren().add(PreviewTypes.get().getPanel());
                         }),
                         new MenuItem("Логи", (c) -> {
                             clearAll();

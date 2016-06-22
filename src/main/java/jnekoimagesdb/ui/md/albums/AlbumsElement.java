@@ -36,7 +36,35 @@ public class AlbumsElement extends HBox {
             editBtn, saveBtn, deleteBtn;
     
     private boolean 
-            selected = false;
+            selected = false,
+            buttonsEnable = true;
+    
+    private final TopPanelButton 
+            navigateToImg;
+    
+    public final AlbumsElement setDeleteMode() {
+        buttonsEnable = false;
+        
+        final IconNode iconNode = new IconNode();
+        iconNode.getStyleClass().addAll("albums_delete_element_icon");
+        navigateToImg.setGraphic(iconNode); 
+        
+        titleContainer.getChildren().clear();
+        titleContainer.getChildren().addAll(title);
+        return this;
+    }
+    
+    public final AlbumsElement setSelectMode() {
+        buttonsEnable = false;
+        
+        final IconNode iconNode = new IconNode();
+        iconNode.getStyleClass().addAll("albums_add_to_element_icon");
+        navigateToImg.setGraphic(iconNode); 
+        
+        titleContainer.getChildren().clear();
+        titleContainer.getChildren().addAll(title);
+        return this;
+    }
     
     @SuppressWarnings("LeakingThisInConstructor")
     public AlbumsElement(DSAlbum d, AlbumsElementActionListener al) {
@@ -46,7 +74,7 @@ public class AlbumsElement extends HBox {
         
         this.setAlignment(Pos.CENTER);
         
-        final TopPanelButton navigateToImg = new TopPanelButton("albums_element_to_img_icon", "Перейти к просмотру альбома", c -> {
+        navigateToImg = new TopPanelButton("albums_element_to_img_icon", "Перейти к просмотру альбома", c -> {
             if (c.getClickCount() == 1) elementAL.OnToImagesButtonClick(dsAlbum, c);
         });
         this.setOnMouseClicked(c -> {
@@ -102,6 +130,8 @@ public class AlbumsElement extends HBox {
     }
     
     public final void setSelected(boolean sel) {
+        if (buttonsEnable == false) sel = false;
+        
         deleteBtn.setVisible(sel);
         editBtn.setVisible(sel);
         selected = sel;
@@ -113,6 +143,8 @@ public class AlbumsElement extends HBox {
     }
     
     private void editModeOn() {
+        if (buttonsEnable == false) return;
+        
         albumText.setText(dsAlbum.getAlbumText());
         titleEditor.setText(dsAlbum.getAlbumName()); 
         rootContainer.getChildren().clear();

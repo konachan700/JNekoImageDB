@@ -1,4 +1,4 @@
-package jnekoimagesdb.ui.md.dialogs;
+package jnekoimagesdb.ui.md.dialogs.start;
 
 import java.io.File;
 import java.io.IOException;
