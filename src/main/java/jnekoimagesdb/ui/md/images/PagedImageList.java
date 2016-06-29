@@ -18,9 +18,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -42,9 +41,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import jiconfont.javafx.IconNode;
+import jnekoimagesdb.core.threads.UPools;
+import jnekoimagesdb.core.threads.UThreadWorker;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
-import jnekoimagesdb.ui.md.dialogs.ImageViewDialog;
+import jnekoimagesdb.ui.md.dialogs.imageview.ImageViewDialog;
 import org.hibernate.Session;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +58,7 @@ public class PagedImageList extends ScrollPane {
         
     private final org.slf4j.Logger 
             logger = LoggerFactory.getLogger(PagedImageList.class);
-    
-    private volatile boolean 
-            isExit = false;
-    
+
     private volatile int
             busyCounter = 0;
     
@@ -69,69 +67,7 @@ public class PagedImageList extends ScrollPane {
     
     private DSImageIDListCache
             currCache = DSImageIDListCache.getAll();
-    
-    private class PreviewGenerator implements Runnable {
-        @Override
-        @SuppressWarnings({"SleepWhileInLoop", "UseSpecificCatch"})
-        public void run() {
-            if (XImg.getPSizes().getPrimaryPreviewSize() == null) {
-                while (XImg.getPSizes().getPrimaryPreviewSize() == null) {
-                    try {
-                        Thread.sleep(400);
-                    } catch (InterruptedException ex) {
-                        logger.error(ex.getMessage());
-                        //Logger.getLogger(PagedFileList.class.getName()).log(Level.SEVERE, null, ex);
-                        return;
-                    }
-                }
-            }
-            
-            while (true) {
-                if (isExit) return;
-                try {
-                    final DSImage currDSI = prevGenDeque.pollLast();
-                    if (isExit) return;
-                    
-                    if (currDSI != null) {
-                        final Image img = XImgDatastore.createPreviewEntryFromExistDBFile(currDSI.getMD5(), XImg.PreviewType.previews);
-                        if (img != null) setImage(img, currDSI); else busyCounter--;
-                    } else {
-                        final DSImage upDSI = uploadDeque.pollLast();
-                        if (upDSI != null) {
-                            try {
-                                XImgDatastore.copyToExchangeFolderFromDB(SettingsUtil.getPath("pathBrowserExchange"), upDSI);
-                            } catch (Exception ex) {
-                                logger.error(ex.getMessage());
-                                //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        } else
-                            try { Thread.sleep(100); } catch (Exception e) { return; }
-                    }
-                } catch (InterruptedException ex) {
-                    busyCounter--;
-                    logger.error(ex.getMessage());
-                    //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
-                    return;
-                } catch (Exception ex) {
-                    busyCounter--;
-                    logger.error(ex.getMessage());
-                    //Logger.getLogger(PagedImageList.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }  
-        }
-        
-        private void setImage(Image img, DSImage dsi) {
-            Platform.runLater(() -> { 
-                elementsPool.forEach(c -> {
-                    if (c.equals(dsi)) {
-                        busyCounter--;
-                        c.setImage(img);
-                    }
-                });
-            });
-        }
-    }
-    
+
     private final FlowPane
             container = new FlowPane();
     
@@ -161,9 +97,45 @@ public class PagedImageList extends ScrollPane {
             uploadDeque = new LinkedBlockingDeque<>(),
             prevGenDeque = new LinkedBlockingDeque<>();
     
-    private ExecutorService 
-            previewGenService = null;
-    
+    private final UThreadWorker
+            workerPreviewGen = (thread) -> {
+                try {
+                    final DSImage currDSI = prevGenDeque.pollLast(25, TimeUnit.MICROSECONDS);
+                    if (currDSI != null) {
+                        final Image img = XImgDatastore.createPreviewEntryFromExistDBFile(currDSI.getMD5(), XImg.PreviewType.previews);
+                        if (img != null) {
+                            Platform.runLater(() -> { 
+                                elementsPool.forEach(c -> {
+                                    if (c.equals(currDSI)) {
+                                        busyCounter--;
+                                        c.setImage(img);
+                                    }
+                                });
+                            });
+                        } else 
+                            busyCounter--;
+                    } else 
+                        return false;
+                } catch (InterruptedException | IOException ex) {
+                    busyCounter--;
+                    logger.error(ex.getMessage());
+                }
+                return true;
+            },
+            
+            workerUploader = (thread) -> {
+                try {
+                    final DSImage upDSI = uploadDeque.pollLast(25, TimeUnit.MICROSECONDS);
+                    if (upDSI != null) {
+                        XImgDatastore.copyToExchangeFolderFromDB(SettingsUtil.getPath("pathBrowserExchange"), upDSI);
+                    } else 
+                        return false;
+                } catch (InterruptedException | IOException ex) {
+                    logger.error(ex.getMessage());
+                }
+                return true;
+            };
+
     private List<DSTag>
             tagsList = null,
             tagsNotList = null;
@@ -247,6 +219,7 @@ public class PagedImageList extends ScrollPane {
                 busyCounter++;
                 imageContainer.setImage(GUITools.loadIcon("loading-128"));
                 imageContainer.setVisible(true);
+                UPools.getGroup("PreviewsPool").resume();
             }
                 
             if (this.getChildren().isEmpty()) addAll();
@@ -583,21 +556,20 @@ public class PagedImageList extends ScrollPane {
     
     public void uploadSelected() {
         uploadDeque.addAll(selectedElementsPool);
+        UPools.getGroup("PreviewsPool").resume();
         selectedElementsPool.clear();
         regenerateView();
     }
 
     public void initDB() {
         if (hibSession != null) return;
-        
-        final int threadsCount = SettingsUtil.getInt("mainPreviewThreadsCount", 4);
+
         hibSession = HibernateUtil.getCurrentSession();
-        previewGenService = Executors.newFixedThreadPool(threadsCount);
-        for (int i=0; i<threadsCount; i++) {
-           previewGenService.submit(new PreviewGenerator());
-        }
-        
         DSImageIDListCache.reloadAllStatic();
+        
+        UPools.addWorker("PreviewsPool", workerPreviewGen);
+        UPools.addWorker("PreviewsPool", workerUploader);
+        UPools.getGroup("PreviewsPool").resume();
     }
     
     public void setImageType(DSImageIDListCache.ImgType imgt, long albumID) {
@@ -611,12 +583,7 @@ public class PagedImageList extends ScrollPane {
         imageType = imgt;
         currCache = DSImageIDListCache.getStatic(imageType);
     }
-    
-    public void dispose() {
-        isExit = true;
-        previewGenService.shutdownNow();
-    }
-    
+
     public static PagedImageList get() {
         if (sPIL == null) sPIL = new PagedImageList();
         return sPIL;

@@ -68,6 +68,11 @@ public class AlbumsSimpleList extends ScrollPane {
         return selectedAlbums;
     }
     
+    public final void clear() {
+        selectedAlbums.clear();
+        refresh();
+    }
+    
     public final void addItem(DSAlbum da) {
         selectedAlbums.add(da);
         refresh();

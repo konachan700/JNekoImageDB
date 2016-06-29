@@ -18,7 +18,6 @@ import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
 import jnekoimagesdb.ui.controls.dialogs.XDialogImgCacheRebuild;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
-import jnekoimagesdb.ui.md.images.ImagesList;
 import jnekoimagesdb.ui.md.albums.Albums;
 import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.tags.TagsEditor;
@@ -133,7 +132,7 @@ public class XImg {
         HibernateUtil.dispose();
         imgUpl.dispose();
 //        pagedImageList.dispose();
-        PagedImageList.get().dispose();
+//        PagedImageList.get().dispose();
         final Set<PreviewType> s = levelDB.keySet();
         s.forEach((x) -> {
              try {

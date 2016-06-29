@@ -139,6 +139,11 @@ public class Albums extends ScrollPane {
         
         this.setContent(rootContainer);
         
+        menuBtnAlbum.addMenuItem("Создать альбом", (c) -> {
+            AlbumsAddNewDialog.show("");
+            
+            
+        });
         menuBtnAlbum.addMenuItem("Вставить", (c) -> {
             paste();
         });

@@ -10,7 +10,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
-import jnekoimagesdb.ui.ResizeHelper;
 
 public class DialogWindow {
     private final    Stage           win         = new Stage();
@@ -118,7 +117,7 @@ public class DialogWindow {
         win.setTitle(Lang.DialogWindow_Title);
         win.setScene(scene);
 
-        if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(win);
+        //if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(win);
     }
     
     private Scene generateScene() {

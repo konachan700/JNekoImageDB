@@ -12,7 +12,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
-import jnekoimagesdb.ui.ResizeHelper;
 import jnekoimagesdb.ui.controls.ToolsPanelBottom;
 import jnekoimagesdb.ui.controls.ToolsPanelTop;
 import jnekoimagesdb.ui.controls.elements.ElementsIDCodes;
@@ -168,7 +167,7 @@ public class XDialogWindow {
         primaryStage.setTitle(Lang.JNekoImageDB_title);
         primaryStage.setScene(scene);
         
-        if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(primaryStage);
+        //if (System.getProperty("os.name").toLowerCase().contains("win")) ResizeHelper.addResizeListener(primaryStage);
     }
     
     public void show() {

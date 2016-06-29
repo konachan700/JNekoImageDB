@@ -1,7 +1,8 @@
-package jnekoimagesdb.ui.md.dialogs;
+package jnekoimagesdb.ui.md.dialogs.imageview;
 
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import jnekoimagesdb.domain.DSImage;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.ui.md.controls.ToolsImageViewer;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
@@ -52,6 +53,10 @@ public class ImageViewDialogTabImage extends ToolsImageViewer {
             return true;
         } else 
             return false;
+    }
+    
+    public final DSImage getDSImage() {
+        return imagesCache.getDSImage(currentIID);
     }
 
     public Node getTopPanel() {

@@ -70,16 +70,16 @@ public class ImagesList extends VBox  {
                 })
         );
 
-        menuBtn.addMenuItemBold("Последние добавленные картинки", (c) -> {
+        menuBtn.addMenuItemBold("menuitem_star_icon", "Последние добавленные картинки", (c) -> {
             this.setImageType(DSImageIDListCache.ImgType.All);
             refresh();
         });
-        menuBtn.addMenuItemBold("Все картинки без тегов", (c) -> {
+        menuBtn.addMenuItemBold("menuitem_star_icon", "Все картинки без тегов", (c) -> {
             this.setImageType(DSImageIDListCache.ImgType.Notagged);
             refresh();
         });
         
-        menuBtn.addMenuItemBold("Все картинки не в альбомах", (c) -> {
+        menuBtn.addMenuItemBold("menuitem_star_icon", "Все картинки не в альбомах", (c) -> {
             this.setImageType(DSImageIDListCache.ImgType.NotInAnyAlbum);
             refresh();
         });

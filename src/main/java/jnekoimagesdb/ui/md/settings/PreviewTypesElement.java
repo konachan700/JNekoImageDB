@@ -5,7 +5,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import jiconfont.javafx.IconNode;
 import jnekoimagesdb.domain.DSPreviewSize;
-import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
 
 public class PreviewTypesElement extends HBox {
     private final DSPreviewSize

@@ -166,6 +166,19 @@
 	-fx-font-weight:bold; 
 }
 
+.menuitem_star_icon {
+	-fx-icon-size: 16px;
+	-fx-icon-code: "Material Icons:E885";
+}
+
+.menuitem_icon_color {
+	-fx-fill: #000;
+}
+
+.menuitem_icon_color:hover {
+	-fx-fill: #FF0;
+}
+
 
 
 

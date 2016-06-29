@@ -368,6 +368,12 @@
     -fx-fill: #555;
 }
 
+.threads_list_element_icon {
+	-fx-icon-size: 32px;
+	-fx-icon-code: "Material Icons:E43B";
+    -fx-fill: #777;
+}
+
 
 
 

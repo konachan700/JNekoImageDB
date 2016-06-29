@@ -1,9 +1,11 @@
-package jnekoimagesdb.ui.md.dialogs;
+package jnekoimagesdb.ui.md.dialogs.imageview;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javafx.scene.image.Image;
 import jnekoimagesdb.domain.DSImageIDListCache;
+import jnekoimagesdb.ui.md.dialogs.FullDialog;
+import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.menu.Menu;
 import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;
@@ -14,6 +16,9 @@ public class ImageViewDialog extends FullDialog {
 
     private final ImageViewDialogTabImage
             imgTab = new ImageViewDialogTabImage();
+    
+    private final ImageViewDialogTabAlbums
+            albumsTab = new ImageViewDialogTabAlbums();
     
     private DSImageIDListCache
             currentCache = null;
@@ -36,7 +41,9 @@ public class ImageViewDialog extends FullDialog {
                             
                         }),
                         new MenuItem("Альбомы", (c) -> {
-                            
+                            albumsTab.refresh(imgTab.getDSImage());
+                            this.setPanel(albumsTab.getTopPanel());
+                            this.setMainContent(albumsTab);
                         }),
                         new MenuItem("Свойства", (c) -> {
                             

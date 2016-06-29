@@ -34,6 +34,7 @@ public class YesNoBox extends SimpleDialog {
         text.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_messagebox_text");
         
         final HBox buttonConatiner = new HBox();
+        buttonConatiner.setAlignment(Pos.CENTER);
         buttonConatiner.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_null_pane", "main_window_yesnobox_btn_space");
         
         btnYes.getStyleClass().addAll("main_window_messagebox_button");

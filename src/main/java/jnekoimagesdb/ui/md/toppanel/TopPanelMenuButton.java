@@ -6,6 +6,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
+import jiconfont.javafx.IconNode;
 import jnekoimagesdb.ui.md.menu.Menu;
 
 public class TopPanelMenuButton extends TopPanelButton{
@@ -34,6 +35,14 @@ public class TopPanelMenuButton extends TopPanelButton{
         mi.setOnAction(al);
         mi.getStyleClass().addAll("context_menu_item_bold");
         contextMenu.getItems().add(mi);
+        return mi;
+    }
+    
+    public MenuItem addMenuItemBold(String imageStyle, String title, EventHandler<ActionEvent> al) {
+        final MenuItem mi = addMenuItemBold(title, al);
+        final IconNode iconNode = new IconNode();
+        iconNode.getStyleClass().addAll("menuitem_icon_color", imageStyle);
+        mi.setGraphic(iconNode);
         return mi;
     }
     

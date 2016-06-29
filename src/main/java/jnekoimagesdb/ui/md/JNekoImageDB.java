@@ -16,6 +16,7 @@ import javafx.stage.WindowEvent;
 import jiconfont.icons.GoogleMaterialDesignIcons;
 import jiconfont.javafx.IconFontFX;
 import jnekoimagesdb.core.img.XImg;
+import jnekoimagesdb.core.threads.UPools;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
@@ -26,6 +27,7 @@ import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;
 import jnekoimagesdb.ui.md.settings.PreviewTypes;
 import jnekoimagesdb.ui.md.settings.Settings;
+import jnekoimagesdb.ui.md.settings.ThreadsList;
 
 public class JNekoImageDB extends Application {
     public final static String
@@ -102,6 +104,13 @@ public class JNekoImageDB extends Application {
         } else {
             databaseName = StartDialog.getDBName();
         }
+        
+        final int processorsCount = Runtime.getRuntime().availableProcessors();
+        
+        ThreadsList.create();
+        UPools.setThreadStateListener(ThreadsList.get());
+        UPools.createThreadsGroup("PreviewsPool", processorsCount, Thread.MAX_PRIORITY);
+        UPools.getGroup("PreviewsPool").run();
 
         try {
             XImg.init(databaseName);
@@ -168,6 +177,10 @@ public class JNekoImageDB extends Application {
                             clearAll();
                             basesp.getChildren().add(PreviewTypes.get());
                             toolbox.getChildren().add(PreviewTypes.get().getPanel());
+                        }),
+                        new MenuItem("Тест (Потоки)", (c) -> {
+                            clearAll();
+                            basesp.getChildren().add(ThreadsList.get());
                         }),
                         new MenuItem("Логи", (c) -> {
                             clearAll();

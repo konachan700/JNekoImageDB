@@ -13,7 +13,7 @@ public class Menu extends VBox {
             CSS_FILE = new File("./style/style-gmd-menu.css").toURI().toString();
     
     private final static Image logoImage = new Image(new File("./style/icons/logo7.png").toURI().toString());
-    private final static ImageView imgLogoNode = new ImageView(logoImage);
+    private final ImageView imgLogoNode = new ImageView(logoImage);
     
     private final ArrayList<MenuGroup> items = new ArrayList<>();
     private final MenuActionListener serviceALX = (action) -> {
