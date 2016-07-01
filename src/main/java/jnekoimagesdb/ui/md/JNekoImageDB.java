@@ -1,7 +1,11 @@
 package jnekoimagesdb.ui.md;
 
+import com.sun.javafx.css.StyleManager;
 import jnekoimagesdb.ui.md.dialogs.start.StartSplashScreen;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -21,18 +25,20 @@ import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
 import jnekoimagesdb.ui.md.dialogs.start.StartDialog;
-import jnekoimagesdb.ui.md.images.ImagesList;
+import jnekoimagesdb.ui.md.imagelist.ImagesList;
 import jnekoimagesdb.ui.md.menu.Menu;
 import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;
+import jnekoimagesdb.ui.md.paginator.Paginator;
 import jnekoimagesdb.ui.md.settings.PreviewTypes;
 import jnekoimagesdb.ui.md.settings.Settings;
 import jnekoimagesdb.ui.md.settings.ThreadsList;
+import org.slf4j.LoggerFactory;
 
 public class JNekoImageDB extends Application {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-main-window.css").toURI().toString();
-
+    private final org.slf4j.Logger 
+            logger = LoggerFactory.getLogger(JNekoImageDB.class);
+    
     private final VBox 
             basesp          = new VBox();
             
@@ -64,18 +70,6 @@ public class JNekoImageDB extends Application {
         ImagesList.get().regenerate();
         ImagesList.get().refresh();
     }
-    
-//    private void showTagsCloud() {
-//        basesp.getChildren().add(XImg.getTabAllTags());
-//        toolbox.getChildren().add(XImg.getTabAllTags().getTopPanel());
-//        paginator_1.getChildren().add(XImg.getTabAllTags().getPaginator());
-//        XImg.getTabAllTags().refresh();
-//    }
-    
-//    private void showSettings() {
-//        basesp.getChildren().add(Settings.getSettingBox());
-//        toolbox.getChildren().add(Settings.getSettingBox().getPanel());
-//    }
 
     private void showAlbCats() {
         basesp.getChildren().add(XImg.getTabAlbumImageList());
@@ -91,9 +85,24 @@ public class JNekoImageDB extends Application {
     
     @Override
     public void start(Stage primaryStage) {
+        final ArrayList<String> styleList = new ArrayList<>();
+        Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA);
+        final File stylesDir = new File("./style/");
+        if (stylesDir.isDirectory() && stylesDir.canRead()) {
+            final List<File> fl = Arrays.asList(stylesDir.listFiles());
+            fl.forEach(file -> {
+                if (file.isFile() && file.canRead() && file.getName().toLowerCase().endsWith(".css")) {
+                    //StyleManager.getInstance().addUserAgentStylesheet(file.toURI().toString());
+                    styleList.add(file.toURI().toString());
+                }
+            });
+            StyleManager.getInstance().setUserAgentStylesheets(styleList);
+        }
+
         splash.show();
         
         try { Thread.sleep(100); } catch (InterruptedException ex) { }
+        
         IconFontFX.register(GoogleMaterialDesignIcons.getIconFont());
         
         StartDialog.showDialog();
@@ -134,7 +143,7 @@ public class JNekoImageDB extends Application {
         XImg.getTALog().setPrefSize(9999, 9999);
         XImg.getTALog().setWrapText(true);
 
-        GUITools.setStyle(XImg.getTALog(), "JNekoImageDB", "taLOG");
+        //GUITools.setStyle(XImg.getTALog(), "JNekoImageDB", "taLOG");
         XImg.getTALog().textProperty().addListener((ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
             XImg.getTALog().setScrollTop(Double.MAX_VALUE);
         });
@@ -149,15 +158,7 @@ public class JNekoImageDB extends Application {
                         new MenuItem("Картинки", (c) -> {
                             clearAll();
                             showAllImages(DSImageIDListCache.ImgType.All, 0);
-                        })//,
-//                        new MenuItem("Не входящие ни в один альбом", (c) -> {
-//                            clearAll();
-//                            showAllImages(DSImageIDListCache.ImgType.NotInAnyAlbum, 0);
-//                        }),
-//                        new MenuItem("Не имеющие тегов", (c) -> {
-//                            clearAll();
-//                            showAllImages(DSImageIDListCache.ImgType.Notagged, 0);
-//                        })
+                        })
                 ),
                 new MenuGroup(
                         "Сервис", "menu_group_container_green", "header_icon_settings",
@@ -190,7 +191,6 @@ public class JNekoImageDB extends Application {
         );
         
         final HBox rootPane = new HBox();
-        rootPane.getStylesheets().add(CSS_FILE);
         rootPane.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_null_pane", "main_window_separator_1");
         
         final VBox menuBox = new VBox();

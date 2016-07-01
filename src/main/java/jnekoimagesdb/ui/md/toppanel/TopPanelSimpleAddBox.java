@@ -9,16 +9,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 
 public class TopPanelSimpleAddBox extends HBox {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-top-panel.css").toURI().toString();
-    
     private final TopPanelSimpleAddBoxActionListener actListener;
 
     @SuppressWarnings("LeakingThisInConstructor")
     public TopPanelSimpleAddBox(String defaultText, TopPanelSimpleAddBoxActionListener al) {
         actListener = al;
-
-        this.getStylesheets().add(CSS_FILE);
         this.setAlignment(Pos.CENTER_LEFT);
         this.getStyleClass().addAll("panel_max_width", "panel_max_height", "panel_null_pane");
 

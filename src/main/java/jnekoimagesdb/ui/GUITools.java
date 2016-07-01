@@ -20,20 +20,24 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class GUITools {
+    @Deprecated
     public static class DragDelta {
         public double x, y;
     }
     
+    @Deprecated
     public static final int 
             CLOSE_EXIT = 0,
             CLOSE_HIDE_WINDOW = 1;
     
+    @Deprecated
     public final static String
             CSS_FILE = new File("./style/style.css").toURI().toString();
     
     private static final Map<String,Image>
             iconsCache = new HashMap<>();
     
+    @Deprecated
     public static void setStyle(Parent element, String className, String style) {
         element.getStylesheets().clear();
         element.getStylesheets().add(CSS_FILE);
@@ -59,6 +63,7 @@ public class GUITools {
         return new ImageView(loadIcon(name));
     }
     
+    @Deprecated
     public static StackPane getWinGUI(Object THIS, Stage primaryStage, DragDelta DRD, StackPane root, VBox mvbox, String css, int closeFlag, boolean isBox) {
         final Label imageName = new Label(Lang.GUITools_WinGUI_Title);
         setStyle(imageName, "GUITools", "imageName");
@@ -123,23 +128,27 @@ public class GUITools {
         return root2m;
     }
     
+    @Deprecated
     public static void setFixedSize(Region n, double w, double h) {
         n.setMaxSize(w, h);
         n.setPrefSize(w, h);
         n.setMinSize(w, h);
     }
     
+    @Deprecated
     public static void setMaxSize(Region n, double w, double h) {
         n.setMaxSize(w, h);
         n.setPrefSize(w, h);
     }
     
+    @Deprecated
     public static VBox getSeparator() {
         VBox sep1 = new VBox();
         setMaxSize(sep1, 9999, 16);
         return sep1;
     }
     
+    @Deprecated
     public static VBox getHSeparator(int hsz) {
         VBox sep1 = new VBox();
         setMaxSize(sep1, 9999, hsz);
@@ -147,6 +156,7 @@ public class GUITools {
         return sep1;
     }
     
+    @Deprecated
     public static VBox getHNFSeparator(int hsz) {
         VBox sep1 = new VBox();
         setMaxSize(sep1, 9999, hsz);
@@ -154,12 +164,14 @@ public class GUITools {
         return sep1;
     }
     
+    @Deprecated
     public static VBox getSeparator(double sz) {
         VBox sep1 = new VBox();
         setFixedSize(sep1, sz, sz);
         return sep1;
     }
     
+    @Deprecated
     public static Tooltip createTT(String t) {
         final Tooltip tt = new Tooltip();
         tt.setText(t);

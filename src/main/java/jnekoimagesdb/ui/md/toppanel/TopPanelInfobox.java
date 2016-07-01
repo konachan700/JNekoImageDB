@@ -1,6 +1,5 @@
 package jnekoimagesdb.ui.md.toppanel;
 
-import java.io.File;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -8,16 +7,12 @@ import javafx.scene.layout.VBox;
 import jiconfont.javafx.IconNode;
 
 public class TopPanelInfobox extends HBox {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-top-panel.css").toURI().toString();
-    
     private final Label 
             title = new Label(),
             text = new Label();
     
     public TopPanelInfobox(String iconStyle) {
         super();
-        this.getStylesheets().add(CSS_FILE);
         this.setAlignment(Pos.CENTER_LEFT);
         this.getStyleClass().addAll("panel_max_width", "panel_max_height", "panel_null_pane");
         

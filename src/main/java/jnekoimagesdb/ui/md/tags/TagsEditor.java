@@ -32,9 +32,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 public class TagsEditor extends ScrollPane {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-tags.css").toURI().toString();
-    
     public static final int
             TAGS_PER_PAGE = 100;
     
@@ -133,7 +130,6 @@ public class TagsEditor extends ScrollPane {
         this.setFitToHeight(false);
         this.setFitToWidth(true);
         this.setContent(tagsContainer);
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("tags_list_max_width", "tags_list_max_height", "tags_list_sp");
         
         tagsContainer.setAlignment(Pos.TOP_LEFT);
@@ -225,70 +221,70 @@ public class TagsEditor extends ScrollPane {
     }
     
     private void toText() {
-        XImg.openDir().showDialog();
-        if (XImg.openDir().getResult() == XDialogOpenDirectory.XDialogODBoxResult.dUnknown) {
-            return;
-        }
-        
-        final Path path = XImg.openDir().getSelected().toAbsolutePath();
-        
-        if (!Files.exists(path))
-            try {
-                Files.createDirectory(path); 
-            } catch (Exception e) {
-                MessageBox.show("Не могу создать папку логов, сохранение невозможно.");
-                return;
-            }
-        
-        final StringBuilder sb = new StringBuilder();
-        final List<DSTag> list = HibernateUtil.getCurrentSession()
-                .createCriteria(DSTag.class)
-                .setFirstResult(0)
-                .list();
-        
-        list.forEach((el -> {
-            sb.append(el.getTagName()).append("\r\n");
-        }));
-
-        try {
-            final Date dt = new Date();
-            final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
-            Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_list_"+df.format(dt)+".txt"), sb.toString().getBytes());
-            MessageBox.show("Резервная копия создана успешно!");
-        } catch (Exception e) {
-            MessageBox.show("Папка логов недоступна на запись, сохранение невозможно.");
-        }
+//        XImg.openDir().showDialog();
+//        if (XImg.openDir().getResult() == XDialogOpenDirectory.XDialogODBoxResult.dUnknown) {
+//            return;
+//        }
+//        
+//        final Path path = XImg.openDir().getSelected().toAbsolutePath();
+//        
+//        if (!Files.exists(path))
+//            try {
+//                Files.createDirectory(path); 
+//            } catch (Exception e) {
+//                MessageBox.show("Не могу создать папку логов, сохранение невозможно.");
+//                return;
+//            }
+//        
+//        final StringBuilder sb = new StringBuilder();
+//        final List<DSTag> list = HibernateUtil.getCurrentSession()
+//                .createCriteria(DSTag.class)
+//                .setFirstResult(0)
+//                .list();
+//        
+//        list.forEach((el -> {
+//            sb.append(el.getTagName()).append("\r\n");
+//        }));
+//
+//        try {
+//            final Date dt = new Date();
+//            final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
+//            Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_list_"+df.format(dt)+".txt"), sb.toString().getBytes());
+//            MessageBox.show("Резервная копия создана успешно!");
+//        } catch (Exception e) {
+//            MessageBox.show("Папка логов недоступна на запись, сохранение невозможно.");
+//        }
     }
     
     private void toJSON() {
-        XImg.openDir().showDialog();
-        if (XImg.openDir().getResult() == XDialogOpenDirectory.XDialogODBoxResult.dUnknown) {
-            return;
-        }
-        
-        final Path path = XImg.openDir().getSelected().toAbsolutePath();
-        
-        if (!Files.exists(path))
-            try {
-                Files.createDirectory(path); 
-            } catch (Exception e) {
-                MessageBox.show("Не могу создать папку логов, сохранение невозможно.");
-                return;
-            }
-
-        final List<DSTag> list = HibernateUtil.getCurrentSession()
-                .createCriteria(DSTag.class)
-                .setFirstResult(0)
-                .list();
-        final Gson gson = new Gson();
-        final String data = gson.toJson(list);
-        try {
-            final Date dt = new Date();
-            final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
-            Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_backup_"+df.format(dt)+".json"), data.getBytes());
-            MessageBox.show("Резервная копия создана успешно!");
-        } catch (Exception e) {
-            MessageBox.show("Папка логов недоступна на запись, сохранение невозможно.");
-        }
+//        XImg.openDir().showDialog();
+//        if (XImg.openDir().getResult() == XDialogOpenDirectory.XDialogODBoxResult.dUnknown) {
+//            return;
+//        }
+//        
+//        final Path path = XImg.openDir().getSelected().toAbsolutePath();
+//        
+//        if (!Files.exists(path))
+//            try {
+//                Files.createDirectory(path); 
+//            } catch (Exception e) {
+//                MessageBox.show("Не могу создать папку логов, сохранение невозможно.");
+//                return;
+//            }
+//
+//        final List<DSTag> list = HibernateUtil.getCurrentSession()
+//                .createCriteria(DSTag.class)
+//                .setFirstResult(0)
+//                .list();
+//        final Gson gson = new Gson();
+//        final String data = gson.toJson(list);
+//        try {
+//            final Date dt = new Date();
+//            final SimpleDateFormat df = new SimpleDateFormat("HH-mm_dd-MM-yyyy");
+//            Files.write(FileSystems.getDefault().getPath(path.toString(), "tags_backup_"+df.format(dt)+".json"), data.getBytes());
+//            MessageBox.show("Резервная копия создана успешно!");
+//        } catch (Exception e) {
+//            MessageBox.show("Папка логов недоступна на запись, сохранение невозможно.");
+//        }
     }
 }

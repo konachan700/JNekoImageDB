@@ -12,9 +12,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 
 public abstract class ToolsImageViewer extends ScrollPane {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-imageview-window.css").toURI().toString();
-    
     private volatile double 
             scale = 0.95d,
             height = 0,
@@ -58,7 +55,6 @@ public abstract class ToolsImageViewer extends ScrollPane {
     public ToolsImageViewer() {
         super();
 
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("iv_root_pane", "max_width", "max_height");
         this.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);

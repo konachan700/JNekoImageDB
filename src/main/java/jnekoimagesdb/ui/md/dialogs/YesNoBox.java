@@ -26,7 +26,6 @@ public class YesNoBox extends SimpleDialog {
         });
         
         rootPane.setAlignment(Pos.CENTER);
-        rootPane.getStylesheets().add(CSS_FILE);
         rootPane.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_messagebox");
         
         text.setAlignment(Pos.CENTER);

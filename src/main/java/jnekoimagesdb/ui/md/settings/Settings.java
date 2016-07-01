@@ -1,6 +1,5 @@
 package jnekoimagesdb.ui.md.settings;
 
-import java.io.File;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -15,9 +14,6 @@ import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
 
 public class Settings extends ScrollPane {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-albums.css").toURI().toString();
-    
     private static Settings
             settings = null;
 
@@ -57,7 +53,6 @@ public class Settings extends ScrollPane {
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         this.setFitToHeight(false);
         this.setFitToWidth(true);
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("albums_max_width", "albums_max_height", "albums_element_textarera");
         
         rootContainer.setAlignment(Pos.TOP_CENTER);

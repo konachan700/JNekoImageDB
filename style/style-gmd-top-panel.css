@@ -1,6 +1,3 @@
-@font-face {
-    src: url('./LinBiolinum_RBah.ttf');
-}
 
 .panel_max_width {
 	-fx-pref-width: 9999px;
@@ -130,8 +127,6 @@
 	-fx-icon-code: "Material Icons:E877";
 }
 
-
-
 .panel_icon_next {
 	-fx-icon-size: 48px;
 	-fx-icon-code: "Material Icons:E5C8";
@@ -179,7 +174,25 @@
 	-fx-fill: #FF0;
 }
 
+.panel_icon_my_computer {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E333";
+}
 
+.panel_icon_lvlup {
+	-fx-icon-size: 48px;
+	-fx-icon-code: "Material Icons:E5D8";
+}
+
+.menuitem_ok_open_icon {
+	-fx-icon-size: 16px;
+	-fx-icon-code: "Material Icons:E885";
+}
+
+.menuitem_cancel_icon {
+	-fx-icon-size: 16px;
+	-fx-icon-code: "Material Icons:E885";
+}
 
 
 

@@ -1,25 +1,21 @@
-package jnekoimagesdb.ui.md.images;
+package jnekoimagesdb.ui.md.imagelist;
 
+import com.sun.javafx.scene.control.skin.PaginationSkin;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.img.XImgDatastore;
-import jnekoimagesdb.core.img.XImgPreviewGen;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.domain.DSImage;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
-import jnekoimagesdb.ui.GUITools;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -30,29 +26,22 @@ import javafx.scene.Parent;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import jiconfont.javafx.IconNode;
 import jnekoimagesdb.core.threads.UPools;
 import jnekoimagesdb.core.threads.UThreadWorker;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.ui.md.dialogs.imageview.ImageViewDialog;
+import jnekoimagesdb.ui.md.paginator.Paginator;
+import jnekoimagesdb.ui.md.paginator.PaginatorActionListener;
 import org.hibernate.Session;
 import org.slf4j.LoggerFactory;
 
-public class PagedImageList extends ScrollPane {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-pil.css").toURI().toString();
-    
+public class PagedImageList extends ScrollPane implements PagedImageListElementActionListener, PaginatorActionListener {
     public static PagedImageList
             sPIL = null;
         
@@ -87,10 +76,13 @@ public class PagedImageList extends ScrollPane {
     private volatile long
             currentAlbumID = 0;
 
-    private final Pagination
-            pag = new Pagination();
+//    private final Pagination
+//            pag = new Pagination();
     
-    private final ArrayList<ImageListItem>
+    private final Paginator 
+            newPaginator = new Paginator(this);
+    
+    private final ArrayList<PagedImageListElement>
             elementsPool = new ArrayList<>();
     
     private final LinkedBlockingDeque<DSImage>
@@ -100,7 +92,7 @@ public class PagedImageList extends ScrollPane {
     private final UThreadWorker
             workerPreviewGen = (thread) -> {
                 try {
-                    final DSImage currDSI = prevGenDeque.pollLast(25, TimeUnit.MICROSECONDS);
+                    final DSImage currDSI = prevGenDeque.pollLast();
                     if (currDSI != null) {
                         final Image img = XImgDatastore.createPreviewEntryFromExistDBFile(currDSI.getMD5(), XImg.PreviewType.previews);
                         if (img != null) {
@@ -125,12 +117,12 @@ public class PagedImageList extends ScrollPane {
             
             workerUploader = (thread) -> {
                 try {
-                    final DSImage upDSI = uploadDeque.pollLast(25, TimeUnit.MICROSECONDS);
+                    final DSImage upDSI = uploadDeque.pollLast();
                     if (upDSI != null) {
                         XImgDatastore.copyToExchangeFolderFromDB(SettingsUtil.getPath("pathBrowserExchange"), upDSI);
                     } else 
                         return false;
-                } catch (InterruptedException | IOException ex) {
+                } catch (IOException ex) {
                     logger.error(ex.getMessage());
                 }
                 return true;
@@ -140,182 +132,9 @@ public class PagedImageList extends ScrollPane {
             tagsList = null,
             tagsNotList = null;
 
-    protected interface ImageListItemActionListener {
-        public void OnSelect(boolean isSelected, DSImage item);
-        public void OnOpen(DSImage item, ImageListItem it);
-    }
-    
     private final ArrayList<DSImage>
             selectedElementsPool = new ArrayList<>();
-    
-    protected class ImageListItem extends Pane {
-        private final ImageView 
-                imageContainer = new ImageView();
-        
-        private final IconNode
-                selectedIcon; 
-        
-        private DSImage
-                img = null;
-        
-        public int 
-                myNumber = 0;
-        
-        private final VBox 
-                imageVBox = new VBox(0);
-        
-        private final ImageListItemActionListener
-                actionListener;
-       
-        public byte[] getMD5() {
-            return img.getMD5();
-        }
-        
-        public void setMD5(byte[] b) {
-            img.setMD5(b);
-        }
-        
-        public DSImage get() {
-            return img;
-        }
-        
-        public final void setNullImage() {
-            img = null;
-            imageContainer.setImage(GUITools.loadIcon("dummy-128"));
-            imageContainer.setVisible(false);
-            this.getChildren().clear();
-            this.getStyleClass().clear();
-        }
-        
-        public final void setImage(Image img) {
-            if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
-            imageContainer.setFitHeight(XImg.getPSizes().getPrimaryPreviewSize().getHeight());
-            imageContainer.setFitWidth(XImg.getPSizes().getPrimaryPreviewSize().getWidth());
-            
-            imageContainer.setImage(img);
-            imageContainer.setVisible(true);
-            
-            if (this.getChildren().isEmpty()) addAll();
-            this.getStyleClass().addAll("pil_item_root_pane");
-        }
-        
-        public final void setImage(DSImage dsi) {
-            if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
-            imageContainer.setFitHeight(XImg.getPSizes().getPrimaryPreviewSize().getHeight());
-            imageContainer.setFitWidth(XImg.getPSizes().getPrimaryPreviewSize().getWidth());
-            
-            img = dsi; 
-            XImgPreviewGen.PreviewElement peDB;
-            try {
-                    peDB = XImgDatastore.readPreviewEntry(dsi.getMD5());
-                    final Image im = peDB.getImage(XImg.getCrypt(), XImg.getPSizes().getPrimaryPreviewSize().getPrevName());
-                    if (im != null) {
-                        imageContainer.setImage(im);
-                        imageContainer.setVisible(true);
-                    } else 
-                        throw new IOException();
-            } catch (IOException | ClassNotFoundException ex) {
-                prevGenDeque.add(dsi);
-                busyCounter++;
-                imageContainer.setImage(GUITools.loadIcon("loading-128"));
-                imageContainer.setVisible(true);
-                UPools.getGroup("PreviewsPool").resume();
-            }
-                
-            if (this.getChildren().isEmpty()) addAll();
-            this.getStyleClass().addAll("pil_item_root_pane");
-        }
-        
-        public final void setSelected(boolean s) {
-            if (imageContainer.isVisible()) selectedIcon.setVisible(s);
-        }
-        
-        public final boolean getSelected() {
-            return selectedIcon.isVisible();
-        }
-        
-        public void setSizes(long x, long y) {
-            GUITools.setMaxSize(imageVBox, x, y);
-            GUITools.setMaxSize(this, x, y);
-            imageContainer.setFitHeight(y);
-            imageContainer.setFitWidth(x);
-        }
-        
-        public ImageListItem(ImageListItemActionListener al) {
-            super();
-            actionListener = al;
-            
-            selectedIcon = new IconNode();
-            selectedIcon.getStyleClass().add("pil_selected_item_icon");
-            
-            this.getStylesheets().add(CSS_FILE);
-            this.getStyleClass().addAll("pil_item_root_pane");
-            this.setMaxSize(itemSizeX, itemSizeY);
-            this.setPrefSize(itemSizeX, itemSizeY);
-            
-            this.setOnMouseClicked((MouseEvent event) -> {
-                if (event.getClickCount() == 1) {
-                    if (event.getButton() == MouseButton.SECONDARY) {
-                        setSelected(!getSelected());
-                        actionListener.OnSelect(getSelected(), img);
-                    }
-                } else {
-                    actionListener.OnOpen(img, this);
-                }
-                event.consume();
-            });
-        
-            imageContainer.setPreserveRatio(true);
-            imageContainer.setSmooth(true);
-            imageContainer.setCache(false);
-            imageContainer.setImage(GUITools.loadIcon("dummy-128"));
-            
-            imageVBox.setAlignment(Pos.CENTER);    
-            imageVBox.getStyleClass().addAll("pil_item_null_pane");
-            imageVBox.getChildren().add(imageContainer);
-            
-            selectedIcon.setVisible(false);
-            
-            addAll();
-        }
-        
-        private void addAll() {
-            this.getChildren().addAll(imageVBox, selectedIcon);
-            imageVBox.relocate(0, 0);
-            selectedIcon.relocate(10, 10);
-        }
-        
-        public boolean equals(DSImage o) {
-            if ((o == null) || (img == null)) return false;
-            return Arrays.equals(((DSImage) o).getMD5(), img.getMD5());
-        }
-    }
 
-    private final ImageListItemActionListener
-            elementListener = new ImageListItemActionListener() {
-                @Override
-                public void OnSelect(boolean isSelected, DSImage item) {
-                    if (isSelected)
-                        selectedElementsPool.add(item);
-                    else
-                        selectedElementsPool.remove(item);
-                }
-
-                @Override
-                public void OnOpen(DSImage item, ImageListItem it) {
-                    if (it.myNumber >= 0) {
-                        int off = pag.getCurrentPageIndex() * itemTotalCount;
-                        
-                        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                        int width = (int)(screenSize.getWidth() * 0.8);
-                        int height = (int)(screenSize.getHeight() * 0.8);
-        
-                        final ImageViewDialog imgd = new ImageViewDialog(width, height);
-                        imgd.show(currCache.getCount() - 1 - (it.myNumber + off), imageType); 
-                    }
-                }
-            };
-    
     private Session 
             hibSession = null;
     
@@ -324,6 +143,7 @@ public class PagedImageList extends ScrollPane {
             forceReload = false;
     
     private final Timeline TMR = new Timeline(new KeyFrame(Duration.millis(88), ae -> {
+        newPaginator.setDisable(busyCounter != 0);
         if (isResize) {
             _calcPaginator();
             isResize = false;
@@ -339,17 +159,12 @@ public class PagedImageList extends ScrollPane {
         this.setFitToHeight(true);
         this.setFitToWidth(true);
         this.setContent(container);
-        this.getStylesheets().add(CSS_FILE); 
         this.getStyleClass().addAll("pil_root_sp_pane");
 
         container.getStyleClass().addAll("pil_root_pane", "pil_max_width", "pil_max_height");
         container.setAlignment(Pos.CENTER);
         container.setHgap(itemSpacer);
         container.setVgap(itemSpacer);
-        
-        pag.setMaxSize(9999, 24);
-        pag.setMinSize(128, 24);
-        pag.setPrefSize(9999, 24);
 
         this.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if (newValue.intValue() > 0) {
@@ -384,29 +199,21 @@ public class PagedImageList extends ScrollPane {
         this.setFocusTraversable(true);
         this.setOnKeyPressed((KeyEvent key) -> {
             if (isResize || forceReload) return;
-            
-            int index = pag.getCurrentPageIndex();
-            if (key.getCode() == KeyCode.LEFT)  if (index > 0) pag.setCurrentPageIndex(index - 1);
-            if (key.getCode() == KeyCode.RIGHT) if (index < pag.getPageCount()) pag.setCurrentPageIndex(index + 1);
-            if (key.getCode() == KeyCode.SPACE) if (index < pag.getPageCount()) pag.setCurrentPageIndex(index + 1);
+
+            if (key.getCode() == KeyCode.LEFT)  newPaginator.pagPrev();
+            if (key.getCode() == KeyCode.RIGHT) newPaginator.pagNext();
+            if (key.getCode() == KeyCode.SPACE) newPaginator.pagNext();
         });
         
         this.setOnScroll((ScrollEvent event) -> {
             if (busyCounter != 0) return;
             if (isResize || forceReload) return;
             
-            int index = pag.getCurrentPageIndex();
             if (event.getDeltaY() > 0) {
-                if (index > 0) pag.setCurrentPageIndex(index - 1);
+                newPaginator.pagPrev();
             } else {
-                if (index < pag.getPageCount()) pag.setCurrentPageIndex(index + 1);
+                newPaginator.pagNext();
             }
-        });
-        
-        pag.currentPageIndexProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            if (busyCounter != 0) return;
-            if (isResize || forceReload) return;
-            _calcPaginator();
         });
         
         TMR.setCycleCount(Animation.INDEFINITE);
@@ -443,17 +250,17 @@ public class PagedImageList extends ScrollPane {
         itemTotalCount = itemCountOnOneLine * itemCountOnOneColoumn;
         if (elementsPool.size() < itemTotalCount) {
             for (int i=elementsPool.size(); i<itemTotalCount; i++) {
-                elementsPool.add(new ImageListItem(elementListener));
+                elementsPool.add(new PagedImageListElement(itemSizeX, itemSizeY, this));
             }
         }
 
         if ((itemTotalCount > 0) && (currCache.getCount() > 0)) {
-            pag.setVisible(true);
+            newPaginator.setVisible(true);
             final int pageCount = (currCache.getCount() / itemTotalCount) + (((currCache.getCount() % itemTotalCount) > 0) ? 1 : 0);
-            pag.setPageCount(pageCount);
+            newPaginator.setPageCount(pageCount);
             regenerateView();
         } else 
-            pag.setVisible(false);
+            newPaginator.setVisible(false);
     }
 
     public long getTotalImagesCount() {
@@ -518,7 +325,7 @@ public class PagedImageList extends ScrollPane {
         itemSizeX = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
         itemSizeY = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
         
-        int off = pag.getCurrentPageIndex() * itemTotalCount;
+        int off = (newPaginator.getCurrentPageIndex() - 1) * itemTotalCount;
         if (forceReload) container.getChildren().clear();
         
         List<DSImage> list = getImgListA(imageType, currentAlbumID, off, itemTotalCount);
@@ -551,12 +358,12 @@ public class PagedImageList extends ScrollPane {
     }
         
     public Parent getPaginator() {
-        return pag;
+        return newPaginator;
     }
     
     public void uploadSelected() {
         uploadDeque.addAll(selectedElementsPool);
-        UPools.getGroup("PreviewsPool").resume();
+        UPools.getGroup(UPools.PREVIEW_POOL).resume();
         selectedElementsPool.clear();
         regenerateView();
     }
@@ -567,12 +374,13 @@ public class PagedImageList extends ScrollPane {
         hibSession = HibernateUtil.getCurrentSession();
         DSImageIDListCache.reloadAllStatic();
         
-        UPools.addWorker("PreviewsPool", workerPreviewGen);
-        UPools.addWorker("PreviewsPool", workerUploader);
-        UPools.getGroup("PreviewsPool").resume();
+        UPools.addWorker(UPools.PREVIEW_POOL, workerPreviewGen);
+        UPools.addWorker(UPools.PREVIEW_POOL, workerUploader);
+        UPools.getGroup(UPools.PREVIEW_POOL).resume();
     }
     
     public void setImageType(DSImageIDListCache.ImgType imgt, long albumID) {
+        newPaginator.setCurrentPageIndex(1);
         imageType = imgt;
         currentAlbumID = albumID;
         currCache = DSImageIDListCache.getStatic(imageType);
@@ -580,6 +388,7 @@ public class PagedImageList extends ScrollPane {
     }
     
     public void setImageType(DSImageIDListCache.ImgType imgt) {
+        newPaginator.setCurrentPageIndex(1);
         imageType = imgt;
         currCache = DSImageIDListCache.getStatic(imageType);
     }
@@ -587,6 +396,41 @@ public class PagedImageList extends ScrollPane {
     public static PagedImageList get() {
         if (sPIL == null) sPIL = new PagedImageList();
         return sPIL;
+    }
+    
+    @Override
+    public void OnSelect(boolean isSelected, DSImage item) {
+        if (isSelected)
+            selectedElementsPool.add(item);
+        else
+            selectedElementsPool.remove(item);
+    }
+
+    @Override
+    public void OnOpen(DSImage item, PagedImageListElement it) {
+        if (it.myNumber >= 0) {
+            int off = (newPaginator.getCurrentPageIndex() - 1) * itemTotalCount;
+
+            final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int width = (int)(screenSize.getWidth() * 0.8);
+            int height = (int)(screenSize.getHeight() * 0.8);
+
+            final ImageViewDialog imgd = new ImageViewDialog(width, height);
+            imgd.show(currCache.getCount() - 1 - (it.myNumber + off), imageType); 
+        }
+    }
+
+    @Override
+    public void OnError(DSImage item) {
+        prevGenDeque.add(item);
+        busyCounter++;
+    }
+
+    @Override
+    public void OnPageChange(int page, int pages) {
+        if (busyCounter != 0) return;
+        if (isResize || forceReload) return;
+        _calcPaginator();
     }
 }
 

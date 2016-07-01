@@ -1,6 +1,5 @@
 package jnekoimagesdb.ui.md.settings;
 
-import java.io.File;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -23,10 +22,7 @@ import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 public class PreviewTypes extends VBox {
     private static PreviewTypes
             previewTypes = null;
-    
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-albums.css").toURI().toString();
-        
+
     private final ScrollPane 
             listSP = new ScrollPane();
     
@@ -76,7 +72,6 @@ public class PreviewTypes extends VBox {
     private PreviewTypes() {
         super();
         
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("albums_max_width", "albums_max_height", "albums_null_pane");
         
         panelTop = new TopPanel(); 

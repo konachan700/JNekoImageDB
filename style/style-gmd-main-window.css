@@ -1,6 +1,3 @@
-@font-face {
-    src: url('./LinBiolinum_RBah.ttf');
-}
 
 .main_window_max_width {
 	-fx-pref-width: 9999px;
@@ -170,13 +167,13 @@
 	-fx-padding: 0 8px 0 8px;
 }
 
-Pagination {
+.xxPagination {
 	-fx-page-information-visible: false;
 	-fx-tooltip-visible: false;
 	-fx-max-page-indicator-count: 100;
 }
  
-Pagination .toggle-button, Pagination .button {
+.xxPagination .toggle-button, .xxPagination .button {
 	-fx-padding: 4px 2px 4px 2px;
     -fx-font-size: 10px;
     -fx-text-fill: #000;
@@ -187,40 +184,51 @@ Pagination .toggle-button, Pagination .button {
     -fx-border-insets:0;
 }
 
-Pagination .toggle-button {
+.xxPagination .toggle-button {
 	-fx-background-color:#ddd;
 }
 
-Pagination .button, Pagination .toggle-button:selected {
+.xxPagination .button, .xxPagination .toggle-button:selected {
 	-fx-background-color:#3d3;
 }
 
-Pagination .label {
+.xxPagination .label {
 	visibility: hidden;
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-pref-height: 0px;
+	-fx-max-height: 0px;
+	-fx-min-height: 0px;
 }
 
-Pagination .toggle-button:hover, Pagination .button:hover {
+.xxPagination .toggle-button:hover, .xxPagination .button:hover {
     -fx-background-color: #55ff55;
     -fx-text-fill: #000;
 }
 
-Pagination .pagination-control, Pagination, Pagination .page, Pagination .control-box {
+.xxPagination .pagination-control, .xxPagination, .xxPagination .page, .xxPagination .control-box {
     -fx-background-insets: 0, 0, 0, 0;
     -fx-background-color: transparent;
-    -fx-padding:0px;
+    -fx-padding:2px;
     -fx-border-width:0px;
     -fx-border-insets:0;
     -fx-background-radius: 0;
     -fx-border-radius: 0;    
 }
 
-Pagination .control-box {
-	-fx-padding:-11 0 -7 0px;
+.xxPagination .control-box {
+	-fx-padding: 0;
 }
  
-Pagination .pagination-control .left-arrow, .right-arrow{
+.xxPagination .pagination-control .left-arrow, .right-arrow{
     -fx-background-color: #FFF;
+	-fx-text-fill: #000;
 }
+
 
 .tags_list_bottom_panel {
 	-fx-background-color: transparent;

@@ -3,6 +3,9 @@ package jnekoimagesdb.core.threads;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UPools {
+    public static final String
+            PREVIEW_POOL = "PreviewsPool";
+    
     private static final ConcurrentHashMap<String, UThreadsGroup>
             rootPool = new ConcurrentHashMap<>();
     

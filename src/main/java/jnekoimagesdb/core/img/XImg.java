@@ -13,7 +13,7 @@ import javafx.scene.control.TextArea;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.domain.SettingsUtil;
-import jnekoimagesdb.ui.md.images.PagedImageList;
+import jnekoimagesdb.ui.md.imagelist.PagedImageList;
 import jnekoimagesdb.ui.controls.dialogs.XAlbumsExport;
 import jnekoimagesdb.ui.controls.dialogs.XDialogImgCacheRebuild;
 import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
@@ -110,11 +110,11 @@ public class XImg {
         HibernateUtil.hibernateInit(rootDatabaseName, "jneko", cryptoEx.getPassword());
         SettingsUtil.init();
         psizes.refreshPreviewSizes();
-        imgUpl.init();
+//        imgUpl.init();
 //        pagedImageList.initDB();
         PagedImageList.get().initDB();
-        openDirDialog.init();
-        albumExportDialog.init();
+//        openDirDialog.init();
+//        albumExportDialog.init();
     }
     
     public static XImgPreviewSizes getPSizes() {
@@ -128,9 +128,9 @@ public class XImg {
     }
     
     public static void dispose() {
-        XDialogImgCacheRebuild.get().dispose();
+//        XDialogImgCacheRebuild.get().dispose();
         HibernateUtil.dispose();
-        imgUpl.dispose();
+//        imgUpl.dispose();
 //        pagedImageList.dispose();
 //        PagedImageList.get().dispose();
         final Set<PreviewType> s = levelDB.keySet();
@@ -139,8 +139,8 @@ public class XImg {
                 levelDB.get(x).close();
             } catch (IOException ex) { }
         });
-        openDirDialog.dispose();
-        albumExportDialog.dispose();
+//        openDirDialog.dispose();
+//        albumExportDialog.dispose();
     }
 
     public static XImgCrypto getCrypt() {

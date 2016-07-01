@@ -1,6 +1,5 @@
 package jnekoimagesdb.ui.md.dialogs.start;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -13,9 +12,6 @@ import javafx.scene.layout.VBox;
 import jnekoimagesdb.core.img.XImgCrypto;
 
 public class StartDialogOpenTab extends ScrollPane {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-main-window.css").toURI().toString();
-    
     private final Path 
                 currentFolder = FileSystems.getDefault().getPath(".").toAbsolutePath();
     
@@ -33,7 +29,6 @@ public class StartDialogOpenTab extends ScrollPane {
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         this.setFitToHeight(false);
         this.setFitToWidth(true);
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_sp1");
         this.setContent(elementsContainer);
         

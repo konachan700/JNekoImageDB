@@ -1,6 +1,5 @@
 package jnekoimagesdb.ui.md.albums;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Pos;
@@ -11,11 +10,10 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
-import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
 import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.HibernateUtil;
-import jnekoimagesdb.ui.md.images.PagedImageList;
+import jnekoimagesdb.ui.md.imagelist.PagedImageList;
 import jnekoimagesdb.ui.md.dialogs.MessageBox;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
@@ -24,9 +22,6 @@ import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 import org.hibernate.criterion.Restrictions;
 
 public class Albums extends ScrollPane {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-albums.css").toURI().toString();
-    
     private static Albums
             albumsSelect = null;
 
@@ -126,7 +121,6 @@ public class Albums extends ScrollPane {
         this.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         this.setFitToHeight(false);
         this.setFitToWidth(true);
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("albums_max_width", "albums_max_height", "albums_element_textarera");
         
         rootContainer.setAlignment(Pos.TOP_CENTER);
@@ -152,8 +146,8 @@ public class Albums extends ScrollPane {
         });
         addNewImagesMenu = menuBtnAlbum.addMenuItem("Добавить новые картинки в альбом...", (c) -> {
             if (currentAlbum == null) return;
-            XImg.getUploadBox().setAlbumID(currentAlbum.getAlbumID());
-            XImg.getUploadBox().showModal();
+//            XImg.getUploadBox().setAlbumID(currentAlbum.getAlbumID());
+//            XImg.getUploadBox().showModal();
         });
         
         tpbLevelUp = new TopPanelButton("panel_icon_tags_one_level_up", "На один уровень вверх", c -> {

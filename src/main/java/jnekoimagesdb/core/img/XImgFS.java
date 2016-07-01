@@ -29,14 +29,14 @@ public class XImgFS {
     private class FileListGenerator implements Runnable {
         @Override
         public void run() {
-            Platform.runLater(() -> { al.onThreadStart(this.hashCode());  });
+//            Platform.runLater(() -> { al.onThreadStart(this.hashCode());  });
             while(true) {
                 synchronized (syncObject) {
                     try { 
                         isBusy = false;
-                        Platform.runLater(() -> { al.onThreadPause(this.hashCode(), true);  });
+//                        Platform.runLater(() -> { al.onThreadPause(this.hashCode(), true);  });
                         syncObject.wait(); 
-                        Platform.runLater(() -> { al.onThreadPause(this.hashCode(), false);  });
+//                        Platform.runLater(() -> { al.onThreadPause(this.hashCode(), false);  });
                         isBusy = true;
                         workerCounter = 0;
                         isBreak = false;
@@ -135,7 +135,7 @@ public class XImgFS {
     
     private final Timeline stateTimer = new Timeline(new KeyFrame(Duration.millis(1), ae -> {
         if (isBusy) {
-            al.onProgress(fileListGenerator.hashCode(), workerCounter);
+//            al.onProgress(fileListGenerator.hashCode(), workerCounter);
         }
     }));
     

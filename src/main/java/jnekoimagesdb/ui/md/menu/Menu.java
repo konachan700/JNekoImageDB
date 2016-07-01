@@ -9,9 +9,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 public class Menu extends VBox {
-    private final static String
-            CSS_FILE = new File("./style/style-gmd-menu.css").toURI().toString();
-    
     private final static Image logoImage = new Image(new File("./style/icons/logo7.png").toURI().toString());
     private final ImageView imgLogoNode = new ImageView(logoImage);
     
@@ -26,7 +23,6 @@ public class Menu extends VBox {
         super();
         
         this.setAlignment(Pos.TOP_LEFT);
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("menu_null_container", "menu_max_width", "menu_max_height");
         
         final Label logo = new Label();

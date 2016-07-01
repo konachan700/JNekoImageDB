@@ -26,9 +26,6 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
 public class StartDialogNewDBTab extends VBox {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-main-window.css").toURI().toString();
-    
     private final EnumMap<XImg.PreviewType, DB>
             levelDB = new EnumMap(XImg.PreviewType.class);
     
@@ -65,7 +62,6 @@ public class StartDialogNewDBTab extends VBox {
     public StartDialogNewDBTab(StartDialogOpenTabActionListener al) {
         super();
         this.setAlignment(Pos.TOP_CENTER);
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_new_db_root_pane");
         outActListener = al;
         

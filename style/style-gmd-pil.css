@@ -10,6 +10,12 @@
 	-fx-min-height: 1px;
 }
 
+.path_panel_height {
+	-fx-pref-height: 24px;
+	-fx-max-height: 24px;
+	-fx-min-height: 24px;
+}
+
 .pil_root_pane {
 	-fx-background-insets: 0;
     -fx-background-color: transparent;
@@ -93,3 +99,54 @@
     -fx-background-insets: 2, 0, 0;
     -fx-background-radius: 2em;
 }
+
+.pil_path_panel {
+	-fx-background-color: #fff;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 1px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-font-size: 12px;
+    -fx-text-fill: #333;
+	-fx-font-family: "Linux Biolinum Bold";
+	-fx-border-color: #aaa;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,6 +1,5 @@
 package jnekoimagesdb.ui.md.dialogs.start;
 
-import java.io.File;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -12,10 +11,7 @@ import jnekoimagesdb.ui.GUITools;
 public class StartSplashScreen {
     public static final Image 
             SPLASH_IMAGE = GUITools.loadImage("splashLight");
-    
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-main-window.css").toURI().toString();
-    
+
     private final Stage           
             win = new Stage();
     
@@ -29,8 +25,7 @@ public class StartSplashScreen {
         scene = new Scene(root, 640, 480);
         win.setResizable(false);
         //win.setAlwaysOnTop(true);
-        
-        root.getStylesheets().add(CSS_FILE);
+
         root.getStyleClass().addAll("main_window_max_width", "main_window_max_height", "main_window_null_pane");
         
         if (System.getProperty("os.name").toLowerCase().contains("win")) {

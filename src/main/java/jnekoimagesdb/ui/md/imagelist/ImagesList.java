@@ -1,7 +1,5 @@
-package jnekoimagesdb.ui.md.images;
+package jnekoimagesdb.ui.md.imagelist;
 
-import java.io.File;
-import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSAlbum;
 import java.util.List;
 import java.util.Set;
@@ -17,9 +15,6 @@ import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
 import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 
 public class ImagesList extends VBox  {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-tab-all-images.css").toURI().toString();
-    
     public static enum FilterType {
         all, nottags, notinalbums
     }
@@ -52,7 +47,6 @@ public class ImagesList extends VBox  {
     private ImagesList() {
         super();
         
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("tai_null_pane", "tai_max_width", "tai_max_height");
         this.getChildren().add(PagedImageList.get());
         
@@ -105,11 +99,11 @@ public class ImagesList extends VBox  {
         });
         menuBtn.addSeparator();
         menuBtn.addMenuItem("Импорт изображений с диска...", (c) -> {
-            XImg.getUploadBox().setAlbumID(PagedImageList.get().getAlbumID());
-            XImg.getUploadBox().showModal();
+//            XImg.getUploadBox().setAlbumID(PagedImageList.get().getAlbumID());
+//            XImg.getUploadBox().showModal();
         });
         menuBtn.addMenuItem("Сохранить выделенное на диск...", (c) -> {
-            XImg.openDir().showDialog();
+//            XImg.openDir().showDialog();
         });
         
         panelTop.addNode(menuBtn);

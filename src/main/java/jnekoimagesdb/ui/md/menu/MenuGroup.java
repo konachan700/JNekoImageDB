@@ -1,6 +1,5 @@
 package jnekoimagesdb.ui.md.menu;
 
-import java.io.File;
 import java.util.ArrayList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -8,9 +7,6 @@ import javafx.scene.layout.VBox;
 import jiconfont.javafx.IconNode;
 
 public class MenuGroup extends VBox {
-    public final static String
-            CSS_FILE = new File("./style/style-gmd-menu.css").toURI().toString();
-    
     private final ArrayList<MenuActionListener> serviceAL = new ArrayList<>();
     private final ArrayList<MenuItem> items = new ArrayList<>();
     private final MenuActionListener serviceALX = (action) -> {
@@ -22,14 +18,12 @@ public class MenuGroup extends VBox {
     
     public MenuGroup() {
         super();
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("menu_separator", "menu_max_width");
     }
     
     public MenuGroup(String groupName, String colorStyle, String iconStyle, MenuItem ... node) {
         super();
         
-        this.getStylesheets().add(CSS_FILE);
         this.getStyleClass().addAll("menu_group_container", "menu_max_width", colorStyle);
         this.setAlignment(Pos.CENTER_LEFT);
                 
