@@ -91,6 +91,8 @@ public class XImgImages {
     }
     
     private BufferedImage intResizeImage(java.awt.Image inImg, int sizeW, int sizeH, boolean crop) {
+//        logger.info("CROP: "+crop);
+        
         final int 
                 w_size = inImg.getWidth(null),
                 h_size = inImg.getHeight(null);

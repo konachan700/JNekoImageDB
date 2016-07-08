@@ -20,6 +20,8 @@ import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
 import jnekoimagesdb.ui.controls.dialogs.XImageUpload;
 import jnekoimagesdb.ui.md.albums.Albums;
 import jnekoimagesdb.ui.md.dialogs.MessageBox;
+import jnekoimagesdb.ui.md.dialogs.fs.OpenDirectoryDialog;
+import jnekoimagesdb.ui.md.dialogs.fs.OpenSaveFileDialog;
 import jnekoimagesdb.ui.md.tags.TagsEditor;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
@@ -68,12 +70,6 @@ public class XImg {
     private static final XImageUpload
             imgUpl = new XImageUpload();
 
-//    private static final PagedImageList
-//            pagedImageList = new PagedImageList();
-    
-//    private static final ImagesList
-//            tabAllImages = new ImagesList();
-    
     private static final Albums
             tabAlbumImageList = new Albums();
     
@@ -110,11 +106,7 @@ public class XImg {
         HibernateUtil.hibernateInit(rootDatabaseName, "jneko", cryptoEx.getPassword());
         SettingsUtil.init();
         psizes.refreshPreviewSizes();
-//        imgUpl.init();
-//        pagedImageList.initDB();
         PagedImageList.get().initDB();
-//        openDirDialog.init();
-//        albumExportDialog.init();
     }
     
     public static XImgPreviewSizes getPSizes() {
@@ -128,37 +120,25 @@ public class XImg {
     }
     
     public static void dispose() {
-//        XDialogImgCacheRebuild.get().dispose();
         HibernateUtil.dispose();
-//        imgUpl.dispose();
-//        pagedImageList.dispose();
-//        PagedImageList.get().dispose();
         final Set<PreviewType> s = levelDB.keySet();
         s.forEach((x) -> {
              try {
                 levelDB.get(x).close();
             } catch (IOException ex) { }
         });
-//        openDirDialog.dispose();
-//        albumExportDialog.dispose();
+        OpenDirectoryDialog.dispose();
+        OpenSaveFileDialog.dispose();
     }
 
     public static XImgCrypto getCrypt() {
         return cryptoEx;
     }
-    
-//    public static PagedImageList getPagedImageList() {
-//        return pagedImageList;
-//    }
-    
+
     public static TagsEditor getTabAllTags() {
         return tabAllTags;
     }
-    
-//    public static ImagesList getTabAllImages() {
-//        return tabAllImages;
-//    }
-    
+
     public static Albums getTabAlbumImageList() {
         return tabAlbumImageList;
     }

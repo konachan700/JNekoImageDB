@@ -11,15 +11,15 @@
 }
 
 .path_panel_height {
-	-fx-pref-height: 24px;
-	-fx-max-height: 24px;
-	-fx-min-height: 24px;
+	-fx-pref-height: 32px;
+	-fx-max-height: 32px;
+	-fx-min-height: 32px;
 }
 
 .pil_root_pane {
 	-fx-background-insets: 0;
     -fx-background-color: transparent;
-    -fx-padding: 10px;
+    -fx-padding: 0px;
     -fx-border-width:0;
     -fx-border-insets:0;
     -fx-background-radius: 0;
@@ -38,11 +38,15 @@
     -fx-background-insets: 0, 0, 0, 0;
     -fx-border-insets: 0;
     -fx-background-color: #FFF;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 4, 0, 0, 0);
+    /*-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 4, 0, 0, 0);*/
 }
 
 .pil_item_root_pane:hover {
-	-fx-effect: dropshadow(three-pass-box, rgba(0,200,0,0.6), 4, 0, 0, 0);
+	/*-fx-effect: dropshadow(three-pass-box, rgba(0,200,0,0.6), 4, 0, 0, 0);*/
+}
+
+.pil_item_icon_colors {
+	-fx-background-color: #555;
 }
 
 .pil_item_null_pane {
@@ -53,6 +57,16 @@
 	-fx-border-width: 0px 0 0 0px;
     -fx-border-insets: 0;
 	-fx-padding: 0;
+}
+
+.pil_item_root_vbox_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0px;
 }
 
 .pil_root_sp_pane, .pil_root_sp_pane:focused, .pil_root_sp_pane .corner,  .pil_root_sp_pane .viewport {
@@ -106,7 +120,7 @@
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0px;
 	-fx-border-width: 1px;
-    -fx-border-insets: 0;
+    -fx-border-insets: 3px;
 	-fx-padding: 0;
 	-fx-font-size: 12px;
     -fx-text-fill: #333;
@@ -114,12 +128,53 @@
 	-fx-border-color: #aaa;
 }
 
+.pil_item_name_label {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-font-size: 14px;
+    -fx-text-fill: #444;
+	-fx-font-family: "Linux Biolinum Bold";
+	-fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.9), 7, 0, 0, 0);
+}
 
 
+.pil_folder_item_icon_dir {
+	-fx-icon-code: "Material Icons:E2C8";
+}
 
+.pil_folder_item_icon_file {
+	-fx-icon-code: "Material Icons:E24D";
+}
 
+.pil_folder_item_icon {
+	-fx-icon-size: 96px;
+	-fx-fill: #777;
+}
 
+.pil_folder_item_icon:hover {
+	-fx-fill: #7a7;
+}
 
+.pil_item_selected_icon_holder {
+	-fx-pref-height: 32px;
+	-fx-max-height: 32px;
+	-fx-min-height: 32px;
+	-fx-pref-width: 32px;
+	-fx-max-width: 32px;
+	-fx-min-width: 32px;
+}
+
+.pil_item_selected_icon {
+	-fx-icon-code: "Material Icons:E5CA";
+	-fx-icon-size: 32px;
+	-fx-fill: #0a0;
+	-fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.99), 4, 0, 0, 0);
+}
 
 
 

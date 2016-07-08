@@ -54,10 +54,10 @@ public class XImgDatastore {
     private static final XImgImages
                 imgConv = new XImgImages();
     
-    private static Container
+    private static final Container
             container = new Container();
     
-    private static MediaTracker 
+    private static final MediaTracker 
             mediaTracker = new MediaTracker(container);
     
     private static final Object
@@ -233,8 +233,11 @@ public class XImgDatastore {
             }
         }
         
+        synchronized (imgConv) {
+            imgConv.setPreviewSize((int) XImg.getPSizes().getPrimaryPreviewSize().getWidth(), 
+                    (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight(), XImg.getPSizes().getPrimaryPreviewSize().isSquared());
+        }
         final byte[] image = imgConv.getPreviewFS(image2);
-        imgConv.setPreviewSize((int) XImg.getPSizes().getPrimaryPreviewSize().getWidth(), (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight(), XImg.getPSizes().getPrimaryPreviewSize().isSquared());
         
         mediaTracker.removeImage(image2);
         

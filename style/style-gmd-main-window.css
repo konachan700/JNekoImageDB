@@ -483,7 +483,12 @@
 	-fx-border-color: #aaa;
 }
 
-
+.main_window_labeled_box_filename_in_dialog {
+	-fx-pref-height: 32px;
+	-fx-max-height: 32px;
+	-fx-min-height: 32px;
+	-fx-spacing: 10px;
+}
 
 
 

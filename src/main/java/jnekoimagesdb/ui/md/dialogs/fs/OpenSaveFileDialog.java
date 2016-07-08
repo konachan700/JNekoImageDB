@@ -12,11 +12,11 @@ import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 
-public class OpenDirectoryDialog extends PanelDialog implements PagedFileListFullActionListener, PaginatorActionListener {
+public class OpenSaveFileDialog extends PanelDialog implements PagedFileListFullActionListener, PaginatorActionListener {
     private final org.slf4j.Logger 
             logger = org.slf4j.LoggerFactory.getLogger(OpenDirectoryDialog.class);
     
-    private static OpenDirectoryDialog
+    private static OpenSaveFileDialog
             odd = null;
     
     private final PagedFileList
@@ -34,7 +34,7 @@ public class OpenDirectoryDialog extends PanelDialog implements PagedFileListFul
     private final Paginator
             newPag = new Paginator(this); 
     
-    private OpenDirectoryDialog() {
+    private OpenSaveFileDialog() {
         super(800, 700, true);
 
         menuBtn.addMenuItemBold("menuitem_ok_open_icon", "Открыть", (c) -> {
@@ -62,12 +62,16 @@ public class OpenDirectoryDialog extends PanelDialog implements PagedFileListFul
         super.setPanel(panelTop);
         super.setPaginator(newPag);
         
-        pfl.init(true); 
+        pfl.init(false); 
         pfl.navigateTo(SettingsUtil.getPath(FIELD_PATH).toString());
     }
     
     private Path getP() {
         return pfl.getPath();
+    }
+    
+    private PagedFileList getPFL() {
+        return pfl;
     }
     
     private void resetRetVal() {
@@ -104,8 +108,17 @@ public class OpenDirectoryDialog extends PanelDialog implements PagedFileListFul
         pfl.dispose();
     }
     
-    public static void showDialog() {
-        if (odd == null) odd = new OpenDirectoryDialog();
+    public static void init() {
+        if (odd == null) odd = new OpenSaveFileDialog();
+    }
+    
+    public static void enableMiltiSelect(boolean enable) {
+        if (odd == null) return;
+        odd.getPFL().enableMultiSelect(enable);
+    }
+    
+    public static void showOpenDialog() {
+        if (odd == null) return;
         odd.resetRetVal();
         odd.showAndWait();
     }   

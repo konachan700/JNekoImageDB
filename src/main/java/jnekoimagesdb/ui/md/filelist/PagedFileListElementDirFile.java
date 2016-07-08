@@ -6,26 +6,22 @@ import java.nio.file.Path;
 import java.util.Objects;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import jiconfont.javafx.IconNode;
 import jnekoimagesdb.core.img.XImg;
-import jnekoimagesdb.ui.GUITools;
 
-public class PagedFileListElement extends Pane {
-    private final ImageView 
-        imageContainer = new ImageView(),
-        selectedIcon = new ImageView(GUITools.loadIcon("selected-32"));
-    
-    private final VBox 
-        imageVBox = new VBox(0);
+public class PagedFileListElementDirFile extends Pane {
+    private final IconNode
+            iconFile = new IconNode(),
+            iconDir = new IconNode(),
+            iconSel = new IconNode();
 
     private final Label
-        imageName = new Label();
+            imageName = new Label(),
+            imageHolder = new Label(),
+            imageSel = new Label();
 
     private int
             itemSizeH = 128, 
@@ -54,50 +50,36 @@ public class PagedFileListElement extends Pane {
     }
 
     public final void setNullImage() {
-        imageContainer.setImage(GUITools.loadIcon("dummy-128"));
-        imageContainer.setVisible(false);
-        this.getChildren().clear();
+        currentPath = null;
+        imageSel.setVisible(false);
+        imageName.setText("");
+        imageHolder.setVisible(false);
         this.getStyleClass().clear();
-//        this.setStyle("-fx-background-color: #f00;");//test only
     }
 
     public final void setDir() {
-        final IconNode iconFolder = new IconNode();
-        iconFolder.getStyleClass().addAll("pil_folder_item_icon");
-        
-        this.getChildren().clear();
-        
-        this.getChildren().addAll(iconFolder, selectedIcon, imageName);
-        iconFolder.relocate(0, 0);
-        selectedIcon.relocate(10, 10);
-        imageName.relocate(0, itemSizeV - 23);
-        
-        this.getStyleClass().clear();
-        this.getStyleClass().addAll("pil_item_root_pane");
+        imageHolder.setVisible(true);
+        imageHolder.setGraphic(iconDir);
+        this.getStyleClass().addAll("pil_item_root_pane");    
     }
     
-    public final void setImage(Image img) {
-      //  final double centerX = (imageContainer.getViewport().getWidth() - img.getWidth()) / 2;
-      //  imageContainer.setX((centerX <= 0) ? 0 : centerX);
-        imageContainer.setImage(img);
-        imageContainer.setVisible(true);
-        if (this.getChildren().isEmpty()) addAll();
-        
-        this.getStyleClass().clear();
-        this.getStyleClass().addAll("pil_item_root_pane");
+    public final void setFile() {
+        imageHolder.setVisible(true);
+        imageHolder.setGraphic(iconFile);
+        this.getStyleClass().addAll("pil_item_root_pane");    
     }
-
+    
     public final void setName(String fname) {
         imageName.setText((fname.length() > 21) ? 
             (fname.substring(0, 8) + "..." + fname.substring(fname.length()-8 , fname.length())) : fname);
     }
 
     public final void setSelected(boolean s) {
-        if (imageContainer.isVisible() && (!isDir)) selectedIcon.setVisible(s);
+        if (!isDir) imageSel.setVisible(s);
     }
 
     public final boolean getSelected() {
-        return selectedIcon.isVisible();
+        return imageSel.isVisible();
     }
 
     public final void setSize() {
@@ -106,31 +88,28 @@ public class PagedFileListElement extends Pane {
         itemSizeV = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
         itemSizeH = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
 
+        this.setMinSize(itemSizeH, itemSizeV);
         this.setMaxSize(itemSizeH, itemSizeV);
         this.setPrefSize(itemSizeH, itemSizeV);
-        
-//        imageContainer.setFitHeight(itemSizeV);
-//        imageContainer.setFitWidth(itemSizeH);
-        
-        imageVBox.setMaxSize(itemSizeH, itemSizeV);
-        imageVBox.setPrefSize(itemSizeH, itemSizeV);
-        
+
         imageName.setMaxSize(itemSizeH, 16);
         imageName.setPrefSize(itemSizeH, 16);
         imageName.relocate(0, itemSizeV - 23);
+        
+        imageHolder.setMinSize(itemSizeH, itemSizeV);
+        imageHolder.setMaxSize(itemSizeH, itemSizeV);
+        imageHolder.setPrefSize(itemSizeH, itemSizeV);
+        imageHolder.relocate(0, 0);
+        
+        imageSel.relocate(15, 25);
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public PagedFileListElement(PagedFileListElementActionListener al) {
+    public PagedFileListElementDirFile(PagedFileListElementActionListener al) {
         super();
-
         actionListener = al;
         
         this.getStyleClass().addAll("pil_item_root_pane");
-
-        this.setMaxSize(itemSizeH, itemSizeV);
-        this.setPrefSize(itemSizeH, itemSizeV);
-
         this.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() == 1) {
                 if (event.getButton() == MouseButton.SECONDARY) {
@@ -143,31 +122,27 @@ public class PagedFileListElement extends Pane {
             event.consume();
         });
 
-        imageContainer.setPreserveRatio(true);
-        imageContainer.setSmooth(true);
-        imageContainer.setCache(false);
-        imageContainer.setImage(GUITools.loadIcon("dummy-128"));
-
-        imageVBox.getChildren().add(imageContainer);
-        imageVBox.setAlignment(Pos.CENTER);
-        imageVBox.getStyleClass().addAll("pil_item_null_pane");
-
-        imageName.getStyleClass().addAll("pil_item_name_label");
         imageName.setAlignment(Pos.CENTER);
-
-        selectedIcon.setVisible(false);
-
-        setSize();
-        addAll();
-    }
-
-    private void addAll() {
-        this.getChildren().addAll(imageVBox, selectedIcon, imageName);
-        imageVBox.relocate(0, 0);
-        selectedIcon.relocate(10, 10);
-        imageName.relocate(0, itemSizeV - 23);
-    }
+        imageName.getStyleClass().addAll("pil_item_name_label");
         
+        imageSel.setAlignment(Pos.CENTER);
+        imageSel.getStyleClass().addAll("pil_item_null_pane", "pil_item_selected_icon_holder");
+        iconSel.getStyleClass().addAll("pil_item_selected_icon");
+        imageSel.setGraphic(iconSel);
+        
+        imageHolder.setAlignment(Pos.CENTER);
+        imageHolder.getStyleClass().addAll("pil_item_null_pane");
+        
+        iconFile.getStyleClass().addAll("pil_folder_item_icon", "pil_folder_item_icon_file");
+        iconDir.getStyleClass().addAll("pil_folder_item_icon", "pil_folder_item_icon_dir");
+
+        imageSel.setVisible(false);
+
+        this.getChildren().addAll(imageHolder, imageSel, imageName);
+        
+        setSize();
+    }
+
     @Override
     public boolean equals(Object o) {
         if ((o == null) || (currentPath == null)) return false;

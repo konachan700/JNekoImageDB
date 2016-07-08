@@ -14,22 +14,22 @@ public class DSPreviewSize implements Serializable {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name="iid", unique = true, nullable = false)
-    private long prevID;
+    private volatile long prevID;
     
     @Column(name="xname", unique = true, nullable = false, length = 128)
     private String prevName;
     
     @Column(name="xwidth", unique = false, nullable = false)
-    private long width;
+    private volatile long width;
     
     @Column(name="xheight", unique = false, nullable = false)
-    private long height;
+    private volatile long height;
     
     @Column(name="xsquare", unique = false, nullable = false)
-    private boolean squared;
+    private volatile boolean squared;
     
     @Column(name="xprimary", unique = false, nullable = false)
-    private boolean primary;
+    private volatile boolean primary;
 
     public DSPreviewSize() {
         primary = false;

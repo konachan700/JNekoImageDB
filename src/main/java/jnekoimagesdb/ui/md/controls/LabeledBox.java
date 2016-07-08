@@ -18,4 +18,14 @@ public class LabeledBox extends HBox {
         this.getStyleClass().addAll("main_window_max_width", "main_window_null_pane", "main_window_labeled_box_pane");
         this.getChildren().addAll(label, element);
     }
+    
+    public LabeledBox(String text, Node element, String ... styles) {
+        super();
+        label.setAlignment(Pos.CENTER_RIGHT); 
+        label.getStyleClass().addAll("main_window_labeled_box_text");
+        label.setText(text);
+        this.setAlignment(Pos.CENTER);
+        this.getStyleClass().addAll(styles);
+        this.getChildren().addAll(label, element);
+    }
 }

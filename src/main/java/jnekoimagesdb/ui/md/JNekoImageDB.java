@@ -22,14 +22,14 @@ import jiconfont.javafx.IconFontFX;
 import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.threads.UPools;
 import jnekoimagesdb.domain.DSImageIDListCache;
-import jnekoimagesdb.ui.GUITools;
 import jnekoimagesdb.ui.Lang;
+import jnekoimagesdb.ui.md.dialogs.fs.OpenDirectoryDialog;
+import jnekoimagesdb.ui.md.dialogs.fs.OpenSaveFileDialog;
 import jnekoimagesdb.ui.md.dialogs.start.StartDialog;
 import jnekoimagesdb.ui.md.imagelist.ImagesList;
 import jnekoimagesdb.ui.md.menu.Menu;
 import jnekoimagesdb.ui.md.menu.MenuGroup;
 import jnekoimagesdb.ui.md.menu.MenuItem;
-import jnekoimagesdb.ui.md.paginator.Paginator;
 import jnekoimagesdb.ui.md.settings.PreviewTypes;
 import jnekoimagesdb.ui.md.settings.Settings;
 import jnekoimagesdb.ui.md.settings.ThreadsList;
@@ -67,7 +67,7 @@ public class JNekoImageDB extends Application {
             ImagesList.get().setImageType(iID, aID); 
         else 
             ImagesList.get().setImageType(iID);
-        ImagesList.get().regenerate();
+//        ImagesList.get().regenerate();
         ImagesList.get().refresh();
     }
 
@@ -118,9 +118,9 @@ public class JNekoImageDB extends Application {
         
         ThreadsList.create();
         UPools.setThreadStateListener(ThreadsList.get());
-        UPools.createThreadsGroup("PreviewsPool", processorsCount, Thread.MAX_PRIORITY);
-        UPools.getGroup("PreviewsPool").run();
-
+        UPools.createThreadsGroup(UPools.PREVIEW_POOL, processorsCount, Thread.MAX_PRIORITY);
+        UPools.getGroup(UPools.PREVIEW_POOL).run();
+        
         try {
             XImg.init(databaseName);
         } catch (Exception ex) {
@@ -128,6 +128,8 @@ public class JNekoImageDB extends Application {
             Platform.exit(); 
             return;
         }
+        
+        OpenSaveFileDialog.init();
 
         XImg.getTabAlbumImageList().setActionListener(c -> {
             clearAll();
@@ -181,7 +183,11 @@ public class JNekoImageDB extends Application {
                         }),
                         new MenuItem("Тест (Потоки)", (c) -> {
                             clearAll();
-                            basesp.getChildren().add(ThreadsList.get());
+                            //basesp.getChildren().add(ThreadsList.get());
+                            
+//                            OpenDirectoryDialog odd = new OpenDirectoryDialog();
+//                            odd.showAndWait();
+                            
                         }),
                         new MenuItem("Логи", (c) -> {
                             clearAll();

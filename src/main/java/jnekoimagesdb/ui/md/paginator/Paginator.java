@@ -148,6 +148,7 @@ public class Paginator extends HBox {
     }
     
     public void setCurrentPageIndex(int p) {
+        if (pageCount > pageCount) return;
         currentPage = p;
         totalCount.setText("Page " + currentPage + " of " + pageCount);
 //        refresh();

@@ -1,5 +1,6 @@
 package jnekoimagesdb.ui.md.imagelist;
 
+import java.nio.file.Path;
 import jnekoimagesdb.domain.DSAlbum;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +10,8 @@ import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.ui.md.albums.AlbumsSelectDialog;
 import jnekoimagesdb.ui.md.dialogs.MessageBox;
+import jnekoimagesdb.ui.md.dialogs.fs.OpenDirectoryDialog;
+import jnekoimagesdb.ui.md.dialogs.fs.OpenSaveFileDialog;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
@@ -25,8 +28,8 @@ public class ImagesList extends VBox  {
     private ImagesListActionListener
             backActionListener;
     
-    private boolean 
-            isNotInit = true;
+//    private boolean 
+//            isNotInit = true;
 
     private final TopPanel
             panelTop;
@@ -95,15 +98,24 @@ public class ImagesList extends VBox  {
                 MessageBox.show("Ни одной картинки не выделено!");
         });
         menuBtn.addMenuItem("Добавить теги для выделенного...", (c) -> {
-            
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         });
         menuBtn.addSeparator();
         menuBtn.addMenuItem("Импорт изображений с диска...", (c) -> {
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //            XImg.getUploadBox().setAlbumID(PagedImageList.get().getAlbumID());
 //            XImg.getUploadBox().showModal();
         });
         menuBtn.addMenuItem("Сохранить выделенное на диск...", (c) -> {
-//            XImg.openDir().showDialog();
+            OpenSaveFileDialog.showOpenDialog();
+            if (OpenSaveFileDialog.isResultPresent()) {
+                final Path p = OpenSaveFileDialog.getPath();
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                
+            }
         });
         
         panelTop.addNode(menuBtn);
@@ -134,13 +146,12 @@ public class ImagesList extends VBox  {
         PagedImageList.get().setTagLists(tags, tagsNot);
     }
     
-    public void regenerate() {
-        if (isNotInit) {
-//            dis.dbInit();
-            isNotInit = false;
-        }
-    }
-    
+//    public void regenerate() {
+//        if (isNotInit) {
+//            isNotInit = false;
+//        }
+//    }
+//    
     public Parent getPaginator() {
         return PagedImageList.get().getPaginator();
     }

@@ -3,6 +3,7 @@ package jnekoimagesdb.ui.md.filelist;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
@@ -22,13 +25,12 @@ import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.core.img.XImgFS;
 import jnekoimagesdb.core.img.XImgFSActionListener;
 import jnekoimagesdb.domain.SettingsUtil;
-import jnekoimagesdb.ui.GUITools;
+import jnekoimagesdb.ui.md.controls.LabeledBox;
 import jnekoimagesdb.ui.md.controls.PathTextField;
-import org.slf4j.LoggerFactory;
 
 public class PagedFileList extends VBox implements PagedFileListElementActionListener, XImgFSActionListener {
     private final org.slf4j.Logger 
-            logger = LoggerFactory.getLogger(PagedFileList.class);
+            logger = org.slf4j.LoggerFactory.getLogger(PagedFileList.class);
 
     public static final String
             FIELD_PATH = "np_path";
@@ -55,16 +57,23 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
     private volatile boolean
             isNotInit = true, 
             isResized = false, 
-            isRoot = false;
+            isRoot = false,
+            multiSelect = false;
+    
+    private final ScrollPane
+            fContainer = new ScrollPane();
     
     private final FlowPane
             container = new FlowPane();
     
-    private final Set<PagedFileListElement>
+    private final Set<PagedFileListElementDirFile>
             elements = new LinkedHashSet<>();
     
     private Path
             selectedElement = null;
+    
+    private final Set<Path>
+            selectedElements = new HashSet<>();
     
     private PagedFileListFullActionListener
             currActionListener = null;
@@ -73,10 +82,17 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
             fileSystemParser = new XImgFS(this);
     
     private final HBox
-            pathPanel = new HBox();
+            pathPanel = new HBox(),
+            nullStylePanel = new HBox();
         
     private final PathTextField
             pathText = new PathTextField("main_window_good_input", "main_window_badly_input");
+    
+    private final TextField
+            fileNameField = new TextField();
+    
+    private final LabeledBox 
+            tfNameBox;
     
     private final Timeline resizeTimer = new Timeline(new KeyFrame(Duration.millis(10), ae -> {
         if (timerCounter > 0) {
@@ -119,6 +135,11 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
             timerCounter = TIMER_DELAY;
         });
         
+        fileNameField.setAlignment(Pos.CENTER_LEFT);
+        fileNameField.getStyleClass().addAll("pil_path_panel", "pil_max_width", "path_panel_height");
+        
+        tfNameBox = new LabeledBox("Имя файла", fileNameField, "main_window_max_width", "main_window_null_pane", "main_window_labeled_box_filename_in_dialog");
+        
         pathPanel.setAlignment(Pos.CENTER_LEFT);
         pathPanel.getStyleClass().addAll("pil_item_null_pane", "pil_max_width", "path_panel_height");
         pathPanel.getChildren().add(pathText);
@@ -132,19 +153,49 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
             }
         });
 
-        this.getStyleClass().addAll("pil_root_sp_pane");
+        this.getStyleClass().addAll("pil_item_root_vbox_pane", "pil_max_width", "pil_max_height");
+        nullStylePanel.getStyleClass().addAll("pil_item_icon_colors");
         
         container.getStyleClass().addAll("pil_root_pane", "pil_max_width", "pil_max_height");
         container.setAlignment(Pos.CENTER);
         container.setHgap(spacerSize);
         container.setVgap(spacerSize);
         
+        fContainer.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        fContainer.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        fContainer.setFitToHeight(true);
+        fContainer.setFitToWidth(true);
+        fContainer.setContent(container);
+        this.getStyleClass().addAll("pil_root_sp_pane");
+        fContainer.setContent(container);
+        
         this.getChildren().addAll(
                 pathPanel, 
-                container
+                fContainer,
+                tfNameBox
         );
     }
 
+    public void enableMultiSelect(boolean enable) {
+        multiSelect = enable;
+    }
+    
+    public void enableFileNameInput(boolean enable) {
+        if (enable) {
+            if (!this.getChildren().contains(tfNameBox)) this.getChildren().add(tfNameBox);
+        } else {
+            if (this.getChildren().contains(tfNameBox)) this.getChildren().remove(tfNameBox);
+        }
+    }
+    
+    public void setDefaultFileName(String name) {
+        fileNameField.setText(name);
+    }
+    
+    public String getFileName() {
+        return fileNameField.getText();
+    }
+    
     private void setPath(String p) {
         fileSystemParser.setPath(p);
         fileSystemParser.getFiles();
@@ -155,20 +206,26 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
         int counter = currentPage * itemTotalCount, ncounter = 0;
 
         final List<Path> filelist = fileSystemParser.getPage(itemTotalCount, counter);
-        for (PagedFileListElement efl : elements) {
+        for (PagedFileListElementDirFile efl : elements) {
             Path p;
             try {
                 p = filelist.get(ncounter);
                 efl.setPath(p);
                 efl.setName((isRoot) ? p.toString() : p.toFile().getName());
                 if (Files.isDirectory(p)) {
-                    efl.setImage(GUITools.loadIcon("dir-normal-128"));
+                    efl.setDir();
                 } else {
-                    efl.setImage(GUITools.loadIcon("unknown-file-128"));
-                    if (selectedElement != null) 
-                        efl.setSelected(selectedElement.equals(p));
-                    else 
-                        efl.setSelected(false);
+                    efl.setFile();
+                    if (multiSelect) {
+                        selectedElements.forEach(el -> {
+                            efl.setSelected(efl.equals(el));
+                        });
+                    } else {
+                        if (selectedElement != null) 
+                            efl.setSelected(selectedElement.equals(p));
+                        else 
+                            efl.setSelected(false);
+                    }
                 }
             } catch (IndexOutOfBoundsException e) {
                 efl.setNullImage();
@@ -201,7 +258,7 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
         
         elements.clear();
         for (int i=0; i<itemTotalCount; i++) {
-            final PagedFileListElement efl = new PagedFileListElement(this);
+            final PagedFileListElementDirFile efl = new PagedFileListElementDirFile(this);
             efl.setSize();
             efl.setNullImage();
             elements.add(efl);
@@ -252,6 +309,24 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
         return selectedElement;
     }
     
+    public void clearSelection() {
+        elements.stream().forEach((efl) -> {
+            efl.setSelected(false);
+        });
+        selectedElements.clear();
+    }
+    
+    public void clearSelection(Path sel) {
+        elements.stream().forEach((efl) -> {
+            if (sel.equals(efl.getPath())) efl.setSelected(true); else efl.setSelected(false);
+        });
+        selectedElements.clear();
+    }
+    
+    public Set<Path> getSelectedElements() {
+        return selectedElements;
+    }
+    
     public Path getPath() {
         return fileSystemParser.getCurrentPath();
     }
@@ -286,14 +361,28 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
     
     @Override
     public void OnSelect(boolean isSelected, Path itemPath) {
-        if (isSelected) selectedElement = itemPath; else selectedElement = null;
+        if (!multiSelect) 
+            clearSelection(itemPath);
+        else {
+            if (isSelected) 
+                selectedElements.add(itemPath); 
+            else 
+                selectedElements.remove(itemPath);
+        }
+        
+        if (isSelected) 
+            selectedElement = itemPath; 
+        else 
+            selectedElement = null;
+        
+        if (isSelected) fileNameField.setText(itemPath.getFileName().toString());
     }
 
     @Override
     public void OnOpen(Path itemPath) {
         if (Files.isDirectory(itemPath)) {
             fileSystemParser.setPath(itemPath);
-            SettingsUtil.setPath("currentNPPath", itemPath);
+            SettingsUtil.setPath(FIELD_PATH, itemPath);
             fileSystemParser.getFiles();
         }
     }
@@ -330,7 +419,7 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
     @Override
     public void onLevelUp(Path p) {
         fileSystemParser.getFiles();
-        SettingsUtil.setPath("currentNPPath", p);
+        SettingsUtil.setPath(FIELD_PATH, p);
     }
 
     @Override
@@ -339,6 +428,6 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
             fileSystemParser.getRoots();
         }
 
-        System.out.println("ZZ ERROR: "+e.getClass().getName());
+        logger.error("onError(): "+e.getClass().getName());
     }
 }
