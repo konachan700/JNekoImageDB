@@ -1,37 +1,40 @@
-# JNekoImageDB
+###JNekoImageDB
+**Crossplatform desktop application for store images and photos.**<br>
+Описание на русском перемещено на [эту страницу вики](https://github.com/konachan700/JNekoImageDB/wiki/RU_App_Description).
 
-Программа для хранения и каталогизации большого числа картинок, поддерживает шифрование БД и самих картинок.
 
-# На настоящий момент реализовано:
-1.	Генерация превьюшек
-2.	Шифрование
-3.	Альбомы
-4.	Многопоточное добавление картинок из локальной ФС
-5.	Настройки
-6.	Поддержка папки обмена для браузера
+###Implemented and working for today
+1.	Support AES-256 or AES-128 for images encryption.
+2.	Multithreaded preview generation.
+3.	Multithreaded work with FS
+4.	Albums.
+5.	Select DB on start.
+6.	Tested on 250k images in DB.
 
-# В ближайших планах:
-1.	Доделать поддержку тегов
-2.	Парсинг тегов с популярных галерей
-3.	Возможность использования множества БД с выбором конкретной при запуске
-4.	Экспорт альбомов целиком
-5.	Поворот, обрезка и прочие минимальные возможности редактирования.
 
-# В дальнейшем:
-1.	Стеганография, "картинка в картинке"
-2.	Расшаривание картинок по сети и в i2p
-3.	Поддержка Вконтакте
-4.	Поддержка имиджборд и популярных галерей
-5.	Поддерждка сервисов типа fastpic
+###TODO List:
+1.	Tags.
+2.	*booru parsing for get new images and tags.
+3.	Simple image editor (rotate, resize, ...).
+4.	Steganography in PNG.
+5.	Anonymous imageboards parsing (2ch, 4chan, iican, ...).
+6.	p2p image sharig (i2p, freenet).
+7.	Client application for android.
 
-Программа пока что для использования по назначению непригодна по причине тотальной недоделанности. Если не знаешь явы, анон, можешь не скачивать даже.
 
-Основная цель сего софта - учеба, хочу изучить жаву и часть фреймворков хотя бы на уровень хорошего джуна. Так что многое в проекте может быть неправильно или неоптимально с точки зрения гуру. 
+For today this application is not ready fo regular use. If you're not a Java developer, please do not use this app, it contains more than 9000 bugs =) <br>
+I am coding this project to study Java and some frameworks.<br>
+If you want to help me with coding, please, mail me =)
 
-# Скриншоты
 
-![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/7.PNG)
+# Screenshots
 
-![JNekoImageDB screenshot 2](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/8.PNG)
+![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/A.PNG)
 
-![JNekoImageDB screenshot 2](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/9.PNG)
+![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/B.PNG)
+
+![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/C.PNG)
+
+![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/D.PNG)
+
+![JNekoImageDB screenshot 1](https://github.com/konachan700/JNekoImageDB/raw/master/style/github_readme/E.PNG)
