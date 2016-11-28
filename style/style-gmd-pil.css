@@ -135,10 +135,10 @@
 	-fx-border-radius: 0px;
 	-fx-border-width: 0px;
     -fx-border-insets: 0;
-	-fx-padding: 0;
-	-fx-font-size: 14px;
+	-fx-padding: 5px 0 0 0;
+	-fx-font-size: 12px;
     -fx-text-fill: #444;
-	-fx-font-family: "Linux Biolinum Bold";
+	-fx-font-family: "Linux Biolinum";
 	-fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.9), 7, 0, 0, 0);
 }
 
@@ -151,12 +151,12 @@
 	-fx-icon-code: "Material Icons:E24D";
 }
 
-.pil_folder_item_icon {
-	-fx-icon-size: 96px;
+.pil_folder_item_icon, .pil_folder_item_icon_dir {
+	-fx-icon-size: 64px;
 	-fx-fill: #777;
 }
 
-.pil_folder_item_icon:hover {
+.pil_folder_item_icon:hover, .pil_folder_item_icon_dir:hover {
 	-fx-fill: #7a7;
 }
 

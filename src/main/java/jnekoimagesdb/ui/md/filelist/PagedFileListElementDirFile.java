@@ -24,8 +24,11 @@ public class PagedFileListElementDirFile extends Pane {
             imageSel = new Label();
 
     private int
-            itemSizeH = 128, 
-            itemSizeV = 128;
+            itemSizeH = PagedFileList.FIXED_SIZE, 
+            itemSizeV = PagedFileList.FIXED_SIZE;
+    
+    private boolean 
+            fixedSize = false;
 
     private Path
             currentPath = null;
@@ -70,7 +73,7 @@ public class PagedFileListElementDirFile extends Pane {
     }
     
     public final void setName(String fname) {
-        imageName.setText((fname.length() > 21) ? 
+        imageName.setText((fname.length() > 16) ? 
             (fname.substring(0, 8) + "..." + fname.substring(fname.length()-8 , fname.length())) : fname);
     }
 
@@ -83,10 +86,11 @@ public class PagedFileListElementDirFile extends Pane {
     }
 
     public final void setSize() {
-        if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
-
-        itemSizeV = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
-        itemSizeH = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+        if (!fixedSize) {
+            if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+            itemSizeV = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
+            itemSizeH = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+        }
 
         this.setMinSize(itemSizeH, itemSizeV);
         this.setMaxSize(itemSizeH, itemSizeV);
@@ -105,8 +109,9 @@ public class PagedFileListElementDirFile extends Pane {
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public PagedFileListElementDirFile(PagedFileListElementActionListener al) {
+    public PagedFileListElementDirFile(PagedFileListElementActionListener al, boolean itemFixedSize) {
         super();
+        fixedSize = itemFixedSize;
         actionListener = al;
         
         this.getStyleClass().addAll("pil_item_root_pane");

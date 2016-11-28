@@ -28,8 +28,11 @@ public class PagedFileListElement extends Pane {
         imageName = new Label();
 
     private int
-            itemSizeH = 128, 
-            itemSizeV = 128;
+            itemSizeH = PagedFileList.FIXED_SIZE, 
+            itemSizeV = PagedFileList.FIXED_SIZE;
+    
+    private boolean 
+            fixedSize = false;
 
     private Path
             currentPath = null;
@@ -51,6 +54,12 @@ public class PagedFileListElement extends Pane {
 
     public final Path getPath() {
         return currentPath;
+    }
+    
+    public final void setFixedSize(int x, int y) {
+        fixedSize = true;
+        itemSizeV = x;
+        itemSizeH = y;
     }
 
     public final void setNullImage() {
@@ -101,13 +110,16 @@ public class PagedFileListElement extends Pane {
     }
 
     public final void setSize() {
-        if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
-
-        itemSizeV = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
-        itemSizeH = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+        if (!fixedSize) {
+            if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+            itemSizeV = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
+            itemSizeH = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+        }
+       
 
         this.setMaxSize(itemSizeH, itemSizeV);
         this.setPrefSize(itemSizeH, itemSizeV);
+        super.setMinSize(itemSizeH, itemSizeV);
         
 //        imageContainer.setFitHeight(itemSizeV);
 //        imageContainer.setFitWidth(itemSizeH);
@@ -120,16 +132,17 @@ public class PagedFileListElement extends Pane {
         imageName.relocate(0, itemSizeV - 23);
     }
 
-    @SuppressWarnings("LeakingThisInConstructor")
-    public PagedFileListElement(PagedFileListElementActionListener al) {
+    public PagedFileListElement(PagedFileListElementActionListener al, boolean itemFixedSize) {
         super();
 
+        fixedSize = itemFixedSize;
         actionListener = al;
         
         this.getStyleClass().addAll("pil_item_root_pane");
 
-        this.setMaxSize(itemSizeH, itemSizeV);
-        this.setPrefSize(itemSizeH, itemSizeV);
+        super.setMaxSize(itemSizeH, itemSizeV);
+        super.setPrefSize(itemSizeH, itemSizeV);
+        super.setMinSize(itemSizeH, itemSizeV);
 
         this.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() == 1) {

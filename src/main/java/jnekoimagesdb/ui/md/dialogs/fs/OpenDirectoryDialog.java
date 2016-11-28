@@ -20,7 +20,7 @@ public class OpenDirectoryDialog extends PanelDialog implements PagedFileListFul
             odd = null;
     
     private final PagedFileList
-            pfl = new PagedFileList(this);
+            pfl = new PagedFileList(this, true);
     
     private boolean 
             retVal = false;

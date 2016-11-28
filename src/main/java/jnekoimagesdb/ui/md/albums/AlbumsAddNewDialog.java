@@ -11,7 +11,7 @@ import javafx.scene.layout.VBox;
 import jnekoimagesdb.ui.md.controls.LabeledBox;
 
 public class AlbumsAddNewDialog extends SimpleDialog {
-    private static final AlbumsAddNewDialog mb = new AlbumsAddNewDialog();
+    private static AlbumsAddNewDialog mb = null;
     
     private final VBox rootPane = new VBox();
     private final Label text = new Label();
@@ -88,9 +88,14 @@ public class AlbumsAddNewDialog extends SimpleDialog {
         return result;
     }
 
-    public static YesNoBoxResult show(String msg) {
-        mb.centerOnScreen();
-        mb.showAndWait();
-        return mb.getResult();
+    public YesNoBoxResult show(String msg) {
+        centerOnScreen();
+        showAndWait();
+        return getResult();
+    }
+    
+    public static AlbumsAddNewDialog getInstance() {
+        if (mb == null) mb = new AlbumsAddNewDialog();
+        return mb;
     }
 }

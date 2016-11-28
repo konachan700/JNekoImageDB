@@ -20,7 +20,7 @@ public class OpenSaveFileDialog extends PanelDialog implements PagedFileListFull
             odd = null;
     
     private final PagedFileList
-            pfl = new PagedFileList(this);
+            pfl = new PagedFileList(this, true);
     
     private boolean 
             retVal = false;
@@ -62,6 +62,7 @@ public class OpenSaveFileDialog extends PanelDialog implements PagedFileListFull
         super.setPanel(panelTop);
         super.setPaginator(newPag);
         
+        pfl.setFixedElementsSize(80, 80);
         pfl.init(false); 
         pfl.navigateTo(SettingsUtil.getPath(FIELD_PATH).toString());
     }

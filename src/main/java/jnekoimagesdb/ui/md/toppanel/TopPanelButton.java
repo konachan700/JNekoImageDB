@@ -11,9 +11,9 @@ public class TopPanelButton extends Button {
     
     public TopPanelButton(String iconStyle, String tooltip, TopPanelButtonActionListener a) {
         al = a;
-        this.getStyleClass().addAll("panel_button_width", "panel_max_height", "panel_null_pane");
+        this.getStyleClass().addAll("panel_button_width", "panel_max_height", "panel_null_pane", "panel_icon_color", iconStyle);
         this.setAlignment(Pos.CENTER);
-        iconNode.getStyleClass().addAll(iconStyle, "panel_icon_color");
+        iconNode.getStyleClass().addAll("panel_icon_color", iconStyle);
         this.setGraphic(iconNode); 
         this.setOnMouseClicked(c -> {
             if (al != null) al.OnClick(c);

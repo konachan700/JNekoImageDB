@@ -450,7 +450,7 @@ public class PagedFileListFull extends VBox implements PagedFileListElementActio
         
         elements.clear();
         for (int i=0; i<itemTotalCount; i++) {
-            final PagedFileListElement efl = new PagedFileListElement(this);
+            final PagedFileListElement efl = new PagedFileListElement(this, false);
             efl.setSize();
             efl.setNullImage();
             elements.add(efl);

@@ -1,13 +1,6 @@
 package jnekoimagesdb.ui.md.tags;
 
-import com.google.gson.Gson;
-import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,11 +9,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
-import jnekoimagesdb.core.img.XImg;
 import jnekoimagesdb.domain.DSTag;
 import jnekoimagesdb.domain.HibernateUtil;
-import jnekoimagesdb.ui.controls.dialogs.XDialogOpenDirectory;
-import jnekoimagesdb.ui.md.dialogs.MessageBox;
+import jnekoimagesdb.ui.md.dialogs.fs.OpenSaveFileDialog;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelMenuButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelSearch;
@@ -150,6 +141,8 @@ public class TagsEditor extends ScrollPane {
             addPanel();
         });
         menuBtn.addMenuItem("Добавить из текстового файла...", (c) -> {
+            OpenSaveFileDialog.showOpenDialog();
+            
             
         });
         menuBtn.addSeparator();

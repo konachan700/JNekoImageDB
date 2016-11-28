@@ -15,6 +15,7 @@ import jnekoimagesdb.domain.DSImageIDListCache;
 import jnekoimagesdb.domain.HibernateUtil;
 import jnekoimagesdb.ui.md.imagelist.PagedImageList;
 import jnekoimagesdb.ui.md.dialogs.MessageBox;
+import jnekoimagesdb.ui.md.dialogs.YesNoBoxResult;
 import jnekoimagesdb.ui.md.toppanel.TopPanel;
 import jnekoimagesdb.ui.md.toppanel.TopPanelButton;
 import jnekoimagesdb.ui.md.toppanel.TopPanelInfobox;
@@ -134,9 +135,26 @@ public class Albums extends ScrollPane {
         this.setContent(rootContainer);
         
         menuBtnAlbum.addMenuItem("Создать альбом", (c) -> {
-            AlbumsAddNewDialog.show("");
-            
-            
+            final YesNoBoxResult res = AlbumsAddNewDialog.getInstance().show("");
+            if (res == YesNoBoxResult.YES) {
+                if (AlbumsAddNewDialog.getInstance().getAlbumName().trim().length() < 2) {
+                    MessageBox.show("Название альбома должно быть 2 или более символов!");
+                    return;
+                }
+                
+                final String 
+                        albNameA = AlbumsAddNewDialog.getInstance().getAlbumName().trim(),
+                        albTextA = (AlbumsAddNewDialog.getInstance().getAlbumText().length() < 1) ? " " : AlbumsAddNewDialog.getInstance().getAlbumText().trim();
+                
+                final DSAlbum 
+                        dsa = new DSAlbum(albNameA, albTextA, (currentAlbum == null) ? 0 : currentAlbum.getAlbumID());
+                
+                HibernateUtil.beginTransaction(HibernateUtil.getCurrentSession());
+                HibernateUtil.getCurrentSession().save(dsa);
+                HibernateUtil.commitTransaction(HibernateUtil.getCurrentSession());
+                
+                refresh();
+            }
         });
         menuBtnAlbum.addMenuItem("Вставить", (c) -> {
             paste();

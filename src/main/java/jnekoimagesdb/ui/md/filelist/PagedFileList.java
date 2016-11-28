@@ -36,7 +36,8 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
             FIELD_PATH = "np_path";
     
     public static final int
-            TIMER_DELAY = 33;
+            TIMER_DELAY = 33,
+            FIXED_SIZE = 80;
     
     private int 
             currentPage = 0;
@@ -48,8 +49,8 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
             itemCountOnRow = 0, 
             itemCountOnColoumn = 0,
             itemTotalCount = 0,
-            itemHeight = 0,
-            itemWidth = 0,
+            itemHeight = FIXED_SIZE,
+            itemWidth = FIXED_SIZE,
             spacerSize = 4,
             filesCount = 0,
             pagesCount = 0;
@@ -58,7 +59,8 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
             isNotInit = true, 
             isResized = false, 
             isRoot = false,
-            multiSelect = false;
+            multiSelect = false, 
+            fixedSize = false;
     
     private final ScrollPane
             fContainer = new ScrollPane();
@@ -106,8 +108,9 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
         }
     }));
     
-    public PagedFileList(PagedFileListFullActionListener al) {
+    public PagedFileList(PagedFileListFullActionListener al, boolean itemFixedSize) {
         super();
+        fixedSize = itemFixedSize;
         currActionListener = al;
         
         this.setOnScroll((ScrollEvent event) -> {
@@ -169,13 +172,19 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
         this.getStyleClass().addAll("pil_root_sp_pane");
         fContainer.setContent(container);
         
-        this.getChildren().addAll(
+        super.getChildren().addAll(
                 pathPanel, 
                 fContainer,
                 tfNameBox
         );
     }
 
+    public void setFixedElementsSize(int x, int y) {
+        fixedSize = true;
+        itemWidth = x;
+        itemHeight = y;
+    }
+    
     public void enableMultiSelect(boolean enable) {
         multiSelect = enable;
     }
@@ -238,10 +247,12 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
     
     public final synchronized void resize() {
         if (isNotInit) return;
-        if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
         
-        itemWidth = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
-        itemHeight = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
+        if (!fixedSize) {
+            if (XImg.getPSizes().getPrimaryPreviewSize() == null) return;
+            itemWidth = (int) XImg.getPSizes().getPrimaryPreviewSize().getWidth();
+            itemHeight = (int) XImg.getPSizes().getPrimaryPreviewSize().getHeight();
+        }
         
         container.setVgap(spacerSize);
         container.setHgap(spacerSize);
@@ -250,7 +261,7 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
         itemCountOnColoumn = (myHeight + spacerSize) / (itemHeight + spacerSize);
         itemTotalCount = itemCountOnRow * itemCountOnColoumn;
         
-        logger.info("itemCountOnRow="+itemCountOnRow+"; itemCountOnColoumn="+itemCountOnColoumn+"; itemTotalCount="+itemTotalCount+";");
+        //logger.info("itemCountOnRow="+itemCountOnRow+"; itemCountOnColoumn="+itemCountOnColoumn+"; itemTotalCount="+itemTotalCount+";");
         
         if (itemTotalCount <= 0) return;
         pagesCount = (filesCount / itemTotalCount) + (((filesCount % itemTotalCount) == 0) ? 0 : 1);
@@ -258,7 +269,7 @@ public class PagedFileList extends VBox implements PagedFileListElementActionLis
         
         elements.clear();
         for (int i=0; i<itemTotalCount; i++) {
-            final PagedFileListElementDirFile efl = new PagedFileListElementDirFile(this);
+            final PagedFileListElementDirFile efl = new PagedFileListElementDirFile(this, true);
             efl.setSize();
             efl.setNullImage();
             elements.add(efl);
