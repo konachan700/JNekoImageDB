@@ -24,6 +24,10 @@ build/*
 /build.xml
 nbproject
 /lib
-/.idea
 build
 /target/
+/storage/
+/logs/
+
+*.iml
+.directory

@@ -1,0 +1,607 @@
+/********************************************************************************************************************************/
+@font-face {
+	src: url("/style/fonts/LinBiolinum_RBah.ttf");
+}
+
+@font-face {
+	src: url("/style/fonts/LinBiolinum_Rah.ttf");
+}
+
+/**************************************************** GENERAL ****************************************************************************/
+.max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.width_290px {
+	-fx-pref-width: 290px;
+	-fx-max-width: 290px;
+	-fx-min-width: 290px;
+}
+
+.width_370px {
+	-fx-pref-width: 370px;
+	-fx-max-width: 370px;
+	-fx-min-width: 370px;
+}
+
+.width_48px {
+	-fx-pref-width: 48px;
+	-fx-max-width: 48px;
+	-fx-min-width: 48px;
+}
+
+.max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.height_48px {
+	-fx-pref-height: 48px;
+	-fx-max-height: 48px;
+	-fx-min-height: 48px;
+}
+
+.null_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.dialog_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 10px;
+}
+
+.button_box_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 4px;
+    -fx-hgap: 4px;
+    -fx-vgap: 4px;
+}
+
+.dialog_pane,
+.null_pane,
+.button_box_pane {
+	-fx-background-color: #FFFFFF;
+}
+
+.text_box {
+    -fx-font-family: "Linux Biolinum";
+    -fx-font-size: 16px;
+    -fx-text-fill: #000;
+    -fx-pref-height: 30px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-background-color: #fff;
+    -fx-border-width: 0px 1px 1px 0;
+    -fx-border-color: #eee;
+}
+
+.label_for_textbox {
+    -fx-font-family: "Linux Biolinum";
+    -fx-font-size: 14px;
+    -fx-text-fill: #555;
+    -fx-pref-height: 18px;
+    -fx-min-height: 18px;
+    -fx-max-height: 18px;
+    -fx-background-color: transparent;
+    -fx-border-width: 0px;
+}
+
+.button {
+    -fx-background-color: #eee;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 4px;
+    -fx-border-color: #fff;
+    -fx-border-insets: 0;
+    -fx-padding: 0px;
+    -fx-font-size: 16px;
+    -fx-text-fill: #000;
+    -fx-font-family: "Linux Biolinum Bold";
+    -fx-font-weight:bold;
+    -fx-pref-height: 48px;
+    -fx-max-height: 48px;
+    -fx-min-height: 48px;
+}
+
+.button:hover {
+    -fx-background-color: #c33;
+    -fx-text-fill: #fff;
+}
+
+.dialog_title {
+    -fx-background-color: #c33;
+    -fx-text-fill: #fff;
+    -fx-font-size: 18px;
+    -fx-font-family: "Linux Biolinum Bold";
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 4px;
+    -fx-border-color: #fff;
+    -fx-border-insets: 0;
+    -fx-padding: 10px;
+}
+
+.menu_270px_width {
+	-fx-pref-width: 270px;
+	-fx-max-width: 270px;
+	-fx-min-width: 270px;
+}
+
+.top_border_only {
+    -fx-border-width: 1px 0px 0px 0;
+    -fx-border-color: #eee;
+}
+
+.bottom_border_only {
+    -fx-border-width: 0px 0px 1px 0;
+    -fx-border-color: #eee;
+}
+
+.right_border_only {
+    -fx-border-width: 0px 1px 0px 0;
+    -fx-border-color: #eee;
+}
+
+.border_1px {
+    -fx-border-width: 1px;
+    -fx-border-color: #eee;
+}
+
+.semi_transparent {
+    -fx-background-color: #00000088;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+
+
+
+
+
+
+/************************************************************* MISC *******************************************************************/
+
+.panel_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 2px;
+}
+
+.panel_button {
+    -fx-background-color: #eee;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-border-color: #fff;
+    -fx-border-insets: 0;
+    -fx-padding: 0px;
+    -fx-font-size: 16px;
+    -fx-text-fill: #333;
+    -fx-font-family: "Linux Biolinum Bold";
+    -fx-font-weight:bold;
+    -fx-pref-width: 167px;
+    -fx-max-width: 167px;
+    -fx-min-width: 167px;
+    -fx-margin: 0 4px 0 4px;
+}
+
+.panel_button:hover {
+    -fx-background-color: #c33;
+    -fx-text-fill: #fff;
+    -fx-fill: #FFF;
+}
+
+.panel_button_icon {
+    -fx-icon-size: 32px;
+}
+
+.panel_button_icon_refresh {
+    -fx-icon-code: "Material Icons:E627";
+}
+
+.panel_button_icon_import {
+    -fx-icon-code: "Material Icons:E2C0";
+}
+
+.panel_button_icon_close {
+    -fx-icon-code: "Material Icons:E14C";
+}
+
+.panel_button_icon_clear_sel {
+    -fx-icon-code: "Material Icons:E16C";
+}
+
+.panel_button_icon_sel_all {
+    -fx-icon-code: "Material Icons:E065";
+}
+
+.selection_icon_1 {
+    -fx-icon-code: "Material Icons:E5CA";
+    -fx-icon-size: 64px;
+    -fx-text-fill: #0a0;
+    -fx-fill: #0a0;
+}
+
+IconNode {
+    -fx-icon-size: 32px;
+    -fx-text-fill: #333333;
+	-fx-fill: #333333;
+}
+
+.tree_dir_icon {
+	-fx-icon-size: 16px;
+    -fx-fill: #333;
+}
+
+.tree_dir_icon_empty {
+	-fx-icon-size: 16px;
+    -fx-fill: #333;
+}
+
+.iconOk {
+    -fx-icon-code: "Material Icons:E86C";
+}
+
+.iconCancel {
+    -fx-icon-code: "Material Icons:E92B";
+}
+
+.split-pane:horizontal > .split-pane-divider {
+   -fx-background-color: #eee;
+}
+.split-pane:vertical > .split-pane-divider {
+   -fx-background-color: #eee;
+}
+
+.StringFieldElementTextArea,
+.StringFieldElementTextArea:focused,
+.StringFieldElementTextArea .corner,
+.StringFieldElementTextArea .viewport {
+	-fx-background-color: #fff;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0px;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-font-size: 14px;
+    -fx-text-fill: #333;
+	-fx-font-family: "Linux Biolinum Bold";
+	-fx-border-color: #fff;
+}
+
+.StringFieldElementTextArea .scroll-bar:horizontal .track,
+.StringFieldElementTextArea .scroll-bar:vertical .track {
+    -fx-background-color:#fff;
+    -fx-border-color:#fff;
+    -fx-background-radius: 0em;
+    -fx-border-radius:0em;
+}
+
+.StringFieldElementTextArea .scroll-bar:horizontal .increment-button ,
+.StringFieldElementTextArea .scroll-bar:horizontal .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 0 10 0;
+}
+
+.StringFieldElementTextArea .scroll-bar:vertical .increment-button ,
+.StringFieldElementTextArea .scroll-bar:vertical .decrement-button {
+    -fx-background-color:#fff;
+    -fx-background-radius: 0;
+    -fx-padding:0 10 0 0;
+}
+
+.StringFieldElementTextArea  .scroll-bar .increment-arrow,
+.StringFieldElementTextArea  .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding:0;
+}
+
+.StringFieldElementTextArea .scroll-bar:horizontal .thumb,
+.StringFieldElementTextArea .scroll-bar:vertical .thumb {
+    -fx-background-color:#ccc;
+    -fx-background-insets: 0;/* 2 2 2 2, 0, 0;*/
+    -fx-background-radius: 0;
+}
+
+.StringFieldElementTextArea_height {
+	-fx-pref-height: 88px;
+	-fx-max-height: 88px;
+	-fx-min-height: 88px;
+}
+
+/**************************************************** MENU ****************************************************************************/
+
+.menu_max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.menu_max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.menu_element_height {
+	-fx-pref-height: 32px;
+	-fx-min-height: 32px;
+	-fx-max-height: 32px;
+}
+
+.menu_separator {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-pref-height: 6px;
+	-fx-min-height: 6px;
+	-fx-max-height: 6px;
+}
+
+.menu_null_container {
+	-fx-spacing: 6px;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-border-color: #bbb;
+}
+
+.menu_group_header {
+    -fx-padding: 4px 4px 4px 0px;
+    -fx-background-color: transparent;
+	-fx-font-family: "Linux Biolinum Bold";
+    -fx-font-weight:bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: #FFF;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 1px 0;
+    -fx-border-insets: 0;
+	-fx-border-color: #bbb;
+}
+
+.menu_group_container {
+    -fx-padding: 0 0 0px 4px;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-border-color: transparent;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 11, 0, 0, 0);
+}
+
+.menu_group_container_red {
+	-fx-background-color: #CC5555;
+}
+
+.menu_group_container_green {
+	-fx-background-color: #55CC55;
+}
+
+.menu_item {
+    -fx-padding: 4px 4px 4px 4px;
+    -fx-background-color: #FFF;
+    -fx-font-size: 12px;
+    -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 1px 0;
+    -fx-border-insets: 0;
+	-fx-border-color: #ddd;
+}
+
+.menu_item:hover {
+	-fx-background-color: #DDDDDD;
+}
+
+.menu_item_icon {
+	-fx-icon-size: 24px;
+	-fx-fill: gray;
+}
+
+.menu_group_icon {
+	-fx-icon-size: 24px;
+	-fx-fill: #fff;
+}
+
+.menu_item_selected {
+	-fx-background-color: #ddd;
+}
+
+.header_icon_images {
+	-fx-icon-size: 32px;
+	-fx-icon-code: "Material Icons:E432";
+	-fx-fill: #FFF;
+}
+
+.header_icon_settings {
+	-fx-icon-size: 32px;
+	-fx-icon-code: "Material Icons:E8B8";
+	-fx-fill: #FFF;
+}
+
+.menu_app_logo {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-pref-height: 64px;
+	-fx-min-height: 64px;
+	-fx-max-height: 64px;
+}
+
+.menu_root {
+	-fx-background-color: #fff;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 1px;
+	-fx-border-color: #aaa;
+    -fx-border-insets: 0;
+	-fx-padding: 0px;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 12, 0, 0, 0);
+}
+
+.context_menu_item, .context_menu_item_bold {
+	-fx-font-size: 14px;
+    -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum";
+	-fx-padding: 8px;
+	-fx-background-color: #fff;
+}
+
+.context_menu_item:hover, .context_menu_item_bold:hover {
+	-fx-background-color: #ddd;
+	-fx-text-fill: #000;
+}
+
+/********************************************************* PAGINATOR ***********************************************************************/
+
+.paginator_max_width {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+}
+
+.paginator_max_height {
+	-fx-pref-height: 9999px;
+	-fx-max-height: 9999px;
+	-fx-min-height: 1px;
+}
+
+.paginator_null_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+}
+
+.paginator_root_pane {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 3px;
+}
+
+.paginator_icon {
+	-fx-fill: #000;
+	-fx-icon-size: 24px;
+	-fx-pref-width: 32px;
+	-fx-max-width: 32px;
+	-fx-min-width: 32px;
+}
+
+.paginator_icon:hover {
+	-fx-fill: #F00;
+	-fx-icon-size: 24px;
+}
+
+.paginator_icon_next {
+	-fx-icon-code: "Material Icons:E5CC";
+}
+
+.paginator_icon_prev {
+	-fx-icon-code: "Material Icons:E5CB";
+}
+
+.paginator_icon_end {
+	-fx-icon-code: "Material Icons:E5DD";
+}
+
+.paginator_icon_start {
+	-fx-icon-code: "Material Icons:E5DC";
+}
+
+.paginator_icon_navto {
+	-fx-icon-code: "Material Icons:E01F";
+}
+
+.paginator_total_count_label {
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0 11px 0 11px;
+	-fx-font-size: 14px;
+    -fx-text-fill: #000;
+	-fx-font-family: "Linux Biolinum Bold";
+}
+
+.paginator_root_spacer {
+	-fx-spacing: 8px;
+}
+
+.paginator_text_width {
+	-fx-pref-width: 80px;
+	-fx-max-width: 80px;
+	-fx-min-width: 80px;
+}
+
+.paginator_text_pane {
+    -fx-font-family: "Linux Biolinum";
+    -fx-font-size: 14px;
+    -fx-text-fill: #000;
+    -fx-pref-height: 30px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-background-color: #fff;
+    -fx-border-width: 0px 1px 1px 0;
+    -fx-border-color: #eee;
+}
+
+.main_window_badly_input {
+	-fx-background-color: #AFA;
+}
+
+.main_window_good_input {
+	-fx-background-color: #FFF;
+}
+
+/********************************************************************************************************************************/

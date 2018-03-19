@@ -27,7 +27,7 @@
         </encoder>
     </appender>
     
-    <appender name="FORM" class="jnekoimagesdb.domain.LoggerUtil" />
+    <appender name="FORM" class="utils.LoggerUtils" />
     
     <logger name="org.hibernate" level="INFO" additivity="false">
         <appender-ref ref="FILE_HIBERNATE" />
