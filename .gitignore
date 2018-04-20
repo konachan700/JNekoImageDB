@@ -31,3 +31,5 @@ build
 
 *.iml
 .directory
+.idea
+*/.idea*

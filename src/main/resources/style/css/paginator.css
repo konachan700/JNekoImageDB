@@ -1,0 +1,45 @@
+.paginator_null_pane {
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+	-fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0;
+	-fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0 12px 0 0;
+}
+
+.paginator_icon {
+	-fx-fill: #444;
+	-fx-icon-size: 24px;
+    -fx-padding: 0 5px 0 5px;
+}
+
+.paginator_total_count_label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #444;
+    -fx-font-family: "Fjalla One";
+    -fx-padding: 0 17px 0 17px;
+}
+
+.paginator_icon_next {
+	-fx-icon-code: "Material Icons:E5CC";
+}
+
+.paginator_icon_prev {
+	-fx-icon-code: "Material Icons:E5CB";
+}
+
+.paginator_icon_end {
+	-fx-icon-code: "Material Icons:E5DD";
+}
+
+.paginator_icon_start {
+	-fx-icon-code: "Material Icons:E5DC";
+}
+
+.paginator_icon_navto {
+	-fx-icon-code: "Material Icons:E01F";
+}
