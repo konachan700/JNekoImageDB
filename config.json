@@ -1,0 +1,23 @@
+{
+  "primaryButton": "PRIMARY",
+  "secondaryButton": "SECONDARY",
+  "browserOutboxFolder": "./storage/outbox",
+  "windowDimensions": {
+    "mainWindow": {
+      "width": 1440.0,
+      "height": 992.0
+    }
+  },
+  "windowResizeStep": 32,
+  "minImageSize": 16.0,
+  "localFsPreviewsCountInRow": 6,
+  "localFsPreviewsCountInCol": 5,
+  "localDbPreviewsCountInRow": 6,
+  "localDbPreviewsCountInCol": 5,
+  "localFsAllowedFileTypes": [
+    ".jpg",
+    ".jpe",
+    ".jpeg",
+    ".png"
+  ]
+}

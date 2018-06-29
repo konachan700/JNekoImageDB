@@ -1,0 +1,58 @@
+.ui_element_text_field_normal {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+    -fx-min-height: 1px;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0 1px 1px 0;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-background-color: #FFF;
+    -fx-font-size: 14px;
+    -fx-text-fill: #000;
+    -fx-font-family: "Titillium Web";
+    -fx-padding: 4px 12px 4px 12px;
+    -fx-border-color:#ccc;
+}
+
+.ui_element_text_field_error {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+    -fx-pref-height: 32px;
+    -fx-max-height: 32px;
+    -fx-min-height: 1px;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0 1px 1px 0;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-background-color: #FFF;
+    -fx-font-size: 14px;
+    -fx-text-fill: #500;
+    -fx-font-family: "Titillium Web";
+    -fx-padding: 4px 12px 4px 12px;
+    -fx-border-color:#F00;
+}
+
+.ui_element_label {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0 0 0 0;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-background-color: #FFF;
+    -fx-font-size: 14px;
+    -fx-text-fill: #555;
+    -fx-font-family: "Titillium Web";
+    -fx-padding: 4px 12px 4px 12px;
+}

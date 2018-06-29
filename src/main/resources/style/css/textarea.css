@@ -1,0 +1,47 @@
+.text-area {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-background-color: #FFF;
+	-fx-border-color: #000;
+    -fx-font-size: 12px;
+    -fx-text-fill: #333;
+    -fx-padding: 12px;
+}
+
+.text-area > .scroll-pane {
+    -fx-background-color: null;
+}
+
+.text-area > .scroll-pane > .scroll-bar:horizontal {
+    -fx-background-radius: 0;
+}
+
+.text-area > .scroll-pane > .scroll-bar:vertical {
+    -fx-background-radius: 0;
+}
+
+.text-area > .scroll-pane > .corner {
+    -fx-background-radius: 0;
+}
+
+.text-area .content {
+    -fx-padding: 0.25em 0.583em 0.25em 0.583em;
+    -fx-cursor: text;
+    -fx-background-color: #FFF;
+    -fx-background-radius: 0;
+}
+
+.text-area:focused .content {
+    -fx-background-color: #FFF;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}

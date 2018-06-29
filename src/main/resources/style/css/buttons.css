@@ -1,0 +1,134 @@
+.panel_button_big_1 {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-border-color: #fff;
+    -fx-border-insets: 0;
+    -fx-padding: 0 24px 0 24px;
+    -fx-font-size: 20px;
+    -fx-text-fill: #FFF;
+    -fx-font-family: "Fjalla One";
+    -fx-margin: 0 0px 0 0px;
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+}
+
+.panel_button_big_1:hover {
+    -fx-background-color: #c33;
+    -fx-text-fill: #fff;
+    -fx-fill: #FFF;
+}
+
+.panel_button_subheader_1 {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0 0 0px 0;
+    -fx-border-color: #999;
+    -fx-border-insets: 0;
+    -fx-padding: 0 14px 0 14px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #444;
+    -fx-font-family: "Fjalla One";
+    -fx-margin: 0px 0px 0 0px;
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+}
+
+.panel_button_subheader_1:hover {
+    -fx-background-color: #c33;
+    -fx-text-fill: #fff;
+    -fx-fill: #FFF;
+    -fx-border-color: #f77;
+}
+
+.panel_button_footer_1 {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0 0 0px 0;
+    -fx-border-color: #999;
+    -fx-border-insets: 0;
+    -fx-padding: 0 10px 0 10px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #FFF;
+    -fx-font-family: "Fjalla One";
+    -fx-margin: 0px 0px 0 0px;
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+}
+
+.panel_button_footer_1:hover {
+    -fx-background-color: #700;
+    -fx-text-fill: #fff;
+}
+
+.vertical_panel_box {
+	-fx-pref-width: 48px;
+	-fx-max-width: 48px;
+	-fx-min-width: 48px;
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+    -fx-background-radius: 0 0 0 0;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px 0 0 0px;
+    -fx-border-insets: 0;
+    -fx-padding: 0;
+    -fx-background-color: #333;
+}
+
+.vertical_panel_box_button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-border-insets: 0;
+    -fx-padding: 0px;
+    -fx-text-fill: #FFF;
+    -fx-margin: 0 0px 0 0px;
+    -fx-pref-height: 48px;
+    -fx-max-height: 48px;
+    -fx-min-height: 48px;
+    -fx-pref-width: 48px;
+    -fx-max-width: 48px;
+    -fx-min-width: 48px;
+}
+
+.vertical_panel_box_button:hover {
+    -fx-background-color: #c33;
+    -fx-text-fill: #fff;
+    -fx-fill: #FFF;
+}
+
+.vertical_panel_button_icon {
+	-fx-fill: #FFF;
+	-fx-icon-size: 32px;
+}
+
+.vertical_panel_separator {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-border-insets: 0;
+    -fx-padding: 0px;
+    -fx-text-fill: #FFF;
+    -fx-margin: 0 0px 0 0px;
+    -fx-pref-height: 24px;
+    -fx-max-height: 24px;
+    -fx-min-height: 24px;
+    -fx-pref-width: 48px;
+    -fx-max-width: 48px;
+    -fx-min-width: 48px;
+}
