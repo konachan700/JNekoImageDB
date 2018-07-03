@@ -2,6 +2,7 @@ package service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -56,8 +57,14 @@ public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService
 	private final MVMap<byte[], Metadata> imagesMetadata;
 
 	public LocalDaoServiceImpl(CryptographyService cryptographyService) {
+		final File path = getDbDir();
+		path.mkdirs();
+		if (!path.exists() || !path.isDirectory()) {
+			throw new ExceptionInInitializerError("Can't create database directory");
+		}
+
 		// **************** H2 KV storage ***************
-		metadataFile = getFile("metadata.kv");
+		metadataFile = new File(path.getAbsolutePath() + File.separator + cryptographyService.getNameForMetadataDb() + ".meta");
 		mvStore = new MVStore.Builder()
 				.fileName(metadataFile.getAbsolutePath())
 				.encryptionKey(Hex.encodeHex(cryptographyService.getAuthData()))
@@ -67,7 +74,8 @@ public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService
 		imagesMetadata = mvStore.openMap("imagesMetadata");
 
 		// **************** Hibernate ***************
-		hibernateDatabaseURI = "jdbc:h2:" + new File(UseStorageDirectory.STORAGE_ROOT_DIR).getAbsolutePath() + File.separator + "database;CIPHER=AES;";
+		final String dbName = cryptographyService.getNameForMainDb();
+		hibernateDatabaseURI = "jdbc:h2:" + path.getAbsolutePath() + File.separator + dbName + ";CIPHER=AES;";
 		hibernateDatabasePassword = Hex.encodeHexString(cryptographyService.getAuthData());
 
 		try {
@@ -75,7 +83,7 @@ public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService
 			prop.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
 			prop.setProperty("hibernate.hbm2ddl.auto", "update");
 			prop.setProperty("hibernate.connection.url", hibernateDatabaseURI);
-			prop.setProperty("hibernate.connection.username", "mew");
+			prop.setProperty("hibernate.connection.username", dbName);
 			prop.setProperty("hibernate.connection.password", hibernateDatabasePassword + " " + hibernateDatabasePassword);
 			prop.setProperty("dialect", "org.hibernate.dialect.H2Dialect");
 			//prop.setProperty("hibernate.show_sql", "true");

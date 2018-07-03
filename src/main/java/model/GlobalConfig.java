@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.scene.input.MouseButton;
+import service.CryptographyServiceImpl;
 import ui.dialogs.windows.engine.WindowDimension;
 import ui.imageview.localdb.LocalDbImageView;
 
@@ -19,6 +20,10 @@ public class GlobalConfig {
 	public static final String PREVIEW_FORMAT = "jpg";
 
 	/***********************************************************************************************************************/
+
+	// encrypting
+	private CryptographyServiceImpl.EncryptType encryptType = CryptographyServiceImpl.EncryptType.AES128;
+	private String salt = "6325btvt678&^Vg876cf^f7(gyv9t7rer6c&5w42s3as53zwsxtrv08bIOUN9)^*G^XWE$Zw4z6";
 
 	// general input
 	private MouseButton primaryButton = MouseButton.PRIMARY;
@@ -141,5 +146,21 @@ public class GlobalConfig {
 
 	public void setSecondaryButton(MouseButton secondaryButton) {
 		this.secondaryButton = secondaryButton;
+	}
+
+	public CryptographyServiceImpl.EncryptType getEncryptType() {
+		return encryptType;
+	}
+
+	public void setEncryptType(CryptographyServiceImpl.EncryptType encryptType) {
+		this.encryptType = encryptType;
+	}
+
+	public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
 	}
 }

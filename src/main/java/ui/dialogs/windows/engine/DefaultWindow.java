@@ -48,6 +48,42 @@ public class DefaultWindow extends Stage implements UseServices {
 	private double xOffset = 0;
 	private double yOffset = 0;
 
+	public DefaultWindow(String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
+		super();
+
+		setResizable(false);
+		windowContainer.getStylesheets().add(getClass().getResource("/style/css/main.css").toExternalForm());
+		StyleParser.parseStyles(this);
+
+		if (hasHeader) {
+			windowContainer.getChildren().add(header);
+			header.getChildren().addAll(imgLogoNode, headerPanel);
+			if (hasSubHeader) windowContainer.getChildren().add(getSubheader());
+		}
+
+		final Double w = 640D;
+		final Double h = 480D;
+
+		scene = new Scene(windowContainer, w, h);
+		this.setWidth(w);
+		this.setHeight(h);
+		windowContainer.getChildren().add(getActivityHolder());
+
+		if (hasFooter) {
+			windowContainer.getChildren().add(footerHolder);
+			footerHolder.getChildren().addAll(footer);
+		}
+
+		this.getIcons().add(new Image("/style/icons/icon32.png"));
+		this.getIcons().add(new Image("/style/icons/icon64.png"));
+		this.getIcons().add(new Image("/style/icons/icon128.png"));
+		this.setMinWidth(w);
+		this.setMinHeight(h);
+		this.setTitle(windowName);
+		this.setScene(scene);
+		this.setOnCloseRequest(Event::consume);
+	}
+
 	public DefaultWindow(String windowId, String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
 		super();
 

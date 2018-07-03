@@ -35,6 +35,23 @@
 	-fx-border-color: #000;
 }
 
+.fill_all_for_password {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 16px;
+	-fx-background-color: #FFF;
+	-fx-border-color: #000;
+}
+
 .window_header {
 	-fx-pref-width: 9999px;
 	-fx-max-width: 9999px;

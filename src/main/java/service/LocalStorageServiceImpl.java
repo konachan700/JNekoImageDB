@@ -84,7 +84,7 @@ public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorag
 				if (localDaoService.imagesElementExist(encryptedHash)) {
 					Platform.runLater(() ->
 							task.getInformer().onProgress(
-									"ALREADY EXIST [" + qCount + "]\n\tFile: " + task.getImagePath().toString(), qCount));
+									"ALREADY EXIST [" + qCount + "]\tFile: " + task.getImagePath().toString(), qCount));
 					return;
 				}
 
@@ -106,11 +106,11 @@ public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorag
 
 				Platform.runLater(() ->
 						task.getInformer().onProgress(
-								"OK [" + qCount + "]\n\tFile: " + task.getImagePath().toString(), qCount));
+								"OK [" + qCount + "]\tFile: " + task.getImagePath().toString(), qCount));
 			} catch (Exception e) {
 				Platform.runLater(() ->
 						task.getInformer().onProgress(
-								"ERROR: \n\tMessage: " + e.getMessage() + "\n\tFile: " + task.getImagePath().toString(), qCount));
+								"ERROR! Message: " + e.getMessage() + "\n\tFile: " + task.getImagePath().toString(), qCount));
 			}
 		}
 	};
@@ -119,7 +119,13 @@ public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorag
         this.cryptographyService = cryptographyService;
         this.localDaoService = localDaoService;
 
-        cacheFile = getFile("cache.kv");
+		final File path = getDbDir();
+		path.mkdirs();
+		if (!path.exists() || !path.isDirectory()) {
+			throw new ExceptionInInitializerError("Can't create database directory");
+		}
+
+		cacheFile = new File(path.getPath() + File.separator + cryptographyService.getNameForCacheDb() + ".cache");
         mvStore = new MVStore.Builder()
                 .fileName(cacheFile.getAbsolutePath())
                 .encryptionKey(Hex.encodeHex(cryptographyService.getAuthData()))

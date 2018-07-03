@@ -15,7 +15,7 @@ import ui.elements.PanelButton;
 import ui.elements.entity.GlobalConfigUiEntity;
 
 @HasStyledElements
-public class MainWindow extends DefaultWindow implements UseServices{
+public class MainWindow extends DefaultWindow implements UseServices {
 	private final ActivityHolder activityHolder = this.getActivityHolder();
 	private final MainActivity mainActivity = new MainActivity(activityHolder);
 

@@ -28,7 +28,7 @@ public class InitService implements UseStorageDirectory {
 	private final AtomicBoolean init = new AtomicBoolean(false);
 
 	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	private final Path configPath = new File("./config.json").getAbsoluteFile().toPath();
+	private Path configPath = null;
 	private final GlobalConfig config = new GlobalConfig();
 
 	private final Map<Class, Disposable> services = new HashMap<>();
@@ -52,6 +52,7 @@ public class InitService implements UseStorageDirectory {
 		}
 
 		// ******************** Read configuration ********************
+		configPath = new File(storageDirectory.getPath() + File.separator + "config.json").getAbsoluteFile().toPath();
 		try {
 			final String configData = new String(Files.readAllBytes(configPath));
 			final GlobalConfig tempConfig = gson.fromJson(configData, GlobalConfig.class);
@@ -67,7 +68,7 @@ public class InitService implements UseStorageDirectory {
 		}
 
 		// ******************** Start services ********************
-		final CryptographyService cryptographyService = CryptographyServiceImpl.getInstance(password);
+		final CryptographyService cryptographyService = CryptographyServiceImpl.getInstance(password, config.getSalt(), config.getEncryptType());
 		final LocalDaoService localDaoService = new LocalDaoServiceImpl(cryptographyService);
 		final LocalStorageService localStorageService = new LocalStorageServiceImpl(cryptographyService, localDaoService);
 
@@ -85,13 +86,15 @@ public class InitService implements UseStorageDirectory {
 		if (!init.get()) return;
 
 		// ******************** Save configuration ********************
-		final String configData = gson.toJson(config);
-		try {
-			Files.delete(configPath);
-			Files.write(configPath, configData.getBytes(), CREATE);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			throw new IllegalStateException("Can't write config");
+		if (configPath != null) {
+			final String configData = gson.toJson(config);
+			try {
+				Files.delete(configPath);
+				Files.write(configPath, configData.getBytes(), CREATE);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				throw new IllegalStateException("Can't write config");
+			}
 		}
 
 		// ******************** Stop threads and timers ********************

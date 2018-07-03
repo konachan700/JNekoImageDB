@@ -16,6 +16,10 @@ public interface UseStorageDirectory {
 		return new File(getStorageDirectory().getAbsolutePath() + File.separator + file).getAbsoluteFile();
 	}
 
+	default File getDbDir() {
+		return new File(getStorageDirectory().getAbsolutePath() + File.separator + "db").getAbsoluteFile();
+	}
+
 	default String getExtention(File f) {
 		final String name = f.getName();
 		final int extDotPos = name.lastIndexOf(".");
