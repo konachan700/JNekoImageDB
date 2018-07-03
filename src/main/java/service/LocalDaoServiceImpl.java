@@ -67,7 +67,7 @@ public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService
 		imagesMetadata = mvStore.openMap("imagesMetadata");
 
 		// **************** Hibernate ***************
-		hibernateDatabaseURI = "jdbc:h2:" + storageDirectory.getAbsolutePath() + File.separator + "database;CIPHER=AES;";
+		hibernateDatabaseURI = "jdbc:h2:" + new File(UseStorageDirectory.STORAGE_ROOT_DIR).getAbsolutePath() + File.separator + "database;CIPHER=AES;";
 		hibernateDatabasePassword = Hex.encodeHexString(cryptographyService.getAuthData());
 
 		try {

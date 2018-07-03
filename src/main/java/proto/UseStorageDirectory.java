@@ -6,16 +6,14 @@ import java.io.File;
 
 public interface UseStorageDirectory {
 	String PREFIX = "DB";
-	File storageDirectory = new File("./storage").getAbsoluteFile();
+	String STORAGE_ROOT_DIR = "./storage";
 
-	default File getDirectory() {
-		storageDirectory.mkdirs();
-		if (storageDirectory.exists() && storageDirectory.isDirectory()) return storageDirectory;
-		throw new IllegalStateException("UseStorageDirectory.getDirectory() cannot create storage directory");
+	default File getStorageDirectory() {
+		return new File(STORAGE_ROOT_DIR).getAbsoluteFile();
 	}
 
 	default File getFile(String file) {
-		return new File(getDirectory().getAbsolutePath() + File.separator + file).getAbsoluteFile();
+		return new File(getStorageDirectory().getAbsolutePath() + File.separator + file).getAbsoluteFile();
 	}
 
 	default String getExtention(File f) {
@@ -27,7 +25,7 @@ public interface UseStorageDirectory {
 	default File getLocalStorageElement(String storageName, byte[] hash) {
 		final StringBuilder pathToStorageDir = new StringBuilder();
 		pathToStorageDir
-				.append(getDirectory().getAbsolutePath())
+				.append(getStorageDirectory().getAbsolutePath())
 				.append(File.separator)
 				.append(storageName)
 				.append(File.separator)

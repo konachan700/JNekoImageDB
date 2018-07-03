@@ -7,15 +7,13 @@ import jiconfont.icons.GoogleMaterialDesignIcons;
 import jiconfont.javafx.IconFontFX;
 import model.BinaryImage;
 import proto.UseServices;
+import service.InitService;
 import ui.dialogs.windows.MainWindow;
 
 public class Main extends Application implements UseServices {
     @Override
     public void start(Stage primaryStage) {
         IconFontFX.register(GoogleMaterialDesignIcons.getIconFont());
-
-
-
 
         init("123");
 
