@@ -56,3 +56,18 @@
     -fx-font-family: "Titillium Web";
     -fx-padding: 4px 12px 4px 12px;
 }
+
+.popup_title {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0px;
+    -fx-border-color: #fff;
+    -fx-border-insets: 0;
+    -fx-padding: 0px;
+    -fx-font-size: 16px;
+    -fx-text-fill: #FFF;
+    -fx-font-family: "Fjalla One";
+    -fx-margin: 0 0px 0 0px;
+}

@@ -1,10 +1,20 @@
 package ui.dialogs.windows.engine;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -19,8 +29,14 @@ public class DefaultWindow extends Stage implements UseServices {
 	private final Image logoImage = new Image("/style/images/logo_inv.png");
 	private final ImageView imgLogoNode = new ImageView(logoImage);
 
-	@CssStyle({"window_root_pane"})
+	@CssStyle({"content_win_root_pane"})
 	final VBox windowContainer = new VBox();
+
+	@CssStyle({"popup_root_pane"})
+	final VBox notifyContainer = new VBox();
+
+	@CssStyle({"window_root_pane"})
+	final AnchorPane rootWindowPane = new AnchorPane(windowContainer, notifyContainer);
 
 	@CssStyle({"window_header"})
 	final HBox header = new HBox();
@@ -38,7 +54,7 @@ public class DefaultWindow extends Stage implements UseServices {
 	final HBox footer = new HBox();
 
 	@CssStyle({"content_pane"})
-	private final ActivityHolder activityHolder = new ActivityHolder(footer, subheader, headerPanel);
+	private final ActivityHolder activityHolder = new ActivityHolder(this);
 
 	@CssStyle({"window_resizer"})
 	final HBox resizer = new HBox();
@@ -48,11 +64,33 @@ public class DefaultWindow extends Stage implements UseServices {
 	private double xOffset = 0;
 	private double yOffset = 0;
 
+	private static final ArrayList<Timer> timers = new ArrayList<>();
+	private final Timer timer = new Timer();
+	private final TimerTask timerTask = new TimerTask() {
+		@Override
+		public void run() {
+			final Long liveTime = getConfig().getPopupLifeTime();
+			final Long time = System.currentTimeMillis();
+			final Set<Node> nodes = new HashSet<>();
+			Platform.runLater(() -> {
+				notifyContainer.getChildren().forEach(node -> {
+					if (node instanceof Popup) {
+						if ((((Popup) node).getCreatedTime() + liveTime) < time) {
+							nodes.add(node);
+						}
+					}
+				});
+				notifyContainer.getChildren().removeAll(nodes);
+			});
+		}
+	};
+
 	public DefaultWindow(String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
 		super();
+		timers.add(timer);
 
 		setResizable(false);
-		windowContainer.getStylesheets().add(getClass().getResource("/style/css/main.css").toExternalForm());
+		rootWindowPane.getStylesheets().add(getClass().getResource("/style/css/main.css").toExternalForm());
 		StyleParser.parseStyles(this);
 
 		if (hasHeader) {
@@ -61,10 +99,18 @@ public class DefaultWindow extends Stage implements UseServices {
 			if (hasSubHeader) windowContainer.getChildren().add(getSubheader());
 		}
 
+		AnchorPane.setLeftAnchor(windowContainer, 0D);
+		AnchorPane.setTopAnchor(windowContainer, 0D);
+		AnchorPane.setBottomAnchor(windowContainer, 0D);
+		AnchorPane.setRightAnchor(windowContainer, 0D);
+
+		AnchorPane.setRightAnchor(notifyContainer, 16D);
+		AnchorPane.setBottomAnchor(notifyContainer, 16D);
+
 		final Double w = 640D;
 		final Double h = 480D;
 
-		scene = new Scene(windowContainer, w, h);
+		scene = new Scene(rootWindowPane, w, h);
 		this.setWidth(w);
 		this.setHeight(h);
 		windowContainer.getChildren().add(getActivityHolder());
@@ -86,10 +132,11 @@ public class DefaultWindow extends Stage implements UseServices {
 
 	public DefaultWindow(String windowId, String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
 		super();
+		timers.add(timer);
 
 		//initStyle(StageStyle.UNDECORATED);
 		setResizable(false);
-		windowContainer.getStylesheets().add(getClass().getResource("/style/css/main.css").toExternalForm());
+		rootWindowPane.getStylesheets().add(getClass().getResource("/style/css/main.css").toExternalForm());
 		StyleParser.parseStyles(this);
 
 		if (hasHeader) {
@@ -108,11 +155,19 @@ public class DefaultWindow extends Stage implements UseServices {
 			});
 		}
 
+		AnchorPane.setLeftAnchor(windowContainer, 0D);
+		AnchorPane.setTopAnchor(windowContainer, 0D);
+		AnchorPane.setBottomAnchor(windowContainer, 0D);
+		AnchorPane.setRightAnchor(windowContainer, 0D);
+
+		AnchorPane.setRightAnchor(notifyContainer, 16D);
+		AnchorPane.setBottomAnchor(notifyContainer, 16D);
+
 		final Double w = getConfig().getWindowDimension(windowId).getWidth();
 		final Double h = getConfig().getWindowDimension(windowId).getHeight();
 		final int step = getConfig().getWindowResizeStep();
 
-		scene = new Scene(windowContainer, w, h);
+		scene = new Scene(rootWindowPane, w, h);
 		this.setWidth(w);
 		this.setHeight(h);
 
@@ -140,6 +195,13 @@ public class DefaultWindow extends Stage implements UseServices {
 
 		heightProperty().addListener((e, o, n) -> getConfig().getWindowDimension(windowId).setHeight(n.doubleValue()));
 		widthProperty().addListener((e, o, n) -> getConfig().getWindowDimension(windowId).setWidth(n.doubleValue()));
+
+		timer.schedule(timerTask, 100, 1000);
+	}
+
+	public void popup(String title, String text) {
+		final Popup popup = new Popup(title, text, (e, p) -> notifyContainer.getChildren().remove(p));
+		notifyContainer.getChildren().add(popup);
 	}
 
 	public void show(boolean modal) {
@@ -166,5 +228,9 @@ public class DefaultWindow extends Stage implements UseServices {
 
 	public ActivityHolder getActivityHolder() {
 		return activityHolder;
+	}
+
+	public static void disposeStatic() {
+		timers.forEach(Timer::cancel);
 	}
 }

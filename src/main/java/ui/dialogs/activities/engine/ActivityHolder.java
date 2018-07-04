@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import ui.dialogs.windows.engine.DefaultWindow;
 
 public class ActivityHolder extends HBox {
 	public static interface OnCountChangeListener {
@@ -17,12 +18,18 @@ public class ActivityHolder extends HBox {
 	private final Stack<ActivityPage> prevActivities = new Stack<>();
 	private ActivityPage currentActivity;
 	private final Pane footerHolder, subheaderHolder, windowHeader;
+	private final DefaultWindow defaultWindow;
 
-	public ActivityHolder(Pane footerHolder, Pane subheaderHolder, Pane windowHeader) {
+	public ActivityHolder(DefaultWindow defaultWindow) {
 		super();
-		this.footerHolder = footerHolder;
-		this.subheaderHolder = subheaderHolder;
-		this.windowHeader = windowHeader;
+		this.defaultWindow = defaultWindow;
+		this.footerHolder = defaultWindow.getFooter();
+		this.subheaderHolder = defaultWindow.getSubheader();
+		this.windowHeader = defaultWindow.getHeader();
+	}
+
+	public void popup(String title, String text) {
+		this.defaultWindow.popup(title, text);
 	}
 
 	public void showFirst(ActivityPage activity) {

@@ -1,10 +1,4 @@
 .text-area {
-	-fx-pref-width: 9999px;
-	-fx-max-width: 9999px;
-	-fx-min-width: 1px;
-    -fx-pref-height: 9999px;
-    -fx-max-height: 9999px;
-    -fx-min-height: 1px;
     -fx-background-radius: 0px;
     -fx-background-insets: 0, 0, 0, 0;
 	-fx-border-radius: 0px;
@@ -17,8 +11,33 @@
     -fx-padding: 12px;
 }
 
+.text-area-transparent,
+.text-area-transparent .content,
+.text-area-transparent:focused .content {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+}
+
+.text-area-max-size {
+	-fx-pref-width: 9999px;
+	-fx-max-width: 9999px;
+	-fx-min-width: 1px;
+    -fx-pref-height: 9999px;
+    -fx-max-height: 9999px;
+    -fx-min-height: 1px;
+}
+
 .text-area > .scroll-pane {
-    -fx-background-color: null;
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-pane .viewport {
+    -fx-background-color: transparent;
 }
 
 .text-area > .scroll-pane > .scroll-bar:horizontal {
@@ -36,12 +55,12 @@
 .text-area .content {
     -fx-padding: 0.25em 0.583em 0.25em 0.583em;
     -fx-cursor: text;
-    -fx-background-color: #FFF;
+    -fx-background-color: transparent;
     -fx-background-radius: 0;
 }
 
 .text-area:focused .content {
-    -fx-background-color: #FFF;
+    -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
 }

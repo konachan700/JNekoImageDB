@@ -35,6 +35,7 @@ public class GlobalConfig {
 	// main window
 	private Map<String, WindowDimension> windowDimensions = new HashMap<>();
 	private int windowResizeStep = 32;
+	private long popupLifeTime = 3300;
 
 	// image view
 	private Double minImageSize	= 16D;
@@ -162,5 +163,13 @@ public class GlobalConfig {
 
 	public void setSalt(String salt) {
 		this.salt = salt;
+	}
+
+	public long getPopupLifeTime() {
+		return popupLifeTime;
+	}
+
+	public void setPopupLifeTime(long popupLifeTime) {
+		this.popupLifeTime = popupLifeTime;
 	}
 }

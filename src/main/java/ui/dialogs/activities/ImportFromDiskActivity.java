@@ -81,8 +81,13 @@ public class ImportFromDiskActivity extends ActivityPage implements UseServices 
 	private final PanelButton buttonImport = new PanelButton("Import selected") {
 		@Override
 		public void onClick(ActionEvent e) {
-			importFromDiskWaitActivity.showNext();
 			final Set<Path> files = fileImageList.getSelectedFiles();
+			if (files.isEmpty()) {
+				popup("Error!", "Select at least a one file before import!");
+				return;
+			}
+
+			importFromDiskWaitActivity.showNext();
 			getService(LocalStorageService.class).importAllLocalDBItems(files, selectedTags, importFromDiskWaitActivity::inform);
 		}
 	};

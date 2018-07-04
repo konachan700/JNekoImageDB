@@ -96,7 +96,10 @@ public class MainActivity extends ActivityPage implements UseServices {
 	private final PanelButton addTagsToSelected = new PanelButton("Add tags for selected") {
 		@Override
 		public void onClick(ActionEvent e) {
-			if (localDbImageDashboard.getSelectedFiles().isEmpty()) return;
+			if (localDbImageDashboard.getSelectedFiles().isEmpty()) {
+				popup("Error!", "Select at least a one file before setting tags!");
+				return;
+			}
 			addTagsActivity.showNext();
 		}
 	};

@@ -28,4 +28,8 @@ public abstract class ActivityPage extends VBox {
 	public ActivityHolder getActivityHolder() {
 		return activityHolder;
 	}
+
+	public void popup(String title, String text) {
+		getActivityHolder().popup(title, text);
+	}
 }

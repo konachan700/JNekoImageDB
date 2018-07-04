@@ -19,6 +19,7 @@ import proto.Disposable;
 import proto.LocalDaoService;
 import proto.LocalStorageService;
 import proto.UseStorageDirectory;
+import ui.dialogs.windows.engine.DefaultWindow;
 import ui.imageview.AbstractImageDashboard;
 import ui.imageview.localdb.LocalDbImageView;
 import ui.imageview.localfs.LocalFsImageView;
@@ -101,6 +102,7 @@ public class InitService implements UseStorageDirectory {
 		AbstractImageDashboard.disposeStatic();
 		LocalDbImageView.disposeStatic();
 		LocalFsImageView.disposeStatic();
+		DefaultWindow.disposeStatic();
 
 		// ******************** Stop services ********************
 		getServices().values().forEach(Disposable::dispose);

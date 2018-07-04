@@ -21,6 +21,8 @@ public class ImportFromDiskWaitActivity extends ActivityPage {
 	private final StringBuilder sb = new StringBuilder();
 
 	private final ProgressBar progressBar = new ProgressBar();
+
+	@CssStyle({"text-area-max-size"})
 	private final TextArea textArea = new TextArea();
 
 	@CssStyle({"panel_button_subheader_1"})

@@ -38,6 +38,7 @@ public class ImageViewActivityLocalDb extends ImageViewActivity {
 		getVerticalIconsPanel().addFixedSeparator();
 		getVerticalIconsPanel().add("Save to exchange", GoogleMaterialDesignIcons.CLOUD_UPLOAD, (e) -> {
 			getService(LocalStorageService.class).saveImageToExchangeFolder(currentImage, getConfig().getBrowserOutboxFolder());
+			popup("Save to exchange", "File saved!");
 		});
 	}
 

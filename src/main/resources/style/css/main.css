@@ -35,6 +35,37 @@
 	-fx-border-color: #000;
 }
 
+.content_win_root_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 0px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-background-color: #FFF;
+}
+
+.popup_root_pane {
+    -fx-background-radius: 0px;
+    -fx-background-insets: 0, 0, 0, 0;
+	-fx-border-radius: 0px;
+	-fx-border-width: 1px;
+    -fx-border-insets: 0;
+	-fx-padding: 0;
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+}
+
+.popup_message_pane {
+	-fx-pref-width: 240px;
+	-fx-max-width: 240px;
+	-fx-min-width: 240px;
+	-fx-padding: 5px;
+	-fx-background-radius: 5px;
+    -fx-background-color: #F90;
+    -fx-border-color: transparent;
+}
+
 .fill_all_for_password {
 	-fx-pref-width: 9999px;
 	-fx-max-width: 9999px;
