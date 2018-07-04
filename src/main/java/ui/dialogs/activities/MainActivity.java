@@ -125,7 +125,12 @@ public class MainActivity extends ActivityPage implements UseServices {
 		StyleParser.parseStyles(this);
 		this.localDaoService = getService(LocalDaoService.class);
 
-		localDbImageDashboard.generateView(6,5);
+		rootImportActivity.setCloseAction(() -> {
+			tagFilter.clear();
+			refresh();
+		});
+
+		localDbImageDashboard.generateView(getConfig().getLocalDbPreviewsCountInRow(), getConfig().getLocalDbPreviewsCountInCol());
 
 		extendedTagsList.setDisableNonExisted(true);
 		extendedTagsList.setSearchListener(list -> {

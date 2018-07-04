@@ -24,6 +24,8 @@ public class Main extends Application implements UseServices {
 
 			final MainWindow mw = new MainWindow("Main window");
 			mw.show(true);
+		} else {
+			PasswordWindow.disposeStatic();
 		}
 
 		exit(primaryStage);

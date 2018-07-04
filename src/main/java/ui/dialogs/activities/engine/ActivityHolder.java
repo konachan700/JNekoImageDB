@@ -55,12 +55,18 @@ public class ActivityHolder extends HBox {
 		if (prevActivities.empty()) {
 			return;
 		}
+		final ActivityPage ap = currentActivity;
+
 		currentActivity = prevActivities.pop();
 		this.getChildren().clear();
 		this.getChildren().add(currentActivity);
 		setFooterAndHeader(currentActivity);
 		if (onCountChangeListener != null) {
 			onCountChangeListener.activitiesCountChanged(prevActivities.size());
+		}
+
+		if (ap.getCloseAction() != null) {
+			ap.getCloseAction().OnClose();
 		}
 	}
 

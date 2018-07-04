@@ -33,7 +33,7 @@ public class DefaultWindow extends Stage implements UseServices {
 	final VBox windowContainer = new VBox();
 
 	@CssStyle({"popup_root_pane"})
-	final VBox notifyContainer = new VBox();
+	final VBox notifyContainer = new VBox(8);
 
 	@CssStyle({"window_root_pane"})
 	final AnchorPane rootWindowPane = new AnchorPane(windowContainer, notifyContainer);
