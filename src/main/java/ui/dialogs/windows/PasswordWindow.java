@@ -2,17 +2,32 @@ package ui.dialogs.windows;
 
 import static ui.dialogs.activities.engine.ActivityHolder.getSeparator;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.layout.VBox;
+import model.GlobalConfig;
+import services.api.UtilService;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
+import ui.dialogs.activities.engine.ActivityHolder;
 import ui.dialogs.windows.engine.DefaultWindow;
 import ui.elements.PanelButton;
 
+@Component
 public class PasswordWindow extends DefaultWindow {
 	private final PasswordWindow THIS = this;
+
+	@Autowired
+	UtilService utilService;
+
+	@Autowired
+	ActivityHolder activityHolder;
 
 	@CssStyle({"ui_element_label"})
 	private final Label label = new Label("Enter password and press 'Open' button.");
@@ -40,9 +55,9 @@ public class PasswordWindow extends DefaultWindow {
 		}
 	};
 
-	public PasswordWindow() {
-		super("Enter password", true, false, true);
-
+	@PostConstruct
+	void init() {
+		initDialogFixedWindow("Enter password", true, false, true);
 		StyleParser.parseStyles(this);
 
 		final VBox vBox = new VBox();
@@ -61,5 +76,14 @@ public class PasswordWindow extends DefaultWindow {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	@Override
+	public GlobalConfig getConfig() {
+		return utilService.getConfig();
+	}
+
+	@Override public ActivityHolder getActivityHolder() {
+		return activityHolder;
 	}
 }

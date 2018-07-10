@@ -1,5 +1,7 @@
 package ui.elements;
 
+import org.springframework.stereotype.Component;
+
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -10,8 +12,15 @@ import ui.StyleParser;
 import ui.annotation.style.CssStyle;
 import ui.annotation.style.HasStyledElements;
 
+@Component
 @HasStyledElements
-public abstract class Paginator extends HBox {
+public class Paginator extends HBox {
+	public interface PageChangeAction {
+        void onChange(int currentPage, int pageCount);
+    }
+
+    private PageChangeAction pageChangeAction = null;
+
     private int 
             currentPage = 0,
             pageCount = 0;
@@ -33,8 +42,6 @@ public abstract class Paginator extends HBox {
 
     @CssStyle({"paginator_icon"})
     private final IconNode iconStart = new IconNode(GoogleMaterialDesignIcons.FIRST_PAGE);
-
-    public abstract void onPageChange(int currentPage, int pageCount);
     
     public Paginator() {
         super();
@@ -81,7 +88,11 @@ public abstract class Paginator extends HBox {
 
     private void refresh() {
         setText();
-        if ((pageCount > 0) && (currentPage >= 0)) onPageChange(currentPage, pageCount);
+        if ((pageCount > 0) && (currentPage >= 0)) {
+            if (getPageChangeAction() != null) {
+                getPageChangeAction().onChange(currentPage, pageCount);
+            }
+        }
     }
     
     public final void pagNext() {
@@ -120,4 +131,12 @@ public abstract class Paginator extends HBox {
         pageCount = p;
         setText();
     }
+
+	public PageChangeAction getPageChangeAction() {
+		return pageChangeAction;
+	}
+
+	public void setPageChangeAction(PageChangeAction pageChangeAction) {
+		this.pageChangeAction = pageChangeAction;
+	}
 }

@@ -4,15 +4,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import model.entity.ImageEntity;
 import model.entity.TagEntity;
-import proto.LocalDaoService;
-import proto.UseServices;
+import services.api.LocalDaoService;
+import services.api.UtilService;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
 import ui.annotation.style.HasStyledElements;
@@ -23,18 +26,40 @@ import ui.elements.PanelButton;
 import ui.imageview.localdb.LocalDbImageDashboard;
 import ui.taglist.ExtendedTagsList;
 
+@Component
 @HasStyledElements
-public class MainActivity extends ActivityPage implements UseServices {
-	private LocalDaoService localDaoService;
+public class MainActivity extends ActivityPage {
+	@Autowired
+	LocalDaoService localDaoService;
 
-	@CssStyle({"window_root_pane"})
-	private final ImportFromDiskActivity rootImportActivity = new ImportFromDiskActivity(this.getActivityHolder());
+	@Autowired
+	UtilService utilService;
 
-	@CssStyle({"window_root_pane"})
-	private final TagsEditorActivity tagsEditorActivity = new TagsEditorActivity(this.getActivityHolder());
+	@Autowired
+	ExtendedTagsList extendedTagsList;
 
+	@Autowired
 	@CssStyle({"window_root_pane"})
-	private final ImageViewActivityLocalDb imageViewActivity = new ImageViewActivityLocalDb(this.getActivityHolder());
+	LocalDbImageDashboard localDbImageDashboard;
+
+	@Autowired
+	@CssStyle({"window_root_pane"})
+	ImportFromDiskActivity rootImportActivity;
+
+	@Autowired
+	@CssStyle({"window_root_pane"})
+	TagsEditorActivity tagsEditorActivity;
+
+	@Autowired
+	@CssStyle({"window_root_pane"})
+	ImageViewActivityLocalDb imageViewActivity;
+
+	@Autowired
+	@CssStyle({"tags_null_pane"})
+	TagsAddActivity addTagsActivity;
+
+	@Autowired
+	Paginator paginator;
 
 	@CssStyle({"window_root_pane"})
 	private final HBox container = new HBox();
@@ -42,39 +67,7 @@ public class MainActivity extends ActivityPage implements UseServices {
 	@CssStyle({"tree_container", "StringFieldElementTextArea"})
 	private final VBox containerTags = new VBox();
 
-	private final ExtendedTagsList extendedTagsList = new ExtendedTagsList();
 	private final Set<TagEntity> tagFilter = new HashSet<>();
-
-	@CssStyle({"window_root_pane"})
-	private final LocalDbImageDashboard localDbImageDashboard = new LocalDbImageDashboard() {
-		@Override public void onPageChanged(int page) {
-			paginator.setCurrentPageIndex(page);
-		}
-
-		@Override public void onPageCountChanged(int pages) {
-			paginator.setPageCount(pages);
-			extendedTagsList.setDefaultTags(localDbImageDashboard.getRecomendedTags());
-		}
-
-		@Override public void onItemClick(MouseEvent e, ImageEntity image, int pageId, int id, int pageCount) {
-			imageViewActivity.showNext(tagFilter, image, pageId, id, localDbImageDashboard.getElementsPerPage(), pageCount);
-		}
-	};
-
-	@CssStyle({"tags_null_pane"})
-	private final TagsAddActivity addTagsActivity = new TagsAddActivity(getActivityHolder(), (r,t) -> {
-		if (r == TagsAddActivity.Result.ADD_TAG && t != null && !t.isEmpty() && !localDbImageDashboard.getSelectedFiles().isEmpty()) {
-			final List<TagEntity> list = localDaoService.tagGetOrCreate(t);
-			localDbImageDashboard.getSelectedFiles().forEach(e -> localDaoService.imagesWrite(e.getImageHash(), list));
-			localDbImageDashboard.selectNone();
-		}
-	});
-
-	private final Paginator paginator = new Paginator() {
-		@Override public void onPageChange(int currentPage, int pageCount) {
-			localDbImageDashboard.pageChanged(currentPage);
-		}
-	};
 
 	@CssStyle({"panel_button_subheader_1"})
 	private final PanelButton importImages = new PanelButton("Import images") {
@@ -120,17 +113,28 @@ public class MainActivity extends ActivityPage implements UseServices {
 		}
 	};
 
-	public MainActivity(ActivityHolder activityHolder) {
-		super(activityHolder);
+	@PostConstruct
+	void init() {
 		StyleParser.parseStyles(this);
-		this.localDaoService = getService(LocalDaoService.class);
 
+		paginator.setPageChangeAction((currentPage, pageCount) -> localDbImageDashboard.pageChanged(currentPage));
+		addTagsActivity.setResultCallback((r,t) -> {
+			if (r == TagsAddActivity.Result.ADD_TAG && t != null && !t.isEmpty() && !localDbImageDashboard.getSelectedFiles().isEmpty()) {
+				final List<TagEntity> list = localDaoService.tagGetOrCreate(t);
+				localDbImageDashboard.getSelectedFiles().forEach(e -> localDaoService.imagesWrite(e.getImageHash(), list));
+				localDbImageDashboard.selectNone();
+			}
+		});
 		rootImportActivity.setCloseAction(() -> {
 			tagFilter.clear();
 			refresh();
 		});
-
-		localDbImageDashboard.generateView(getConfig().getLocalDbPreviewsCountInRow(), getConfig().getLocalDbPreviewsCountInCol());
+		localDbImageDashboard.setOnPageChangedEvent(paginator::setCurrentPageIndex);
+		localDbImageDashboard.setOnPageCountChangedEvent(e -> {
+			paginator.setPageCount(e);
+			extendedTagsList.setDefaultTags(localDbImageDashboard.getRecomendedTags());
+		});
+		localDbImageDashboard.generateView(utilService.getConfig().getLocalDbPreviewsCountInRow(), utilService.getConfig().getLocalDbPreviewsCountInCol());
 
 		extendedTagsList.setDisableNonExisted(true);
 		extendedTagsList.setSearchListener(list -> {
@@ -150,6 +154,16 @@ public class MainActivity extends ActivityPage implements UseServices {
 		localDbImageDashboard.setFilterByTags(tagFilter);
 
 		paginator.setCurrentPageIndex(0);
+	}
+
+	@Override
+	public void setActivityHolder(ActivityHolder activityHolder) {
+		super.setActivityHolder(activityHolder);
+
+		imageViewActivity.setActivityHolder(activityHolder);
+		addTagsActivity.setActivityHolder(activityHolder);
+		rootImportActivity.setActivityHolder(activityHolder);
+		addTagsActivity.setActivityHolder(activityHolder);
 	}
 
 	@Override

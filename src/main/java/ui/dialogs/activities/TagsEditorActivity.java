@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -15,16 +18,15 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import jiconfont.icons.GoogleMaterialDesignIcons;
 import model.entity.TagEntity;
-import proto.LocalDaoService;
-import proto.UseServices;
+import services.api.LocalDaoService;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
-import ui.dialogs.activities.engine.ActivityHolder;
 import ui.dialogs.activities.engine.ActivityPage;
 import ui.elements.PanelButton;
 import ui.taglist.TagElement;
 
-public class TagsEditorActivity extends ActivityPage implements UseServices {
+@Component
+public class TagsEditorActivity extends ActivityPage {
 	@CssStyle({"tags_scroll_pane"})
 	private final ScrollPane scrollPane = new ScrollPane();
 
@@ -48,6 +50,9 @@ public class TagsEditorActivity extends ActivityPage implements UseServices {
 
 	@CssStyle({"tag_total_count_label"})
 	private final Label totalCount = new Label("0");
+
+	@Autowired
+	LocalDaoService localDaoService;
 
 	@CssStyle({"panel_button_subheader_1"})
 	private final PanelButton addTagBtn = new PanelButton("Add tag", GoogleMaterialDesignIcons.ADD) {
@@ -77,26 +82,21 @@ public class TagsEditorActivity extends ActivityPage implements UseServices {
 	}
 
 	private void add() {
-		Optional.ofNullable(getService(LocalDaoService.class)).ifPresent(dao -> {
-			final String tag = addTagTF.getText().trim();
-			dao.tagSave(tag);
-			addTagTF.setText("");
-			find(null);
-		});
+		final String tag = addTagTF.getText().trim();
+		localDaoService.tagSave(tag);
+		addTagTF.setText("");
+		find(null);
 	}
 
 	private void find(String tag) {
 		flowPane.getChildren().clear();
-
-		Optional.ofNullable(getService(LocalDaoService.class))
-				.map(e -> e.tagGetCount())
-				.ifPresent(e -> totalCount.setText("Total tags count: " + e));
+		totalCount.setText("Total tags count: " + localDaoService.tagGetCount());
 
 		final List<TagEntity> tagEntities;
 		if (tag != null && !tag.trim().isEmpty()) {
-			tagEntities = Optional.ofNullable(getService(LocalDaoService.class).tagFindStartedWith(tag, 200)).orElse(new ArrayList<>(1));
+			tagEntities = Optional.ofNullable(localDaoService.tagFindStartedWith(tag, 200)).orElse(new ArrayList<>(1));
 		} else {
-			tagEntities = Optional.ofNullable(getService(LocalDaoService.class).tagGetEntitiesList(0, 200)).orElse(new ArrayList<>(1));
+			tagEntities = Optional.ofNullable(localDaoService.tagGetEntitiesList(0, 200)).orElse(new ArrayList<>(1));
 		}
 
 		tagEntities.stream()
@@ -108,8 +108,8 @@ public class TagsEditorActivity extends ActivityPage implements UseServices {
 				});
 	}
 
-	public TagsEditorActivity(ActivityHolder activityHolder) {
-		super(activityHolder);
+	public TagsEditorActivity() {
+		super();
 
 		StyleParser.parseStyles(this);
 		flowPane.setVgap(4);

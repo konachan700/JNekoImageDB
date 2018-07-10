@@ -1,6 +1,7 @@
-package service;
+package services.impl;
 
 import static java.nio.file.StandardOpenOption.CREATE;
+import static model.GlobalConfig.PREFIX;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,27 +12,33 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.codec.binary.Hex;
 import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javafx.application.Platform;
 import model.Metadata;
 import model.entity.ImageEntity;
 import model.entity.TagEntity;
-import proto.CryptographyService;
-import proto.LocalDaoService;
-import proto.LocalStorageService;
-import proto.UseStorageDirectory;
-import proto.WaitInformer;
+import services.api.CryptographyService;
+import services.api.LocalDaoService;
+import services.api.LocalStorageService;
+import services.api.UtilService;
+import services.api.WaitInformer;
 import utils.SimpleImageInfo;
 import worker.QueuedWorker;
 
-public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorageService {
+@Service
+public class LocalStorageServiceImpl implements LocalStorageService, DisposableBean {
 	public class Task {
-		private Path imagePath;
-		private Collection<String> tagsForImage;
-		private WaitInformer informer;
+		private Path imagePath = null;
+		private Collection<String> tagsForImage = null;
+		private WaitInformer informer = null;
 
 		public Path getImagePath() {
 			return imagePath;
@@ -59,12 +66,18 @@ public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorag
 	}
 
 	public static final String IMG_LOCAL = "img-local";
+	private MVStore mvStore = null;
+    private File cacheFile = null;
+    private MVMap<String, byte[]> cacheStorage = null;
 
-	private final MVStore mvStore;
-    private final CryptographyService cryptographyService;
-	private final LocalDaoService localDaoService;
-    private final File cacheFile;
-    private final MVMap<String, byte[]> cacheStorage;
+	@Autowired
+	CryptographyService cryptographyService;
+
+	@Autowired
+	LocalDaoService localDaoService;
+
+	@Autowired
+	UtilService utilService;
 
 	private final QueuedWorker<Task> importerPool = new QueuedWorker<Task>() {
 		@Override
@@ -115,25 +128,22 @@ public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorag
 		}
 	};
 
-    public LocalStorageServiceImpl(CryptographyService cryptographyService, LocalDaoService localDaoService) {
-        this.cryptographyService = cryptographyService;
-        this.localDaoService = localDaoService;
-
-		final File path = getDbDir();
-		path.mkdirs();
-		if (!path.exists() || !path.isDirectory()) {
+   @PostConstruct
+	void init() {
+	   utilService.databaseDirectory().mkdirs();
+		if (!utilService.databaseDirectory().exists() || !utilService.databaseDirectory().isDirectory()) {
 			throw new ExceptionInInitializerError("Can't create database directory");
 		}
 
-		cacheFile = new File(path.getPath() + File.separator + cryptographyService.getNameForCacheDb() + ".cache");
-        mvStore = new MVStore.Builder()
-                .fileName(cacheFile.getAbsolutePath())
-                .encryptionKey(Hex.encodeHex(cryptographyService.getAuthData()))
-                .autoCommitDisabled()
-                .cacheSize(64)
-                .open();
-        cacheStorage = mvStore.openMap("cache-local");
-    }
+		cacheFile = new File(utilService.databaseDirectory().getPath() + File.separator + cryptographyService.getNameForCacheDb() + ".cache");
+		mvStore = new MVStore.Builder()
+				.fileName(cacheFile.getAbsolutePath())
+				.encryptionKey(Hex.encodeHex(cryptographyService.getAuthData()))
+				.autoCommitDisabled()
+				.cacheSize(64)
+				.open();
+		cacheStorage = mvStore.openMap("cache-local");
+	}
 
     private String getKey(byte[] hash, int w, int h) {
         final byte[] t = (Hex.encodeHexString(hash) + "-" + w + "-" + h).getBytes();
@@ -152,19 +162,6 @@ public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorag
     public synchronized void storeCacheItem(byte[] hash, byte[] data, int w, int h) {
         final String key = getKey(hash, w, h);
         cacheStorage.put(key, cryptographyService.encrypt(data));
-        mvStore.commit();
-    }
-
-    @Override
-    public synchronized void resetCache() {
-        cacheStorage.clear();
-        mvStore.commit();
-    }
-
-    @Override
-    public synchronized void resetCacheElement(byte[] hash, int w, int h) {
-        final String key = getKey(hash, w, h);
-        cacheStorage.remove(key);
         mvStore.commit();
     }
 
@@ -222,10 +219,44 @@ public class LocalStorageServiceImpl implements UseStorageDirectory, LocalStorag
 	}
 
 	@Override
-	public void dispose() {
+	public void destroy() {
 		importerPool.dispose();
 		mvStore.commit();
 		mvStore.compactRewriteFully();
 		mvStore.close();
+	}
+
+	String getExtention(File f) {
+		final String name = f.getName();
+		final int extDotPos = name.lastIndexOf(".");
+		return name.substring(extDotPos + 1);
+	}
+
+	File getLocalStorageElement(String storageName, byte[] hash) {
+		final StringBuilder pathToStorageDir = new StringBuilder();
+		pathToStorageDir
+				.append(utilService.getStorageDirectory().getAbsolutePath())
+				.append(File.separator)
+				.append(storageName)
+				.append(File.separator)
+				.append(PREFIX).append(((int)hash[0]) & 0x0F)
+				.append(File.separator)
+				.append(PREFIX).append(((int)hash[0] >> 4) & 0x0F)
+				.append(File.separator)
+				.append(PREFIX).append(((int)hash[1]) & 0x0F)
+				.append(File.separator)
+				.append(PREFIX).append(((int)hash[1] >> 4) & 0x0F);
+
+		final File dir = new File(pathToStorageDir.toString());
+		if (!dir.mkdirs()) {
+			if (!dir.exists()) throw new IllegalStateException("can't create storage directory");
+		}
+
+		pathToStorageDir
+				.append(File.separator)
+				.append(Hex.encodeHexString(hash), 8, 16 + 8)
+				.append(".bin");
+
+		return new File(pathToStorageDir.toString());
 	}
 }

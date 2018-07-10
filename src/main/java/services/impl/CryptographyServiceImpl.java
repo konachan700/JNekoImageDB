@@ -1,43 +1,45 @@
-package service;
+package services.impl;
 
-import org.apache.commons.codec.binary.Hex;
-import proto.CryptographyService;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+import javax.annotation.PostConstruct;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Hex;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import services.api.CryptographyService;
+import services.api.UtilService;
+
+@Service
 public class CryptographyServiceImpl implements CryptographyService {
     public enum EncryptType {
         AES128, AES256, DISABLE
     }
 
-    private static CryptographyService cryptographyService = null;
+    private String salt = null;
+    private byte[] hash = null;
+    private EncryptType encryptType = null;
 
-    private final String salt;
-    private final byte[] hash;
-    private final EncryptType encryptType;
+	@Autowired
+	UtilService utilService;
 
-    private CryptographyServiceImpl(String password, String salt, EncryptType encryptType) {
-		this.salt = salt;
-		this.encryptType = encryptType;
-        this.hash = sha512(password.getBytes());
-    }
-
-    public static CryptographyService getInstance(String password, String salt, EncryptType encryptType) {
-        if (cryptographyService == null) {
-            cryptographyService = new CryptographyServiceImpl(password, salt, encryptType);
-        }
-        return cryptographyService;
-    }
+	@PostConstruct
+	void init() {
+		this.salt = utilService.getConfig().getSalt();
+		this.encryptType = utilService.getConfig().getEncryptType();
+		this.hash = sha512(utilService.getMasterPassword().getBytes());
+	}
 
     public String toHex(byte[] b) {
         return Hex.encodeHexString(b).toLowerCase();
@@ -177,6 +179,4 @@ public class CryptographyServiceImpl implements CryptographyService {
 	@Override public String getNameForCacheDb() {
 		return genName(14, 8, 10);
 	}
-
-	@Override public void dispose() { }
 }

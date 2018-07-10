@@ -2,43 +2,50 @@ package ui.dialogs.activities.engine;
 
 import java.util.Stack;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import ui.dialogs.windows.engine.DefaultWindow;
 
+@Component
+@Scope("prototype")
 public class ActivityHolder extends HBox {
-	public static interface OnCountChangeListener {
+	public interface OnCountChangeListener {
 		void activitiesCountChanged(int count);
 	}
 
 	private OnCountChangeListener onCountChangeListener = null;
-
 	private final Stack<ActivityPage> prevActivities = new Stack<>();
-	private ActivityPage currentActivity;
-	private final Pane footerHolder, subheaderHolder, windowHeader;
-	private final DefaultWindow defaultWindow;
+	private ActivityPage currentActivity = null;
+	private DefaultWindow defaultWindow = null;
 
-	public ActivityHolder(DefaultWindow defaultWindow) {
+	public ActivityHolder() {
 		super();
-		this.defaultWindow = defaultWindow;
-		this.footerHolder = defaultWindow.getFooter();
-		this.subheaderHolder = defaultWindow.getSubheader();
-		this.windowHeader = defaultWindow.getHeader();
 	}
 
 	public void popup(String title, String text) {
-		this.defaultWindow.popup(title, text);
+		if (defaultWindow == null) {
+			return;
+		}
+		this.getDefaultWindow().popup(title, text);
 	}
 
 	public void showFirst(ActivityPage activity) {
+		if (defaultWindow == null) {
+			return;
+		}
 		prevActivities.clear();
 		currentActivity = null;
 		show(activity);
 	}
 
 	public void show(ActivityPage activity) {
+		if (defaultWindow == null) {
+			return;
+		}
 		if (currentActivity != null) {
 			prevActivities.push(currentActivity);
 		}
@@ -52,6 +59,9 @@ public class ActivityHolder extends HBox {
 	}
 
 	public void close() {
+		if (defaultWindow == null) {
+			return;
+		}
 		if (prevActivities.empty()) {
 			return;
 		}
@@ -71,23 +81,29 @@ public class ActivityHolder extends HBox {
 	}
 
 	public void lockWindow(boolean lock) {
-		windowHeader.getChildren().forEach(e -> e.setVisible(!lock));
+		if (defaultWindow == null) {
+			return;
+		}
+		defaultWindow.getHeader().getChildren().forEach(e -> e.setVisible(!lock));
 	}
 
 	private void setFooterAndHeader(ActivityPage activity) {
-		if (footerHolder != null) {
-			footerHolder.getChildren().clear();
+		if (defaultWindow == null) {
+			return;
+		}
+		if (defaultWindow.getFooter() != null) {
+			defaultWindow.getFooter().getChildren().clear();
 			final Node[] footerElements = activity.getFooterElements();
 			if (footerElements != null) {
-				footerHolder.getChildren().addAll(footerElements);
+				defaultWindow.getFooter().getChildren().addAll(footerElements);
 			}
 		}
 
-		if (subheaderHolder != null) {
-			subheaderHolder.getChildren().clear();
+		if (defaultWindow.getSubheader() != null) {
+			defaultWindow.getSubheader().getChildren().clear();
 			final Node[] subheaderElements = activity.getSubheaderElements();
 			if (subheaderElements != null) {
-				subheaderHolder.getChildren().addAll(subheaderElements);
+				defaultWindow.getSubheader().getChildren().addAll(subheaderElements);
 			}
 		}
 	}
@@ -104,5 +120,13 @@ public class ActivityHolder extends HBox {
 
 	public void setOnCountChangeListener(OnCountChangeListener onCountChangeListener) {
 		this.onCountChangeListener = onCountChangeListener;
+	}
+
+	public DefaultWindow getDefaultWindow() {
+		return defaultWindow;
+	}
+
+	public void setDefaultWindow(DefaultWindow defaultWindow) {
+		this.defaultWindow = defaultWindow;
 	}
 }

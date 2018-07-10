@@ -36,7 +36,7 @@ public class ImportFromDiskWaitActivity extends ActivityPage {
 	};
 
 	public ImportFromDiskWaitActivity(ActivityHolder activityHolder, ResultCallback resultCallback) {
-		super(activityHolder);
+		super();
 		this.resultCallback = resultCallback;
 		StyleParser.parseStyles(this);
 

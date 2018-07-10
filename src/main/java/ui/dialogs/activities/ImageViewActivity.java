@@ -1,7 +1,6 @@
 package ui.dialogs.activities;
 
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -13,17 +12,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import jiconfont.icons.GoogleMaterialDesignIcons;
-import proto.UseServices;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
 import ui.annotation.style.HasStyledElements;
-import ui.dialogs.activities.engine.ActivityHolder;
 import ui.dialogs.activities.engine.ActivityPage;
-import ui.elements.PanelButton;
 import ui.elements.VerticalIconsPanel;
 
 @HasStyledElements
-public abstract class ImageViewActivity extends ActivityPage implements UseServices {
+public abstract class ImageViewActivity extends ActivityPage {
 	@CssStyle({"window_root_pane"})
 	private final HBox container = new HBox();
 
@@ -49,8 +45,8 @@ public abstract class ImageViewActivity extends ActivityPage implements UseServi
 	public abstract void PrevKey();
 	public abstract void NextKey();
 
-	public ImageViewActivity(ActivityHolder activityHolder) {
-		super(activityHolder);
+	public ImageViewActivity() {
+		super();
 		StyleParser.parseStyles(this);
 
 		this.getChildren().addAll(container);

@@ -4,117 +4,50 @@ import static model.GlobalConfig.IMAGE_VIEW__FONT;
 import static model.GlobalConfig.IMAGE_VIEW__FONT_COLOR;
 import static model.GlobalConfig.IMAGE_VIEW__NON_SELECTED_COLOR;
 import static model.GlobalConfig.IMAGE_VIEW__SELECTED_COLOR;
-import static model.GlobalConfig.PREVIEW_FORMAT;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.imageio.ImageIO;
+import javax.annotation.PostConstruct;
 
-import javafx.application.Platform;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import javafx.scene.canvas.Canvas;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import model.entity.ImageEntity;
-import proto.LocalStorageService;
-import proto.UseServices;
-import utils.ImageUtils;
+import services.api.UtilService;
 import utils.UiUtils;
-import worker.QueuedWorker;
 
-public abstract class LocalDbImageView extends Canvas implements UseServices {
-	private static final QueuedWorker<LocalDbImageViewTask> mainWorkersPool = new QueuedWorker<LocalDbImageViewTask>() {
-		private LocalStorageService storageService = null;
-		final AtomicBoolean lock = new AtomicBoolean(true);
+@Component
+@Scope("prototype")
+public class LocalDbImageView extends Canvas implements DisposableBean {
+	private static LocalDbImageViewWorker mainWorkersPool = null;
 
-		@Override
-		public void threadEvent(LocalDbImageViewTask baseImageViewTask) {
-			if (baseImageViewTask == null) return;
+	@Autowired
+	UtilService utilService;
 
-			final LocalDbImageView canvas = baseImageViewTask.getLocalDbImageView();
-			if (canvas == null) return;
-			canvas.setLastTask(baseImageViewTask);
+	@Autowired
+	private ApplicationContext applicationContext;
 
-			if (baseImageViewTask.getImageEntity() == null) {
-				Platform.runLater(() -> UiUtils.clearCanvas(canvas));
-				return;
-			}
-
-			if (storageService == null) {
-				storageService = canvas.getService(LocalStorageService.class);
-			}
-
-			final Double w, h;
-			while (true) {
-				Double wt = baseImageViewTask.getLocalDbImageView().getWidth();
-				Double ht = baseImageViewTask.getLocalDbImageView().getHeight();
-				if (wt >= canvas.getConfig().getMinImageSize() && ht >= canvas.getConfig().getMinImageSize()) {
-					w = wt;
-					h = ht;
-					break;
-				} else {
-					Thread.yield();
-				}
-			}
-
-			final byte[] hash = baseImageViewTask.getImageEntity().getImageHash();
-			final byte[] contentFromCache = storageService.getCacheItem(hash, w.intValue(), h.intValue());
-			if (contentFromCache != null) {
-				baseImageViewTask.setCachedImage(contentFromCache);
-				lock.set(true);
-				Platform.runLater(() -> {
-					if (canvas.getCurrentId().get() == baseImageViewTask.getPrivateId()) {
-						UiUtils.drawBinaryImage(canvas, contentFromCache, w.intValue(), h.intValue(),
-								(canvas.isSelected() ? IMAGE_VIEW__SELECTED_COLOR : IMAGE_VIEW__NON_SELECTED_COLOR), canvas.isSelected());
-					}
-					lock.set(false);
-				});
-				while (lock.get()) Thread.yield();
-			} else {
-				final byte[] fullFile = storageService.getLocalDBItem(hash);
-				try {
-					final BufferedImage bufferedImageOriginal = ImageIO.read(new ByteArrayInputStream(fullFile));
-					final BufferedImage bufferedImageResized = ImageUtils.resizeImage(bufferedImageOriginal, w.longValue(), h.longValue(), true);
-					final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					ImageIO.write(bufferedImageResized, PREVIEW_FORMAT, baos);
-
-					final byte[] binaryPreview = baos.toByteArray();
-					baseImageViewTask.setCachedImage(binaryPreview);
-					lock.set(true);
-					Platform.runLater(() -> {
-						if (canvas.getCurrentId().get() == baseImageViewTask.getPrivateId()) {
-							UiUtils.drawBinaryImage(canvas, binaryPreview, w.intValue(), h.intValue(),
-									(canvas.isSelected() ? IMAGE_VIEW__SELECTED_COLOR : IMAGE_VIEW__NON_SELECTED_COLOR),
-									canvas.isSelected());
-						}
-						lock.set(false);
-					});
-
-					storageService.storeCacheItem(hash, binaryPreview, w.intValue(), h.intValue());
-					while (lock.get()) Thread.yield();
-				} catch (IOException e) {
-					e.printStackTrace();
-					Platform.runLater(() -> UiUtils.clearCanvas(canvas));
-					return;
-				}
-			}
-		}
-	};
+	private LocalDbImageViewEvents event = null;
 
 	private boolean selected = false;
 	private LocalDbImageViewTask lastTask = null;
 	private final AtomicLong currentId = new AtomicLong(0);
 
-	public abstract void onClick(MouseEvent e, ImageEntity image, int pageId, int id, int pageCount);
+    @PostConstruct
+	void init() {
+    	if (mainWorkersPool == null) {
+			mainWorkersPool = applicationContext.getBean(LocalDbImageViewWorker.class);
+		}
 
-    public LocalDbImageView() {
 		setOnMouseClicked(e -> {
 			if (lastTask != null && lastTask.getCachedImage() != null) {
-				onClick(e, lastTask.getImageEntity(), lastTask.getPageId(), lastTask.getId(), lastTask.getPageCount());
+				if (getEvent() != null) {
+					getEvent().onItemClick(e, lastTask.getImageEntity(), lastTask.getPageId(), lastTask.getId(), lastTask.getPageCount());
+				}
 				setSelected(!isSelected());
 			}
 		});
@@ -140,7 +73,7 @@ public abstract class LocalDbImageView extends Canvas implements UseServices {
 		Double w, h;
 		w = this.getWidth();
 		h = this.getHeight();
-		if (w >= getConfig().getMinImageSize() && h >= getConfig().getMinImageSize()) {
+		if (w >= utilService.getConfig().getMinImageSize() && h >= utilService.getConfig().getMinImageSize()) {
 			if (lastTask == null || lastTask.getCachedImage() == null) {
 				UiUtils.clearCanvas(this);
 			} else {
@@ -169,10 +102,6 @@ public abstract class LocalDbImageView extends Canvas implements UseServices {
 		mainWorkersPool.pushTask(localDbImageViewTask, countPerPage);
 	}
 
-	public static void disposeStatic() {
-		mainWorkersPool.dispose();
-	}
-
 	public LocalDbImageViewTask getLastTask() {
 		return lastTask;
 	}
@@ -183,5 +112,19 @@ public abstract class LocalDbImageView extends Canvas implements UseServices {
 
 	public AtomicLong getCurrentId() {
 		return currentId;
+	}
+
+	public LocalDbImageViewEvents getEvent() {
+		return event;
+	}
+
+	public void setEvent(LocalDbImageViewEvents event) {
+		this.event = event;
+	}
+
+	@Override public void destroy() throws Exception {
+		if (mainWorkersPool != null) {
+			mainWorkersPool.dispose();
+		}
 	}
 }

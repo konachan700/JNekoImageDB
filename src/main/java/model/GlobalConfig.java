@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.scene.input.MouseButton;
-import service.CryptographyServiceImpl;
+import services.impl.CryptographyServiceImpl;
 import ui.dialogs.windows.engine.WindowDimension;
 import ui.imageview.localdb.LocalDbImageView;
 
@@ -18,6 +18,8 @@ public class GlobalConfig {
 	public static final javafx.scene.text.Font IMAGE_VIEW__FONT = javafx.scene.text.Font.loadFont(
 			LocalDbImageView.class.getResource("/style/fonts/FjallaOne-Regular.ttf").toExternalForm(),16);
 	public static final String PREVIEW_FORMAT = "jpg";
+	public static final String STORAGE_ROOT_DIR = "./storage";
+	public static final String PREFIX = "DB";
 
 	/***********************************************************************************************************************/
 

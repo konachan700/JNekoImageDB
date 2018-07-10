@@ -1,4 +1,4 @@
-package proto;
+package services.api;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,7 +8,7 @@ import model.Metadata;
 import model.entity.ImageEntity;
 import model.entity.TagEntity;
 
-public interface LocalDaoService extends Disposable {
+public interface LocalDaoService {
 	// ******* TAGS **************
 	boolean 	tagIsExist(String tag);
 	long 		tagGetCount();

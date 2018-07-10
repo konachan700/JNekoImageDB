@@ -1,6 +1,6 @@
-package proto;
+package services.api;
 
-public interface CryptographyService extends Disposable {
+public interface CryptographyService {
 	//************* Base crypto *************
     byte[] encrypt(byte[] open);
     byte[] decrypt(byte[] encrypted);

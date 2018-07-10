@@ -13,6 +13,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
@@ -21,19 +26,31 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import jiconfont.icons.GoogleMaterialDesignIcons;
 import jiconfont.javafx.IconNode;
-import proto.LocalStorageService;
-import proto.UseServices;
+import services.api.LocalStorageService;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
-import ui.dialogs.activities.engine.ActivityHolder;
 import ui.dialogs.activities.engine.ActivityPage;
 import ui.elements.Paginator;
 import ui.elements.PanelButton;
 import ui.imageview.localfs.LocalFsImageDashboard;
 
-public class ImportFromDiskActivity extends ActivityPage implements UseServices {
+@Component
+public class ImportFromDiskActivity extends ActivityPage {
 	private final IconNode iconForRootNode = new IconNode(GoogleMaterialDesignIcons.FOLDER);
 	private final TreeItem<Path> rootItem = new TreeItem<> (null, iconForRootNode);
+
+	@Autowired
+	LocalStorageService localStorageService;
+
+	@Autowired
+	LocalFsImageDashboard fileImageList;
+
+	@Autowired
+	Paginator paginator;
+
+	@Autowired
+	@CssStyle({"tags_null_pane"})
+	TagsAddActivity addActivity;
 
 	@CssStyle({"tree_container", "StringFieldElementTextArea"})
 	private final TreeView<Path> tree = new TreeView<> (rootItem);
@@ -41,33 +58,9 @@ public class ImportFromDiskActivity extends ActivityPage implements UseServices 
 	private final Set<String> selectedTags = new HashSet<>();
 
 	@CssStyle({"tags_null_pane"})
-	private final TagsAddActivity addActivity = new TagsAddActivity(getActivityHolder(), (r,t) -> {
-		if (r == TagsAddActivity.Result.ADD_TAG && t != null) {
-			selectedTags.clear();
-			selectedTags.addAll(t);
-		}
-	});
-
-	@CssStyle({"tags_null_pane"})
 	private final ImportFromDiskWaitActivity importFromDiskWaitActivity = new ImportFromDiskWaitActivity(getActivityHolder(), () -> {
-		getService(LocalStorageService.class).importProcessStop();
+		localStorageService.importProcessStop();
 	});
-
-	private final LocalFsImageDashboard fileImageList = new LocalFsImageDashboard() {
-		@Override public void onPageChanged(int page) {
-			paginator.setCurrentPageIndex(page);
-		}
-
-		@Override public void onPageCountChanged(int pages) {
-			paginator.setPageCount(pages);
-		}
-	};
-
-	private final Paginator paginator = new Paginator() {
-		@Override public void onPageChange(int currentPage, int pageCount) {
-			fileImageList.pageChanged(currentPage);
-		}
-	};
 
 	@CssStyle({"panel_button_subheader_1"})
 	private final PanelButton buttonAddTags = new PanelButton("Add tags") {
@@ -88,7 +81,7 @@ public class ImportFromDiskActivity extends ActivityPage implements UseServices 
 			}
 
 			importFromDiskWaitActivity.showNext();
-			getService(LocalStorageService.class).importAllLocalDBItems(files, selectedTags, importFromDiskWaitActivity::inform);
+			localStorageService.importAllLocalDBItems(files, selectedTags, importFromDiskWaitActivity::inform);
 		}
 	};
 
@@ -134,27 +127,27 @@ public class ImportFromDiskActivity extends ActivityPage implements UseServices 
 
 			iconForNode.getStyleClass().add("tree_dir_icon");
 			super.setGraphic(iconForNode);
-			getChildren().add(new TreeItem());
+			getChildren().add(new TreeItem<>());
 
 			file = f;
 			expandedProperty().addListener((e, o, n) -> {
 				getChildren().clear();
-				if (n.booleanValue()) {
+				if (n) {
 					final List<File> list = Optional.ofNullable(getFile().getAbsoluteFile().listFiles())
-							.map(arr -> Arrays.asList(arr))
+							.map(Arrays::asList)
 							.orElse(null);
 					if (Objects.isNull(list) || list.isEmpty()) {
 						return;
 					}
 					Collections.sort(list);
 					list.stream()
-							.filter(f1 -> f1.isDirectory())
-							.filter(f1 -> f1.canRead())
+							.filter(File::isDirectory)
+							.filter(File::canRead)
 							.filter(f1 -> !f1.getName().startsWith("."))
 							.forEach(el -> getChildren().add(new CustomTreeItem(el.getAbsoluteFile())));
 				} else {
 					getChildren().clear();
-					getChildren().add(new TreeItem());
+					getChildren().add(new TreeItem<>());
 				}
 			});
 		}
@@ -164,13 +157,23 @@ public class ImportFromDiskActivity extends ActivityPage implements UseServices 
 		}
 	}
 
-	public ImportFromDiskActivity(ActivityHolder activityHolder) {
-		super(activityHolder);
+	@PostConstruct
+	void init() {
 		StyleParser.parseStyles(this);
 
-		//fileImageList.init();
+		paginator.setPageChangeAction((currentPage, pageCount) -> fileImageList.pageChanged(currentPage));
+
+		addActivity.setActivityHolder(this.getActivityHolder());
+		addActivity.setResultCallback((r,t) -> {
+			if (r == TagsAddActivity.Result.ADD_TAG && t != null) {
+				selectedTags.clear();
+				selectedTags.addAll(t);
+			}
+		});
+
 		fileImageList.getStyleClass().add("window_root_pane");
-		//fileImageList.generateView(6,5);
+		fileImageList.setOnPageChangedEvent(paginator::setCurrentPageIndex);
+		fileImageList.setOnPageCountChangedEvent(paginator::setPageCount);
 
 		tree.setEditable(false);
 		tree.setShowRoot(false);

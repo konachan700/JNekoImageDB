@@ -1,6 +1,6 @@
 package ui.imageview;
 
-public class AbstractTask {
+public abstract class AbstractTask {
 	private byte[] cachedImage;
 	private int pageCount;
 	private int pageId;

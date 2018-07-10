@@ -1,8 +1,7 @@
-package service;
+package services.impl;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -12,6 +11,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -26,18 +26,21 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import model.ImageEntityWrapper;
 import model.Metadata;
 import model.entity.ImageEntity;
 import model.entity.TagEntity;
 import model.entity.TagTypeEntity;
-import proto.CryptographyService;
-import proto.LocalDaoService;
-import proto.UseStorageDirectory;
+import services.api.CryptographyService;
+import services.api.LocalDaoService;
+import services.api.UtilService;
 
-public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService {
-
+@Service
+public class LocalDaoServiceImpl implements LocalDaoService, DisposableBean {
 	public static final String FIELD__TAG_TEXT = "tagText";
 	public static final String FIELD__IMAGE_HASH = "imageHash";
 
@@ -45,26 +48,28 @@ public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService
 		boolean onTransaction(Session s);
 	}
 
-	private final String hibernateDatabaseURI;
-	private final String hibernateDatabasePassword;
-
-	private SessionFactory hibernateSessionFactory;
-	private StandardServiceRegistry hibernateServiceRegistry;
+	private SessionFactory hibernateSessionFactory = null;
+	private StandardServiceRegistry hibernateServiceRegistry = null;
 	private Session currentSession = null;
+	private File metadataFile = null;
+	private MVStore mvStore = null;
+	private MVMap<byte[], Metadata> imagesMetadata = null;
 
-	private final File metadataFile;
-	private final MVStore mvStore;
-	private final MVMap<byte[], Metadata> imagesMetadata;
+	@Autowired
+	UtilService utilService;
 
-	public LocalDaoServiceImpl(CryptographyService cryptographyService) {
-		final File path = getDbDir();
-		path.mkdirs();
-		if (!path.exists() || !path.isDirectory()) {
+	@Autowired
+	CryptographyService cryptographyService;
+
+	@PostConstruct
+	void init() {
+		utilService.databaseDirectory().mkdirs();
+		if (!utilService.databaseDirectory().exists() || !utilService.databaseDirectory().isDirectory()) {
 			throw new ExceptionInInitializerError("Can't create database directory");
 		}
 
 		// **************** H2 KV storage ***************
-		metadataFile = new File(path.getAbsolutePath() + File.separator + cryptographyService.getNameForMetadataDb() + ".meta");
+		metadataFile = new File(utilService.databaseDirectory().getAbsolutePath() + File.separator + cryptographyService.getNameForMetadataDb() + ".meta");
 		mvStore = new MVStore.Builder()
 				.fileName(metadataFile.getAbsolutePath())
 				.encryptionKey(Hex.encodeHex(cryptographyService.getAuthData()))
@@ -75,8 +80,8 @@ public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService
 
 		// **************** Hibernate ***************
 		final String dbName = cryptographyService.getNameForMainDb();
-		hibernateDatabaseURI = "jdbc:h2:" + path.getAbsolutePath() + File.separator + dbName + ";CIPHER=AES;";
-		hibernateDatabasePassword = Hex.encodeHexString(cryptographyService.getAuthData());
+		final String hibernateDatabaseURI = "jdbc:h2:" + utilService.databaseDirectory().getAbsolutePath() + File.separator + dbName + ";CIPHER=AES;";
+		final String hibernateDatabasePassword = Hex.encodeHexString(cryptographyService.getAuthData());
 
 		try {
 			final Properties prop = new Properties();
@@ -210,7 +215,7 @@ public class LocalDaoServiceImpl implements UseStorageDirectory, LocalDaoService
 	}
 
 	@Override
-	public void dispose() {
+	public void destroy() {
 		hibernateSessionFactory.close();
 		StandardServiceRegistryBuilder.destroy(hibernateServiceRegistry);
 	}

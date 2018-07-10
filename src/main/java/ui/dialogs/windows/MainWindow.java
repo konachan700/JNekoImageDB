@@ -1,37 +1,41 @@
 package ui.dialogs.windows;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.scene.layout.VBox;
-import proto.UseServices;
+import model.GlobalConfig;
+import services.api.UtilService;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
 import ui.annotation.style.HasStyledElements;
-import ui.dialogs.activities.engine.ActivityHolder;
 import ui.dialogs.activities.MainActivity;
-import ui.dialogs.activities.TagsEditorActivity;
-import ui.dialogs.activities.engine.EditorActivity;
+import ui.dialogs.activities.engine.ActivityHolder;
 import ui.dialogs.windows.engine.DefaultWindow;
 import ui.elements.PanelButton;
-import ui.elements.entity.GlobalConfigUiEntity;
 
+@Component
 @HasStyledElements
-public class MainWindow extends DefaultWindow implements UseServices {
-	private final ActivityHolder activityHolder = this.getActivityHolder();
-	private final MainActivity mainActivity = new MainActivity(activityHolder);
+public class MainWindow extends DefaultWindow {
+	@Autowired
+	ActivityHolder activityHolder;
 
-	private final GlobalConfigUiEntity uiEntity = new GlobalConfigUiEntity();
-	private final EditorActivity editorActivity = new EditorActivity(activityHolder, uiEntity, (a,b) -> {
-		System.out.println("CLICK " + a.name() + " " + b.getClass().getSimpleName());
-	});
+	@Autowired
+	MainActivity mainActivity;
+
+	@Autowired
+	UtilService utilService;
 
 	@CssStyle({"panel_button_big_1"})
 	private final PanelButton exitButton = new PanelButton("Exit") {
 		@Override
 		public void onClick(ActionEvent e) {
 			if (activitiesCount > 0) {
-				activityHolder.close();
+				getActivityHolder().close();
 			} else {
-				dispose();
 				hide();
 			}
 		}
@@ -45,22 +49,22 @@ public class MainWindow extends DefaultWindow implements UseServices {
 		}
 	};
 
-	@CssStyle({"panel_button_big_1"})
-	private final PanelButton settingsBtn = new PanelButton("Settings") {
-		@Override
-		public void onClick(ActionEvent e) {
-			editorActivity.showFirst();
-		}
-	};
-
 	private int activitiesCount = 0;
 
-	public MainWindow(String windowName) {
-		super("mainWindow", windowName, true, true, true);
-		StyleParser.parseStyles(this);
+	private VBox getSeparator() {
+		final VBox v = new VBox();
+		v.getStyleClass().addAll("null_pane", "fill_all");
+		return v;
+	}
 
-		getHeader().getChildren().addAll(searchImagesBtn, settingsBtn, getSeparator(), exitButton);
-		activityHolder.setOnCountChangeListener(e -> {
+	@PostConstruct
+	void init() {
+		initResizibleWindow("mainWindow", "Main window", true, true, true);
+
+		StyleParser.parseStyles(this);
+		mainActivity.setActivityHolder(activityHolder);
+		getHeader().getChildren().addAll(searchImagesBtn, getSeparator(), exitButton);
+		getActivityHolder().setOnCountChangeListener(e -> {
 			activitiesCount = e;
 			if (e > 0) {
 				exitButton.setText("Back");
@@ -71,9 +75,12 @@ public class MainWindow extends DefaultWindow implements UseServices {
 		mainActivity.showFirst();
 	}
 
-	private VBox getSeparator() {
-		final VBox v = new VBox();
-		v.getStyleClass().addAll("null_pane", "fill_all");
-		return v;
+	@Override
+	public GlobalConfig getConfig() {
+		return utilService.getConfig();
+	}
+
+	@Override public ActivityHolder getActivityHolder() {
+		return activityHolder;
 	}
 }

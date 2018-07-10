@@ -45,7 +45,7 @@ public class EditorActivity<T extends UIEntity> extends ActivityPage {
 	};
 
 	public EditorActivity(ActivityHolder activityHolder, T uiEntity, ResultCallback<T> resultCallback) {
-		super(activityHolder);
+		super();
 
 		this.uiEntity = uiEntity;
 		this.resultCallback = resultCallback;

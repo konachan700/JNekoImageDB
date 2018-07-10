@@ -1,29 +1,24 @@
 package ui.dialogs.activities;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-import org.apache.commons.codec.binary.Hex;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javafx.scene.image.Image;
 import jiconfont.icons.GoogleMaterialDesignIcons;
 import model.ImageEntityWrapper;
-import model.Metadata;
 import model.entity.ImageEntity;
 import model.entity.TagEntity;
-import proto.LocalDaoService;
-import proto.LocalStorageService;
+import services.api.LocalDaoService;
+import services.api.LocalStorageService;
+import services.api.UtilService;
 import ui.annotation.style.HasStyledElements;
-import ui.dialogs.activities.engine.ActivityHolder;
 import utils.counter.MultiCounter;
 
+@Component
 @HasStyledElements
 public class ImageViewActivityLocalDb extends ImageViewActivity {
 	private Collection<TagEntity> tagsForFilter = null;
@@ -33,11 +28,20 @@ public class ImageViewActivityLocalDb extends ImageViewActivity {
 	private MultiCounter pageCounter = new MultiCounter(null, null, null);
 	private MultiCounter indexCounter = new MultiCounter(pageCounter, this::loadData, this::loadData);
 
-	public ImageViewActivityLocalDb(ActivityHolder activityHolder) {
-		super(activityHolder);
+	@Autowired
+	LocalDaoService localDaoService;
+
+	@Autowired
+	LocalStorageService localStorageService;
+
+	@Autowired
+	UtilService utilService;
+
+	public ImageViewActivityLocalDb() {
+		super();
 		getVerticalIconsPanel().addFixedSeparator();
 		getVerticalIconsPanel().add("Save to exchange", GoogleMaterialDesignIcons.CLOUD_UPLOAD, (e) -> {
-			getService(LocalStorageService.class).saveImageToExchangeFolder(currentImage, getConfig().getBrowserOutboxFolder());
+			localStorageService.saveImageToExchangeFolder(currentImage, utilService.getConfig().getBrowserOutboxFolder());
 			popup("Save to exchange", "File saved!");
 		});
 	}
@@ -58,7 +62,7 @@ public class ImageViewActivityLocalDb extends ImageViewActivity {
 		int start = pageCounter.getCounter() * indexCounter.getMax();
 		int end = (pageCounter.getCounter() + 1) * indexCounter.getMax();
 
-		imageEntityWrapper = getService(LocalDaoService.class).imagesFindByTags(tagsForFilter, start, end);
+		imageEntityWrapper = localDaoService.imagesFindByTags(tagsForFilter, start, end);
 		if (imageEntityWrapper.getCount() <= 0) return;
 		final List<ImageEntity> list = imageEntityWrapper.getList();
 
@@ -75,7 +79,7 @@ public class ImageViewActivityLocalDb extends ImageViewActivity {
 
 	private void setContent(ImageEntity imageEntity) {
 		this.currentImage = imageEntity;
-		final byte[] content = getService(LocalStorageService.class).getLocalDBItem(imageEntity.getImageHash());
+		final byte[] content = localStorageService.getLocalDBItem(imageEntity.getImageHash());
 		final Image img = new Image(new ByteArrayInputStream(content));
 		setImage(img);
 	}

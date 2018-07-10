@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -19,15 +22,15 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import model.entity.TagEntity;
-import proto.LocalDaoService;
-import proto.UseServices;
+import services.api.LocalDaoService;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
 import ui.annotation.style.HasStyledElements;
 import ui.elements.PanelButton;
 
+@Component
 @HasStyledElements
-public class ExtendedTagsList extends VBox implements UseServices {
+public class ExtendedTagsList extends VBox {
 	public interface SearchListener {
 		void onSearch(Collection<TagEntity> tags);
 	}
@@ -65,14 +68,16 @@ public class ExtendedTagsList extends VBox implements UseServices {
 	private final Label addToImage = new Label("Tags for image");
 
 	private final Map<String, TagElement> map = new HashMap<>();
-	private final LocalDaoService dao;
+
+	@Autowired
+	private LocalDaoService localDaoService;
+
 	private Set<TagEntity> defaultTags = null;
 	private boolean disableNonExisted = false;
 	private SearchListener searchListener = null;
 
 	public ExtendedTagsList() {
 		StyleParser.parseStyles(this);
-		dao = getService(LocalDaoService.class);
 
 		flowPane.setVgap(4);
 		flowPane.setHgap(6);
@@ -101,7 +106,7 @@ public class ExtendedTagsList extends VBox implements UseServices {
 				return;
 			}
 
-			final List<String> list = Optional.ofNullable(dao.tagFindStartedWith(input, 16)).orElse(new ArrayList<>(1))
+			final List<String> list = Optional.ofNullable(localDaoService.tagFindStartedWith(input, 16)).orElse(new ArrayList<>(1))
 					.stream()
 					.map(TagEntity::getTagText)
 					.collect(Collectors.toList());
@@ -137,7 +142,7 @@ public class ExtendedTagsList extends VBox implements UseServices {
 			return;
 		}
 
-		final boolean isTagExist = dao.tagIsExist(tag);
+		final boolean isTagExist = localDaoService.tagIsExist(tag);
 		if (disableNonExisted && !isTagExist) return;
 
 		final TagElement tagElement = new TagElement(tag, isTagExist ? "tags_exist_tag" : "tags_not_exist_tag");
@@ -158,7 +163,7 @@ public class ExtendedTagsList extends VBox implements UseServices {
 	private void sendEvent() {
 		if (searchListener != null) {
 			if (disableNonExisted) {
-				searchListener.onSearch(map.keySet().stream().map(dao::tagGetEntity).collect(Collectors.toList()));
+				searchListener.onSearch(map.keySet().stream().map(localDaoService::tagGetEntity).collect(Collectors.toList()));
 			}
 		}
 	}

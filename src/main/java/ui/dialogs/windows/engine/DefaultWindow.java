@@ -11,21 +11,20 @@ import javafx.event.Event;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import proto.UseServices;
+import model.GlobalConfig;
 import ui.StyleParser;
 import ui.annotation.style.CssStyle;
 import ui.annotation.style.HasStyledElements;
 import ui.dialogs.activities.engine.ActivityHolder;
 
 @HasStyledElements
-public class DefaultWindow extends Stage implements UseServices {
+public abstract class DefaultWindow extends Stage {
 	private final Image logoImage = new Image("/style/images/logo_inv.png");
 	private final ImageView imgLogoNode = new ImageView(logoImage);
 
@@ -53,16 +52,16 @@ public class DefaultWindow extends Stage implements UseServices {
 	@CssStyle({"window_header_panel"})
 	final HBox footer = new HBox();
 
-	@CssStyle({"content_pane"})
-	private final ActivityHolder activityHolder = new ActivityHolder(this);
-
 	@CssStyle({"window_resizer"})
 	final HBox resizer = new HBox();
 
-	private final Scene scene;
+	private Scene scene = null;
 
 	private double xOffset = 0;
 	private double yOffset = 0;
+
+	public abstract GlobalConfig getConfig();
+	public abstract ActivityHolder getActivityHolder();
 
 	private static final ArrayList<Timer> timers = new ArrayList<>();
 	private final Timer timer = new Timer();
@@ -85,9 +84,8 @@ public class DefaultWindow extends Stage implements UseServices {
 		}
 	};
 
-	public DefaultWindow(String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
-		super();
-		timers.add(timer);
+	public void initDialogFixedWindow(String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
+		getActivityHolder().setDefaultWindow(this);
 
 		setResizable(false);
 		rootWindowPane.getStylesheets().add(getClass().getResource("/style/css/main.css").toExternalForm());
@@ -128,11 +126,12 @@ public class DefaultWindow extends Stage implements UseServices {
 		this.setTitle(windowName);
 		this.setScene(scene);
 		this.setOnCloseRequest(Event::consume);
+
+		timers.add(timer);
 	}
 
-	public DefaultWindow(String windowId, String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
-		super();
-		timers.add(timer);
+	public void initResizibleWindow(String windowId, String windowName, boolean hasHeader, boolean hasSubHeader, boolean hasFooter) {
+		getActivityHolder().setDefaultWindow(this);
 
 		//initStyle(StageStyle.UNDECORATED);
 		setResizable(false);
@@ -196,6 +195,7 @@ public class DefaultWindow extends Stage implements UseServices {
 		heightProperty().addListener((e, o, n) -> getConfig().getWindowDimension(windowId).setHeight(n.doubleValue()));
 		widthProperty().addListener((e, o, n) -> getConfig().getWindowDimension(windowId).setWidth(n.doubleValue()));
 
+		timers.add(timer);
 		timer.schedule(timerTask, 100, 1000);
 	}
 
@@ -224,10 +224,6 @@ public class DefaultWindow extends Stage implements UseServices {
 
 	public HBox getFooter() {
 		return footer;
-	}
-
-	public ActivityHolder getActivityHolder() {
-		return activityHolder;
 	}
 
 	public static void disposeStatic() {

@@ -6,26 +6,45 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
 import javafx.scene.input.MouseEvent;
 import model.ImageEntityWrapper;
 import model.entity.ImageEntity;
 import model.entity.TagEntity;
-import proto.LocalDaoService;
-import proto.LocalStorageService;
-import proto.UseServices;
+import services.api.LocalDaoService;
+import services.api.LocalStorageService;
+import services.api.UtilService;
 import ui.imageview.AbstractImageDashboard;
+import ui.imageview.PageStateAction;
 
-public abstract class LocalDbImageDashboard extends AbstractImageDashboard<LocalDbImageView> implements UseServices {
-	private LocalStorageService localStorageService;
-	private LocalDaoService localDaoService;
+@Component
+public class LocalDbImageDashboard extends AbstractImageDashboard<LocalDbImageView> implements LocalDbImageViewEvents, DisposableBean {
+	@Autowired
+	LocalStorageService localStorageService;
+
+	@Autowired
+	LocalDaoService localDaoService;
+
+	@Autowired
+	UtilService utilService;
+
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	private PageStateAction onPageChangedEvent = null;
+	private PageStateAction onPageCountChangedEvent = null;
+	private LocalDbImageViewEvents event = null;
 
 	private final ArrayList<LocalDbImageView> imageViews = new ArrayList<>();
 	private final CopyOnWriteArrayList<ImageEntity> files = new CopyOnWriteArrayList<>();
 	private final Set<ImageEntity> selectedFiles = new HashSet<>();
 
-	public abstract void onPageChanged(int page);
-	public abstract void onPageCountChanged(int pages);
-	public abstract void onItemClick(MouseEvent e, ImageEntity image, int pageId, int id, int pageCount);
 
 	private Collection<TagEntity> tagsForFilter = null;
 	private final Set<TagEntity> recomendedTags = new HashSet<>();
@@ -38,26 +57,8 @@ public abstract class LocalDbImageDashboard extends AbstractImageDashboard<Local
 	@Override
 	protected LocalDbImageView imageViewRequest(int number) {
 		if (imageViews.size() == number) {
-			final LocalDbImageView f = new LocalDbImageView() {
-				@Override public void onClick(MouseEvent e, ImageEntity image, int pageId, int id, int pageCount) {
-					if (id >= imageViews.size()) return;
-					final LocalDbImageView v = imageViews.get(id);
-
-					if (e.getButton() == getConfig().getPrimaryButton()) {
-						if (e.getClickCount() > 1 || v.isSelected()) {
-							onItemClick(e, image, pageId, id, pageCount);
-							return;
-						}
-						selectedFiles.add(image);
-					} else if (e.getButton() == getConfig().getSecondaryButton()) {
-						if (v.isSelected()) {
-							selectedFiles.remove(image);
-						} else {
-							selectedFiles.add(image);
-						}
-					}
-				}
-			};
+			final LocalDbImageView f = applicationContext.getBean(LocalDbImageView.class);
+			f.setEvent(this);
 			imageViews.add(f);
 		}
 		return imageViews.get(number);
@@ -65,17 +66,15 @@ public abstract class LocalDbImageDashboard extends AbstractImageDashboard<Local
 
 	@Override
 	public void pageChanged(int page) {
-		onPageChanged(page);
+		if (onPageChangedEvent!= null) {
+			onPageChangedEvent.onChange(page);
+		}
 		reloadPage(page);
 	}
 
-	public LocalDbImageDashboard() {
-		super();
-
-		this.localStorageService = getService(LocalStorageService.class);
-		this.localDaoService = getService(LocalDaoService.class);
-
-		this.generateView(getConfig().getLocalDbPreviewsCountInRow(), getConfig().getLocalDbPreviewsCountInCol());
+	@PostConstruct
+	void init() {
+		this.generateView(utilService.getConfig().getLocalDbPreviewsCountInRow(), utilService.getConfig().getLocalDbPreviewsCountInCol());
 	}
 
 	private void reloadPage(int page) {
@@ -99,7 +98,9 @@ public abstract class LocalDbImageDashboard extends AbstractImageDashboard<Local
 		files.clear();
 		files.addAll(imageEntityWrapper.getList());
 
-		onPageCountChanged(pagesCount);
+		if (onPageCountChangedEvent != null) {
+			onPageCountChangedEvent.onChange(pagesCount);
+		}
 		setPagesCount(pagesCount);
 
 		for (int i=0; i<imageViews.size(); i++) {
@@ -114,7 +115,9 @@ public abstract class LocalDbImageDashboard extends AbstractImageDashboard<Local
 
 	public void refresh(int page) {
 		reloadPage(page);
-		onPageChanged(page);
+		if (onPageChangedEvent!= null) {
+			onPageChangedEvent.onChange(page);
+		}
 	}
 
 	public void setFilterByTags(Collection<TagEntity> tags) {
@@ -145,5 +148,54 @@ public abstract class LocalDbImageDashboard extends AbstractImageDashboard<Local
 
 	public Set<ImageEntity> getSelectedFiles() {
 		return selectedFiles;
+	}
+
+	public PageStateAction getOnPageChangedEvent() {
+		return onPageChangedEvent;
+	}
+
+	public void setOnPageChangedEvent(PageStateAction onPageChangedEvent) {
+		this.onPageChangedEvent = onPageChangedEvent;
+	}
+
+	public PageStateAction getOnPageCountChangedEvent() {
+		return onPageCountChangedEvent;
+	}
+
+	public void setOnPageCountChangedEvent(PageStateAction onPageCountChangedEvent) {
+		this.onPageCountChangedEvent = onPageCountChangedEvent;
+	}
+
+	public LocalDbImageViewEvents getEvent() {
+		return event;
+	}
+
+	public void setEvent(LocalDbImageViewEvents event) {
+		this.event = event;
+	}
+
+	@Override public void onItemClick(MouseEvent e, ImageEntity image, int pageId, int id, int pageCount) {
+		if (id >= imageViews.size()) return;
+		final LocalDbImageView v = imageViews.get(id);
+
+		if (e.getButton() == utilService.getConfig().getPrimaryButton()) {
+			if (e.getClickCount() > 1 || v.isSelected()) {
+				if (event != null) {
+					event.onItemClick(e, image, pageId, id, pageCount);
+				}
+				return;
+			}
+			selectedFiles.add(image);
+		} else if (e.getButton() == utilService.getConfig().getSecondaryButton()) {
+			if (v.isSelected()) {
+				selectedFiles.remove(image);
+			} else {
+				selectedFiles.add(image);
+			}
+		}
+	}
+
+	@Override public void destroy() throws Exception {
+		disposeStatic();
 	}
 }

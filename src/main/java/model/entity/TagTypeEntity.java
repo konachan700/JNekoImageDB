@@ -18,7 +18,7 @@ import javax.persistence.Table;
 })
 public class TagTypeEntity implements Serializable {
 	@Id
-	@GeneratedValue(strategy= GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="tagTypeID", unique = true, nullable = false)
 	private long tagTypeID;
 

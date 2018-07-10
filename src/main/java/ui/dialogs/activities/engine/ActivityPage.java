@@ -9,14 +9,13 @@ public abstract class ActivityPage extends VBox {
 	}
 
 	private CloseAction closeAction = null;
-
-	private final ActivityHolder activityHolder;
+	private ActivityHolder activityHolder = null;
 
 	public abstract Node[] getSubheaderElements();
 	public abstract Node[] getFooterElements();
 
-	public ActivityPage(ActivityHolder activityHolder) {
-		this.activityHolder = activityHolder;
+	public ActivityPage() {
+		this.setActivityHolder(activityHolder);
 	}
 
 	public void showFirst() {
@@ -48,5 +47,9 @@ public abstract class ActivityPage extends VBox {
 
 	public void setCloseAction(CloseAction closeAction) {
 		this.closeAction = closeAction;
+	}
+
+	public void setActivityHolder(ActivityHolder activityHolder) {
+		this.activityHolder = activityHolder;
 	}
 }
